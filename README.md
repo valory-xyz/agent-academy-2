@@ -1,7 +1,7 @@
 
-# agent-academy-1
+# agent-academy-2
 
-Valory's Agent Academy 1 - participant repo
+Valory's Agent Academy 2 - participant repo
 
 - Clone the repository, and recursively clone the submodules:
 
