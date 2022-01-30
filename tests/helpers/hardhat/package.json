@@ -1,0 +1,10 @@
+{
+  "name": "hardhat-project",
+  "license": "MIT",
+  "scripts": {
+    "fork": "hardhat node"
+  },
+  "devDependencies": {
+    "hardhat": "^2.0.7"
+  }
+}
