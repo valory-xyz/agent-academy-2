@@ -53,7 +53,6 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
     KEEPER_TIMEOUT = 30.0
     HEALTH_CHECK_MAX_RETRIES = 20
     HEALTH_CHECK_SLEEP_INTERVAL = 3.0
-    USE_GRPC = False
     cli_log_options = ["-v", "DEBUG"]
     processes: List
     agent_package: str
@@ -102,9 +101,6 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
                 "vendor.valory.connections.abci.config.tendermint_config.p2p_seeds",
                 json.dumps(self.tendermint_net_builder.get_p2p_seeds()),
                 "list",
-            )
-            self.set_config(
-                "vendor.valory.connections.abci.config.use_grpc", self.USE_GRPC
             )
             self.set_config(
                 f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.consensus.max_participants",
