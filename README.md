@@ -5,7 +5,7 @@ Valory's Agent Academy 2 - participant repo
 
 - Clone the repository, and recursively clone the submodules:
 
-      git clone --recursive git@github.com:valory-xyz/agent-academy-1.git
+      git clone --recursive git@github.com:valory-xyz/agent-academy-2.git
 
   Note: to update the Git submodules later:
 
