@@ -14,8 +14,11 @@ Valory's Agent Academy 2 - participant repo
 ## System requirements
 
 - Python `>=3.7`
+- Yarn `>=1.22.xx`
+- Node `>=v12.xx`
 - [Tendermint](https://docs.tendermint.com/master/introduction/install.html) `==0.34.11`
 - [IPFS node](https://docs.ipfs.io/install/command-line/#official-distributions) `==0.6.0`
+- [Pipenv](https://pipenv.pypa.io/en/latest/install/) `>=2021.x.xx`
 
 Alternatively, you can fetch this docker image with the relevant requirments satisfied:
 
