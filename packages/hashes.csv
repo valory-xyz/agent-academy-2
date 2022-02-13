@@ -1,3 +1,4 @@
+open_aea/protocols/signing,QmSaudoJfoZRzFAyjmDENSqULhh885mJFTc97VF79eRQEK
 valory/agents/simple_abci,QmaUsz3MXpNgz7XxdpZ5RtG6WAE74dnRCNQJxp7uaSoDJ7
 valory/connections/abci,QmPazZaZstWPD1La6HnsthBTjPcWoMp4kFWEChgBTm1Vct
 valory/connections/http_client,QmeWFh7DcN7YT81dbkRLpudVhSXLgu47h3fBabFEnLFb6S
