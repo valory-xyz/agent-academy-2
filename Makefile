@@ -5,7 +5,7 @@ ROPSTEN_DOCKER_PORT ?= 8545
 MAINNET_DOCKER_PORT ?= 8546
 
 .PHONY: clean
-clean: clean-build clean-pyc clean-test clean-docs
+clean: clean-build clean-pyc clean-test
 
 .PHONY: clean-build
 clean-build:
@@ -16,10 +16,6 @@ clean-build:
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -fr {} +
 	rm -fr Pipfile.lock
-
-.PHONY: clean-docs
-clean-docs:
-	rm -fr site/
 
 .PHONY: clean-pyc
 clean-pyc:
@@ -36,8 +32,10 @@ clean-test:
 	find . -name ".coverage*" -not -name ".coveragerc" -exec rm -fr "{}" \;
 	rm -fr coverage.xml
 	rm -fr htmlcov/
+	rm -fr .hypothesis
 	rm -fr .pytest_cache
 	rm -fr .mypy_cache/
+	rm -fr .hypothesis/
 	find . -name 'log.txt' -exec rm -fr {} +
 	find . -name 'log.*.txt' -exec rm -fr {} +
 
@@ -65,20 +63,25 @@ test:
 	pytest -rfE tests/ --cov-report=html --cov=packages/valory/skills/simple_abci --cov-report=xml --cov-report=term --cov-report=term-missing --cov-config=.coveragerc
 	find . -name ".coverage*" -not -name ".coveragerc" -exec rm -fr "{}" \;
 
+.PHONY: grpc-fuzzy-tests
+grpc-fuzzy-tests:
+	pytest tests/test_packages/test_connections/fuzzy_tests/fuzzy.py::GrpcFuzzyTests
+
+.PHONY: tcp-fuzzy-tests
+tcp-fuzzy-tests:
+	pytest tests/test_packages/test_connections/fuzzy_tests/fuzzy.py::TcpFuzzyTests
+
+.PHONY: fuzzy-tests
+fuzzy-tests: grpc-fuzzy-tests tcp-fuzzy-tests
+	@echo " Running fuzzy tests"
+
 v := $(shell pip -V | grep virtualenvs)
 
 .PHONY: new_env
 new_env: clean
-	which svn;\
-	if [ $$? -ne 0 ];\
+	if [ ! -z "$(which svn)" ];\
 	then\
 		echo "The development setup requires SVN, exit";\
-		exit 1;\
-	fi;\
-	which pipenv;\
-	if [ $$? -ne 0 ];\
-	then\
-		echo "The development setup requires Pipenv, exit";\
 		exit 1;\
 	fi;\
 	if [ -z "$v" ];\
@@ -118,3 +121,7 @@ run-ropsten-fork-docker:
 run-mainnet-fork-docker:
 	@echo Running mainnet fork as a docker container;\
 	docker run -d -e KEY=$(MAINNET_KEY) --name mainnet-fork -e NETWORK=mainnet -e BLOCK_NUMBER=$(BLOCK_NUMBER) -p $(MAINNET_DOCKER_PORT):8545 hardhat:latest
+
+.PHONY: copyright
+copyright:
+	tox -e check-copyright
