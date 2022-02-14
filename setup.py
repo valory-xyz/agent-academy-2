@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -17,10 +18,8 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Test the dialogues.py module of the skill."""
-
-import packages.valory.skills.simple_abci.dialogues  # noqa
+from setuptools import find_packages, setup  # type: ignore
 
 
-def test_import() -> None:
-    """Test that the 'dialogues.py' Python module can be imported."""
+if __name__ == "__main__":
+    setup()
