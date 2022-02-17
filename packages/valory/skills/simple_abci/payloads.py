@@ -31,6 +31,7 @@ class TransactionType(Enum):
     REGISTRATION = "registration"
     RANDOMNESS = "randomness"
     SELECT_KEEPER = "select_keeper"
+    DO_WORK = "do_work"
     RESET = "reset"
 
     def __str__(self) -> str:
@@ -50,6 +51,12 @@ class RegistrationPayload(BaseSimpleAbciPayload):
     """Represent a transaction payload of type 'registration'."""
 
     transaction_type = TransactionType.REGISTRATION
+
+
+class DoWorkPayload(BaseSimpleAbciPayload):
+    """Represent a transaction payload of type 'do_work'."""
+
+    transaction_type = TransactionType.DO_WORK
 
 
 class RandomnessPayload(BaseSimpleAbciPayload):

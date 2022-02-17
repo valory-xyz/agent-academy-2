@@ -29,6 +29,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     StateDB,
 )
 from packages.valory.skills.simple_abci.payloads import (
+    DoWorkPayload,
     RandomnessPayload,
     RegistrationPayload,
     ResetPayload,
@@ -40,6 +41,7 @@ from packages.valory.skills.simple_abci.rounds import (
     RandomnessStartupRound,
     RegistrationRound,
     ResetAndPauseRound,
+    DoWorkRound,
     SelectKeeperAtStartupRound,
     rotate_list,
 )
@@ -134,6 +136,45 @@ class TestRegistrationRound(BaseRoundTestClass):
 
         test_round.process_payload(first_payload)
         assert test_round.collection == {first_payload.sender: first_payload}
+        assert test_round.end_block() is None
+
+        for payload in payloads:
+            test_round.process_payload(payload)
+
+        actual_next_state = PeriodState(
+            StateDB(
+                initial_period=0, initial_data=dict(participants=test_round.collection)
+            )
+        )
+
+        res = test_round.end_block()
+        assert res is not None
+        state, event = res
+        assert (
+            cast(PeriodState, state).participants
+            == cast(PeriodState, actual_next_state).participants
+        )
+        assert event == Event.DONE
+
+
+class TestDoWorkRound(BaseRoundTestClass):
+    """Tests for DoWorkRound."""
+
+    def test_run(
+        self,
+    ) -> None:
+        """Run tests."""
+
+        test_round = DoWorkRound(
+            state=self.period_state, consensus_params=self.consensus_params
+        )
+
+        first_payload, *payloads = [
+            DoWorkPayload(sender=participant) for participant in self.participants
+        ]
+
+        test_round.process_payload(first_payload)
+        assert test_round.collection == {first_payload.sender}
         assert test_round.end_block() is None
 
         for payload in payloads:
