@@ -33,6 +33,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
 )
 from packages.valory.skills.simple_abci.payloads import (
+    DoWorkPayload,
     RandomnessPayload,
     RegistrationPayload,
     ResetPayload,
@@ -191,6 +192,27 @@ class SelectKeeperRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound)
         return None
 
 
+class BaseDoWorkRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
+    """A round in a which do work is selected"""
+
+    allowed_tx_type = DoWorkPayload.transaction_type
+    payload_attribute = "do_work"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            state = self.period_state.update(
+                participant_to_selection=MappingProxyType(self.collection),
+                most_voted_keeper_address=self.most_voted_payload,
+            )
+            return state, Event.DONE
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+            return self._return_no_majority_event()
+        return None
+
+
 class RandomnessStartupRound(BaseRandomnessRound):
     """A round for generating randomness"""
 
@@ -203,7 +225,7 @@ class SelectKeeperAtStartupRound(SelectKeeperRound):
     round_id = "select_keeper_at_startup"
 
 
-class DoWorkRound(SelectKeeperRound):
+class DoWorkRound(BaseDoWorkRound):
     """A round in a which do work is selected"""
 
     round_id = "do_work"

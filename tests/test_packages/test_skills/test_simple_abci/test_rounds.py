@@ -36,12 +36,12 @@ from packages.valory.skills.simple_abci.payloads import (
     SelectKeeperPayload,
 )
 from packages.valory.skills.simple_abci.rounds import (
+    DoWorkRound,
     Event,
     PeriodState,
     RandomnessStartupRound,
     RegistrationRound,
     ResetAndPauseRound,
-    DoWorkRound,
     SelectKeeperAtStartupRound,
     rotate_list,
 )
@@ -135,7 +135,7 @@ class TestRegistrationRound(BaseRoundTestClass):
         ]
 
         test_round.process_payload(first_payload)
-        assert test_round.collection == {first_payload.sender: first_payload}
+        assert test_round.collection.keys() == {first_payload.sender}
         assert test_round.end_block() is None
 
         for payload in payloads:
@@ -170,19 +170,22 @@ class TestDoWorkRound(BaseRoundTestClass):
         )
 
         first_payload, *payloads = [
-            DoWorkPayload(sender=participant) for participant in self.participants
+            DoWorkPayload(sender=participant, round_id=3)
+            for participant in self.participants
         ]
 
         test_round.process_payload(first_payload)
-        assert test_round.collection == {first_payload.sender}
+        assert list(test_round.collection.keys())[0] == first_payload.sender
+
         assert test_round.end_block() is None
 
         for payload in payloads:
             test_round.process_payload(payload)
 
+        ## figure out whats going on here
         actual_next_state = PeriodState(
             StateDB(
-                initial_period=0, initial_data=dict(participants=test_round.collection)
+                initial_period=3, initial_data=dict(participants=test_round.collection)
             )
         )
 
