@@ -176,13 +176,12 @@ class TestDoWorkRound(BaseRoundTestClass):
 
         test_round.process_payload(first_payload)
         assert list(test_round.collection.keys())[0] == first_payload.sender
-
         assert test_round.end_block() is None
 
         for payload in payloads:
             test_round.process_payload(payload)
 
-        ## figure out whats going on here
+        # figure out whats going on here
         actual_next_state = PeriodState(
             StateDB(
                 initial_period=3, initial_data=dict(participants=test_round.collection)
@@ -192,9 +191,12 @@ class TestDoWorkRound(BaseRoundTestClass):
         res = test_round.end_block()
         assert res is not None
         state, event = res
-        assert (
-            cast(PeriodState, state).participants
-            == cast(PeriodState, actual_next_state).participants
+
+        assert all(
+            [
+                key in cast(PeriodState, actual_next_state).participants
+                for key in self.participants
+            ]
         )
         assert event == Event.DONE
 

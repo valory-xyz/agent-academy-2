@@ -63,7 +63,6 @@ class DoWorkPayload(BaseSimpleAbciPayload):
 
         :param sender: the sender (Ethereum) address
         :param round_id: the round id
-        :param randomness: the randomness
         :param id_: the id of the transaction
         """
         super().__init__(sender, id_)
@@ -75,7 +74,7 @@ class DoWorkPayload(BaseSimpleAbciPayload):
         return self._round_id
 
     @property
-    def do_work(self) -> str:
+    def do_work(self) -> bool:
         """Get the randomness."""
         return True
 
