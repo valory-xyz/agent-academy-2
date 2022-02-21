@@ -33,6 +33,7 @@ class TransactionType(Enum):
     SELECT_KEEPER = "select_keeper"
     DO_WORK = "do_work"
     IS_WORKABLE = "is_workable"
+    IS_PROFITABLE = "is_profitable"
     RESET = "reset"
 
     def __str__(self) -> str:
@@ -84,17 +85,17 @@ class DoWorkPayload(BaseSimpleAbciPayload):
         """Get the data."""
         return dict(do_work=True)
 
-class IsWorkablePayload(BaseSimpleAbciPayload):
-    """Represent a transaction payload of type 'is workable'."""
 
-    transaction_type = TransactionType.IS_WORKABLE
+class IsProfitablePayload(BaseSimpleAbciPayload):
+    """Represent a transaction payload of type 'is profitable'."""
+
+    transaction_type = TransactionType.IS_PROFITABLE
 
     def __init__(self, sender: str, round_id: int, id_: Optional[str] = None) -> None:
         """Initialize an 'select_keeper' transaction payload.
 
         :param sender: the sender (Ethereum) address
         :param round_id: the round id
-        :param randomness: the randomness
         :param id_: the id of the transaction
         """
         super().__init__(sender, id_)
@@ -106,15 +107,14 @@ class IsWorkablePayload(BaseSimpleAbciPayload):
         return self._round_id
 
     @property
-    def is_workable(self) -> str:
-        """Get the contract."""
+    def is_profitable(self) -> bool:
+        """Determine if profitable."""
         return True
 
     @property
     def data(self) -> Dict:
         """Get the data."""
-        return dict(is_workable=True)
-
+        return dict(is_profitable=True)
 
 
 class IsWorkablePayload(BaseSimpleAbciPayload):
