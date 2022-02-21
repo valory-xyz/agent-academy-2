@@ -33,6 +33,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
 )
 from packages.valory.skills.simple_abci.payloads import (
+    IsWorkablePayload,
     DoWorkPayload,
     IsWorkablePayload,
     RandomnessPayload,
@@ -407,7 +408,6 @@ class DoWorkAbciApp(AbciApp[Event]):
         Event.ROUND_TIMEOUT: 30.0,
         Event.RESET_TIMEOUT: 30.0,
     }
-
 
 class IsWorkableAbciApp(AbciApp[Event]):
     """IsWorkableAbciApp
