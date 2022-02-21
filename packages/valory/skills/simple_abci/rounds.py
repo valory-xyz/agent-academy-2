@@ -34,6 +34,7 @@ from packages.valory.skills.abstract_round_abci.base import (
 )
 from packages.valory.skills.simple_abci.payloads import (
     DoWorkPayload,
+    IsWorkablePayload,
     RandomnessPayload,
     RegistrationPayload,
     ResetPayload,
@@ -192,6 +193,27 @@ class SelectKeeperRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound)
         return None
 
 
+class BaseIsWorkableRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
+    """A round in a which is workable is selected"""
+
+    allowed_tx_type = IsWorkablePayload.transaction_type
+    payload_attribute = "is_workable"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            state = self.period_state.update(
+                participant_to_selection=MappingProxyType(self.collection),
+                most_voted_keeper_address=self.most_voted_payload,
+            )
+            return state, Event.DONE
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+            return self._return_no_majority_event()
+        return None
+
+
 class BaseDoWorkRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
     """A round in a which do work is selected"""
 
@@ -223,6 +245,12 @@ class SelectKeeperAtStartupRound(SelectKeeperRound):
     """A round in a which keeper is selected"""
 
     round_id = "select_keeper_at_startup"
+
+
+class IsWorkableRound(BaseIsWorkableRound):
+    """A round in a which is workable is selected"""
+
+    round_id = "is_workable"
 
 
 class DoWorkRound(BaseDoWorkRound):
@@ -365,6 +393,72 @@ class DoWorkAbciApp(AbciApp[Event]):
             Event.NO_MAJORITY: RegistrationRound,
         },
         DoWorkRound: {
+            Event.DONE: ResetAndPauseRound,
+            Event.ROUND_TIMEOUT: RegistrationRound,
+            Event.NO_MAJORITY: RegistrationRound,
+        },
+        ResetAndPauseRound: {
+            Event.DONE: RandomnessStartupRound,
+            Event.RESET_TIMEOUT: RegistrationRound,
+            Event.NO_MAJORITY: RegistrationRound,
+        },
+    }
+    event_to_timeout: Dict[Event, float] = {
+        Event.ROUND_TIMEOUT: 30.0,
+        Event.RESET_TIMEOUT: 30.0,
+    }
+
+
+class IsWorkableAbciApp(AbciApp[Event]):
+    """IsWorkableAbciApp
+
+    Initial round: RegistrationRound
+
+    Initial states: {RegistrationRound}
+
+    Transition states:
+    0. RegistrationRound
+        - done: 1.
+    1. RandomnessStartupRound
+        - done: 2.
+        - round timeout: 1.
+        - no majority: 1.
+    2. SelectKeeperAtStartupRound
+        - done: 3.
+        - round timeout: 0.
+        - no majority: 0.
+    3. IsWorkableRound
+        - done: 4.
+        - reset timeout: 0.
+        - no majority: 0.
+    4. ResetAndPauseRound
+        - done: 1.
+        - reset timeout: 0.
+        - no majority: 0.
+
+    Final states: {}
+
+    Timeouts:
+        round timeout: 30.0
+        reset timeout: 30.0
+    """
+
+    initial_round_cls: Type[AbstractRound] = RegistrationRound
+    transition_function: AbciAppTransitionFunction = {
+        RegistrationRound: {
+            Event.DONE: RandomnessStartupRound,
+        },
+        RandomnessStartupRound: {
+            Event.DONE: SelectKeeperAtStartupRound,
+            Event.ROUND_TIMEOUT: RandomnessStartupRound,
+            Event.NO_MAJORITY: RandomnessStartupRound,
+        },
+        SelectKeeperAtStartupRound: {
+            Event.DONE: ResetAndPauseRound,
+            Event.ROUND_TIMEOUT: RegistrationRound,
+            Event.NO_MAJORITY: RegistrationRound,
+        },
+        IsWorkableRound: {
             Event.DONE: ResetAndPauseRound,
             Event.ROUND_TIMEOUT: RegistrationRound,
             Event.NO_MAJORITY: RegistrationRound,
