@@ -39,6 +39,7 @@ from packages.valory.skills.simple_abci.payloads import (
 )
 from packages.valory.skills.simple_abci.rounds import (
     DoWorkRound,
+    IsWorkableRound,
     Event,
     IsProfitableRound,
     IsWorkableRound,
@@ -169,7 +170,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
     ) -> None:
         """Run tests."""
 
-        test_round = DoWorkRound(
+        test_round = IsWorkableRound(
             state=self.period_state, consensus_params=self.consensus_params
         )
 
