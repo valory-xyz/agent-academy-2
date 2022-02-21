@@ -33,6 +33,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
 )
 from packages.valory.skills.simple_abci.payloads import (
+    IsWorkablePayload,
     DoWorkPayload,
     IsProfitablePayload,
     IsWorkablePayload,
