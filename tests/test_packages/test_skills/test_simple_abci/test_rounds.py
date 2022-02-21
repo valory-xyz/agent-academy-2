@@ -29,7 +29,6 @@ from packages.valory.skills.abstract_round_abci.base import (
     StateDB,
 )
 from packages.valory.skills.simple_abci.payloads import (
-    IsWorkablePayload,
     DoWorkPayload,
     IsProfitablePayload,
     IsWorkablePayload,
@@ -161,6 +160,7 @@ class TestRegistrationRound(BaseRoundTestClass):
         )
         assert event == Event.DONE
 
+
 class TestIsWorkableRound(BaseRoundTestClass):
     """Tests for IsWorkableRound."""
 
@@ -174,7 +174,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
         )
 
         first_payload, *payloads = [
-            IsWorkablePayload(sender=participant, round_id=3)
+            IsWorkablePayload(sender=participant, round_id=3, randomness=RANDOMNESS)
             for participant in self.participants
         ]
 
@@ -186,7 +186,6 @@ class TestIsWorkableRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        ## figure out whats going on here
         actual_next_state = PeriodState(
             StateDB(
                 initial_period=3, initial_data=dict(participants=test_round.collection)
@@ -203,7 +202,6 @@ class TestIsWorkableRound(BaseRoundTestClass):
         assert event == Event.DONE
 
 
-
 class TestIsProfitableRound(BaseRoundTestClass):
     """Tests for IsProfitableRound."""
 
@@ -218,50 +216,6 @@ class TestIsProfitableRound(BaseRoundTestClass):
 
         first_payload, *payloads = [
             IsProfitablePayload(sender=participant, round_id=3)
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert list(test_round.collection.keys())[0] == first_payload.sender
-
-        assert test_round.end_block() is None
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = PeriodState(
-            StateDB(
-                initial_period=3, initial_data=dict(participants=test_round.collection)
-            )
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-
-        assert all(
-            [
-                key in cast(PeriodState, actual_next_state).participants
-                for key in self.participants
-            ]
-        )
-        assert event == Event.DONE
-
-
-class TestIsWorkableRound(BaseRoundTestClass):
-    """Tests for IsWorkableRound."""
-
-    def test_run(
-        self,
-    ) -> None:
-        """Run tests."""
-
-        test_round = IsWorkableRound(
-            state=self.period_state, consensus_params=self.consensus_params
-        )
-
-        first_payload, *payloads = [
-            IsWorkablePayload(sender=participant, round_id=3)
             for participant in self.participants
         ]
 
