@@ -35,6 +35,7 @@ from packages.valory.skills.simple_abci.payloads import (
     RandomnessPayload,
     RegistrationPayload,
     ResetPayload,
+    SelectJobPayload,
     SelectKeeperPayload,
 )
 from packages.valory.skills.simple_abci.rounds import (
@@ -46,6 +47,7 @@ from packages.valory.skills.simple_abci.rounds import (
     RandomnessStartupRound,
     RegistrationRound,
     ResetAndPauseRound,
+    SelectJobRound,
     SelectKeeperAtStartupRound,
     rotate_list,
 )
@@ -161,43 +163,45 @@ class TestRegistrationRound(BaseRoundTestClass):
         assert event == Event.DONE
 
 
-class TestIsProfitableRound(BaseRoundTestClass):
-    """Tests for IsProfitableRound."""
+class TestSelectJobRound(BaseRoundTestClass):
+    """Tests for SelectJobRound."""
 
     def test_run(
         self,
     ) -> None:
         """Run tests."""
 
-        test_round = IsProfitableRound(
+        test_round = SelectJobRound(
             state=self.period_state, consensus_params=self.consensus_params
         )
 
         first_payload, *payloads = [
-            IsProfitablePayload(sender=participant, round_id=3)
+            SelectJobPayload(sender=participant, job="job")
             for participant in self.participants
         ]
 
         test_round.process_payload(first_payload)
-        assert list(test_round.collection.keys())[0] == first_payload.sender
-
+        assert test_round.collection[first_payload.sender] == first_payload
         assert test_round.end_block() is None
+
+        self._test_no_majority_event(test_round)
 
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = PeriodState(
-            StateDB(
-                initial_period=3, initial_data=dict(participants=test_round.collection)
-            )
+        actual_next_state = self.period_state.update(
+            participant_to_selection=MappingProxyType(test_round.collection),
+            most_voted_keeper_address=test_round.most_voted_payload,
         )
 
         res = test_round.end_block()
         assert res is not None
         state, event = res
-        assert (
-            cast(PeriodState, state).participants
-            == cast(PeriodState, actual_next_state).participants
+        assert all(
+            [
+                key in cast(PeriodState, state).participant_to_selection
+                for key in cast(PeriodState, actual_next_state).participant_to_selection
+            ]
         )
         assert event == Event.DONE
 
@@ -236,9 +240,12 @@ class TestIsWorkableRound(BaseRoundTestClass):
         res = test_round.end_block()
         assert res is not None
         state, event = res
-        assert (
-            cast(PeriodState, state).participants
-            == cast(PeriodState, actual_next_state).participants
+
+        assert all(
+            [
+                key in cast(PeriodState, actual_next_state).participants
+                for key in self.participants
+            ]
         )
         assert event == Event.DONE
 

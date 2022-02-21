@@ -31,6 +31,7 @@ class TransactionType(Enum):
     REGISTRATION = "registration"
     RANDOMNESS = "randomness"
     SELECT_KEEPER = "select_keeper"
+    SELECT_JOB = "select_job"
     DO_WORK = "do_work"
     IS_WORKABLE = "is_workable"
     IS_PROFITABLE = "is_profitable"
@@ -86,66 +87,30 @@ class DoWorkPayload(BaseSimpleAbciPayload):
         return dict(do_work=True)
 
 
-class IsProfitablePayload(BaseSimpleAbciPayload):
-    """Represent a transaction payload of type 'is profitable'."""
+class SelectJobPayload(BaseSimpleAbciPayload):
+    """Represent a transaction payload of type 'select job'."""
 
-    transaction_type = TransactionType.IS_WORKABLE
+    transaction_type = TransactionType.SELECT_JOB
 
-    def __init__(self, sender: str, round_id: int, id_: Optional[str] = None) -> None:
-        """Initialize an 'select_keeper' transaction payload.
+    def __init__(self, sender: str, job: str, id_: Optional[str] = None) -> None:
+        """Initialize an 'select_job' transaction payload.
 
         :param sender: the sender (Ethereum) address
-        :param round_id: the round id
+        :param job: the job selection
         :param id_: the id of the transaction
         """
         super().__init__(sender, id_)
-        self._round_id = round_id
+        self._job = job
 
     @property
-    def round_id(self) -> int:
-        """Get the round id."""
-        return self._round_id
-
-    @property
-    def is_profitable(self) -> str:
-        """Determine if profitable."""
-        return True
+    def job(self) -> str:
+        """Get the job."""
+        return self._job
 
     @property
     def data(self) -> Dict:
         """Get the data."""
-        return dict(is_profitable=True)
-
-
-class IsWorkablePayload(BaseSimpleAbciPayload):
-    """Represent a transaction payload of type 'is workable'."""
-
-    transaction_type = TransactionType.IS_WORKABLE
-
-    def __init__(self, sender: str, round_id: int, id_: Optional[str] = None) -> None:
-        """Initialize an 'select_keeper' transaction payload.
-
-        :param sender: the sender (Ethereum) address
-        :param round_id: the round id
-        :param id_: the id of the transaction
-        """
-        super().__init__(sender, id_)
-        self._round_id = round_id
-
-    @property
-    def round_id(self) -> int:
-        """Get the round id."""
-        return self._round_id
-
-    @property
-    def is_workable(self) -> str:
-        """Get the contract."""
-        return True
-
-    @property
-    def data(self) -> Dict:
-        """Get the data."""
-        return dict(is_workable=True)
+        return dict(job=self.job)
 
 
 class IsProfitablePayload(BaseSimpleAbciPayload):
@@ -177,6 +142,37 @@ class IsProfitablePayload(BaseSimpleAbciPayload):
     def data(self) -> Dict:
         """Get the data."""
         return dict(is_profitable=True)
+
+
+class IsWorkablePayload(BaseSimpleAbciPayload):
+    """Represent a transaction payload of type 'is workable'."""
+
+    transaction_type = TransactionType.IS_WORKABLE
+
+    def __init__(self, sender: str, round_id: int, id_: Optional[str] = None) -> None:
+        """Initialize an 'select_keeper' transaction payload.
+
+        :param sender: the sender (Ethereum) address
+        :param round_id: the round id
+        :param id_: the id of the transaction
+        """
+        super().__init__(sender, id_)
+        self._round_id = round_id
+
+    @property
+    def round_id(self) -> int:
+        """Get the round id."""
+        return self._round_id
+
+    @property
+    def is_workable(self) -> bool:
+        """Get the contract."""
+        return True
+
+    @property
+    def data(self) -> Dict:
+        """Get the data."""
+        return dict(is_workable=True)
 
 
 class RandomnessPayload(BaseSimpleAbciPayload):
