@@ -174,7 +174,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
         )
 
         first_payload, *payloads = [
-            IsWorkablePayload(sender=participant, round_id=3, randomness=RANDOMNESS)
+            IsWorkablePayload(sender=participant, round_id=3)
             for participant in self.participants
         ]
 
