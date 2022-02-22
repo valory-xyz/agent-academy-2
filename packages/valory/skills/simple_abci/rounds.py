@@ -174,7 +174,7 @@ class BaseRandomnessRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRoun
         return None
 
 
-class SelectJobRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
+class BaseSelectJobRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
     """A round in a which job is selected"""
 
     allowed_tx_type = SelectJobPayload.transaction_type
@@ -291,7 +291,7 @@ class SelectKeeperAtStartupRound(SelectKeeperRound):
     round_id = "select_keeper_at_startup"
 
 
-class SelectJobRound(SelectJobRound):
+class SelectJobRound(BaseSelectJobRound):
     """A round in a which jobs are selected"""
 
     round_id = "select_job"
