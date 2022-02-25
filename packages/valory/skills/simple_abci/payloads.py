@@ -83,7 +83,7 @@ class DoWorkPayload(BaseSimpleAbciPayload):
     @property
     def data(self) -> Dict:
         """Get the data."""
-        return dict(do_work=True)
+        return dict(do_work=self.do_work)
 
 
 class IsProfitablePayload(BaseSimpleAbciPayload):
