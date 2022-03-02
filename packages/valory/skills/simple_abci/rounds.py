@@ -389,72 +389,6 @@ class DoWorkAbciApp(AbciApp[Event]):
         - done: 3.
         - round timeout: 0.
         - no majority: 0.
-    3. DoWorkRound
-        - done: 4.
-        - reset timeout: 0.
-        - no majority: 0.
-    4. ResetAndPauseRound
-        - done: 1.
-        - reset timeout: 0.
-        - no majority: 0.
-
-    Final states: {}
-
-    Timeouts:
-        round timeout: 30.0
-        reset timeout: 30.0
-    """
-
-    initial_round_cls: Type[AbstractRound] = RegistrationRound
-    transition_function: AbciAppTransitionFunction = {
-        RegistrationRound: {
-            Event.DONE: RandomnessStartupRound,
-        },
-        RandomnessStartupRound: {
-            Event.DONE: SelectKeeperAtStartupRound,
-            Event.ROUND_TIMEOUT: RandomnessStartupRound,
-            Event.NO_MAJORITY: RandomnessStartupRound,
-        },
-        SelectKeeperAtStartupRound: {
-            Event.DONE: ResetAndPauseRound,
-            Event.ROUND_TIMEOUT: RegistrationRound,
-            Event.NO_MAJORITY: RegistrationRound,
-        },
-        DoWorkRound: {
-            Event.DONE: ResetAndPauseRound,
-            Event.ROUND_TIMEOUT: RegistrationRound,
-            Event.NO_MAJORITY: RegistrationRound,
-        },
-        ResetAndPauseRound: {
-            Event.DONE: RandomnessStartupRound,
-            Event.RESET_TIMEOUT: RegistrationRound,
-            Event.NO_MAJORITY: RegistrationRound,
-        },
-    }
-    event_to_timeout: Dict[Event, float] = {
-        Event.ROUND_TIMEOUT: 30.0,
-        Event.RESET_TIMEOUT: 30.0,
-    }
-
-
-class IsWorkableAbciApp(AbciApp[Event]):
-    """IsWorkableAbciApp
-
-    Initial round: RegistrationRound
-
-    Initial states: {RegistrationRound}
-
-    Transition states:
-    0. RegistrationRound
-        - done: 1.
-    1. RandomnessStartupRound
-        - done: 2.
-        - round timeout: 1.
-        - no majority: 1.
-    2. SelectKeeperAtStartupRound
-        - done: 3.
-        - round timeout: 0.
-        - no majority: 0.
     3. IsWorkableRound
         - done: 4.
         - reset timeout: 0.
@@ -482,7 +416,7 @@ class IsWorkableAbciApp(AbciApp[Event]):
             Event.NO_MAJORITY: RandomnessStartupRound,
         },
         SelectKeeperAtStartupRound: {
-            Event.DONE: ResetAndPauseRound,
+            Event.DONE: IsWorkableRound,
             Event.ROUND_TIMEOUT: RegistrationRound,
             Event.NO_MAJORITY: RegistrationRound,
         },
