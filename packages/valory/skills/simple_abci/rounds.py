@@ -343,8 +343,8 @@ class SimpleAbciApp(AbciApp[Event]):
     }
 
 
-class IsWorkableAbciApp(AbciApp[Event]):
-    """IsWorkableAbciApp
+class DoWorkAbciApp(AbciApp[Event]):
+    """DoWorkAbciApp
 
     Initial round: RegistrationRound
 
