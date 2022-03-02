@@ -113,7 +113,7 @@ class IsWorkablePayload(BaseSimpleAbciPayload):
     @property
     def data(self) -> Dict:
         """Get the data."""
-        return dict(is_workable=True)
+        return dict(is_workable=self.is_workable)
 
 
 class RandomnessPayload(BaseSimpleAbciPayload):
