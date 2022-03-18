@@ -28,6 +28,12 @@ import pytest
 from aea.configurations.base import PublicId
 from aea.test_tools.test_cases import AEATestCaseMany
 
+from tests.helpers.constants import ARTBLOCKS_ADDRESS as _DEFAULT_ARTBLOCKS_ADDRESS
+from tests.helpers.constants import (
+    ARTBLOCKS_PERIPHERY_ADDRESS as _DEFAULT_ARTBLOCKS_PERIPHERY_ADDRESS,
+)
+from tests.helpers.constants import DECISION_MODEL_TYPE as _DEFAULT_DECISION_MODEL_TYPE
+from tests.helpers.constants import TARGET_PROJECT_ID as _DEFAULT_TARGET_PROJECT_ID
 from tests.helpers.tendermint_utils import (
     BaseTendermintTestClass,
     TendermintLocalNetworkBuilder,
@@ -53,6 +59,7 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
     KEEPER_TIMEOUT = 30.0
     HEALTH_CHECK_MAX_RETRIES = 20
     HEALTH_CHECK_SLEEP_INTERVAL = 3.0
+    USE_GRPC = False
     cli_log_options = ["-v", "DEBUG"]
     processes: List
     agent_package: str
@@ -101,6 +108,9 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
                 "vendor.valory.connections.abci.config.tendermint_config.p2p_seeds",
                 json.dumps(self.tendermint_net_builder.get_p2p_seeds()),
                 "list",
+            )
+            self.set_config(
+                "vendor.valory.connections.abci.config.use_grpc", self.USE_GRPC
             )
             self.set_config(
                 f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.consensus.max_participants",
@@ -168,3 +178,42 @@ class BaseTestEnd2EndNormalExecution(BaseTestEnd2End):
                         f"ABCI agent with process {process} wasn't successfully terminated."
                     )
                 )
+
+
+class BaseTestElCollectooorEnd2End(BaseTestEnd2EndNormalExecution):
+    """
+    Extended base class for conducting E2E tests with the El Collectooor.
+
+    Test subclasses must set NB_AGENTS, agent_package, wait_to_finish and check_strings.
+    """
+
+    STARTING_PROJECT_ID = _DEFAULT_TARGET_PROJECT_ID + 1
+    ARTBLOCKS_ADDRESS = _DEFAULT_ARTBLOCKS_ADDRESS
+    ARTBLOCKS_PERIPHERY_ADDRESS = _DEFAULT_ARTBLOCKS_PERIPHERY_ADDRESS
+    DECISION_MODEL_TYPE = _DEFAULT_DECISION_MODEL_TYPE
+
+    def setup(self) -> None:
+        """Update the config with the provided attrs."""
+
+        super().setup()
+
+        self.set_config(
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.starting_project_id",
+            self.STARTING_PROJECT_ID,
+        )
+        self.set_config(
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.artblocks_contract",
+            self.ARTBLOCKS_ADDRESS,
+        )
+        self.set_config(
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.artblocks_periphery_contract",
+            self.ARTBLOCKS_PERIPHERY_ADDRESS,
+        )
+        self.set_config(
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.artblocks_periphery_contract",
+            self.ARTBLOCKS_PERIPHERY_ADDRESS,
+        )
+        self.set_config(
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.decision_model_type",
+            self.DECISION_MODEL_TYPE,
+        )

@@ -19,6 +19,8 @@
 
 """End2end tests for the valory/simple_abci skill."""
 
+import pytest
+
 from tests.test_packages.test_agents.base import BaseTestEnd2EndNormalExecution
 
 
@@ -41,6 +43,7 @@ CHECK_STRINGS = (
 )
 
 
+@pytest.mark.e2e
 class TestSimpleABCISingleAgent(
     BaseTestEnd2EndNormalExecution,
 ):
@@ -53,6 +56,7 @@ class TestSimpleABCISingleAgent(
     check_strings = CHECK_STRINGS
 
 
+@pytest.mark.e2e
 class TestSimpleABCITwoAgents(
     BaseTestEnd2EndNormalExecution,
 ):
@@ -65,6 +69,7 @@ class TestSimpleABCITwoAgents(
     check_strings = CHECK_STRINGS
 
 
+@pytest.mark.e2e
 class TestSimpleABCIFourAgents(
     BaseTestEnd2EndNormalExecution,
 ):
@@ -75,3 +80,45 @@ class TestSimpleABCIFourAgents(
     skill_package = "valory/simple_abci:0.1.0"
     wait_to_finish = 80
     check_strings = CHECK_STRINGS
+
+
+@pytest.mark.e2e
+class TestSimpleABCISingleAgentGrpc(
+    BaseTestEnd2EndNormalExecution,
+):
+    """Test that the ABCI simple_abci skill with only one agent."""
+
+    NB_AGENTS = 1
+    USE_GRPC = True
+    agent_package = "valory/simple_abci:0.1.0"
+    skill_package = "valory/simple_abci:0.1.0"
+    wait_to_finish = 40
+    check_strings = CHECK_STRINGS + ("Starting gRPC server",)
+
+
+@pytest.mark.e2e
+class TestSimpleABCITwoAgentsGrpc(
+    BaseTestEnd2EndNormalExecution,
+):
+    """Test that the ABCI simple_abci skill with two agents."""
+
+    NB_AGENTS = 2
+    USE_GRPC = True
+    agent_package = "valory/simple_abci:0.1.0"
+    skill_package = "valory/simple_abci:0.1.0"
+    wait_to_finish = 80
+    check_strings = CHECK_STRINGS + ("Starting gRPC server",)
+
+
+@pytest.mark.e2e
+class TestSimpleABCIFourAgentsGrpc(
+    BaseTestEnd2EndNormalExecution,
+):
+    """Test that the ABCI simple_abci skill with four agents."""
+
+    NB_AGENTS = 4
+    USE_GRPC = True
+    agent_package = "valory/simple_abci:0.1.0"
+    skill_package = "valory/simple_abci:0.1.0"
+    wait_to_finish = 80
+    check_strings = CHECK_STRINGS + ("Starting gRPC server",)

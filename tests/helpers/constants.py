@@ -32,7 +32,12 @@ DEFAULT_REQUESTS_TIMEOUT = 5.0
 MAX_RETRIES = 30
 LOCALHOST = "localhost"
 HTTP_LOCALHOST = f"http://{LOCALHOST}"
-
+ARTBLOCKS_ADDRESS = "0x1CD623a86751d4C4f20c96000FEC763941f098A2"
+ARTBLOCKS_PERIPHERY_ADDRESS = "0x58727f5Fc3705C30C9aDC2bcCC787AB2BA24c441"
+TARGET_PROJECT_ID = (
+    56  # id of project that we want to test the behaviour of the El Collectooor
+)
+DECISION_MODEL_TYPE = "yes"
 
 # default hardhat key pairs (public key, private key)
 KEY_PAIRS: List[Tuple[str, str]] = [
@@ -115,5 +120,29 @@ KEY_PAIRS: List[Tuple[str, str]] = [
     (
         "0x8626f6940e2eb28930efb4cef49b2d1f2c9c1199",
         "0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e",
+    ),
+]
+
+# ganache key pairs (public, private)
+GANACHE_KEY_PAIRS: List[Tuple[str, str]] = [
+    (
+        "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
+        "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d",
+    ),
+    (
+        "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0",
+        "0x6cbed15c793ce57650b9877cf6fa156fbef513c4e6134f022a85b1ffdd59b2a1",
+    ),
+    (
+        "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b",
+        "0x6370fd033278c143179d81c5526140625662b8daa446c22ee2d73db3707e620c",
+    ),
+    (
+        "0xE11BA2b4D45Eaed5996Cd0823791E0C93114882d",
+        "0x646f1ce2fdad0e6deeeb5c7e8e5543bdde65e86029e2fd9fc169899c440a7913",
+    ),
+    (
+        "0xd03ea8624C8C5987235048901fB614fDcA89b117",
+        "0xadd53f9a7e588d003326d1cbf9e4a43c061aadd9bc938c843a79e7b4fd2ad743",
     ),
 ]

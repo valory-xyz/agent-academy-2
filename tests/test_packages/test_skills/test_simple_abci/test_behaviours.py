@@ -19,16 +19,13 @@
 
 """Tests for valory/simple_abci skill's behaviours."""
 import json
-import logging
 import time
 from copy import copy
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any, Dict, Type, cast
 from unittest import mock
-from unittest.mock import patch
 
-import pytest
-from aea.exceptions import AEAActException
 from aea.helpers.transaction.base import SignedMessage
 from aea.test_tools.test_skill import BaseSkillTestCase
 
@@ -58,7 +55,6 @@ from packages.valory.skills.simple_abci.behaviours import (
     ResetAndPauseBehaviour,
     SelectKeeperAtStartupBehaviour,
     SimpleAbciConsensusBehaviour,
-    TendermintHealthcheckBehaviour,
 )
 from packages.valory.skills.simple_abci.handlers import (
     ContractApiHandler,
@@ -93,6 +89,7 @@ class SimpleAbciFSMBehaviourBaseCase(BaseSkillTestCase):
     signing_handler: SigningHandler
     old_tx_type_to_payload_cls: Dict[str, Type[BaseTxPayload]]
     period_state: PeriodState
+    benchmark_dir: TemporaryDirectory
 
     @classmethod
     def setup(cls, **kwargs: Any) -> None:
@@ -128,6 +125,11 @@ class SimpleAbciFSMBehaviourBaseCase(BaseSkillTestCase):
 
         cls.simple_abci_behaviour.setup()
         cls._skill.skill_context.state.setup()
+        cls._skill.skill_context.state.period.end_sync()
+
+        cls.benchmark_dir = TemporaryDirectory()
+        cls._skill.skill_context.benchmark_tool.log_dir = Path(cls.benchmark_dir.name)
+
         assert (
             cast(BaseState, cls.simple_abci_behaviour.current_state).state_id
             == cls.simple_abci_behaviour.initial_state_cls.state_id
@@ -149,6 +151,10 @@ class SimpleAbciFSMBehaviourBaseCase(BaseSkillTestCase):
         )
         self.skill.skill_context.state.period.abci_app._round_results.append(
             period_state
+        )
+        self.skill.skill_context.state.period.abci_app._extend_previous_rounds_with_current_round()
+        self.skill.skill_context.behaviours.main._last_round_height = (
+            self.skill.skill_context.state.period.abci_app.current_round_height
         )
         if next_state.matching_round is not None:
             self.skill.skill_context.state.period.abci_app._current_round = (
@@ -368,6 +374,7 @@ class SimpleAbciFSMBehaviourBaseCase(BaseSkillTestCase):
             current_state.matching_round
         ][Event.DONE](abci_app.state, abci_app.consensus_params)
         abci_app._previous_rounds.append(old_round)
+        abci_app._current_round_height += 1
         self.simple_abci_behaviour._process_current_round()
 
     def _test_done_flag_set(self) -> None:
@@ -387,6 +394,7 @@ class SimpleAbciFSMBehaviourBaseCase(BaseSkillTestCase):
     def teardown(cls) -> None:
         """Teardown the test class."""
         _MetaPayload.transaction_type_to_payload_cls = cls.old_tx_type_to_payload_cls  # type: ignore
+        cls.benchmark_dir.cleanup()
 
 
 class BaseRandomnessBehaviourTest(SimpleAbciFSMBehaviourBaseCase):
@@ -564,152 +572,6 @@ class BaseSelectKeeperBehaviourTest(SimpleAbciFSMBehaviourBaseCase):
         assert state.state_id == self.next_behaviour_class.state_id
 
 
-class TestTendermintHealthcheckBehaviour(SimpleAbciFSMBehaviourBaseCase):
-    """Test case to test TendermintHealthcheckBehaviour."""
-
-    def test_tendermint_healthcheck_not_live(self) -> None:
-        """Test the tendermint health check does not finish if not healthy."""
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.simple_abci_behaviour.current_state),
-            ).state_id
-            == TendermintHealthcheckBehaviour.state_id
-        )
-        self.simple_abci_behaviour.act_wrapper()
-        with patch.object(
-            self.simple_abci_behaviour.context.logger, "log"
-        ) as mock_logger:
-            self.mock_http_request(
-                request_kwargs=dict(
-                    method="GET",
-                    url=self.skill.skill_context.params.tendermint_url + "/status",
-                    headers="",
-                    version="",
-                    body=b"",
-                ),
-                response_kwargs=dict(
-                    version="",
-                    status_code=500,
-                    status_text="",
-                    headers="",
-                    body=b"",
-                ),
-            )
-        mock_logger.assert_any_call(
-            logging.ERROR,
-            "Tendermint not running or accepting transactions yet, trying again!",
-        )
-        time.sleep(1)
-        self.simple_abci_behaviour.act_wrapper()
-
-    def test_tendermint_healthcheck_not_live_raises(self) -> None:
-        """Test the tendermint health check raises if not healthy for too long."""
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.simple_abci_behaviour.current_state),
-            ).state_id
-            == TendermintHealthcheckBehaviour.state_id
-        )
-        with mock.patch.object(
-            self.simple_abci_behaviour.current_state,
-            "_is_timeout_expired",
-            return_value=True,
-        ):
-            with pytest.raises(
-                AEAActException, match="Tendermint node did not come live!"
-            ):
-                self.simple_abci_behaviour.act_wrapper()
-
-    def test_tendermint_healthcheck_live(self) -> None:
-        """Test the tendermint health check does finish if healthy."""
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.simple_abci_behaviour.current_state),
-            ).state_id
-            == TendermintHealthcheckBehaviour.state_id
-        )
-        self.simple_abci_behaviour.act_wrapper()
-        with patch.object(
-            self.simple_abci_behaviour.context.logger, "log"
-        ) as mock_logger:
-            current_height = self.simple_abci_behaviour.context.state.period.height
-            self.mock_http_request(
-                request_kwargs=dict(
-                    method="GET",
-                    url=self.skill.skill_context.params.tendermint_url + "/status",
-                    headers="",
-                    version="",
-                    body=b"",
-                ),
-                response_kwargs=dict(
-                    version="",
-                    status_code=200,
-                    status_text="",
-                    headers="",
-                    body=json.dumps(
-                        {
-                            "result": {
-                                "sync_info": {"latest_block_height": current_height}
-                            }
-                        }
-                    ).encode("utf-8"),
-                ),
-            )
-        mock_logger.assert_any_call(logging.INFO, "local height == remote height; done")
-        state = cast(BaseState, self.simple_abci_behaviour.current_state)
-        assert state.state_id == RegistrationBehaviour.state_id
-
-    def test_tendermint_healthcheck_height_differs(self) -> None:
-        """Test the tendermint health check does finish if local-height != remote-height."""
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.simple_abci_behaviour.current_state),
-            ).state_id
-            == TendermintHealthcheckBehaviour.state_id
-        )
-        self.simple_abci_behaviour.act_wrapper()
-        with patch.object(
-            self.simple_abci_behaviour.context.logger, "log"
-        ) as mock_logger:
-            current_height = self.simple_abci_behaviour.context.state.period.height
-            new_different_height = current_height + 1
-            self.mock_http_request(
-                request_kwargs=dict(
-                    method="GET",
-                    url=self.skill.skill_context.params.tendermint_url + "/status",
-                    headers="",
-                    version="",
-                    body=b"",
-                ),
-                response_kwargs=dict(
-                    version="",
-                    status_code=200,
-                    status_text="",
-                    headers="",
-                    body=json.dumps(
-                        {
-                            "result": {
-                                "sync_info": {
-                                    "latest_block_height": new_different_height
-                                }
-                            }
-                        }
-                    ).encode("utf-8"),
-                ),
-            )
-        mock_logger.assert_any_call(
-            logging.INFO, "local height != remote height; retrying..."
-        )
-        state = cast(BaseState, self.simple_abci_behaviour.current_state)
-        assert state.state_id == TendermintHealthcheckBehaviour.state_id
-        time.sleep(1)
-        self.simple_abci_behaviour.act_wrapper()
-
-
 class TestRegistrationBehaviour(SimpleAbciFSMBehaviourBaseCase):
     """Test case to test RegistrationBehaviour."""
 
@@ -799,9 +661,6 @@ class TestResetAndPauseBehaviour(SimpleAbciFSMBehaviourBaseCase):
             ).state_id
             == self.behaviour_class.state_id
         )
-        self.simple_abci_behaviour.context.params.observation_interval = 0.1
-        self.simple_abci_behaviour.act_wrapper()
-        time.sleep(0.3)
         self.simple_abci_behaviour.act_wrapper()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
