@@ -19,11 +19,33 @@
 
 """Custom objects for the transaction settlement ABCI application."""
 
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from web3.types import Nonce
 
-from packages.valory.skills.abstract_round_abci.models import BaseParams
+from packages.valory.protocols.contract_api import ContractApiMessage
+from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
+from packages.valory.skills.abstract_round_abci.models import (
+    BenchmarkTool as BaseBenchmarkTool,
+)
+from packages.valory.skills.abstract_round_abci.models import Requests as BaseRequests
+from packages.valory.skills.abstract_round_abci.models import (
+    SharedState as BaseSharedState,
+)
+from packages.valory.skills.transaction_settlement_abci.rounds import (
+    TransactionSubmissionAbciApp,
+)
+
+
+BenchmarkTool = BaseBenchmarkTool
+
+
+class SharedState(BaseSharedState):
+    """Keep the current shared state of the skill."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize the state."""
+        super().__init__(*args, abci_app_cls=TransactionSubmissionAbciApp, **kwargs)
 
 
 class TransactionParams(BaseParams):
@@ -33,9 +55,17 @@ class TransactionParams(BaseParams):
         """Initialize the parameters object."""
         self.nonce: Optional[Nonce] = None
         self.tip: Optional[int] = None
+        self.late_messages: List[ContractApiMessage] = []
         super().__init__(*args, **kwargs)
 
     def reset_tx_params(self) -> None:
         """Reset the transaction-related parameters."""
         self.nonce = None
         self.tip = None
+
+
+class RandomnessApi(ApiSpecs):
+    """A model that wraps ApiSpecs for randomness api specifications."""
+
+
+Requests = BaseRequests

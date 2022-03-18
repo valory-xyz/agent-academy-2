@@ -24,7 +24,7 @@ import json
 import pprint
 from abc import ABC, abstractmethod
 from enum import Enum
-from functools import partial
+from functools import partial, wraps
 from typing import (
     Any,
     Callable,
@@ -71,6 +71,16 @@ from packages.valory.skills.abstract_round_abci.dialogues import (
     LedgerApiDialogue,
     LedgerApiDialogues,
     SigningDialogues,
+)
+from packages.valory.skills.abstract_round_abci.io.ipfs import (
+    IPFSInteract,
+    IPFSInteractionError,
+)
+from packages.valory.skills.abstract_round_abci.io.load import SupportedLoaderType
+from packages.valory.skills.abstract_round_abci.io.store import (
+    CustomStorerType,
+    SupportedFiletype,
+    SupportedObjectType,
 )
 from packages.valory.skills.abstract_round_abci.models import (
     BaseParams,
@@ -308,17 +318,134 @@ class AsyncBehaviour(ABC):
         self.__state = self.AsyncState.READY
 
 
-class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
+def _check_ipfs_enabled(fn: Callable) -> Callable:
+    """Decorator that raises error if IPFS is not enabled."""
+
+    @wraps(fn)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        """The wrap that checks and raises the error."""
+        ipfs_enabled = args[0].ipfs_enabled
+
+        if not ipfs_enabled:  # pragma: no cover
+            raise ValueError(
+                "Trying to perform an IPFS operation, but IPFS has not been enabled! "
+                "Please set `ipfs_domain_name` configuration."
+            )
+
+        return fn(*args, **kwargs)
+
+    return wrapper
+
+
+class IPFSBehaviour(SimpleBehaviour, ABC):
+    """Behaviour for interactions with IPFS."""
+
+    def __init__(self, **kwargs: Any):
+        """Initialize an `IPFSBehaviour`."""
+        super().__init__(**kwargs)
+        self.ipfs_enabled = False
+        # If params are not found `AttributeError` will be raised. This is fine, because something will have gone wrong.
+        # If `ipfs_domain_name` is not specified for the skill, then we get a `None` default.
+        # Therefore, `IPFSBehaviour` will be disabled.
+        domain = getattr(self.params, "ipfs_domain_name", None)  # type: ignore  # pylint: disable=E1101
+        if domain is not None:  # pragma: nocover
+            self.ipfs_enabled = True
+            self._ipfs_interact = IPFSInteract(domain)
+
+    @_check_ipfs_enabled
+    def send_to_ipfs(
+        self,
+        filepath: str,
+        obj: SupportedObjectType,
+        filetype: Optional[SupportedFiletype] = None,
+        custom_storer: Optional[CustomStorerType] = None,
+        **kwargs: Any,
+    ) -> Optional[str]:
+        """Send a file to IPFS."""
+        try:
+            hash_ = self._ipfs_interact.store_and_send(
+                filepath, obj, filetype, custom_storer, **kwargs
+            )
+            self.context.logger.info(f"IPFS hash is: {hash_}")
+            return hash_
+        except IPFSInteractionError as e:  # pragma: no cover
+            self.context.logger.error(
+                f"An error occurred while trying to send a file to IPFS: {str(e)}"
+            )
+            return None
+
+    @_check_ipfs_enabled
+    def get_from_ipfs(
+        self,
+        hash_: str,
+        target_dir: str,
+        filename: str,
+        filetype: Optional[SupportedFiletype] = None,
+        custom_loader: SupportedLoaderType = None,
+    ) -> Optional[SupportedObjectType]:
+        """Get a file from IPFS."""
+        try:
+            return self._ipfs_interact.get_and_read(
+                hash_, target_dir, filename, filetype, custom_loader
+            )
+        except IPFSInteractionError as e:
+            self.context.logger.error(
+                f"An error occurred while trying to fetch a file from IPFS: {str(e)}"
+            )
+            return None
+
+
+class CleanUpBehaviour(SimpleBehaviour, ABC):
+    """Class for clean-up related functionality of behaviours."""
+
+    def __init__(self, **kwargs: Any):  # pylint: disable=super-init-not-called
+        """Initialize a base state behaviour."""
+        SimpleBehaviour.__init__(self, **kwargs)
+
+    def clean_up(self) -> None:
+        """
+        Clean up the resources due to a 'stop' event.
+
+        It can be optionally implemented by the concrete classes.
+        """
+
+    def handle_late_messages(self, message: Message) -> None:
+        """
+        Handle late arriving messages.
+
+        Runs from another behaviour, even if the behaviour implementing the method has been exited.
+        It can be optionally implemented by the concrete classes.
+
+        :param message: the late arriving message to handle.
+        """
+        request_nonce = message.dialogue_reference[0]
+        self.context.logger.warning(
+            f"No callback defined for request with nonce: {request_nonce}"
+        )
+
+
+class RPCResponseStatus(Enum):
+    """A custom status of an RPC response."""
+
+    SUCCESS = 1
+    INCORRECT_NONCE = 2
+    UNDERPRICED = 3
+    UNCLASSIFIED_ERROR = 4
+
+
+class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
     """Base class for FSM states."""
 
     is_programmatically_defined = True
     state_id = ""
     matching_round: Optional[Type[AbstractRound]] = None
+    is_degenerate: bool = False
 
     def __init__(self, **kwargs: Any):  # pylint: disable=super-init-not-called
         """Initialize a base state behaviour."""
         AsyncBehaviour.__init__(self)
-        SimpleBehaviour.__init__(self, **kwargs)
+        IPFSBehaviour.__init__(self, **kwargs)
+        CleanUpBehaviour.__init__(self, **kwargs)
         self._is_done: bool = False
         self._is_started: bool = False
         enforce(self.state_id != "", "State id not set.")
@@ -421,6 +548,9 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         if self.matching_round is None:
             raise ValueError("No matching_round set!")
         stop_condition = self.is_round_ended(self.matching_round.round_id)
+        payload.round_count = cast(
+            SharedState, self.context.state
+        ).period_state.round_count
         yield from self._send_transaction(payload, stop_condition=stop_condition)
 
     def async_act_wrapper(self) -> Generator:
@@ -431,19 +561,10 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
 
         try:
             if self.context.state.period.syncing_up:
-                if self.matching_round is None:
-                    yield from self.sleep(_SYNC_MODE_WAIT)
-                else:
-                    yield from self.wait_until_round_end()
+                yield from self._check_sync()
             else:
                 yield from self.async_act()
         except StopIteration:
-            if self.context.state.period.syncing_up:  # pragma: nocover
-                # needs to be tested
-                has_synced_up = yield from self._has_synced_up()
-                if has_synced_up:
-                    self.context.logger.info("local height == remote; Ending sync...")
-                    self.context.state.period.end_sync()
             self.clean_up()
             self.set_done()
             self._log_end()
@@ -451,6 +572,29 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
 
         if self._is_done:
             self._log_end()
+
+    def _check_sync(
+        self,
+    ) -> Generator[None, None, None]:
+        """Check if agent has completed sync."""
+        self.context.logger.info("Checking sync...")
+        for _ in range(self.context.params.tendermint_max_retries):
+            self.context.logger.info("Checking status")
+            status = yield from self._get_status()
+            try:
+                json_body = json.loads(status.body.decode())
+                remote_height = int(
+                    json_body["result"]["sync_info"]["latest_block_height"]
+                )
+                local_height = int(self.context.state.period.height)
+                _is_sync_complete = local_height == remote_height
+                if _is_sync_complete:
+                    self.context.logger.info("local height == remote; Sync complete...")
+                    self.context.state.period.end_sync()
+                    return
+                yield from self.sleep(self.context.params.tendermint_check_sleep_delay)
+            except (json.JSONDecodeError, KeyError):  # pragma: nocover
+                yield from self.sleep(self.context.params.tendermint_check_sleep_delay)
 
     def _log_start(self) -> None:
         """Log the entering in the behaviour state."""
@@ -465,13 +609,14 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         """Get the request nonce for the request, from the protocol's dialogue."""
         return dialogue.dialogue_label.dialogue_reference[0]
 
-    def _send_transaction(
+    def _send_transaction(  # pylint: disable=too-many-arguments
         self,
         payload: BaseTxPayload,
         stop_condition: Callable[[], bool] = lambda: False,
         request_timeout: float = _DEFAULT_REQUEST_TIMEOUT,
         request_retry_delay: float = _DEFAULT_REQUEST_RETRY_DELAY,
         tx_timeout: float = _DEFAULT_TX_TIMEOUT,
+        max_attempts: int = _DEFAULT_TX_MAX_ATTEMPTS,
     ) -> Generator:
         """
         Send transaction and wait for the response, repeat until not successful.
@@ -501,6 +646,7 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         :param: request_timeout: the timeout for the requests
         :param: request_retry_delay: the delay to wait after failed requests
         :param: tx_timeout: the timeout to wait for tx delivery
+        :param: max_attempts: max retry attempts
         :yield: the responses
         """
         while not stop_condition():
@@ -546,11 +692,11 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
                     f"Received tendermint code != 0. Retrying in {request_retry_delay} seconds..."
                 )
                 yield from self.sleep(request_retry_delay)
-                continue
+                continue  # pragma: nocover
 
             try:
                 is_delivered, res = yield from self._wait_until_transaction_delivered(
-                    tx_hash, timeout=tx_timeout
+                    tx_hash, timeout=tx_timeout, max_attempts=max_attempts
                 )
             except TimeoutException:
                 self.context.logger.info(
@@ -558,10 +704,15 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
                 )
                 payload = payload.with_new_id()
                 yield from self.sleep(request_retry_delay)
-                continue
+                continue  # pragma: nocover
 
             if is_delivered:
                 self.context.logger.info("A2A transaction delivered!")
+                break
+            if isinstance(res, HttpMessage) and self._is_invalid_transaction(res):
+                self.context.logger.info(
+                    f"Tx sent but not delivered. Invalid transaction - not trying again! Response = {res}"
+                )
                 break
             # otherwise, repeat until done, or until stop condition is true
             self.context.logger.info(f"Tx sent but not delivered. Response = {res}")
@@ -569,6 +720,18 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         self.context.logger.info(
             "Stop condition is true, no more attempts to send the transaction."
         )
+
+    @staticmethod
+    def _is_invalid_transaction(res: HttpMessage) -> bool:
+        """Check if the transaction is invalid."""
+        try:
+            error_codes = ["TransactionNotValidError"]
+            body_ = json.loads(res.body)
+            return any(
+                [error_code in body_["tx_result"]["info"] for error_code in error_codes]
+            )
+        except Exception:  # pylint: disable=broad-except  # pragma: nocover
+            return False
 
     def _send_signing_request(
         self, raw_message: bytes, is_deprecated_mode: bool = False
@@ -605,7 +768,7 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         request_nonce = self._get_request_nonce_from_dialogue(signing_dialogue)
         cast(Requests, self.context.requests).request_id_to_callback[
             request_nonce
-        ] = self.default_callback_request
+        ] = self.get_callback_request()
         self.context.decision_maker_message_queue.put_nowait(signing_msg)
 
     def _send_transaction_signing_request(
@@ -632,7 +795,7 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         request_nonce = self._get_request_nonce_from_dialogue(signing_dialogue)
         cast(Requests, self.context.requests).request_id_to_callback[
             request_nonce
-        ] = self.default_callback_request
+        ] = self.get_callback_request()
         self.context.decision_maker_message_queue.put_nowait(signing_msg)
 
     def _send_transaction_request(self, signing_msg: SigningMessage) -> None:
@@ -658,7 +821,7 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         request_nonce = self._get_request_nonce_from_dialogue(ledger_api_dialogue)
         cast(Requests, self.context.requests).request_id_to_callback[
             request_nonce
-        ] = self.default_callback_request
+        ] = self.get_callback_request()
         self.context.outbox.put_message(message=ledger_api_msg)
         self.context.logger.info("sending transaction to ledger.")
 
@@ -696,7 +859,7 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         request_nonce = self._get_request_nonce_from_dialogue(ledger_api_dialogue)
         cast(Requests, self.context.requests).request_id_to_callback[
             request_nonce
-        ] = self.default_callback_request
+        ] = self.get_callback_request()
         self.context.outbox.put_message(message=ledger_api_msg)
         self.context.logger.info(
             f"sending transaction receipt request for tx_digest='{tx_digest}'."
@@ -758,26 +921,6 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         )
         return result
 
-    def _get_health(self) -> Generator[None, None, HttpMessage]:
-        """
-        Get Tendermint node's health.
-
-        Happy-path full flow of the messages.
-
-        _do_request:
-            AbstractRoundAbci skill -> (HttpMessage | REQUEST) -> Http client connection
-            Http client connection -> (HttpMessage | RESPONSE) -> AbstractRoundAbci skill
-
-        :yield: HttpMessage object
-        :return: http response from tendermint
-        """
-        request_message, http_dialogue = self._build_http_request_message(
-            "GET",
-            self.context.params.tendermint_url + "/health",
-        )
-        result = yield from self._do_request(request_message, http_dialogue)
-        return result
-
     def _get_status(self) -> Generator[None, None, HttpMessage]:
         """
         Get Tendermint node's status.
@@ -798,48 +941,28 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         result = yield from self._do_request(request_message, http_dialogue)
         return result
 
-    def _has_synced_up(
-        self,
-    ) -> Generator[None, None, bool]:  # pragma: nocover
-        """
-        Check if agent has completed sync.
+    def get_callback_request(self) -> Callable[[Message, "BaseState"], None]:
+        """Wrapper for callback request which depends on whether the message has not been handled on time.
 
-        Happy-path full flow of the messages.
-
-        _do_request:
-            AbstractRoundAbci skill -> (HttpMessage | REQUEST) -> Http client connection
-            Http client connection -> (HttpMessage | RESPONSE) -> AbstractRoundAbci skill
-
-        :yield: HttpMessage object
-        :return: True if the agent has synced
+        :return: the request callback.
         """
 
-        for _ in range(_DEFAULT_TX_MAX_ATTEMPTS):
-            status = yield from self._get_status()
-            try:
-                json_body = json.loads(status.body.decode())
-                remote_height = int(
-                    json_body["result"]["sync_info"]["latest_block_height"]
+        def callback_request(message: Message, current_state: BaseState) -> None:
+            """The callback request."""
+            if self.is_stopped:
+                self.context.logger.debug(
+                    "dropping message as behaviour has stopped: %s", message
                 )
-                local_height = int(self.context.state.period.height)
-                return local_height == remote_height
-            except (json.JSONDecodeError, KeyError):  # pragma: nocover
-                continue
+            elif self != current_state:
+                self.handle_late_messages(message)
+            elif self.state == AsyncBehaviour.AsyncState.WAITING_MESSAGE:
+                self.try_send(message)
+            else:
+                self.context.logger.warning(
+                    "could not send message to FSMBehaviour: %s", message
+                )
 
-        return False  # pragma: nocover
-
-    def default_callback_request(self, message: Message) -> None:
-        """Implement default callback request."""
-        if self.is_stopped:
-            self.context.logger.debug(
-                "dropping message as behaviour has stopped: %s", message
-            )
-        elif self.state == AsyncBehaviour.AsyncState.WAITING_MESSAGE:
-            self.try_send(message)
-        else:
-            self.context.logger.warning(
-                "could not send message to FSMBehaviour: %s", message
-            )
+        return callback_request
 
     def get_http_response(
         self,
@@ -903,16 +1026,10 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         request_nonce = self._get_request_nonce_from_dialogue(http_dialogue)
         cast(Requests, self.context.requests).request_id_to_callback[
             request_nonce
-        ] = self.default_callback_request
-        try:
-            response = yield from self.wait_for_message(timeout=timeout)
-            return response
-        finally:
-            # remove request id in case already timed out,
-            # but notify caller by propagating exception.
-            cast(Requests, self.context.requests).request_id_to_callback.pop(
-                request_nonce, None
-            )
+        ] = self.get_callback_request()
+        # notify caller by propagating potential timeout exception.
+        response = yield from self.wait_for_message(timeout=timeout)
+        return response
 
     def _build_http_request_message(
         self,
@@ -1066,7 +1183,7 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
 
     def send_raw_transaction(
         self, transaction: RawTransaction
-    ) -> Generator[None, None, Optional[str]]:
+    ) -> Generator[None, None, Tuple[Optional[str], RPCResponseStatus]]:
         """
         Send raw transactions to the ledger for mining.
 
@@ -1100,19 +1217,18 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
             != SigningMessage.Performative.SIGNED_TRANSACTION
         ):  # pragma: nocover
             self.context.logger.error("Error when requesting transaction signature.")
-            return None
+            return None, RPCResponseStatus.UNCLASSIFIED_ERROR
         self._send_transaction_request(signature_response)
         transaction_digest_msg = yield from self.wait_for_message()
         if (
             transaction_digest_msg.performative
             != LedgerApiMessage.Performative.TRANSACTION_DIGEST
         ):  # pragma: nocover
-            self.context.logger.error(
-                f"Error when requesting transaction digest: {transaction_digest_msg.message}"
-            )
-            return None
+            error = f"Error when requesting transaction digest: {transaction_digest_msg.message}"
+            self.context.logger.error(error)
+            return None, self.__parse_rpc_error(error)
         tx_hash = transaction_digest_msg.transaction_digest.body
-        return tx_hash
+        return tx_hash, RPCResponseStatus.SUCCESS
 
     def get_transaction_receipt(
         self,
@@ -1187,7 +1303,7 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         request_nonce = self._get_request_nonce_from_dialogue(ledger_api_dialogue)
         cast(Requests, self.context.requests).request_id_to_callback[
             request_nonce
-        ] = self.default_callback_request
+        ] = self.get_callback_request()
         self.context.outbox.put_message(message=ledger_api_msg)
         response = yield from self.wait_for_message()
         return response
@@ -1240,14 +1356,45 @@ class BaseState(AsyncBehaviour, SimpleBehaviour, ABC):
         request_nonce = self._get_request_nonce_from_dialogue(contract_api_dialogue)
         cast(Requests, self.context.requests).request_id_to_callback[
             request_nonce
-        ] = self.default_callback_request
+        ] = self.get_callback_request()
         self.context.outbox.put_message(message=contract_api_msg)
         response = yield from self.wait_for_message()
         return response
 
-    def clean_up(self) -> None:
-        """
-        Clean up the resources due to a 'stop' event.
+    @staticmethod
+    def __parse_rpc_error(error: str) -> RPCResponseStatus:
+        """Parse an RPC error and return an `RPCResponseStatus`"""
+        if "replacement transaction underpriced" in error:
+            return RPCResponseStatus.UNDERPRICED
+        if "nonce too low" in error:
+            return RPCResponseStatus.INCORRECT_NONCE
+        return RPCResponseStatus.UNCLASSIFIED_ERROR
 
-        It can be optionally implemented by the concrete classes.
-        """
+
+class DegenerateState(BaseState, ABC):
+    """An abstract matching behaviour for final and degenerate rounds."""
+
+    matching_round: Optional[Type[AbstractRound]] = None
+    is_degenerate: bool = True
+
+    def async_act(self) -> Generator:
+        """Raise a RuntimeError."""
+        raise RuntimeError(
+            "The execution reached a degenerate behaviour state. "
+            "This means a degenerate round has been reached during "
+            "the execution of the ABCI application. Please check the "
+            "functioning of the ABCI app."
+        )
+
+
+def make_degenerate_state(round_id: str) -> Type[DegenerateState]:
+    """Make a degenerate state class."""
+
+    class NewDegenerateState(DegenerateState):
+        """A newly defined degenerate state class."""
+
+        state_id = f"degenerate_{round_id}"
+
+    new_state_cls = NewDegenerateState
+    new_state_cls.__name__ = f"DegenerateState_{round_id}"  # type: ignore # pylint: disable=attribute-defined-outside-init
+    return new_state_cls  # type: ignore

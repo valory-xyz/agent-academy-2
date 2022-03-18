@@ -20,7 +20,7 @@
 """This module contains the transaction payloads for the simple_abci app."""
 from abc import ABC
 from enum import Enum
-from typing import Dict, Optional
+from typing import Any, Dict
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -31,8 +31,6 @@ class TransactionType(Enum):
     REGISTRATION = "registration"
     RANDOMNESS = "randomness"
     SELECT_KEEPER = "select_keeper"
-    DO_WORK = "do_work"
-    IS_WORKABLE = "is_workable"
     RESET = "reset"
 
     def __str__(self) -> str:
@@ -54,84 +52,22 @@ class RegistrationPayload(BaseSimpleAbciPayload):
     transaction_type = TransactionType.REGISTRATION
 
 
-class DoWorkPayload(BaseSimpleAbciPayload):
-    """Represent a transaction payload of type 'do work'."""
-
-    transaction_type = TransactionType.DO_WORK
-
-    def __init__(self, sender: str, round_id: int, id_: Optional[str] = None) -> None:
-        """Initialize an 'select_keeper' transaction payload.
-
-        :param sender: the sender (Ethereum) address
-        :param round_id: the round id
-        :param id_: the id of the transaction
-        """
-        super().__init__(sender, id_)
-        self._round_id = round_id
-
-    @property
-    def round_id(self) -> int:
-        """Get the round id."""
-        return self._round_id
-
-    @property
-    def do_work(self) -> bool:
-        """Get to work."""
-        return True
-
-    @property
-    def data(self) -> Dict:
-        """Get the data."""
-        return dict(do_work=True)
-
-
-class IsWorkablePayload(BaseSimpleAbciPayload):
-    """Represent a transaction payload of type 'is workable'."""
-
-    transaction_type = TransactionType.IS_WORKABLE
-
-    def __init__(self, sender: str, round_id: int, id_: Optional[str] = None) -> None:
-        """Initialize an 'select_keeper' transaction payload.
-
-        :param sender: the sender (Ethereum) address
-        :param round_id: the round id
-        :param id_: the id of the transaction
-        """
-        super().__init__(sender, id_)
-        self._round_id = round_id
-
-    @property
-    def round_id(self) -> int:
-        """Get the round id."""
-        return self._round_id
-
-    @property
-    def is_workable(self) -> bool:
-        """Get the contract."""
-        return True
-
-    @property
-    def data(self) -> Dict:
-        """Get the data."""
-        return dict(is_workable=self.is_workable)
-
-
 class RandomnessPayload(BaseSimpleAbciPayload):
     """Represent a transaction payload of type 'randomness'."""
 
     transaction_type = TransactionType.RANDOMNESS
 
     def __init__(
-        self, sender: str, round_id: int, randomness: str, id_: Optional[str] = None
+        self, sender: str, round_id: int, randomness: str, **kwargs: Any
     ) -> None:
         """Initialize an 'select_keeper' transaction payload.
 
         :param sender: the sender (Ethereum) address
         :param round_id: the round id
         :param randomness: the randomness
-        :param id_: the id of the transaction
+        :param kwargs: the keyword arguments
         """
-        super().__init__(sender, id_)
+        super().__init__(sender, **kwargs)
         self._round_id = round_id
         self._randomness = randomness
 
@@ -156,14 +92,14 @@ class SelectKeeperPayload(BaseSimpleAbciPayload):
 
     transaction_type = TransactionType.SELECT_KEEPER
 
-    def __init__(self, sender: str, keeper: str, id_: Optional[str] = None) -> None:
+    def __init__(self, sender: str, keeper: str, **kwargs: Any) -> None:
         """Initialize an 'select_keeper' transaction payload.
 
         :param sender: the sender (Ethereum) address
         :param keeper: the keeper selection
-        :param id_: the id of the transaction
+        :param kwargs: the keyword arguments
         """
-        super().__init__(sender, id_)
+        super().__init__(sender, **kwargs)
         self._keeper = keeper
 
     @property
@@ -182,16 +118,14 @@ class ResetPayload(BaseSimpleAbciPayload):
 
     transaction_type = TransactionType.RESET
 
-    def __init__(
-        self, sender: str, period_count: int, id_: Optional[str] = None
-    ) -> None:
+    def __init__(self, sender: str, period_count: int, **kwargs: Any) -> None:
         """Initialize an 'rest' transaction payload.
 
         :param sender: the sender (Ethereum) address
         :param period_count: the period count id
-        :param id_: the id of the transaction
+        :param kwargs: the keyword arguments
         """
-        super().__init__(sender, id_)
+        super().__init__(sender, **kwargs)
         self._period_count = period_count
 
     @property
