@@ -76,6 +76,7 @@ class RegistrationStartupRound(CollectDifferentUntilAllRound):
             initialisation = json.loads(self.most_voted_payload)
             state = self.period_state.update(
                 participants=self.collection,
+                all_participants=self.collection,
                 period_state_class=BasePeriodState,
                 **initialisation,
             )
@@ -86,6 +87,7 @@ class RegistrationStartupRound(CollectDifferentUntilAllRound):
         ):
             state = self.period_state.update(
                 participants=self.collection,
+                all_participants=self.collection,
                 period_state_class=BasePeriodState,
             )
             return state, Event.DONE
@@ -126,15 +128,15 @@ class AgentRegistrationAbciApp(AbciApp[Event]):
     Initial states: {RegistrationRound, RegistrationStartupRound}
 
     Transition states:
-    0. RegistrationStartupRound
-        - done: 2.
-        - fast forward: 3.
-    1. RegistrationRound
-        - done: 3.
-    2. FinishedRegistrationRound
-    3. FinishedRegistrationFFWRound
+        0. RegistrationStartupRound
+            - done: 2.
+            - fast forward: 3.
+        1. RegistrationRound
+            - done: 3.
+        2. FinishedRegistrationRound
+        3. FinishedRegistrationFFWRound
 
-    Final states: {FinishedRegistrationRound, FinishedRegistrationFFWRound}
+    Final states: {FinishedRegistrationFFWRound, FinishedRegistrationRound}
 
     Timeouts:
         round timeout: 30.0

@@ -6,14 +6,15 @@ description: ABCI application for demonstation.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: QmRKb5tusrnSS33kgGz93jALjTrkAArJu6tJFvm71bKx2M
+  README.md: QmVwFKStDzJFm4dbFKGSnLQGGjpH5zjhcPRwYirPCDYAJU
   __init__.py: Qme3M7NKyV7CstshfUBthu38q2UTFDctBc3Ar1aK3LRBDr
-  behaviours.py: QmZhq52sAtcDGGUP3ivMebu8t1w3zE8kDYWG8zZLwcGK24
+  behaviours.py: QmXyZ94RSXGKwZ9tjkMf3VAaCS2zF3tbd1rcLiMPi4LX2C
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
+  fsm_specification.yaml: QmTVVBdh15143sgSTA9DgXYrrPQzVgog1BC87fN1ym9U4o
   handlers.py: QmZXDriJtB3cN8NBWrYLVpFekWMZdjm8veF97oLrGFRot3
-  models.py: QmXhmZpNZAW6HG6EP1qwoaj23ay7YAhoNVPqfHjr8rPZAh
-  payloads.py: QmPNdT8wQm5JcCg68ZRf5Q18uPWCHjkayFkUAAWzsjzSha
-  rounds.py: QmXFYz3bPrcPh6W3guoDgWVatoURWfjpaBh3LEwnmJ6rwz
+  models.py: QmaS5Qvg6DtqkTixSyQpHFJQaLfx1hgmodVKD2zbtjzW6i
+  payloads.py: QmVUVKakCZrUQxqU3fmkzLjk6fjbKtr7zxe9pRMBvjEPW5
+  rounds.py: QmeqKuaHZAzGqSb1h81TWPoPLJYFDA1NNGotd7fkiFbK1W
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0
@@ -52,6 +53,10 @@ models:
   abci_dialogues:
     args: {}
     class_name: AbciDialogues
+  benchmark_tool:
+    args:
+      log_dir: /logs
+    class_name: BenchmarkTool
   contract_api_dialogues:
     args: {}
     class_name: ContractApiDialogues
@@ -63,6 +68,7 @@ models:
     class_name: LedgerApiDialogues
   params:
     args:
+      cleanup_history_depth: 1
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
@@ -76,7 +82,9 @@ models:
       round_timeout_seconds: 30.0
       service_id: simple_abci
       sleep_time: 1
+      tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
+      tendermint_max_retries: 5
       tendermint_url: http://localhost:26657
     class_name: Params
   randomness_api:

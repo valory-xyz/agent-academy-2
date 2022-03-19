@@ -19,6 +19,8 @@
 
 """End2end tests for the valory/simple_abci skill."""
 
+import pytest
+
 from tests.test_packages.test_agents.base import BaseTestEnd2EndNormalExecution
 
 
@@ -41,6 +43,7 @@ CHECK_STRINGS = (
 )
 
 
+@pytest.mark.e2e
 class TestSimpleABCISingleAgent(
     BaseTestEnd2EndNormalExecution,
 ):
@@ -53,6 +56,7 @@ class TestSimpleABCISingleAgent(
     check_strings = CHECK_STRINGS
 
 
+@pytest.mark.e2e
 class TestSimpleABCITwoAgents(
     BaseTestEnd2EndNormalExecution,
 ):
@@ -65,6 +69,7 @@ class TestSimpleABCITwoAgents(
     check_strings = CHECK_STRINGS
 
 
+@pytest.mark.e2e
 class TestSimpleABCIFourAgents(
     BaseTestEnd2EndNormalExecution,
 ):
