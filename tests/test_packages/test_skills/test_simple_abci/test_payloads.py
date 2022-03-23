@@ -22,6 +22,7 @@
 from packages.valory.skills.simple_abci.payloads import (
     RandomnessPayload,
     RegistrationPayload,
+    IsWorkablePayload,
     ResetPayload,
     SelectKeeperPayload,
     TransactionType,
@@ -35,6 +36,16 @@ def test_registration_payload() -> None:
 
     assert payload.sender == "sender"
     assert payload.transaction_type == TransactionType.REGISTRATION
+
+
+def test_is_workable_payload() -> None:
+    """Test `IsWorkablePayload`."""
+
+    payload = IsWorkablePayload(sender="sender", job_contract_address="job_contract_address")
+
+    assert payload.sender == "sender"
+    assert payload.job_contract_address == "job_contract_address"
+    assert payload.transaction_type == TransactionType.IS_WORKABLE
 
 
 def test_select_keeper_payload() -> None:

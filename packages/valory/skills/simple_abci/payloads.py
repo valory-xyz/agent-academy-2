@@ -29,6 +29,7 @@ class TransactionType(Enum):
     """Enumeration of transaction types."""
 
     REGISTRATION = "registration"
+    IS_WORKABLE = "is_workable"
     RANDOMNESS = "randomness"
     SELECT_KEEPER = "select_keeper"
     RESET = "reset"
@@ -50,6 +51,27 @@ class RegistrationPayload(BaseSimpleAbciPayload):
     """Represent a transaction payload of type 'registration'."""
 
     transaction_type = TransactionType.REGISTRATION
+
+
+class IsWorkablePayload(BaseSimpleAbciPayload):
+    """Represent a transaction payload of type 'is_workable'."""
+
+    transaction_type = TransactionType.IS_WORKABLE
+
+    def __init__(self, sender: str, job_contract_address: str, **kwargs: Any) -> None:
+        """Initialize an 'select_keeper' transaction payload.
+
+        :param sender: the sender (Ethereum) address
+        :param job_contract_address: the job contract address
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._job_contract_address = job_contract_address
+
+    @property
+    def job_contract_address(self) -> str:
+        """Get the job contract address."""
+        return self._job_contract_address
 
 
 class RandomnessPayload(BaseSimpleAbciPayload):
