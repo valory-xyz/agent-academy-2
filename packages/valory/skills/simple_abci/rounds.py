@@ -288,7 +288,12 @@ class SimpleAbciApp(AbciApp[Event]):
     initial_round_cls: Type[AbstractRound] = RegistrationRound
     transition_function: AbciAppTransitionFunction = {
         RegistrationRound: {
+            Event.DONE: IsWorkableRound,
+        },
+        IsWorkableRound: {
             Event.DONE: RandomnessStartupRound,
+            Event.ROUND_TIMEOUT: RegistrationRound,
+            Event.NO_MAJORITY: RegistrationRound,
         },
         RandomnessStartupRound: {
             Event.DONE: SelectKeeperAtStartupRound,
