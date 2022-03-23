@@ -26,7 +26,7 @@ from tests.test_packages.test_agents.base import BaseTestEnd2EndNormalExecution
 
 # check log messages of the happy path
 CHECK_STRINGS = (
-   "Entered in the 'registration' round for period 0",
+    "Entered in the 'registration' round for period 0",
     "'registration' round is done",
     "Entered in the 'randomness_startup' round for period 0",
     "'randomness_startup' round is done",
