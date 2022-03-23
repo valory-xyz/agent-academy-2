@@ -58,22 +58,15 @@ class IsWorkablePayload(BaseSimpleAbciPayload):
 
     transaction_type = TransactionType.IS_WORKABLE
 
-    def __init__(self, sender: str, job_contract_address: str, is_workable: bool, **kwargs: Any) -> None:
+    def __init__(self, sender: str, is_workable: bool, **kwargs: Any) -> None:
         """Initialize an 'select_keeper' transaction payload.
 
         :param sender: the sender (Ethereum) address
-        :param job_contract_address: the job contract address
         :param is_workable: whether the contract is workable
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
-        self._job_contract_address = job_contract_address
         self._is_workable = is_workable
-
-    @property
-    def job_contract_address(self) -> str:
-        """Get the job contract address."""
-        return self._job_contract_address
 
     @property
     def is_workable(self) -> bool:

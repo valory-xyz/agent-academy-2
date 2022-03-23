@@ -41,14 +41,9 @@ def test_registration_payload() -> None:
 def test_is_workable_payload() -> None:
     """Test `IsWorkablePayload`."""
 
-    payload = IsWorkablePayload(
-        sender="sender",
-        job_contract_address="job_contract_address",
-        is_workable=True
-    )
+    payload = IsWorkablePayload(sender="sender", is_workable=True)
 
     assert payload.sender == "sender"
-    assert payload.job_contract_address == "job_contract_address"
     assert payload.is_workable == True
     assert payload.transaction_type == TransactionType.IS_WORKABLE
 

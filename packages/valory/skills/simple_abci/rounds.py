@@ -156,7 +156,7 @@ class IsWorkableRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
 
     round_id = "is_workable"
     allowed_tx_type = IsWorkablePayload.transaction_type
-    payload_attribute = "job_contract_address"
+    payload_attribute = "is_workable"
 
     def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
         """Process the end of the block."""

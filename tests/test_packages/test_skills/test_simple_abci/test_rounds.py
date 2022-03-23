@@ -177,7 +177,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
         first_payload, *payloads = [
             IsWorkablePayload(
                 sender=participant,
-                job_contract_address="job_contract_address",
+                is_workable=True,
             ) for participant in self.participants
         ]
 
