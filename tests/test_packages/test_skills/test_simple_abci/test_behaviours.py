@@ -52,6 +52,7 @@ from packages.valory.skills.abstract_round_abci.behaviours import AbstractRoundB
 from packages.valory.skills.simple_abci.behaviours import (
     RandomnessAtStartupBehaviour,
     RegistrationBehaviour,
+    IsWorkableBehaviour,
     ResetAndPauseBehaviour,
     SelectKeeperAtStartupBehaviour,
     SimpleAbciConsensusBehaviour,
@@ -588,6 +589,32 @@ class TestRegistrationBehaviour(SimpleAbciFSMBehaviourBaseCase):
                 cast(BaseState, self.simple_abci_behaviour.current_state),
             ).state_id
             == RegistrationBehaviour.state_id
+        )
+        self.simple_abci_behaviour.act_wrapper()
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+
+        self.end_round()
+        state = cast(BaseState, self.simple_abci_behaviour.current_state)
+        assert state.state_id == RandomnessAtStartupBehaviour.state_id
+
+
+class TestIsWorkableBehaviour(SimpleAbciFSMBehaviourBaseCase):
+    """Test case to test IsWorkableBehaviour."""
+
+    def test_is_workable(self) -> None:
+        """Test is workable."""
+        self.fast_forward_to_state(
+            self.simple_abci_behaviour,
+            IsWorkableBehaviour.state_id,
+            self.period_state,
+        )
+        assert (
+            cast(
+                BaseState,
+                cast(BaseState, self.simple_abci_behaviour.current_state),
+            ).state_id
+            == IsWorkableBehaviour.state_id
         )
         self.simple_abci_behaviour.act_wrapper()
         self.mock_a2a_transaction()

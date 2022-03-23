@@ -23,6 +23,8 @@ from abc import ABC
 from math import floor
 from typing import Generator, List, Set, Type, cast
 
+from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.valory.protocols.contract_api import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseState,
@@ -30,6 +32,7 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
 from packages.valory.skills.simple_abci.models import Params, SharedState
 from packages.valory.skills.simple_abci.payloads import (
     RandomnessPayload,
+    IsWorkablePayload,
     RegistrationPayload,
     ResetPayload,
     SelectKeeperPayload,
@@ -37,6 +40,7 @@ from packages.valory.skills.simple_abci.payloads import (
 from packages.valory.skills.simple_abci.rounds import (
     PeriodState,
     RandomnessStartupRound,
+    IsWorkableRound,
     RegistrationRound,
     ResetAndPauseRound,
     SelectKeeperAtStartupRound,
@@ -95,6 +99,81 @@ class RegistrationBehaviour(SimpleABCIBaseState):
             yield from self.wait_until_round_end()
 
         self.set_done()
+
+
+class IsWorkableBehaviour(SimpleABCIBaseState):
+    """Check whether the job contract is workable."""
+
+    state_id = "is_workable"
+    matching_round = IsWorkableRound
+
+    def async_act(self) -> Generator:
+        """
+        """
+        with self.context.benchmark_tool.measure(self.state_id).local():
+            self.context.logger.info(
+                "I am the designated sender, deploying the safe contract..."
+            )
+            contract_address = yield from self._get_state()
+            if contract_address is None:
+                # The safe_deployment_abci app should only be used in staging.
+                # If the safe contract deployment fails we abort. Alternatively,
+                # we could send a None payload and then transition into an appropriate
+                # round to handle the deployment failure.
+                raise RuntimeError("Safe deployment failed!")  # pragma: nocover
+            payload = IsWorkablePayload(self.context.agent_address, contract_address)
+
+        with self.context.benchmark_tool.measure(self.state_id).consensus():
+            self.context.logger.info(f"Safe contract address: {contract_address}")
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def _get_state(self):
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+            contract_address=self.context.param.job_contract_address,
+            contract_id=str(GnosisSafeContract.contract_id),
+            contract_callable="workable",
+        )
+        return contract_api_response
+        # if (
+        #     contract_api_response.performative
+        #     != ContractApiMessage.Performative.RAW_TRANSACTION
+        # ):  # pragma: nocover
+        #     self.context.logger.warning("get_deploy_transaction unsuccessful!")
+        #     return None
+        # contract_address = cast(
+        #     str, contract_api_response.raw_transaction.body.pop("contract_address")
+        # )
+        # tx_digest, _ = yield from self.send_raw_transaction(
+        #     contract_api_response.raw_transaction
+        # )
+        # if tx_digest is None:  # pragma: nocover
+        #     self.context.logger.warning("send_raw_transaction unsuccessful!")
+        #     return None
+        # tx_receipt = yield from self.get_transaction_receipt(
+        #     tx_digest,
+        #     self.params.retry_timeout,
+        #     self.params.retry_attempts,
+        # )
+        # if tx_receipt is None:  # pragma: nocover
+        #     self.context.logger.warning("get_transaction_receipt unsuccessful!")
+        #     return None
+        # _ = EthereumApi.get_contract_address(
+        #     tx_receipt
+        # )  # returns None as the contract is created via a proxy
+        # self.context.logger.info(f"Deployment tx digest: {tx_digest}")
+        # return contract_address
+
+    def clean_up(self) -> None:
+        """
+        Clean up the resources due to a 'stop' event.
+
+        It can be optionally implemented by the concrete classes.
+        """
+        self.context.randomness_api.reset_retries()
 
 
 class RandomnessBehaviour(SimpleABCIBaseState):
@@ -251,6 +330,7 @@ class SimpleAbciConsensusBehaviour(AbstractRoundBehaviour):
     abci_app_cls = SimpleAbciApp  # type: ignore
     behaviour_states: Set[Type[SimpleABCIBaseState]] = {  # type: ignore
         RegistrationBehaviour,  # type: ignore
+        IsWorkableBehaviour,  # type: ignore
         RandomnessAtStartupBehaviour,  # type: ignore
         SelectKeeperAtStartupBehaviour,  # type: ignore
         ResetAndPauseBehaviour,  # type: ignore
