@@ -114,17 +114,17 @@ class IsWorkableBehaviour(SimpleABCIBaseState):
             self.context.logger.info(
                 "I am the designated sender, deploying the safe contract..."
             )
-            contract_address = yield from self._get_state()
-            if contract_address is None:
+            is_workable = yield from self._get_state()
+            if is_workable is None:
                 # The safe_deployment_abci app should only be used in staging.
                 # If the safe contract deployment fails we abort. Alternatively,
                 # we could send a None payload and then transition into an appropriate
                 # round to handle the deployment failure.
                 raise RuntimeError("Safe deployment failed!")  # pragma: nocover
-            payload = IsWorkablePayload(self.context.agent_address, contract_address)
+            payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
-            self.context.logger.info(f"Safe contract address: {contract_address}")
+            self.context.logger.info(f"Job contract is workable {self.context.params.job_contract_address}: {is_workable}")
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
@@ -133,7 +133,7 @@ class IsWorkableBehaviour(SimpleABCIBaseState):
     def _get_state(self):
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.context.param.job_contract_address,
+            contract_address=self.context.params.job_contract_address,
             contract_id=str(GnosisSafeContract.contract_id),
             contract_callable="workable",
         )
