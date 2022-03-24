@@ -1,0 +1,19 @@
+name: gnosis_safe
+author: valory
+version: 0.1.0
+type: contract
+description: Keep3r job (Keep3rV2OracleFactory) contract
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: Qmd5NcJnij2d19rhtNJgsTSBU7ErTdYVH2c621j6TKN7Qz
+  __init__.py: QmVGGRitrfXCapowAPnn565KSg4QWCMfumtbpuoz8z57yC
+  build/Keep3rV2OracleFactory.json: QmafMmPcVqiTLykozgjGwNL2S8b1g5bmgMP3z6EdecgMYh
+  contract.py: Qmaj4qaE9noHsDPt6wLaY5abgBA42931LRKcRGLjJmXtpn
+fingerprint_ignore_patterns: []
+contracts: []
+class_name: Keep3rV2OracleFactoryJobContract
+contract_interface_paths:
+  ethereum: build/Keep3rV2OracleFactory.json
+dependencies:
+  py-eth-sig-utils: {}
