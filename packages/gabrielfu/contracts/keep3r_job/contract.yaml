@@ -6,14 +6,14 @@ description: Keep3r job contract
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: Qmd5NcJnij2d19rhtNJgsTSBU7ErTdYVH2c621j6TKN7Qz
+  README.md: QmPoiCaZKzkApXa6ZKZ436KgedV1C6n23wKEqfnzLK5sy3
   __init__.py: QmVGGRitrfXCapowAPnn565KSg4QWCMfumtbpuoz8z57yC
-  build/Keep3rV2OracleFactory.json: QmafMmPcVqiTLykozgjGwNL2S8b1g5bmgMP3z6EdecgMYh
-  contract.py: Qmaj4qaE9noHsDPt6wLaY5abgBA42931LRKcRGLjJmXtpn
+  build/Keep3rJob.json: QmZLcKPYFpJnmjtE1Bv5p5GERxU6hqFApGn7YHQRVNSzgW
+  contract.py: QmdpXUTfznu6vVj39iV8e6ux5a5bHeD5zoubqdNipJ9A72
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rJobContract
 contract_interface_paths:
-  ethereum: build/Keep3rV2OracleFactory.json
+  ethereum: build/Keep3rJob.json
 dependencies:
   py-eth-sig-utils: {}

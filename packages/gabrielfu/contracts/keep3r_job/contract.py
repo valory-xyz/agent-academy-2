@@ -37,10 +37,6 @@ from requests import HTTPError
 from web3.exceptions import SolidityError, TransactionNotFound
 from web3.types import Nonce, TxData, TxParams, Wei
 
-from packages.valory.contracts.gnosis_safe.contract import (
-    GnosisSafeContract,
-)
-
 
 PUBLIC_ID = PublicId.from_str("gabrielfu/keep3r_job:0.1.0")
 
@@ -95,5 +91,24 @@ class Keep3rJobContract(Contract):
         cls, ledger_api: LedgerApi, contract_address: str, **kwargs: Any
     ) -> Optional[JSONLike]:
         """Get state."""
-        contract = cls.get_instance(ledger_api, contract_address)
+        raise NotImplementedError
+
+    @classmethod
+    def get_gas_price(
+            cls, ledger_api: LedgerApi, **kwargs: Any
+    ) -> Optional[Wei]:
+        """Get the gas price."""
+        ethereum_api = cast(EthereumApi, ledger_api)
+        gas_price = ethereum_api.api.eth.generate_gas_price()
+        return gas_price
+
+    @classmethod
+    def get_workable(
+            cls, ledger_api: LedgerApi, contract_address: str, **kwargs: Any
+    ) -> Optional[bool]:
+        """Get the workable flag from the contract."""
+        ethereum_api = cast(EthereumApi, ledger_api)
+        contract = cls.get_instance(ethereum_api, contract_address)
+        workable = contract.functions.workable().call()
+        return workable
 
