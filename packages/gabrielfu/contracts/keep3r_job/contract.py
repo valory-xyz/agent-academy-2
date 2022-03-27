@@ -17,7 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the class to connect to an Gnosis Safe contract."""
+"""This module contains the class to connect to an Keep3r Job contract."""
 import binascii
 import logging
 import secrets
