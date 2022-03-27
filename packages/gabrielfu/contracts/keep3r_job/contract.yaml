@@ -7,9 +7,9 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: QmPoiCaZKzkApXa6ZKZ436KgedV1C6n23wKEqfnzLK5sy3
-  __init__.py: QmVGGRitrfXCapowAPnn565KSg4QWCMfumtbpuoz8z57yC
+  __init__.py: QmNQkrYx3JTPSTDz991Z2pVToZYaCSFUU7PbqkDq3RRNgr
   build/Keep3rJob.json: QmZLcKPYFpJnmjtE1Bv5p5GERxU6hqFApGn7YHQRVNSzgW
-  contract.py: QmdpXUTfznu6vVj39iV8e6ux5a5bHeD5zoubqdNipJ9A72
+  contract.py: QmWvDewGVgzdsMUVQt42qqrkqoDtKN4d2pcXM1gs1Rsqa6
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rJobContract
