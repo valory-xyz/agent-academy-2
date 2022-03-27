@@ -1,4 +1,4 @@
-# Gnosis Safe contract
+# Generic Keep3r Job Contract
 
 ## Description
 

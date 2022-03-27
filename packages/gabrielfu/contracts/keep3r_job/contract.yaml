@@ -1,8 +1,8 @@
-name: gnosis_safe
-author: valory
+name: keep3r_job
+author: gabrielfu
 version: 0.1.0
 type: contract
-description: Keep3r job (Keep3rV2OracleFactory) contract
+description: Keep3r job contract
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
@@ -12,7 +12,7 @@ fingerprint:
   contract.py: Qmaj4qaE9noHsDPt6wLaY5abgBA42931LRKcRGLjJmXtpn
 fingerprint_ignore_patterns: []
 contracts: []
-class_name: Keep3rV2OracleFactoryJobContract
+class_name: Keep3rJobContract
 contract_interface_paths:
   ethereum: build/Keep3rV2OracleFactory.json
 dependencies:
