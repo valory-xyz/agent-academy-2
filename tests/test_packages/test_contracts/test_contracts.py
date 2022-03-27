@@ -55,7 +55,7 @@ class TestKeep3rJobContract(BaseContractTestCase):
         """Test gets `workable` method."""
         # mock contract function
         mock_function = mock.MagicMock()
-        mock_function.call.return_value = True
+        mock_function.call.return_value = IS_WORKABLE
         # mock contract instance
         mock_instance = mock.MagicMock()
         mock_instance.functions.workable.return_value = mock_function
