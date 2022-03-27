@@ -7,7 +7,7 @@ from aea.test_tools.test_contract import BaseContractTestCase
 from packages.gabrielfu.contracts.keep3r_job.contract import (
     PUBLIC_ID,
     CONTRACT_ADDRESS,
-    Keep3rJobContract
+    Keep3rJobContract,
 )
 
 from tests.conftest import ROOT_DIR
@@ -18,6 +18,7 @@ CHAIN_ID = 1
 
 GAS_PRICE = 20000000000
 IS_WORKABLE = True
+
 
 class TestKeep3rJobContract(BaseContractTestCase):
     """Test Keep3rJobContract."""
@@ -42,10 +43,10 @@ class TestKeep3rJobContract(BaseContractTestCase):
     def test_get_gas_price(self) -> None:
         """Test gets gas price."""
         with mock.patch.object(
-                self.ledger_api.api.eth, "generate_gas_price", return_value=GAS_PRICE
+            self.ledger_api.api.eth, "generate_gas_price", return_value=GAS_PRICE
         ):
             with mock.patch.object(
-                    self.ledger_api.api.manager, "request_blocking", return_value=CHAIN_ID
+                self.ledger_api.api.manager, "request_blocking", return_value=CHAIN_ID
             ):
                 result = self.contract.get_gas_price(self.ledger_api)
         assert result == GAS_PRICE
@@ -60,7 +61,7 @@ class TestKeep3rJobContract(BaseContractTestCase):
         mock_instance.functions.workable.return_value = mock_function
 
         with mock.patch.object(
-                self.ledger_api, "get_contract_instance", return_value=mock_instance
+            self.ledger_api, "get_contract_instance", return_value=mock_instance
         ):
             result = self.contract.get_workable(self.ledger_api, CONTRACT_ADDRESS)
         assert result == IS_WORKABLE
