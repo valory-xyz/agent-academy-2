@@ -20,7 +20,7 @@ GAS_PRICE = 20000000000
 IS_WORKABLE = True
 
 class TestKeep3rJobContract(BaseContractTestCase):
-    """Test TestUniswapV2ERC20Contract."""
+    """Test Keep3rJobContract."""
 
     path_to_contract = Path(
         ROOT_DIR, "packages", PUBLIC_ID.author, "contracts", PUBLIC_ID.name
