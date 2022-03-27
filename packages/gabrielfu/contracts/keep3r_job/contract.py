@@ -42,7 +42,7 @@ from packages.valory.contracts.gnosis_safe.contract import (
 )
 
 
-PUBLIC_ID = PublicId.from_str("valory/keep3r_job:0.1.0")
+PUBLIC_ID = PublicId.from_str("gabrielfu/keep3r_job:0.1.0")
 
 _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"
