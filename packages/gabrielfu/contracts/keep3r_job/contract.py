@@ -17,12 +17,11 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the class to connect to an Keep3r Job contract."""
-import binascii
+"""This module contains the class to connect to a Keep3r Job contract."""
 import logging
 import secrets
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Optional, cast
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
@@ -30,12 +29,7 @@ from aea.contracts.base import Contract
 from aea.crypto.base import LedgerApi
 from aea_ledger_ethereum import EthereumApi
 from eth_typing import ChecksumAddress, HexAddress, HexStr
-from hexbytes import HexBytes
-from packaging.version import Version
-from py_eth_sig_utils.eip712 import encode_typed_data
-from requests import HTTPError
-from web3.exceptions import SolidityError, TransactionNotFound
-from web3.types import Nonce, TxData, TxParams, Wei
+from web3.types import Wei
 
 
 PUBLIC_ID = PublicId.from_str("gabrielfu/keep3r_job:0.1.0")
@@ -111,4 +105,3 @@ class Keep3rJobContract(Contract):
         contract = cls.get_instance(ethereum_api, contract_address)
         workable = contract.functions.workable().call()
         return workable
-

@@ -9,7 +9,7 @@ fingerprint:
   README.md: QmPoiCaZKzkApXa6ZKZ436KgedV1C6n23wKEqfnzLK5sy3
   __init__.py: QmNQkrYx3JTPSTDz991Z2pVToZYaCSFUU7PbqkDq3RRNgr
   build/Keep3rJob.json: QmZLcKPYFpJnmjtE1Bv5p5GERxU6hqFApGn7YHQRVNSzgW
-  contract.py: QmWvDewGVgzdsMUVQt42qqrkqoDtKN4d2pcXM1gs1Rsqa6
+  contract.py: QmZkL6dt796o99DFJxo2tvhpDraMTJzKdszKWkzMSDxChs
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rJobContract
