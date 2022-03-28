@@ -32,12 +32,6 @@ DEFAULT_REQUESTS_TIMEOUT = 5.0
 MAX_RETRIES = 30
 LOCALHOST = "localhost"
 HTTP_LOCALHOST = f"http://{LOCALHOST}"
-ARTBLOCKS_ADDRESS = "0x1CD623a86751d4C4f20c96000FEC763941f098A2"
-ARTBLOCKS_PERIPHERY_ADDRESS = "0x58727f5Fc3705C30C9aDC2bcCC787AB2BA24c441"
-TARGET_PROJECT_ID = (
-    56  # id of project that we want to test the behaviour of the El Collectooor
-)
-DECISION_MODEL_TYPE = "yes"
 
 # default hardhat key pairs (public key, private key)
 KEY_PAIRS: List[Tuple[str, str]] = [
