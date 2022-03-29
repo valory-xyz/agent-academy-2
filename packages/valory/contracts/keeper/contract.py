@@ -117,7 +117,6 @@ class KeeperContract(Contract):
         :return: the raw work transaction
         """
         sender_address = ledger_api.api.toChecksumAddress(sender_address)
-        to_address = ledger_api.api.toChecksumAddress(to_address)
         ledger_api = cast(EthereumApi, ledger_api)
         signatures = cls._get_packed_signatures(owners, signatures_by_owner)
         job_contract = cls.get_instance(ledger_api, job_contract_address)
