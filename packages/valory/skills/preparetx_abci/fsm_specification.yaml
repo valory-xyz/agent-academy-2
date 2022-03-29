@@ -1,0 +1,20 @@
+alphabet_in:
+- DONE
+- NO_MAJORITY
+- RESET_TIMEOUT
+- ROUND_TIMEOUT
+default_start_state: PrepareTxRound
+label: packages.valory.skills.preparetx_abci.rounds.PrepareTxAbciApp
+start_states:
+- PrepareTxRound
+states:
+- PrepareTxRound
+- FailedRound
+- FinishedTransactionSubmissionRound
+final_states:
+- FailedRound
+- FinishedTransactionSubmissionRound
+transition_func:
+    (PrepareTxRound, DONE): FinishedTransactionSubmissionRound
+    (PrepareTxRound, NO_MAJORITY): FailedRound
+    (PrepareTxRound, ROUND_TIMEOUT): FailedRound

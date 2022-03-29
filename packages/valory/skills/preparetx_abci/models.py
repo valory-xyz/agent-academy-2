@@ -21,6 +21,8 @@
 
 from typing import Any
 
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Type, cast
+
 from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
@@ -30,6 +32,15 @@ from packages.valory.skills.abstract_round_abci.models import (
     SharedState as BaseSharedState,
 )
 from packages.valory.skills.simple_abci.rounds import Event, SimpleAbciApp
+
+from packages.valory.skills.abstract_round_abci.base import (
+    BasePeriodState,
+)
+
+from packages.valory.skills.simple_abci.payloads import (
+    RandomnessPayload,
+    SelectKeeperPayload,
+)
 
 
 MARGIN = 5
@@ -62,3 +73,56 @@ Params = BaseParams
 
 class RandomnessApi(ApiSpecs):
     """A model that wraps ApiSpecs for randomness api specifications."""
+
+class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attributes
+    """
+    Class to represent a period state.
+
+    This state is replicated by the tendermint application.
+    """
+
+    @property
+    def keeper_randomness(self) -> float:
+        """Get the keeper's random number [0-1]."""
+        res = int(self.most_voted_randomness, base=16) // 10 ** 0 % 10
+        return cast(float, res / 10)
+
+    @property
+    def sorted_participants(self) -> Sequence[str]:
+        """
+        Get the sorted participants' addresses.
+
+        The addresses are sorted according to their hexadecimal value;
+        this is the reason we use key=str.lower as comparator.
+
+        This property is useful when interacting with the Safe contract.
+
+        :return: the sorted participants' addresses
+        """
+        return sorted(self.participants, key=str.lower)
+
+    @property
+    def participant_to_randomness(self) -> Mapping[str, RandomnessPayload]:
+        """Get the participant_to_randomness."""
+        return cast(
+            Mapping[str, RandomnessPayload],
+            self.db.get_strict("participant_to_randomness"),
+        )
+
+    @property
+    def most_voted_randomness(self) -> str:
+        """Get the most_voted_randomness."""
+        return cast(str, self.db.get_strict("most_voted_randomness"))
+
+    @property
+    def most_voted_keeper_address(self) -> str:
+        """Get the most_voted_keeper_address."""
+        return cast(str, self.db.get_strict("most_voted_keeper_address"))
+
+    @property
+    def participant_to_selection(self) -> Mapping[str, SelectKeeperPayload]:
+        """Get the participant_to_selection."""
+        return cast(
+            Mapping[str, SelectKeeperPayload],
+            self.db.get_strict("participant_to_selection"),
+        )
