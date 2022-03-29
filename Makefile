@@ -52,7 +52,7 @@ pylint:
 
 .PHONY: hashes
 hashes:
-	python scripts/generate_ipfs_hashes.py --vendor valory
+	python scripts/generate_ipfs_hashes.py
 
 .PHONY: static
 static:
