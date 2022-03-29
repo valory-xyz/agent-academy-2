@@ -18,18 +18,15 @@
 # ------------------------------------------------------------------------------
 
 """Conftest module for Pytest."""
-import json
 import logging
 from pathlib import Path
 from typing import Any, Generator, List, Tuple
 
 import docker
 import pytest
-from web3 import Web3
 
-from tests.helpers.constants import ARTBLOCKS_ADDRESS, GANACHE_KEY_PAIRS, KEY_PAIRS
+from tests.helpers.constants import GANACHE_KEY_PAIRS, KEY_PAIRS
 from tests.helpers.constants import ROOT_DIR as _ROOT_DIR
-from tests.helpers.constants import TARGET_PROJECT_ID
 from tests.helpers.docker.base import launch_image
 from tests.helpers.docker.ganache import (
     DEFAULT_GANACHE_ADDR,
@@ -131,39 +128,3 @@ def ganache_fork_scope_function(
     logging.info(f"Launching Ganache at port {ganache_port}")
     image = GanacheForkDockerImage(client, ganache_addr, ganache_port)
     yield from launch_image(image, timeout=timeout, max_attempts=max_attempts)
-
-
-@pytest.fixture()
-def ganache_fork_engine_warmer_function(
-    ganache_fork_scope_function: Any,
-    ganache_addr: Any,
-    ganache_port: Any,
-    timeout: float = 60.0,
-) -> None:
-    """The ganache fork is very slow on the first try. This function is used to go through the same steps as the agent would do later."""
-
-    path_to_artblocks = Path(
-        _ROOT_DIR,
-        "packages",
-        "valory",
-        "contracts",
-        "artblocks",
-        "build",
-        "artblocks.json",
-    )
-
-    with open(path_to_artblocks) as f:
-        artblocks_abi = json.load(f)["abi"]
-
-    w3 = Web3(
-        Web3.HTTPProvider(
-            f"{ganache_addr}:{ganache_port}", request_kwargs={"timeout": timeout}
-        )
-    )
-
-    artblocks = w3.eth.contract(address=ARTBLOCKS_ADDRESS, abi=artblocks_abi)  # type: ignore
-    project_info = artblocks.caller.projectTokenInfo(TARGET_PROJECT_ID)
-    if project_info[4]:
-        script_info = artblocks.caller.projectScriptInfo(TARGET_PROJECT_ID)
-        artblocks.caller.projectScriptByIndex(TARGET_PROJECT_ID, script_info[1] - 1)
-    artblocks.caller.projectDetails(TARGET_PROJECT_ID)
