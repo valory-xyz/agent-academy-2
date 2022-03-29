@@ -31,10 +31,14 @@ jobs:
         sudo apt-get autoclean
         pip install --upgrade setuptools
         pip install pipenv
-    - name: Pipenv install requirements and check it can be locked
+    - name: Pipenv install requirements
       run: |
         pipenv install --dev --skip-lock
+    - name: Pipenv install
+      run: |
         pipenv run pip install -e .[all]
+    - name: Pipenv lock
+      run: |
         pipenv lock
 
   copyright_and_doc_check:
