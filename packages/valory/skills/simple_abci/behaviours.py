@@ -23,7 +23,7 @@ from abc import ABC
 from math import floor
 from typing import Generator, List, Set, Type, cast
 
-from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 from packages.valory.protocols.contract_api import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
@@ -114,7 +114,7 @@ class IsWorkableBehaviour(SimpleABCIBaseState):
             self.context.logger.info(
                 "I am the designated sender, deploying the safe contract..."
             )
-            is_workable = yield from self._get_state()
+            is_workable = yield from self._get_workable()
             if is_workable is None:
                 # The safe_deployment_abci app should only be used in staging.
                 # If the safe contract deployment fails we abort. Alternatively,
@@ -130,12 +130,12 @@ class IsWorkableBehaviour(SimpleABCIBaseState):
 
         self.set_done()
 
-    def _get_state(self):
+    def _get_workable(self):
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
             contract_address=self.context.params.job_contract_address,
-            contract_id=str(GnosisSafeContract.contract_id),
-            contract_callable="workable",
+            contract_id=str(Keep3rJobContract.contract_id),
+            contract_callable="get_workable",
         )
         return contract_api_response
         # if (

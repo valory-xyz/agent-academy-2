@@ -64,7 +64,7 @@ from packages.valory.skills.simple_abci.handlers import (
     SigningHandler,
 )
 from packages.valory.skills.simple_abci.rounds import Event, PeriodState
-from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 
 from tests.conftest import ROOT_DIR
 
@@ -603,6 +603,9 @@ class TestRegistrationBehaviour(SimpleAbciFSMBehaviourBaseCase):
 class TestIsWorkableBehaviour(SimpleAbciFSMBehaviourBaseCase):
     """Test case to test IsWorkableBehaviour."""
 
+    CONTRACT_ADDRESS: str = "contract_address"
+    CONTRACT_CALLABLE: str = "get_workable"
+
     def test_is_workable(self) -> None:
         """Test is workable."""
         self.fast_forward_to_state(
@@ -617,29 +620,26 @@ class TestIsWorkableBehaviour(SimpleAbciFSMBehaviourBaseCase):
             ).state_id
             == IsWorkableBehaviour.state_id
         )
-        with (
-            mock.patch.object(
-                self.simple_abci_behaviour.context.params,
-                "job_contract_address",
-                new="0x12345",
-                create=True,
-            ),
-            mock.patch.object(
-                GnosisSafeContract,
-                "contract_interface"
-            )
+        with mock.patch.object(
+            self.simple_abci_behaviour.context.params,
+            "job_contract_address",
+            new=self.CONTRACT_ADDRESS,
+            create=True,
         ):
             self.simple_abci_behaviour.act_wrapper()
-            state = cast(BaseState, self.simple_abci_behaviour.current_state)
-            assert state.state_id == self.randomness_behaviour_class.state_id
-            self._test_done_flag_set()
-        self.simple_abci_behaviour.act_wrapper()
-        self.mock_a2a_transaction()
-        self._test_done_flag_set()
+            self.mock_contract_api_request(
+                contract_id=str(Keep3rJobContract.contract_id),
+                request_kwargs={
+                    "performative": ContractApiMessage.Performative.GET_STATE,
+                    "callable": self.CONTRACT_CALLABLE
+                },
+                response_kwargs={}
+            )
+            self.simple_abci_behaviour.act_wrapper()
 
-        self.end_round()
+            self.end_round()
         state = cast(BaseState, self.simple_abci_behaviour.current_state)
-        assert state.state_id == RandomnessAtStartupBehaviour.state_id
+        assert state.state_id == IsWorkableBehaviour.state_id
 
 
 class TestRandomnessAtStartup(BaseRandomnessBehaviourTest):
