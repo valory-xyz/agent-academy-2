@@ -10,6 +10,7 @@ open-aea-cli-ipfs = "<2.0.0,>=1.6.0"
 [dev-packages]
 aiohttp = "<3.8,>=3.7.4"
 black = "==21.6b0"
+click= "==7.1.2"
 certifi = "==2021.10.8"
 darglint = "==1.8.0"
 docker = "==5.0.2"
