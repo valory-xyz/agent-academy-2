@@ -28,12 +28,6 @@ import pytest
 from aea.configurations.base import PublicId
 from aea.test_tools.test_cases import AEATestCaseMany
 
-from tests.helpers.constants import ARTBLOCKS_ADDRESS as _DEFAULT_ARTBLOCKS_ADDRESS
-from tests.helpers.constants import (
-    ARTBLOCKS_PERIPHERY_ADDRESS as _DEFAULT_ARTBLOCKS_PERIPHERY_ADDRESS,
-)
-from tests.helpers.constants import DECISION_MODEL_TYPE as _DEFAULT_DECISION_MODEL_TYPE
-from tests.helpers.constants import TARGET_PROJECT_ID as _DEFAULT_TARGET_PROJECT_ID
 from tests.helpers.tendermint_utils import (
     BaseTendermintTestClass,
     TendermintLocalNetworkBuilder,
