@@ -20,18 +20,15 @@
 """This module contains the data classes for the Keep3r Bot ABCI application."""
 from abc import ABC
 from enum import Enum
-from types import MappingProxyType
-from typing import Dict, Mapping, Optional, Tuple, Type, cast
+from typing import Dict, Tuple, Type, cast
 
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
     AbciAppTransitionFunction,
     AbstractRound,
     BasePeriodState,
-    CollectSameUntilThresholdRound,
 )
 from packages.keep3r_co.skills.keep3r_bot_9k_abci.payloads import (
-    IsWorkablePayload,
     TransactionType,
 )
 
@@ -52,18 +49,6 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
     This state is replicated by the tendermint application.
     """
 
-    @property
-    def participant_to_is_workable(self) -> Mapping[str, IsWorkablePayload]:
-        """Get the participant_to_is_workable."""
-        return cast(
-            Mapping[str, IsWorkablePayload],
-            self.db.get_strict("participant_to_is_workable"),
-        )
-
-    @property
-    def most_voted_is_workable(self) -> str:
-        """Get the most_voted_is_workable."""
-        return cast(str, self.db.get_strict("most_voted_is_workable"))
 
 
 class Keep3rBotABCIAbstractRound(AbstractRound[Event, TransactionType], ABC):
@@ -81,30 +66,6 @@ class Keep3rBotABCIAbstractRound(AbstractRound[Event, TransactionType], ABC):
         :return: a new period state and a NO_MAJORITY event
         """
         return self.period_state, Event.NO_MAJORITY
-
-
-
-class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rBotABCIAbstractRound):
-    """Check whether the keep3r job contract is workable."""
-
-    round_id = "is_workable"
-    allowed_tx_type = IsWorkablePayload.transaction_type
-    payload_attribute = "is_workable"
-
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
-        """Process the end of the block."""
-        if self.threshold_reached:
-            state = self.period_state.update(
-                participant_to_is_workable=MappingProxyType(self.collection),
-                most_voted_is_workable=self.most_voted_payload,
-            )
-            return state, Event.DONE
-        if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
-        ):
-            return self._return_no_majority_event()
-        return None
-
 
 
 

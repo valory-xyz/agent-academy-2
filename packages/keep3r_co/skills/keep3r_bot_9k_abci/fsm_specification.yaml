@@ -7,6 +7,5 @@ default_start_state: []
 final_states: []
 label: packages.keep3r_co.skills.keep3r_bot_9k_abci.rounds.Keep3rBotAbciApp
 start_states: []
-states:
-- IsWorkableRound
+states: []
 transition_func: []
