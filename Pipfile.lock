@@ -1,0 +1,31 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "90cf3a9b1cf61ff978f78b8b02db61d2f90a25380d7a54335736f35465eb73b7"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.8"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "open-aea": {
+            "extras": [
+                "all"
+            ],
+            "version": "<2.0.0,>=1.6.0"
+        }
+    },
+    "develop": {
+        "mkdocs-mermaid-plugin": {
+            "git": "https://github.com/pugong/mkdocs-mermaid-plugin.git"
+        }
+    }
+}

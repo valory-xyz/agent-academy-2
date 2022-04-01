@@ -33,7 +33,6 @@ from packages.gabrielfu.contracts.keep3r_job.contract import (
 from tests.conftest import ROOT_DIR
 
 
-NONCE = 0
 CHAIN_ID = 1
 
 GAS_PRICE = 20000000000
