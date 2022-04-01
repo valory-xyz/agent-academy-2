@@ -34,7 +34,6 @@ from packages.valory.skills.abstract_round_abci.base import (
 )
 from packages.valory.skills.simple_abci.payloads import (
     RandomnessPayload,
-    IsWorkablePayload,
     RegistrationPayload,
     ResetPayload,
     SelectKeeperPayload,
@@ -148,28 +147,6 @@ class RegistrationRound(CollectDifferentUntilAllRound, SimpleABCIAbstractRound):
                 period_state_class=PeriodState,
             )
             return state, Event.DONE
-        return None
-
-
-class IsWorkableRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
-    """Check whether the keep3r job contract is workable."""
-
-    round_id = "is_workable"
-    allowed_tx_type = IsWorkablePayload.transaction_type
-    payload_attribute = "is_workable"
-
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
-        """Process the end of the block."""
-        if self.threshold_reached:
-            state = self.period_state.update(
-                participant_to_selection=MappingProxyType(self.collection),
-                most_voted_keeper_address=self.most_voted_payload,
-            )
-            return state, Event.DONE
-        if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
-        ):
-            return self._return_no_majority_event()
         return None
 
 
@@ -288,12 +265,7 @@ class SimpleAbciApp(AbciApp[Event]):
     initial_round_cls: Type[AbstractRound] = RegistrationRound
     transition_function: AbciAppTransitionFunction = {
         RegistrationRound: {
-            Event.DONE: IsWorkableRound,
-        },
-        IsWorkableRound: {
             Event.DONE: RandomnessStartupRound,
-            Event.ROUND_TIMEOUT: RegistrationRound,
-            Event.NO_MAJORITY: RegistrationRound,
         },
         RandomnessStartupRound: {
             Event.DONE: SelectKeeperAtStartupRound,
