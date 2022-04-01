@@ -30,7 +30,6 @@ from packages.valory.skills.abstract_round_abci.base import (
 )
 from packages.valory.skills.simple_abci.payloads import (
     RandomnessPayload,
-    IsWorkablePayload,
     RegistrationPayload,
     ResetPayload,
     SelectKeeperPayload,
@@ -40,7 +39,6 @@ from packages.valory.skills.simple_abci.rounds import (
     PeriodState,
     RandomnessStartupRound,
     RegistrationRound,
-    IsWorkableRound,
     ResetAndPauseRound,
     SelectKeeperAtStartupRound,
     rotate_list,
@@ -158,51 +156,6 @@ class TestRegistrationRound(BaseRoundTestClass):
         assert (
             cast(PeriodState, state).participants
             == cast(PeriodState, actual_next_state).participants
-        )
-        assert event == Event.DONE
-
-
-class TestIsWorkableRound(BaseRoundTestClass):
-    """Tests for RegistrationRound."""
-
-    def test_run(
-        self,
-    ) -> None:
-        """Run tests."""
-
-        test_round = IsWorkableRound(
-            state=self.period_state, consensus_params=self.consensus_params
-        )
-
-        first_payload, *payloads = [
-            IsWorkablePayload(
-                sender=participant,
-                is_workable=True,
-            ) for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection[first_payload.sender] == first_payload
-        assert test_round.end_block() is None
-
-        self._test_no_majority_event(test_round)
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.period_state.update(
-            participant_to_selection=MappingProxyType(test_round.collection),
-            most_voted_keeper_address=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert all(
-            [
-                key in cast(PeriodState, state).participant_to_selection
-                for key in cast(PeriodState, actual_next_state).participant_to_selection
-            ]
         )
         assert event == Event.DONE
 
