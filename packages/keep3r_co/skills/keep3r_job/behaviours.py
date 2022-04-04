@@ -23,7 +23,7 @@ from abc import ABC
 from typing import Generator, Optional, Set, Type, cast
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
-from packages.keep3r_co.skills.keep3r_job.models import SharedState
+from packages.keep3r_co.skills.keep3r_job.models import Params, SharedState
 from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload
 from packages.keep3r_co.skills.keep3r_job.rounds import Keep3rJobAbciApp, PrepareTxRound
 from packages.valory.protocols.contract_api.message import ContractApiMessage
@@ -32,7 +32,6 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseState,
 )
-from packages.valory.skills.simple_abci.models import Params, SharedState
 
 
 class Keep3rJobAbciBaseState(BaseState, ABC):
@@ -85,7 +84,6 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
 
     def _get_raw_work_transaction(self) -> Generator[None, None, Optional[str]]:
         owners = self.period_state.sorted_participants
-        threshold = self.params.consensus_params.consensus_threshold
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_DEPLOY_TRANSACTION,  # type: ignore
             contract_address=None,

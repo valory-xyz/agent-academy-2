@@ -19,14 +19,13 @@
 
 """Test the base.py module of the skill."""
 import logging  # noqa: F401
-from types import MappingProxyType
 from typing import Dict, FrozenSet, cast
 from unittest import mock
 
+from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
     PeriodState,
-    Keep3rJobAbciApp,
     PrepareTxRound,
     rotate_list,
 )
@@ -39,9 +38,6 @@ from packages.valory.skills.simple_abci.payloads import (
     RandomnessPayload,
     ResetPayload,
     SelectKeeperPayload,
-)
-from packages.keep3r_co.skills.keep3r_job.payloads import (
-    TXHashPayload
 )
 
 

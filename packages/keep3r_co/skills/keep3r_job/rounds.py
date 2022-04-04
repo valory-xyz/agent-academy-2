@@ -22,7 +22,7 @@ import struct
 from abc import ABC
 from enum import Enum
 from types import MappingProxyType
-from typing import Dict, List, Optional, Sequence, Tuple, Type, cast, Mapping
+from typing import Dict, List, Optional, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import SharedState
 from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType

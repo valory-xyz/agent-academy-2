@@ -20,7 +20,7 @@
 """This module contains the transaction payloads for the keep3r_job app."""
 from abc import ABC
 from enum import Enum
-from typing import Any, Dict
+from typing import Any
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -70,5 +70,3 @@ class TXHashPayload(BaseAbciPayload):
     def tx_hash(self) -> int:
         """Get the round id."""
         return self._tx_hash
-
-
