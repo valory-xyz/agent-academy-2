@@ -72,28 +72,6 @@ class SharedState(BaseSharedState):
         Keep3rAbciApp.event_to_timeout[TSEvent.RESET_TIMEOUT] = (
             self.context.params.round_timeout_seconds * MULTIPLIER
         )
-        Keep3rAbciApp.event_to_timeout[SafeEvent.VALIDATE_TIMEOUT] = (
-            self.context.params.retry_timeout * self.context.params.retry_attempts
-            + MARGIN
-        )
-        Keep3rAbciApp.event_to_timeout[Keep3rJobEvent.VALIDATE_TIMEOUT] = (
-            self.context.params.retry_timeout * self.context.params.retry_attempts
-            + MARGIN
-        )
-        Keep3rAbciApp.event_to_timeout[TSEvent.VALIDATE_TIMEOUT] = (
-            self.context.params.retry_timeout * self.context.params.retry_attempts
-            + MARGIN
-        )
-        Keep3rAbciApp.event_to_timeout[TSEvent.CHECK_TIMEOUT] = (
-            self.context.params.retry_timeout * self.context.params.retry_attempts
-            + MARGIN
-        )
-        Keep3rAbciApp.event_to_timeout[Keep3rJobEvent.DEPLOY_TIMEOUT] = (
-            self.context.params.keeper_timeout + MARGIN
-        )
-        Keep3rAbciApp.event_to_timeout[SafeEvent.DEPLOY_TIMEOUT] = (
-            self.context.params.keeper_timeout + MARGIN
-        )
         Keep3rAbciApp.event_to_timeout[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = (
             self.context.params.observation_interval + MARGIN
         )
