@@ -27,7 +27,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
     PeriodState,
     PrepareTxRound,
-    rotate_list,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbstractRound,
@@ -155,55 +154,3 @@ class TestPrepareTxRound(BaseRoundTestClass):
             == cast(PeriodState, actual_next_state).participants
         )
         assert event == Event.DONE
-
-
-def test_rotate_list_method() -> None:
-    """Test `rotate_list` method."""
-
-    ex_list = [1, 2, 3, 4, 5]
-    assert rotate_list(ex_list, 2) == [3, 4, 5, 1, 2]
-
-
-def test_period_state() -> None:  # pylint:too-many-locals
-    """Test PeriodState."""
-
-    participants = get_participants()
-    period_count = 10
-    period_setup_params = {}  # type: ignore
-    participant_to_randomness = {
-        participant: RandomnessPayload(
-            sender=participant, randomness=RANDOMNESS, round_id=0
-        )
-        for participant in participants
-    }
-    most_voted_randomness = "0xabcd"
-    participant_to_selection = {
-        participant: SelectKeeperPayload(sender=participant, keeper="keeper")
-        for participant in participants
-    }
-    most_voted_keeper_address = "keeper"
-
-    period_state = PeriodState(
-        StateDB(
-            initial_period=period_count,
-            initial_data=dict(
-                participants=participants,
-                period_setup_params=period_setup_params,
-                participant_to_randomness=participant_to_randomness,
-                most_voted_randomness=most_voted_randomness,
-                participant_to_selection=participant_to_selection,
-                most_voted_keeper_address=most_voted_keeper_address,
-            ),
-        )
-    )
-
-    assert period_state.participants == participants
-    assert period_state.period_count == period_count
-    assert period_state.participant_to_randomness == participant_to_randomness
-    assert period_state.most_voted_randomness == most_voted_randomness
-    assert period_state.participant_to_selection == participant_to_selection
-    assert period_state.most_voted_keeper_address == most_voted_keeper_address
-    assert period_state.sorted_participants == sorted(participants)
-    assert period_state.keeper_randomness == cast(
-        float, (int(most_voted_randomness, base=16) // 10 ** 0 % 10) / 10
-    )

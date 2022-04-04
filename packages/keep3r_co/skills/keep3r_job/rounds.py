@@ -22,9 +22,8 @@ import struct
 from abc import ABC
 from enum import Enum
 from types import MappingProxyType
-from typing import Dict, List, Optional, Tuple, Type, cast
+from typing import Dict, List, Mapping, Optional, Tuple, Type, cast
 
-from packages.keep3r_co.skills.keep3r_job.models import SharedState
 from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -34,6 +33,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
     DegenerateRound,
 )
+from packages.valory.skills.transaction_settlement_abci.payloads import SignaturePayload
 
 
 class Event(Enum):
@@ -62,16 +62,24 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
     This state is replicated by the tendermint application.
     """
 
+    @property
+    def participant_to_signature(self) -> Mapping[str, SignaturePayload]:
+        """Get the participant_to_signature."""
+        return cast(
+            Mapping[str, SignaturePayload],
+            self.db.get_strict("participant_to_signature"),
+        )
 
-class SimpleABCIAbstractRound(AbstractRound[Event, TransactionType], ABC):
+
+class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
     """Abstract round for the simple abci skill."""
 
     @property
-    def period_state(self) -> SharedState:
+    def period_state(self) -> BasePeriodState:
         """Return the period state."""
-        return cast(SharedState, self._state)
+        return cast(BasePeriodState, self._state)
 
-    def _return_no_majority_event(self) -> Tuple[SharedState, Event]:
+    def _return_no_majority_event(self) -> Tuple[BasePeriodState, Event]:
         """
         Trigger the NO_MAJORITY event.
 
@@ -80,8 +88,8 @@ class SimpleABCIAbstractRound(AbstractRound[Event, TransactionType], ABC):
         return self.period_state, Event.NO_MAJORITY
 
 
-class PrepareTxRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
-    """A round in a which keeper is selected"""
+class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+    """A round in a which tx hash is prepared is selected"""
 
     round_id = "prepare_tx"
     allowed_tx_type = TXHashPayload.transaction_type
@@ -92,7 +100,7 @@ class PrepareTxRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
         if self.threshold_reached:
             state = self.period_state.update(
                 participant_to_selection=MappingProxyType(self.collection),
-                most_voted_keeper_address=self.most_voted_payload,
+                tx_hash=self.most_voted_payload,
             )
             return state, Event.DONE
         if not self.is_majority_possible(
@@ -105,13 +113,13 @@ class PrepareTxRound(CollectSameUntilThresholdRound, SimpleABCIAbstractRound):
 class FinishedPrepareTxRound(DegenerateRound, ABC):
     """A round that represents the transition to the RandomnessTransactionSubmissionRound"""
 
-    round_id = "randomness_transaction_submission"
+    round_id = "finished_prepare_tx_round"
 
 
 class FailedRound(DegenerateRound, ABC):
     """A round that represents that the period failed"""
 
-    round_id = "registration"
+    round_id = "failed_prepare_tx_round"
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):

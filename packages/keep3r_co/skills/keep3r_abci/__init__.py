@@ -26,4 +26,4 @@ It does so through aggregation of observations from different sources.
 from aea.configurations.base import PublicId
 
 
-PUBLIC_ID = PublicId.from_str("valory/keep3r_abci:0.1.0")
+PUBLIC_ID = PublicId.from_str("keep3r_co/keep3r_abci:0.1.0")

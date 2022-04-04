@@ -28,14 +28,13 @@ from unittest import mock
 from aea.helpers.transaction.base import SignedMessage
 from aea.test_tools.test_skill import BaseSkillTestCase
 
-from packages.keep3r_co.skills.keep3r_job.behaviours import PrepareTxBehaviour
+from packages.keep3r_co.skills.keep3r_job.behaviours import Keep3rJobRoundBehaviour
 from packages.keep3r_co.skills.keep3r_job.handlers import (
     ContractApiHandler,
     HttpHandler,
     LedgerApiHandler,
     SigningHandler,
 )
-from packages.keep3r_co.skills.keep3r_job.models import SharedState
 from packages.keep3r_co.skills.keep3r_job.rounds import Event
 from packages.open_aea.protocols.signing import SigningMessage
 from packages.valory.connections.http_client.connection import (
@@ -72,17 +71,17 @@ class DummyRoundId:
 
 
 class PrepareTxAbciFSMBehaviourBaseCase(BaseSkillTestCase):
-    """Base case for testing PriceEstimation FSMBehaviour."""
+    """Base case for testing Keep3r job abci FSMBehaviour."""
 
     path_to_skill = Path(ROOT_DIR, "packages", "valory", "skills", "preparetx_abci")
 
-    preparetx_abci_behaviour: PrepareTxBehaviour
+    preparetx_abci_behaviour: Keep3rJobRoundBehaviour
     ledger_handler: LedgerApiHandler
     http_handler: HttpHandler
     contract_handler: ContractApiHandler
     signing_handler: SigningHandler
     old_tx_type_to_payload_cls: Dict[str, Type[BaseTxPayload]]
-    period_state: SharedState
+    period_state: BasePeriodState
     benchmark_dir: TemporaryDirectory
 
     @classmethod
@@ -103,7 +102,7 @@ class PrepareTxAbciFSMBehaviourBaseCase(BaseSkillTestCase):
         )
         cls._skill.skill_context._agent_context._default_ledger_id = "ethereum"
         cls.preparetx_abci_behaviour = cast(
-            PrepareTxBehaviour,
+            Keep3rJobRoundBehaviour,
             cls._skill.skill_context.behaviours.main,
         )
         cls.http_handler = cast(HttpHandler, cls._skill.skill_context.handlers.http)
@@ -128,7 +127,7 @@ class PrepareTxAbciFSMBehaviourBaseCase(BaseSkillTestCase):
             cast(BaseState, cls.preparetx_abci_behaviour.current_state).state_id
             == cls.preparetx_abci_behaviour.initial_state_cls.state_id
         )
-        cls.period_state = SharedState(StateDB(initial_period=0, initial_data={}))
+        cls.period_state = BasePeriodState(StateDB(initial_period=0, initial_data={}))
 
     def fast_forward_to_state(
         self,
@@ -193,7 +192,7 @@ class PrepareTxAbciFSMBehaviourBaseCase(BaseSkillTestCase):
             **response_kwargs,
         )
         self.ledger_handler.handle(incoming_message)
-        self.simple_abci_behaviour.act_wrapper()
+        self.preparetx_abci_behaviour.act_wrapper()
 
     def mock_contract_api_request(
         self, contract_id: str, request_kwargs: Dict, response_kwargs: Dict
