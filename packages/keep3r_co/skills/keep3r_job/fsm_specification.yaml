@@ -2,25 +2,19 @@ alphabet_in:
 - DONE
 - NO_MAJORITY
 - RESET_TIMEOUT
-- ROUND_TIMEOUT
-default_start_state: RegistrationRound
-final_states: []
-label: packages.valory.skills.keep3r_job.rounds.SimpleAbciApp
+default_start_state: PrepareTxRound
+final_states:
+- FailedRound
+- FinishedPrepareTxRound
+label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
 start_states:
-- RegistrationRound
+- PrepareTxRound
 states:
-- RandomnessStartupRound
-- RegistrationRound
-- ResetAndPauseRound
-- SelectKeeperAtStartupRound
+- FailedRound
+- FinishedPrepareTxRound
+- PrepareTxRound
 transition_func:
-    (RandomnessStartupRound, DONE): SelectKeeperAtStartupRound
-    (RandomnessStartupRound, NO_MAJORITY): RandomnessStartupRound
-    (RandomnessStartupRound, ROUND_TIMEOUT): RandomnessStartupRound
-    (RegistrationRound, DONE): RandomnessStartupRound
-    (ResetAndPauseRound, DONE): RandomnessStartupRound
-    (ResetAndPauseRound, NO_MAJORITY): RegistrationRound
-    (ResetAndPauseRound, RESET_TIMEOUT): RegistrationRound
-    (SelectKeeperAtStartupRound, DONE): ResetAndPauseRound
-    (SelectKeeperAtStartupRound, NO_MAJORITY): RegistrationRound
-    (SelectKeeperAtStartupRound, ROUND_TIMEOUT): RegistrationRound
+    (PrepareTxRound, DONE): FinishedPrepareTxRound
+    (PrepareTxRound, NO_MAJORITY): FailedRound
+    (PrepareTxRound, RESET_TIMEOUT): FailedRound
+
