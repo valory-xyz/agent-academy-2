@@ -17,13 +17,3 @@
 #
 # ------------------------------------------------------------------------------
 
-"""
-This module contains the ABCI cryptocurrency oracle skill for an AEA.
-
-It does so through aggregation of observations from different sources.
-"""
-
-from aea.configurations.base import PublicId
-
-
-PUBLIC_ID = PublicId.from_str("valory/keep3r_abci:0.1.0")
