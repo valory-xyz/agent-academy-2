@@ -17,4 +17,13 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests package for the 'keep3r_job' library."""
+"""
+This module contains the ABCI simple skill for an AEA.
+
+It implements an ABCI application for a simple demonstration.
+"""
+
+from aea.configurations.base import PublicId
+
+
+PUBLIC_ID = PublicId.from_str("valory/keep3r_job:0.1.0")

@@ -17,4 +17,16 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests package for the 'keep3r_job' library."""
+"""Test the payloads.py module of the skill."""
+
+from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType
+
+
+def test_preparetx_payload() -> None:
+    """Test `TXHashPayload`"""
+
+    payload = TXHashPayload(sender="sender", tx_hash="test_hash")
+
+    assert payload.sender == "sender"
+    assert payload.tx_hash == "test_hash"
+    assert payload.transaction_type == TransactionType.PREPARE_TX
