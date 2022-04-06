@@ -1,0 +1,20 @@
+alphabet_in:
+- DONE
+- NO_MAJORITY
+- RESET_TIMEOUT
+default_start_state: PrepareTxRound
+final_states:
+- FailedRound
+- FinishedPrepareTxRound
+label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
+start_states:
+- PrepareTxRound
+states:
+- FailedRound
+- FinishedPrepareTxRound
+- PrepareTxRound
+transition_func:
+    (PrepareTxRound, DONE): FinishedPrepareTxRound
+    (PrepareTxRound, NO_MAJORITY): FailedRound
+    (PrepareTxRound, RESET_TIMEOUT): FailedRound
+

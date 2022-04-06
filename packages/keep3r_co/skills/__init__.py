@@ -16,5 +16,4 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-
-"""Tests package for the 'keep3r_job' library."""
+"""Skill directory."""
