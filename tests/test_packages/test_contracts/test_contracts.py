@@ -124,6 +124,5 @@ class TestKeep3rHarvestJobContract(BaseContractTestCase):
         with mock.patch.object(
             self.ledger_api, "get_contract_instance", return_value=mock_instance
         ):
-            result = self.contract.get_reward_multiplier(self.ledger_api, HARVEST_CONTRACT_ADDRESS)
+            result = self.contract.get_reward_multiplier(self.ledger_api, CONTRACT_ADDRESS)
         assert result == REWARD_MULTIPLIER
-
