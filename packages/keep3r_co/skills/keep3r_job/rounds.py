@@ -110,6 +110,15 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
+class IsProfitableRound(Keep3rJobAbstractRound):
+    """The round in which the profitability of the job is estimated"""
+
+    round_id = "get_is_profitable"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Enum]]:
+        pass
+
+
 class FinishedPrepareTxRound(DegenerateRound, ABC):
     """A round that represents the transition to the RandomnessTransactionSubmissionRound"""
 

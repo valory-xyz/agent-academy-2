@@ -37,6 +37,8 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
     BaseState,
 )
 
+import requests
+from web3 import Web3
 class Keep3rJobAbciBaseState(BaseState, ABC):
     """Base state behaviour for the simple abci skill."""
 
@@ -115,17 +117,21 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
 
 class IsProfitableBehaviour(AbstractRoundBehaviour, Keep3rJobContract):
 
-
     state_id = "get_is_profitable"
     matching_round = IsProfitableRound
+
+    # TODO: replace with resonable value
+    profitability_threshold = 0.01
 
     def act(self):
         reward_multiplier = self.get_reward_multiplier()
         gas_price = self.get_gas_price()
 
-        # 
-        
+        price_response = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=Keep3rV1&vs_currencies=eth")
+        keeper_price = Web3.toWei(price_response.json()["keep3rv1"]["eth"], "ether")
 
+        #TODO: compute profitability
+        #TODO: set state to is_profitable
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the preparetx abci app."""
