@@ -30,12 +30,6 @@ from packages.gabrielfu.contracts.keep3r_job.contract import (
     PUBLIC_ID,
 )
 
-from packages.philippb.contracts.keep3r_harvest_job.contract import (
-    CONTRACT_ADDRESS as HARVEST_CONTRACT_ADDRESS,
-    Keep3rJobContract as Keep3rHarvestJobContract,
-    PUBLIC_ID as HARVEST_PUBLIC_ID
-)
-
 from tests.conftest import ROOT_DIR
 
 
@@ -92,26 +86,6 @@ class TestKeep3rJobContract(BaseContractTestCase):
             result = self.contract.get_workable(self.ledger_api, CONTRACT_ADDRESS)
         assert result == IS_WORKABLE
 
-
-class TestKeep3rHarvestJobContract(BaseContractTestCase):
-    """Test Keep3r Harvest Job Contract."""
-
-    path_to_contract = Path(
-        ROOT_DIR, "packages", HARVEST_PUBLIC_ID.author, "contracts", HARVEST_PUBLIC_ID.name
-    )
-    ledger_identifier = "ethereum"
-    contract: Keep3rHarvestJobContract
-
-    @classmethod
-    def finish_contract_deployment(cls) -> str:
-        """Finish the contract deployment."""
-        contract_address = HARVEST_CONTRACT_ADDRESS
-        return contract_address
-
-    @classmethod
-    def _deploy_contract(cls, contract, ledger_api, deployer_crypto, gas) -> Dict:  # type: ignore
-        """Deploy contract."""
-        return {}
 
     def test_get_reward_multiplier(self) -> None:
         # mock contract function

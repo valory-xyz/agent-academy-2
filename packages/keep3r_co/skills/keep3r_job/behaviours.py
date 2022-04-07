@@ -29,13 +29,13 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     Keep3rJobAbciApp,
     PeriodState,
     PrepareTxRound,
+    IsProfitableRound
 )
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseState,
 )
-
 
 class Keep3rJobAbciBaseState(BaseState, ABC):
     """Base state behaviour for the simple abci skill."""
@@ -111,6 +111,20 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         )
 
         return tx_hash
+
+
+class IsProfitableBehaviour(AbstractRoundBehaviour, Keep3rJobContract):
+
+
+    state_id = "get_is_profitable"
+    matching_round = IsProfitableRound
+
+    def act(self):
+        reward_multiplier = self.get_reward_multiplier()
+        gas_price = self.get_gas_price()
+
+        # 
+        
 
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
