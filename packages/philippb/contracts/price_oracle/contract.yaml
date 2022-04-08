@@ -1,0 +1,19 @@
+name: price_oracle
+author: philippb
+version: 0.1.0
+type: contract
+description: Chainlink K3PR/ETH price oracle contract
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: QmPoiCaZKzkApXa6ZKZ436KgedV1C6n23wKEqfnzLK5sy3
+  __init__.py: QmNQkrYx3JTPSTDz991Z2pVToZYaCSFUU7PbqkDq3RRNgr
+  build/PriceOracle.json: QmeeTutTuxrg3P5owY5qH3aTngvpzwfHdjigPzcmxrrJbv
+  contract.py: QmddRea9pscJd9qdjV3LdbNYv8t5Cde8gL4kTaFBcJUzbE
+fingerprint_ignore_patterns: []
+contracts: []
+class_name: PriceOracleContract
+contract_interface_paths:
+  ethereum: build/PriceOracle.json
+dependencies:
+  py-eth-sig-utils: {}
