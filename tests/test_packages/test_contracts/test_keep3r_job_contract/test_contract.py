@@ -93,7 +93,7 @@ class TestKeep3rJobContract(BaseContractTestCase):
         mock_function.call.return_value = REWARD_MULTIPLIER
         # mock contract instance
         mock_instance = mock.MagicMock()
-        mock_instance.functions.get_reward_multiplier.return_value = mock_function
+        mock_instance.functions.rewardMultiplier.return_value = mock_function
 
         with mock.patch.object(
             self.ledger_api, "get_contract_instance", return_value=mock_instance
