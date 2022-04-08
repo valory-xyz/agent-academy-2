@@ -115,7 +115,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         return tx_hash
 
 
-class IsProfitableBehaviour(AbstractRoundBehaviour, Keep3rJobContract):
+class IsProfitableBehaviour(AbstractRoundBehaviour):
 
     state_id = "get_is_profitable"
     matching_round = IsProfitableRound
@@ -123,7 +123,7 @@ class IsProfitableBehaviour(AbstractRoundBehaviour, Keep3rJobContract):
     # TODO: replace with resonable value
     profitability_threshold = 0.01
 
-    def act(self):
+    def async_act(self):
         reward_multiplier = self.get_reward_multiplier()
         gas_price = self.get_gas_price()
 
@@ -132,6 +132,27 @@ class IsProfitableBehaviour(AbstractRoundBehaviour, Keep3rJobContract):
 
         #TODO: compute profitability
         #TODO: set state to is_profitable
+
+    def _get_raw_message(self):
+        contract_api_msg = ContractApiMessage(
+            performative=ContractApiMessage.Performative.GET_RAW_MESSAGE,
+            dialogue_reference=contract_api_dialogues.new_self_initiated_dialogue_reference(),
+            ledger_id=strategy.ledger_id,
+            contract_id="fetchai/erc1155:0.22.0",
+            contract_address=strategy.contract_address,
+            callable="get_hash_single",
+            kwargs=ContractApiMessage.Kwargs(
+                {
+                    "from_address": from_address,
+                    "to_address": to_address,
+                    "token_id": token_id,
+                    "from_supply": from_supply,
+                    "to_supply": to_supply,
+                    "value": value,
+                    "trade_nonce": trade_nonce,
+                }
+            ),
+        )
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the preparetx abci app."""

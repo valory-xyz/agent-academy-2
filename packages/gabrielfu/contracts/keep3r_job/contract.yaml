@@ -8,8 +8,8 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: QmPoiCaZKzkApXa6ZKZ436KgedV1C6n23wKEqfnzLK5sy3
   __init__.py: QmNQkrYx3JTPSTDz991Z2pVToZYaCSFUU7PbqkDq3RRNgr
-  build/Keep3rJob.json: QmZLcKPYFpJnmjtE1Bv5p5GERxU6hqFApGn7YHQRVNSzgW
-  contract.py: QmaaZAUyqMuftXMjEM1AUwTcGQkwgA1jtb7GNSjRN5ufkF
+  build/Keep3rJob.json: QmZ7JMdVYjTgmgmyATCicNie2pCFs4mVsKybEKeRfogVHW
+  contract.py: QmeAGfKMi9poAUDqRp3ijr7heJmT8CXZrF5Binnf63QEZC
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rJobContract
