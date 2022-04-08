@@ -133,26 +133,30 @@ class IsProfitableBehaviour(AbstractRoundBehaviour):
         #TODO: compute profitability
         #TODO: set state to is_profitable
 
-    def _get_raw_message(self):
+    def get_state(self):
         contract_api_msg = ContractApiMessage(
-            performative=ContractApiMessage.Performative.GET_RAW_MESSAGE,
-            dialogue_reference=contract_api_dialogues.new_self_initiated_dialogue_reference(),
-            ledger_id=strategy.ledger_id,
-            contract_id="fetchai/erc1155:0.22.0",
-            contract_address=strategy.contract_address,
-            callable="get_hash_single",
+            performative=ContractApiMessage.Performative.GET_STATE,
+            dialogue_reference=self.context.dialogue_reference,
+            ledger_id=self.context.default_ledger_id,
+            contract_id="gabrielfu/keep3r_job:0.1.0",
+            contract_address=self.context.strategy.contract_address,
+            callable="get_reward_multiplier",
             kwargs=ContractApiMessage.Kwargs(
-                {
-                    "from_address": from_address,
-                    "to_address": to_address,
-                    "token_id": token_id,
-                    "from_supply": from_supply,
-                    "to_supply": to_supply,
-                    "value": value,
-                    "trade_nonce": trade_nonce,
-                }
+                {"agent_address": self.context.agent_address, "token_id": self.context.token_id}
             ),
         )
+        
+        if (
+                contract_api_response.performative
+                != ContractApiMessage.Performative.GET_STATE
+        ):  # pragma: nocover
+            self.context.logger.warning("Get reward multiplier unsuccessful!")
+            return None
+        reward_multiplier = cast(
+            str, contract_api_response.raw_transaction.body.pop("hash")
+        )
+
+        return tx_hash
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the preparetx abci app."""

@@ -35,7 +35,10 @@ from packages.philippb.contracts.price_oracle.contract import (
 from tests.conftest import ROOT_DIR
 
 K3PR_PRICE = Web3.toWei(0.14, "ether")
+
+# This mocks the response of latestRoundData with the variables:
 # round_id, answer, startedAt, updatedAt, answeredInRound
+# We only care for'answer', giving the price denominated in ETH in Wei
 LATEST_ROUND_DATA = [0,K3PR_PRICE, 0,0,0]
 
 class TestPriceOracleContract(BaseContractTestCase):
