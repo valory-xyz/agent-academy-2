@@ -18,11 +18,9 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the simple ABCI application."""
-import struct
 from abc import ABC
 from enum import Enum
-from types import MappingProxyType
-from typing import Dict, List, Mapping, Optional, Tuple, Type, cast
+from typing import Dict, Optional, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType
 from packages.valory.skills.abstract_round_abci.base import (
@@ -33,7 +31,6 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
     DegenerateRound,
 )
-from packages.valory.skills.transaction_settlement_abci.payloads import SignaturePayload
 
 
 class Event(Enum):
@@ -45,16 +42,6 @@ class Event(Enum):
     RESET_TIMEOUT = "reset_timeout"
 
 
-def encode_float(value: float) -> bytes:  # pragma: nocover
-    """Encode a float value."""
-    return struct.pack("d", value)
-
-
-def rotate_list(my_list: list, positions: int) -> List[str]:
-    """Rotate a list n positions."""
-    return my_list[positions:] + my_list[:positions]
-
-
 class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attributes
     """
     Class to represent a period state.
@@ -63,11 +50,11 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
     """
 
     @property
-    def participant_to_signature(self) -> Mapping[str, SignaturePayload]:
-        """Get the participant_to_signature."""
+    def most_voted_tx_hash(self) -> str:
+        """Get the most_voted_tx_hash."""
         return cast(
-            Mapping[str, SignaturePayload],
-            self.db.get_strict("participant_to_signature"),
+            str,
+            self.db.get_strict("most_voted_tx_hash"),
         )
 
 
@@ -99,8 +86,7 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         """Process the end of the block."""
         if self.threshold_reached:
             state = self.period_state.update(
-                participant_to_selection=MappingProxyType(self.collection),
-                tx_hash=self.most_voted_payload,
+                most_voted_tx_hash=self.most_voted_payload,
             )
             return state, Event.DONE
         if not self.is_majority_possible(

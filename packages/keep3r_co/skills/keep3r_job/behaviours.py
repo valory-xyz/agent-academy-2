@@ -70,35 +70,20 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         with self.context.benchmark_tool.measure(self.state_id).local():
 
             tx_hash = yield from self._get_raw_work_transaction()
-            if tx_hash is None:
-                # The safe_deployment_abci app should only be used in staging.
-                # If the safe contract deployment fails we abort. Alternatively,
-                # we could send a None payload and then transition into an appropriate
-                # round to handle the deployment failure.
-                raise RuntimeError("Work transaction deployment failed!")  # pragma: nocover
             payload = TXHashPayload(self.context.agent_address, tx_hash)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
-            self.context.logger.info(f"Safe transaction hash: {tx_hash}")
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
         self.set_done()
 
     def _get_raw_work_transaction(self) -> Generator[None, None, Optional[str]]:
-        owners = self.period_state.sorted_participants
         contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_DEPLOY_TRANSACTION,  # type: ignore
-            contract_address=None,
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
+            contract_address=self.context.params.job_contract_address,
             contract_id=str(Keep3rJobContract.contract_id),
-            contract_callable="get_raw_work_transaction",
-            job_contract_address=self.context.param.job_contract_address,
-            sender_address=self.context.agent_address,
-            owners=owners,
-            signatures_by_owner={
-                key: payload.signature
-                for key, payload in self.period_state.participant_to_signature.items()
-            }
+            contract_callable="get_workable",
         )
         if (
                 contract_api_response.performative

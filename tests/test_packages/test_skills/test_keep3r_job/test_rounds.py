@@ -19,7 +19,7 @@
 
 """Test the base.py module of the skill."""
 import logging  # noqa: F401
-from typing import Dict, FrozenSet, cast
+from typing import FrozenSet, cast
 from unittest import mock
 
 from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload
@@ -33,54 +33,14 @@ from packages.valory.skills.abstract_round_abci.base import (
     ConsensusParams,
     StateDB,
 )
-from packages.valory.skills.simple_abci.payloads import (
-    RandomnessPayload,
-    ResetPayload,
-    SelectKeeperPayload,
-)
 
 
 MAX_PARTICIPANTS: int = 4
-RANDOMNESS: str = "d1c29dce46f979f9748210d24bce4eae8be91272f5ca1a6aea2832d3dd676f51"
 
 
 def get_participants() -> FrozenSet[str]:
     """Participants"""
     return frozenset([f"agent_{i}" for i in range(MAX_PARTICIPANTS)])
-
-
-def get_participant_to_randomness(
-    participants: FrozenSet[str], round_id: int
-) -> Dict[str, RandomnessPayload]:
-    """participant_to_randomness"""
-    return {
-        participant: RandomnessPayload(
-            sender=participant,
-            round_id=round_id,
-            randomness=RANDOMNESS,
-        )
-        for participant in participants
-    }
-
-
-def get_participant_to_selection(
-    participants: FrozenSet[str],
-) -> Dict[str, SelectKeeperPayload]:
-    """participant_to_selection"""
-    return {
-        participant: SelectKeeperPayload(sender=participant, keeper="keeper")
-        for participant in participants
-    }
-
-
-def get_participant_to_period_count(
-    participants: FrozenSet[str], period_count: int
-) -> Dict[str, ResetPayload]:
-    """participant_to_selection"""
-    return {
-        participant: ResetPayload(sender=participant, period_count=period_count)
-        for participant in participants
-    }
 
 
 class BaseRoundTestClass:
@@ -127,9 +87,10 @@ class TestPrepareTxRound(BaseRoundTestClass):
         test_round = PrepareTxRound(
             state=self.period_state, consensus_params=self.consensus_params
         )
+        test_hash = "test_hash"
 
         first_payload, *payloads = [
-            TXHashPayload(sender=participant, tx_hash="test_hash")
+            TXHashPayload(sender=participant, tx_hash=test_hash)
             for participant in self.participants
         ]
 
@@ -140,10 +101,8 @@ class TestPrepareTxRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = PeriodState(
-            StateDB(
-                initial_period=0, initial_data=dict(participants=test_round.collection)
-            )
+        actual_next_state = self.period_state.update(
+            most_voted_tx_hash=test_round.most_voted_payload,
         )
 
         res = test_round.end_block()

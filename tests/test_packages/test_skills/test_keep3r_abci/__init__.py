@@ -17,4 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests for valory/keep3r_job skill."""
+"""Tests for valory/keep3r_abci skill."""

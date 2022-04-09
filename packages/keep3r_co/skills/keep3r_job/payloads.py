@@ -20,7 +20,7 @@
 """This module contains the transaction payloads for the keep3r_job app."""
 from abc import ABC
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -29,8 +29,6 @@ class TransactionType(Enum):
     """Enumeration of transaction types."""
 
     PREPARE_TX = "prepare_tx"
-    RANDOMNESS = "randomness"
-    SIGNATURE = "signature"
 
     def __str__(self) -> str:
         """Get the string value of the transaction type."""
@@ -51,7 +49,7 @@ class TXHashPayload(BaseAbciPayload):
     transaction_type = TransactionType.PREPARE_TX
 
     def __init__(
-            self, sender: str, tx_hash: str, **kwargs: Any
+            self, sender: str, tx_hash: Optional[str], **kwargs: Any
     ) -> None:
         """Initialize an 'prepare_tx' transaction payload.
 
@@ -63,37 +61,11 @@ class TXHashPayload(BaseAbciPayload):
         self._tx_hash = tx_hash
 
     @property
-    def round_id(self) -> TransactionType:
-        """Get the round id."""
-        return self.transaction_type
-
-    @property
-    def tx_hash(self) -> str:
+    def tx_hash(self) -> Optional[str]:
         """Get the tx hash"""
         return self._tx_hash
 
-
-class SignaturePayload(BaseTxPayload):
-    """Represent a transaction payload of type 'signature'."""
-
-    transaction_type = TransactionType.SIGNATURE
-
-    def __init__(self, sender: str, signature: str, **kwargs: Any) -> None:
-        """Initialize an 'signature' transaction payload.
-
-        :param sender: the sender (Ethereum) address
-        :param signature: the signature
-        :param kwargs: the keyword arguments
-        """
-        super().__init__(sender, **kwargs)
-        self._signature = signature
-
     @property
-    def signature(self) -> str:
-        """Get the signature."""
-        return self._signature
-
-    @property
-    def data(self) -> Dict:
+    def data(self) -> Dict[str, Optional[str]]:
         """Get the data."""
-        return dict(signature=self.signature)
+        return dict(tx_hash=self.tx_hash) if self.tx_hash is not None else {}
