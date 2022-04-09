@@ -1,0 +1,112 @@
+name: keep3r_job
+author: keep3r_co
+version: 0.1.0
+type: skill
+description: ABCI application for demonstation.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: QmVwFKStDzJFm4dbFKGSnLQGGjpH5zjhcPRwYirPCDYAJU
+  __init__.py: QmYUJartJbWWdWz6jFAfq3gRnLhg2Gxn4XgRESkfV3HTTj
+  behaviours.py: QmdvyWYPpxhKnrwjTaWyLRvG286mVPbv7FgEm2U4gFKvqr
+  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
+  fsm_specification.yaml: QmNwCWan3D88fRhwuHXMNrjzYyy5mAQPLGTbrDHDZSXqBy
+  handlers.py: QmZTHtQixDRmtAL3hmngJppak3whchYnvKFNbwbFU3AmUp
+  models.py: QmZuwjmq6dtnEqYRX9yikB31ayr2CkZc2BzqfqUZt4QWQL
+  payloads.py: Qmbhp6Mez62237x2hBE3n1su5XUjWm2UmYdUJJdK7ghtBM
+  rounds.py: Qmaxv9rCG9EiQ54Wx2VNnHbYmrYfN4kCrUsVtw3sHUJqJp
+fingerprint_ignore_patterns: []
+connections:
+- valory/abci:0.1.0
+- valory/http_client:0.1.0
+- valory/ledger:0.1.0
+contracts: []
+protocols:
+- open_aea/signing:1.0.0
+- valory/abci:0.1.0
+- valory/contract_api:1.0.0
+- valory/http:1.0.0
+- valory/ledger_api:1.0.0
+skills:
+- valory/abstract_round_abci:0.1.0
+behaviours:
+  main:
+    args: {}
+    class_name: Keep3rJobRoundBehaviour
+handlers:
+  abci:
+    args: {}
+    class_name: ABCIHandler
+  contract_api:
+    args: {}
+    class_name: ContractApiHandler
+  http:
+    args: {}
+    class_name: HttpHandler
+  ledger_api:
+    args: {}
+    class_name: LedgerApiHandler
+  signing:
+    args: {}
+    class_name: SigningHandler
+models:
+  abci_dialogues:
+    args: {}
+    class_name: AbciDialogues
+  benchmark_tool:
+    args:
+      log_dir: /logs
+    class_name: BenchmarkTool
+  contract_api_dialogues:
+    args: {}
+    class_name: ContractApiDialogues
+  http_dialogues:
+    args: {}
+    class_name: HttpDialogues
+  ledger_api_dialogues:
+    args: {}
+    class_name: LedgerApiDialogues
+  params:
+    args:
+      cleanup_history_depth: 1
+      consensus:
+        max_participants: 1
+      drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      job_contract_address: stub
+      keeper_timeout: 30.0
+      max_healthcheck: 120
+      observation_interval: 10
+      period_setup: {}
+      reset_tendermint_after: 2
+      retry_attempts: 400
+      retry_timeout: 3
+      round_timeout_seconds: 30.0
+      service_id: keep3r_job
+      sleep_time: 1
+      tendermint_check_sleep_delay: 3
+      tendermint_com_url: http://localhost:8080
+      tendermint_max_retries: 5
+      tendermint_url: http://localhost:26657
+    class_name: Params
+  randomness_api:
+    args:
+      api_id: cloudflare
+      headers: []
+      method: GET
+      parameters: []
+      response_key: null
+      response_type: dict
+      retries: 5
+      url: https://drand.cloudflare.com/public/latest
+    class_name: RandomnessApi
+  requests:
+    args: {}
+    class_name: Requests
+  signing_dialogues:
+    args: {}
+    class_name: SigningDialogues
+  state:
+    args: {}
+    class_name: SharedState
+dependencies: {}
+is_abstract: false

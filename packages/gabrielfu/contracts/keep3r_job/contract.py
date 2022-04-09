@@ -67,7 +67,7 @@ class Keep3rJobContract(Contract):
 
     @classmethod
     def get_gas_price(
-            cls, ledger_api: LedgerApi, **kwargs: Any
+            cls, ledger_api: LedgerApi
     ) -> Optional[Wei]:
         """Get the gas price."""
         ethereum_api = cast(EthereumApi, ledger_api)
@@ -76,7 +76,7 @@ class Keep3rJobContract(Contract):
 
     @classmethod
     def get_workable(
-            cls, ledger_api: LedgerApi, contract_address: str, **kwargs: Any
+            cls, ledger_api: LedgerApi, contract_address: str
     ) -> Optional[bool]:
         """Get the workable flag from the contract."""
         ethereum_api = cast(EthereumApi, ledger_api)

@@ -17,4 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests package for the 'keep3r_job' library."""
+"""Tests for valory/keep3r_job skill."""

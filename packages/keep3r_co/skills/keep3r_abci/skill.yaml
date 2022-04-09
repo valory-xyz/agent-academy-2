@@ -1,0 +1,108 @@
+name: keep3r_abci
+author: keep3r_co
+version: 0.1.0
+type: skill
+description: ABCI application for cryptocurrency price estimation aggregating observations
+  from different sources.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: QmT7TN1DvhK4LtLzv2gSQphVJCsy49b11hRU8ixiiYtHrf
+  __init__.py: QmNMXn9ZQfgadg7KvXu2nCQsWuwoca5WmDXoMBkBGDNGbV
+  behaviours.py: QmU4JJrtQGjSJ9xwqmEXu1ErgyTFZmZGnHtHfAwm4XyXwr
+  composition.py: QmcgJjuC64nnkLZniWn2AHPGqgDBDsDyWumdPHuKv9Brzd
+  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
+  fsm_specification.yaml: QmQfnPoNGwSDqRMndYQhLHDL517n3Bm36Piczyocax8Gyp
+  handlers.py: QmfKibZHU7Lwrw1vF9UGC6NzzqjaoqWjWNSj8HKecv2s6E
+  models.py: QmbxipCZadt2WZWi9oo9eNLMyWsT6KSY1DxSC2aEdSAawg
+fingerprint_ignore_patterns: []
+connections: []
+contracts:
+- valory/gnosis_safe:0.1.0
+- valory/gnosis_safe_proxy_factory:0.1.0
+protocols:
+- valory/contract_api:1.0.0
+skills:
+- keep3r_co/keep3r_job:0.1.0
+- valory/registration_abci:0.1.0
+- valory/transaction_settlement_abci:0.1.0
+behaviours:
+  main:
+    args: {}
+    class_name: Keep3rAbciAppConsensusBehaviour
+handlers:
+  abci:
+    args: {}
+    class_name: Keep3rAbciHandler
+  contract_api:
+    args: {}
+    class_name: ContractApiHandler
+  http:
+    args: {}
+    class_name: HttpHandler
+  ledger_api:
+    args: {}
+    class_name: LedgerApiHandler
+  signing:
+    args: {}
+    class_name: SigningHandler
+models:
+  abci_dialogues:
+    args: {}
+    class_name: AbciDialogues
+  benchmark_tool:
+    args:
+      log_dir: /logs
+    class_name: BenchmarkTool
+  contract_api_dialogues:
+    args: {}
+    class_name: ContractApiDialogues
+  http_dialogues:
+    args: {}
+    class_name: HttpDialogues
+  ledger_api_dialogues:
+    args: {}
+    class_name: LedgerApiDialogues
+  params:
+    args:
+      cleanup_history_depth: 1
+      consensus:
+        max_participants: 1
+      drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      keeper_timeout: 30.0
+      max_healthcheck: 120
+      period_setup:
+        safe_contract_address: null
+      reset_tendermint_after: 2
+      retry_attempts: 400
+      retry_timeout: 3
+      round_timeout_seconds: 30.0
+      service_id: price_estimation
+      sleep_time: 1
+      tendermint_check_sleep_delay: 3
+      tendermint_com_url: http://localhost:8080
+      tendermint_max_retries: 5
+      tendermint_url: http://localhost:26657
+    class_name: Params
+  randomness_api:
+    args:
+      api_id: cloudflare
+      headers: []
+      method: GET
+      parameters: []
+      response_key: null
+      response_type: dict
+      retries: 5
+      url: https://drand.cloudflare.com/public/latest
+    class_name: RandomnessApi
+  requests:
+    args: {}
+    class_name: Requests
+  signing_dialogues:
+    args: {}
+    class_name: SigningDialogues
+  state:
+    args: {}
+    class_name: SharedState
+dependencies: {}
+is_abstract: false
