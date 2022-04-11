@@ -69,12 +69,12 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
         """
         with self.context.benchmark_tool.measure(self.state_id).local():
             self.context.logger.info(
-                "I am the designated sender, deploying the safe contract..."
+                f"Interacting with Job contract at {self.context.params.job_contract_address}"
             )
             is_workable = yield from self._get_workable()
             if is_workable is None:
                 is_workable = False
-            payload = IsWorkablePayload(self.context.agent_address, is_workable)
+            payload = IsWorkablePayload(self.context.agent_address, is_workable.data)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
             self.context.logger.info(f"Job contract is workable {self.context.params.job_contract_address}: {is_workable}")
