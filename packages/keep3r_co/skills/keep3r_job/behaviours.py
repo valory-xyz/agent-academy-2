@@ -73,11 +73,8 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
             )
             is_workable = yield from self._get_workable()
             if is_workable is None:
-                # The safe_deployment_abci app should only be used in staging.
-                # If the safe contract deployment fails we abort. Alternatively,
-                # we could send a None payload and then transition into an appropriate
                 # round to handle the deployment failure.
-                raise RuntimeError("Failed to interact with the job contract {is_workable.contract_address}")  # pragma: nocover
+                is_workable = False
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
