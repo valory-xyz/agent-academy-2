@@ -99,7 +99,7 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
             is_workable = self.most_voted_payload
             if is_workable:
                 return state, Event.DONE
-
+            return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
             self.collection, self.period_state.nb_participants
         ):

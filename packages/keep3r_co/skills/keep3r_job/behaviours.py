@@ -73,7 +73,6 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
             )
             is_workable = yield from self._get_workable()
             if is_workable is None:
-                # round to handle the deployment failure.
                 is_workable = False
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
