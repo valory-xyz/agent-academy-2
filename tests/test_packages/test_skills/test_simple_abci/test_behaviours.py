@@ -372,9 +372,6 @@ class FSMBehaviourBaseCase(BaseSkillTestCase):
         abci_app = current_state.context.state.period.abci_app
         old_round = abci_app._current_round
         abci_app._last_round = old_round
-        import pdb
-
-        pdb
         abci_app._current_round = abci_app.transition_function[
             current_state.matching_round
         ][self.done_event](abci_app.state, abci_app.consensus_params)

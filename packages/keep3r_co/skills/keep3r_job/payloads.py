@@ -29,6 +29,7 @@ class TransactionType(Enum):
     """Enumeration of transaction types."""
 
     PREPARE_TX = "prepare_tx"
+    IS_WORKABLE = "is_workable"
 
     def __str__(self) -> str:
         """Get the string value of the transaction type."""
@@ -41,6 +42,27 @@ class BaseAbciPayload(BaseTxPayload, ABC):
     def __hash__(self) -> int:
         """Hash the payload."""
         return hash(tuple(sorted(self.data.items())))
+
+
+class IsWorkablePayload(BaseAbciPayload):
+    """Represent a transaction payload of type 'is_workable'."""
+
+    transaction_type = TransactionType.IS_WORKABLE
+
+    def __init__(self, sender: str, is_workable: bool, **kwargs: Any) -> None:
+        """Initialize an 'select_keeper' transaction payload.
+
+        :param sender: the sender (Ethereum) address
+        :param is_workable: whether the contract is workable
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._is_workable = is_workable
+
+    @property
+    def is_workable(self) -> bool:
+        """Get whether the contract is workable."""
+        return self._is_workable
 
 
 class TXHashPayload(BaseAbciPayload):

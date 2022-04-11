@@ -19,6 +19,7 @@
 
 """Tests for valory/keep3r_job skill's behaviours."""
 
+from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Type, cast
@@ -27,6 +28,7 @@ from aea.helpers.transaction.base import RawTransaction
 
 from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
+    IsWorkableBehaviour,
     Keep3rJobRoundBehaviour,
     PrepareTxBehaviour,
 )
@@ -38,8 +40,10 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
+    FailedRound,
     FinishedPrepareTxRound,
     PeriodState,
+    PrepareTxRound,
 )
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
@@ -126,3 +130,95 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
             state.state_id
             == make_degenerate_state(FinishedPrepareTxRound.round_id).state_id
         )
+
+
+class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test case to test IsWorkableBehaviour."""
+
+    CONTRACT_ADDRESS: str = "contract_address"
+    CONTRACT_CALLABLE: str = "get_workable"
+    is_workable_behaviour_class: Type[BaseState] = IsWorkableBehaviour
+
+    def test_is_workable_true(self) -> None:
+        """Test is workable."""
+        self.fast_forward_to_state(
+            self.abci_behaviour,
+            IsWorkableBehaviour.state_id,
+            self.period_state,
+        )
+        assert (
+            cast(
+                BaseState,
+                cast(BaseState, self.abci_behaviour.current_state),
+            ).state_id
+            == IsWorkableBehaviour.state_id
+        )
+        self.abci_behaviour.act_wrapper()
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=self.CONTRACT_CALLABLE,
+            ),
+            contract_id=str(CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=self.CONTRACT_CALLABLE,
+                data=True,
+            ),
+        )
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round()
+        state = cast(BaseState, self.abci_behaviour.current_state)
+        assert state.state_id == PrepareTxRound.round_id
+
+    def test_is_workable_false(self) -> None:
+        """Test is workable."""
+        self.fast_forward_to_state(
+            self.abci_behaviour,
+            IsWorkableBehaviour.state_id,
+            self.period_state,
+        )
+        assert (
+            cast(
+                BaseState,
+                cast(BaseState, self.abci_behaviour.current_state),
+            ).state_id
+            == IsWorkableBehaviour.state_id
+        )
+        self.abci_behaviour.act_wrapper()
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=self.CONTRACT_CALLABLE,
+            ),
+            contract_id=str(CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=self.CONTRACT_CALLABLE,
+                data=False,
+            ),
+        )
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(event=Event.NOT_WORKABLE)
+        state = cast(BaseState, self.abci_behaviour.current_state)
+        assert state.state_id == make_degenerate_state(FailedRound.round_id).state_id
+
+    def end_round(self, event: Enum = Event.DONE) -> None:
+        """Ends round early to cover `wait_for_end` generator."""
+        current_state = cast(BaseState, self.abci_behaviour.current_state)
+        if current_state is None:
+            return
+        current_state = cast(BaseState, current_state)
+        if current_state.matching_round is None:
+            return
+        abci_app = current_state.context.state.period.abci_app
+        old_round = abci_app._current_round
+        abci_app._last_round = old_round
+        abci_app._current_round = abci_app.transition_function[
+            current_state.matching_round
+        ][event](abci_app.state, abci_app.consensus_params)
+        abci_app._previous_rounds.append(old_round)
+        abci_app._current_round_height += 1
+        self.abci_behaviour._process_current_round()
