@@ -74,7 +74,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
             is_workable = yield from self._get_workable()
             if is_workable is None:
                 is_workable = False
-            payload = IsWorkablePayload(self.context.agent_address, is_workable.data)
+            payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
             self.context.logger.info(f"Job contract is workable {self.context.params.job_contract_address}: {is_workable}")
@@ -90,7 +90,8 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="get_workable",
         )
-        return contract_api_response
+        is_workable = contract_api_response.state.body.get("data")
+        return is_workable
 
 
 class PrepareTxBehaviour(Keep3rJobAbciBaseState):

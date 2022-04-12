@@ -162,7 +162,10 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.STATE,
                 callable=self.CONTRACT_CALLABLE,
-                data=True,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": True},
+                ),
             ),
         )
         self.mock_a2a_transaction()
@@ -195,7 +198,10 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.STATE,
                 callable=self.CONTRACT_CALLABLE,
-                data=False,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": False},
+                ),
             ),
         )
         self.mock_a2a_transaction()
