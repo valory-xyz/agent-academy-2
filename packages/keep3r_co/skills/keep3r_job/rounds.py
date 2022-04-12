@@ -105,6 +105,30 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
+class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+    """Handle the keep3r job selection."""
+
+    round_id = "job_selection"
+    allowed_tx_type = JobSelectionPayload.transaction_type
+    payload_attribute = "job_selection"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            state = self.period_state.update(
+                job_selection=self.most_voted_payload,
+            )
+            job_selection = self.most_voted_payload
+            if job_selection:
+                return state, Event.DONE
+            return state, Event.NOT_WORKABLE
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+            return self._return_no_majority_event()
+        return None
+
+
 class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     """A round in a which tx hash is prepared is selected"""
 
@@ -166,8 +190,13 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         reset timeout: 30.0
     """
 
-    initial_round_cls: Type[AbstractRound] = IsWorkableRound
+    initial_round_cls: Type[AbstractRound] = JobSelectionRound
     transition_function: AbciAppTransitionFunction = {
+        JobSelectionRound: {
+            Event.DONE: IsWorkableRound,
+            Event.RESET_TIMEOUT: NothingToDoRound,
+            Event.NO_MAJORITY: NothingToDoRound,
+        },
         IsWorkableRound: {
             Event.DONE: PrepareTxRound,
             Event.NOT_WORKABLE: NothingToDoRound,

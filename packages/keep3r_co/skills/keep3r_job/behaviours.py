@@ -54,6 +54,44 @@ class Keep3rJobAbciBaseState(BaseState, ABC):
         """Return the params."""
         return cast(Params, self.context.params)
 
+class JobSelectionBehaviour(Keep3rJobAbciBaseState):
+    """Check whether the job contract is selected."""
+
+    state_id = "job_selection"
+    matching_round = JobSelectionRound
+
+    def async_act(self) -> Generator:
+        """
+        Behaviour to get whether job is selected.
+
+        job selection payload is shared between participants.
+        """
+        with self.context.benchmark_tool.measure(self.state_id).local():
+            self.context.logger.info(
+                f"Interacting with Job contract at {self.context.params.job_contract_address}"
+            )
+            job_selection= yield from self._job_selection()
+            if job_selection is None:
+                job_selection = False
+            payload = JobSelectionPayload(self.context.agent_address, job_selection)
+
+        with self.context.benchmark_tool.measure(self.state_id).consensus():
+            self.context.logger.info(f"Job contract is selected {self.context.params.job_contract_address}: {job_selection}")
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def _job_selection(self) -> Generator:
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+            contract_address=self.context.params.job_contract_address,
+            contract_id=str(Keep3rJobContract.contract_id),
+            contract_callable="get_job_selection",
+        )
+        job_selection  = contract_api_response.state.body.get("data")
+        return job_selection
+
 
 class IsWorkableBehaviour(Keep3rJobAbciBaseState):
     """Check whether the job contract is workable."""
@@ -147,6 +185,7 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     initial_state_cls = PrepareTxBehaviour  # type: ignore
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
+        JobSelectionBehaviour,  # type: ignore
         IsWorkableBehaviour,  # type: ignore
         PrepareTxBehaviour,  # type: ignore
 
