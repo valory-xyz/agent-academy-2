@@ -56,6 +56,8 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
     This state is replicated by the tendermint application.
     """
 
+    job_ix = 0
+
     @property
     def most_voted_tx_hash(self) -> str:
         """Get the most_voted_tx_hash."""

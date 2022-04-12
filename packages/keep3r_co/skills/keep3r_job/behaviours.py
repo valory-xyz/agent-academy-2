@@ -86,9 +86,9 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
         self.set_done()
 
     def _job_selection(self) -> str:
-        next_job_ix = self.period_sate.job_ix + 1
+        next_job_ix = self.period_state.job_ix + 1
         next_job = self.context.params.job_contracts[next_job_ix]
-        self.context.period_state = next_job_ix
+        self.period_state.job_ix = next_job_ix
         return next_job
 
 
