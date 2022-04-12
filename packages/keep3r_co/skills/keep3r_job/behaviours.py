@@ -73,7 +73,7 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
             self.context.logger.info(
                 f"Interacting with Job contract at {self.context.params.job_contract_address}"
             )
-            job_selection = yield from self._job_selection()
+            job_selection = self._job_selection()
             if job_selection is None:
                 job_selection = False
             payload = JobSelectionPayload(self.context.agent_address, job_selection)
@@ -85,15 +85,11 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
 
         self.set_done()
 
-    def _job_selection(self) -> Generator:
-        contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.context.params.job_contract_address,
-            contract_id=str(Keep3rJobContract.contract_id),
-            contract_callable="get_job_selection",
-        )
-        job_selection = contract_api_response.state.body.get("data")
-        return job_selection
+    def _job_selection(self) -> str:
+        next_job_ix = self.period_sate.job_ix + 1
+        next_job = self.context.params.job_contracts[next_job_ix]
+        self.context.period_state = next_job_ix
+        return next_job
 
 
 class IsWorkableBehaviour(Keep3rJobAbciBaseState):
