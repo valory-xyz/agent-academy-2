@@ -20,6 +20,7 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
+from msilib.schema import Error
 from typing import Generator, Optional, Set, Type, cast
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
@@ -115,26 +116,37 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         return tx_hash
 
 
-class IsProfitableBehaviour(AbstractRoundBehaviour):
+class IsProfitableBehaviour(Keep3rJobAbciBaseState):
 
     state_id = "get_is_profitable"
     matching_round = IsProfitableRound
 
-    # TODO: replace with resonable value
-    profitability_threshold = 0.01
+    profitability_threshold = 500
 
-    def async_act(self):
-        reward_multiplier = self.get_reward_multiplier()
-        gas_price = self.get_gas_price()
+    def async_act(self) -> Generator:
 
-        price_response = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=Keep3rV1&vs_currencies=eth")
-        keeper_price = Web3.toWei(price_response.json()["keep3rv1"]["eth"], "ether")
+        with self.context.benchmark_tool.measure(self.state_id).local():
+            reward_multiplier = yield from self.get_reward_multiplier()
+            if reward_multiplier is None:
+                raise RuntimeError("Contract call has failed")
+        
+            if reward_multiplier > self.profitability_threshold:
+                payload = True
+            else:
+                payload = False
 
-        #TODO: compute profitability
-        #TODO: set state to is_profitable
+        with self.context.benchmark_tool.measure(self.state_id).consensus():
+            self.context.logger.info(f"Safe transaction hash: {reward_multiplier}")
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+            
+        self.set_done()
 
-    def get_state(self):
-        contract_api_msg = ContractApiMessage(
+        #TODO: compute a more meaningful profitability measure
+        #TODO: set state to is_profitable?
+
+    def get_reward_multiplier(self):
+        contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
             dialogue_reference=self.context.dialogue_reference,
             ledger_id=self.context.default_ledger_id,
@@ -145,18 +157,19 @@ class IsProfitableBehaviour(AbstractRoundBehaviour):
                 {"agent_address": self.context.agent_address, "token_id": self.context.token_id}
             ),
         )
-        
         if (
                 contract_api_response.performative
                 != ContractApiMessage.Performative.GET_STATE
         ):  # pragma: nocover
             self.context.logger.warning("Get reward multiplier unsuccessful!")
             return None
+
+        # TODO: What item do I have to pop?
         reward_multiplier = cast(
-            str, contract_api_response.raw_transaction.body.pop("hash")
+            int, contract_api_response.state.body.pop("rewardMultiplier")
         )
 
-        return tx_hash
+        return reward_multiplier
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the preparetx abci app."""
