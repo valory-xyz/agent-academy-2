@@ -25,7 +25,7 @@ from typing import Generator, Optional, Set, Type, cast
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload
+from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, IsProfitablePayload
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     Keep3rJobAbciApp,
     PeriodState,
@@ -129,10 +129,12 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
             reward_multiplier = yield from self.get_reward_multiplier()
             if reward_multiplier is None:
                 raise RuntimeError("Contract call has failed")
-        
+            
+            #TODO: compute a more meaningful profitability measure
             if reward_multiplier > self.profitability_threshold:
-                payload = True
+                payload = IsProfitablePayload(self.context.agent_address, self.is_profitable)
             else:
+                #TODO: Implement payload if job is not profitable
                 payload = False
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
@@ -142,8 +144,6 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
             
         self.set_done()
 
-        #TODO: compute a more meaningful profitability measure
-        #TODO: set state to is_profitable?
 
     def get_reward_multiplier(self):
         contract_api_response = yield from self.get_contract_api_response(
@@ -164,12 +164,12 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
             self.context.logger.warning("Get reward multiplier unsuccessful!")
             return None
 
-        # TODO: What item do I have to pop?
         reward_multiplier = cast(
             int, contract_api_response.state.body.pop("rewardMultiplier")
         )
-
         return reward_multiplier
+
+    
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the preparetx abci app."""

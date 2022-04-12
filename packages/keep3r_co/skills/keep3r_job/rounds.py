@@ -18,13 +18,14 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the simple ABCI application."""
+from msilib.schema import EventMapping
 import struct
 from abc import ABC
 from enum import Enum
 from types import MappingProxyType
 from typing import Dict, List, Mapping, Optional, Tuple, Type, cast
 
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType
+from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType, IsProfitablePayload
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
     AbciAppTransitionFunction,
@@ -43,6 +44,7 @@ class Event(Enum):
     ROUND_TIMEOUT = "round_timeout"
     NO_MAJORITY = "no_majority"
     RESET_TIMEOUT = "reset_timeout"
+    NOT_PROFITABLE = "not_profitable"
 
 
 def encode_float(value: float) -> bytes:  # pragma: nocover
@@ -110,13 +112,31 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
-class IsProfitableRound(Keep3rJobAbstractRound):
+class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     """The round in which the profitability of the job is estimated"""
 
     round_id = "get_is_profitable"
+    allowed_tx_type = IsProfitablePayload.transaction_type
+    payload_attribute = "is_profitable"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Enum]]:
-        pass
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        if self.threshold_reached:
+            state = self.period_state.update(
+                participant_to_selection=MappingProxyType(self.collection),
+                is_profitable=self.most_voted_payload
+            )
+            is_profitable = self.most_voted_payload
+
+            if is_profitable:
+                return self.period_state, Event.DONE
+            
+            return self.period_state, Event.NOT_PROFITABLE
+
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+
+            round_id = "failed_round"
 
 
 class FinishedPrepareTxRound(DegenerateRound, ABC):
@@ -155,6 +175,11 @@ class Keep3rJobAbciApp(AbciApp[Event]):
 
     initial_round_cls: Type[AbstractRound] = PrepareTxRound
     transition_function: AbciAppTransitionFunction = {
+        IsProfitableRound: {
+            Event.DONE: PrepareTxRound,
+            #TODO: Whats the correct round if job is not profitable?
+            Event.NOT_PROFITABLE: NothingToDoRound
+        },
         PrepareTxRound: {
             Event.DONE: FinishedPrepareTxRound,
             Event.RESET_TIMEOUT: FailedRound,

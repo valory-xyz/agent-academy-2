@@ -20,7 +20,7 @@
 """This module contains the transaction payloads for the keep3r_job app."""
 from abc import ABC
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -31,6 +31,7 @@ class TransactionType(Enum):
     PREPARE_TX = "prepare_tx"
     RANDOMNESS = "randomness"
     SIGNATURE = "signature"
+    IS_PROFITABLE = "is_profitable"
 
     def __str__(self) -> str:
         """Get the string value of the transaction type."""
@@ -97,3 +98,26 @@ class SignaturePayload(BaseTxPayload):
     def data(self) -> Dict:
         """Get the data."""
         return dict(signature=self.signature)
+
+class IsProfitablePayload(BaseAbciPayload):
+    """Represent a transaction payload of type 'is_profitable'."""
+    # Why do I have to set this transaction type here if its not used anywhere else?
+    transaction_type = TransactionType.IS_PROFITABLE
+    def __init__(self, sender: str, is_profitable: bool, **kwargs: Any) -> None:
+        """Initialize an 'is_profitable' transaction payload.
+        :param sender: the sender (Ethereum) address
+        :param is_profitable: whether the job is profitable
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._is_profitable = is_profitable
+
+    @property
+    def is_profitable(self) -> bool:
+        """Get whether the contract is workable."""
+        return self._is_profitable
+
+    @property
+    def data(self) -> Dict[str, Optional[bool]]:
+        """Get the data."""
+        return dict(is_profitable=self.is_profitable) if self.is_profitable is not None else {}
