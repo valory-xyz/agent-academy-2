@@ -26,10 +26,12 @@ from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsWorkablePayload,
+    JobSelectionPayload,
     TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     IsWorkableRound,
+    JobSelectionRound,
     Keep3rJobAbciApp,
     PeriodState,
     PrepareTxRound,
@@ -54,6 +56,7 @@ class Keep3rJobAbciBaseState(BaseState, ABC):
         """Return the params."""
         return cast(Params, self.context.params)
 
+
 class JobSelectionBehaviour(Keep3rJobAbciBaseState):
     """Check whether the job contract is selected."""
 
@@ -70,7 +73,7 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
             self.context.logger.info(
                 f"Interacting with Job contract at {self.context.params.job_contract_address}"
             )
-            job_selection= yield from self._job_selection()
+            job_selection = yield from self._job_selection()
             if job_selection is None:
                 job_selection = False
             payload = JobSelectionPayload(self.context.agent_address, job_selection)
@@ -89,7 +92,7 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="get_job_selection",
         )
-        job_selection  = contract_api_response.state.body.get("data")
+        job_selection = contract_api_response.state.body.get("data")
         return job_selection
 
 

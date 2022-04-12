@@ -70,6 +70,7 @@ class JobSelectionPayload(BaseAbciPayload):
         """Get the data."""
         return dict(job_selection=self.job_selection) if self._job_selection is not None else {}
 
+
 class IsWorkablePayload(BaseAbciPayload):
     """Represent a transaction payload of type 'is_workable'."""
 
