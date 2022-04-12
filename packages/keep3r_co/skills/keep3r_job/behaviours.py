@@ -121,8 +121,6 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
     state_id = "get_is_profitable"
     matching_round = IsProfitableRound
 
-    profitability_threshold = 500
-
     def async_act(self) -> Generator:
 
         with self.context.benchmark_tool.measure(self.state_id).local():
@@ -131,7 +129,7 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
                 raise RuntimeError("Contract call has failed")
             
             #TODO: compute a more meaningful profitability measure
-            if reward_multiplier > self.profitability_threshold:
+            if reward_multiplier > self.context.params.profitability_threshold:
                 payload = IsProfitablePayload(self.context.agent_address, self.is_profitable)
             else:
                 #TODO: Implement payload if job is not profitable

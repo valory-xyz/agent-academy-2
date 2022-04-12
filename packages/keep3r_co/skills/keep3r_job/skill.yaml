@@ -68,6 +68,7 @@ models:
     class_name: LedgerApiDialogues
   params:
     args:
+      profitablity_threshold: 500
       cleanup_history_depth: 1
       consensus:
         max_participants: 1
