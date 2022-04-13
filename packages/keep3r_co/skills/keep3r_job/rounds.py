@@ -150,7 +150,8 @@ class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
             self.collection, self.period_state.nb_participants
         ):
 
-            round_id = "failed_round"
+            return self._return_no_majority_event()
+        return None
 
 
 class FinishedPrepareTxRound(DegenerateRound, ABC):
@@ -203,8 +204,9 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         },
         IsProfitableRound: {
             Event.DONE: PrepareTxRound,
-            #TODO: Whats the correct round if job is not profitable?
-            Event.NOT_PROFITABLE: NothingToDoRound
+            Event.NOT_PROFITABLE: NothingToDoRound,
+            Event.NO_MAJORITY: IsProfitableRound,
+            Event.RESET_TIMEOUT: IsProfitableRound
         },
         PrepareTxRound: {
             Event.DONE: FinishedPrepareTxRound,
