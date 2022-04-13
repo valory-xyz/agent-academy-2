@@ -24,7 +24,7 @@ from copy import copy
 from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, Type, cast
+from typing import Any, Dict, Optional, Type, cast
 from unittest import mock
 
 from aea.helpers.transaction.base import SignedMessage
@@ -359,9 +359,7 @@ class FSMBehaviourBaseCase(BaseSkillTestCase):
             ),
         )
 
-    def end_round(
-        self,
-    ) -> None:
+    def end_round(self, event: Optional[Enum] = None) -> None:
         """Ends round early to cover `wait_for_end` generator."""
         current_state = cast(BaseState, self.abci_behaviour.current_state)
         if current_state is None:
@@ -372,12 +370,11 @@ class FSMBehaviourBaseCase(BaseSkillTestCase):
         abci_app = current_state.context.state.period.abci_app
         old_round = abci_app._current_round
         abci_app._last_round = old_round
-        import pdb
-
-        pdb
         abci_app._current_round = abci_app.transition_function[
             current_state.matching_round
-        ][self.done_event](abci_app.state, abci_app.consensus_params)
+        ][event if event else self.done_event](
+            abci_app.state, abci_app.consensus_params
+        )
         abci_app._previous_rounds.append(old_round)
         abci_app._current_round_height += 1
         self.abci_behaviour._process_current_round()

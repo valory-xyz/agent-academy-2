@@ -18,11 +18,16 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the simple ABCI application."""
+
 from abc import ABC
 from enum import Enum
 from typing import Dict, Optional, Tuple, Type, cast
 
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType
+from packages.keep3r_co.skills.keep3r_job.payloads import (
+    IsWorkablePayload,
+    TXHashPayload,
+    TransactionType,
+)
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
     AbciAppTransitionFunction,
@@ -37,6 +42,7 @@ class Event(Enum):
     """Event enumeration for the simple abci demo."""
 
     DONE = "done"
+    NOT_WORKABLE = "not_workable"
     ROUND_TIMEOUT = "round_timeout"
     NO_MAJORITY = "no_majority"
     RESET_TIMEOUT = "reset_timeout"
@@ -75,6 +81,30 @@ class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
         return self.period_state, Event.NO_MAJORITY
 
 
+class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+    """Check whether the keep3r job contract is workable."""
+
+    round_id = "is_workable"
+    allowed_tx_type = IsWorkablePayload.transaction_type
+    payload_attribute = "is_workable"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            state = self.period_state.update(
+                is_workable=self.most_voted_payload,
+            )
+            is_workable = self.most_voted_payload
+            if is_workable:
+                return state, Event.DONE
+            return state, Event.NOT_WORKABLE
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+            return self._return_no_majority_event()
+        return None
+
+
 class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     """A round in a which tx hash is prepared is selected"""
 
@@ -105,7 +135,13 @@ class FinishedPrepareTxRound(DegenerateRound, ABC):
 class FailedRound(DegenerateRound, ABC):
     """A round that represents that the period failed"""
 
-    round_id = "failed_prepare_tx_round"
+    round_id = "failed_round"
+
+
+class NothingToDoRound(DegenerateRound, ABC):
+    """A round that represents that the period failed"""
+
+    round_id = "nothing_to_do"
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):
@@ -130,19 +166,27 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         reset timeout: 30.0
     """
 
-    initial_round_cls: Type[AbstractRound] = PrepareTxRound
+    initial_round_cls: Type[AbstractRound] = IsWorkableRound
     transition_function: AbciAppTransitionFunction = {
+        IsWorkableRound: {
+            Event.DONE: PrepareTxRound,
+            Event.NOT_WORKABLE: NothingToDoRound,
+            Event.RESET_TIMEOUT: IsWorkableRound,
+            Event.NO_MAJORITY: IsWorkableRound,
+        },
         PrepareTxRound: {
             Event.DONE: FinishedPrepareTxRound,
             Event.RESET_TIMEOUT: FailedRound,
             Event.NO_MAJORITY: FailedRound,
         },
+        NothingToDoRound: {},
         FinishedPrepareTxRound: {},
         FailedRound: {},
     }
     final_states = {
         FinishedPrepareTxRound,
         FailedRound,
+        NothingToDoRound
     }
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
