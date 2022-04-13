@@ -8,13 +8,13 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: QmVwFKStDzJFm4dbFKGSnLQGGjpH5zjhcPRwYirPCDYAJU
   __init__.py: QmYUJartJbWWdWz6jFAfq3gRnLhg2Gxn4XgRESkfV3HTTj
-  behaviours.py: QmWirujDxLBXdXfAejLsNKQscN39pD5GZoTcFwtvCXEJJh
+  behaviours.py: QmWXTvF95v4CukXq7QUa7eQXNtiZmXScesnj2xxmjxZmuX
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
   fsm_specification.yaml: QmNwCWan3D88fRhwuHXMNrjzYyy5mAQPLGTbrDHDZSXqBy
-  handlers.py: QmNxLpVYxDcZ8VwpkW1e5jGrKDehTPpittCthGqZip2g4U
-  models.py: QmbafbBgC8FFrH1ueUonpJSR1Uv8CXphbMhG4DWL8keB2N
-  payloads.py: QmUwMDZpzWbdgqseNmVyUK359jWL8AY9rZihmmqFkm7vE2
-  rounds.py: QmXUSuiTGjbPrRtJmCx1JoEBKJmjude4HZDnKZuGA223C2
+  handlers.py: QmZTHtQixDRmtAL3hmngJppak3whchYnvKFNbwbFU3AmUp
+  models.py: QmZuwjmq6dtnEqYRX9yikB31ayr2CkZc2BzqfqUZt4QWQL
+  payloads.py: QmcGbsfgS2knHYvJrp6cghnrksVbLHjbJmZ8i5nVNhT8R3
+  rounds.py: QmbUfUP5QVNZjfEzxHAHBCgtZ3fBKpcwePtiT9bjWeRAgN
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0
@@ -32,11 +32,11 @@ skills:
 behaviours:
   main:
     args: {}
-    class_name: SimpleAbciConsensusBehaviour
+    class_name: Keep3rJobRoundBehaviour
 handlers:
   abci:
     args: {}
-    class_name: SimpleABCIHandler
+    class_name: ABCIHandler
   contract_api:
     args: {}
     class_name: ContractApiHandler
@@ -73,6 +73,7 @@ models:
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      job_contract_address: stub
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10

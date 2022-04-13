@@ -25,8 +25,9 @@ from typing import Generator, Optional, Set, Type, cast
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, IsProfitablePayload
+from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload,IsWorkablePayload, IsProfitablePayload
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    IsWorkableRound,
     Keep3rJobAbciApp,
     PeriodState,
     PrepareTxRound,
@@ -54,6 +55,45 @@ class Keep3rJobAbciBaseState(BaseState, ABC):
         return cast(Params, self.context.params)
 
 
+class IsWorkableBehaviour(Keep3rJobAbciBaseState):
+    """Check whether the job contract is workable."""
+
+    state_id = "is_workable"
+    matching_round = IsWorkableRound
+
+    def async_act(self) -> Generator:
+        """
+        Behaviour to get whether job is workable.
+
+        is workable payload is shared between participants.
+        """
+        with self.context.benchmark_tool.measure(self.state_id).local():
+            self.context.logger.info(
+                f"Interacting with Job contract at {self.context.params.job_contract_address}"
+            )
+            is_workable = yield from self._get_workable()
+            if is_workable is None:
+                is_workable = False
+            payload = IsWorkablePayload(self.context.agent_address, is_workable)
+
+        with self.context.benchmark_tool.measure(self.state_id).consensus():
+            self.context.logger.info(f"Job contract is workable {self.context.params.job_contract_address}: {is_workable}")
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def _get_workable(self) -> Generator:
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+            contract_address=self.context.params.job_contract_address,
+            contract_id=str(Keep3rJobContract.contract_id),
+            contract_callable="get_workable",
+        )
+        is_workable = contract_api_response.state.body.get("data")
+        return is_workable
+
+
 class PrepareTxBehaviour(Keep3rJobAbciBaseState):
     """Deploy Safe."""
 
@@ -73,35 +113,20 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         with self.context.benchmark_tool.measure(self.state_id).local():
 
             tx_hash = yield from self._get_raw_work_transaction()
-            if tx_hash is None:
-                # The safe_deployment_abci app should only be used in staging.
-                # If the safe contract deployment fails we abort. Alternatively,
-                # we could send a None payload and then transition into an appropriate
-                # round to handle the deployment failure.
-                raise RuntimeError("Work transaction deployment failed!")  # pragma: nocover
             payload = TXHashPayload(self.context.agent_address, tx_hash)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
-            self.context.logger.info(f"Safe transaction hash: {tx_hash}")
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
         self.set_done()
 
     def _get_raw_work_transaction(self) -> Generator[None, None, Optional[str]]:
-        owners = self.period_state.sorted_participants
         contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_DEPLOY_TRANSACTION,  # type: ignore
-            contract_address=None,
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
+            contract_address=self.context.params.job_contract_address,
             contract_id=str(Keep3rJobContract.contract_id),
-            contract_callable="get_raw_work_transaction",
-            job_contract_address=self.context.param.job_contract_address,
-            sender_address=self.context.agent_address,
-            owners=owners,
-            signatures_by_owner={
-                key: payload.signature
-                for key, payload in self.period_state.participant_to_signature.items()
-            }
+            contract_callable="get_workable",
         )
         if (
                 contract_api_response.performative
@@ -175,5 +200,7 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     initial_state_cls = PrepareTxBehaviour  # type: ignore
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
+        IsWorkableBehaviour,  # type: ignore
         PrepareTxBehaviour,  # type: ignore
+
     }

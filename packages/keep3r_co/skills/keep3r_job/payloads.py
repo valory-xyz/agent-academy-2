@@ -29,8 +29,7 @@ class TransactionType(Enum):
     """Enumeration of transaction types."""
 
     PREPARE_TX = "prepare_tx"
-    RANDOMNESS = "randomness"
-    SIGNATURE = "signature"
+    IS_WORKABLE = "is_workable"
     IS_PROFITABLE = "is_profitable"
 
     def __str__(self) -> str:
@@ -46,13 +45,39 @@ class BaseAbciPayload(BaseTxPayload, ABC):
         return hash(tuple(sorted(self.data.items())))
 
 
+class IsWorkablePayload(BaseAbciPayload):
+    """Represent a transaction payload of type 'is_workable'."""
+
+    transaction_type = TransactionType.IS_WORKABLE
+
+    def __init__(self, sender: str, is_workable: bool, **kwargs: Any) -> None:
+        """Initialize an 'select_keeper' transaction payload.
+
+        :param sender: the sender (Ethereum) address
+        :param is_workable: whether the contract is workable
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._is_workable = is_workable
+
+    @property
+    def is_workable(self) -> bool:
+        """Get whether the contract is workable."""
+        return self._is_workable
+
+    @property
+    def data(self) -> Dict[str, Optional[bool]]:
+        """Get the data."""
+        return dict(is_workable=self.is_workable) if self._is_workable is not None else {}
+
+
 class TXHashPayload(BaseAbciPayload):
     """Represent a transaction payload of type 'randomness'."""
 
     transaction_type = TransactionType.PREPARE_TX
 
     def __init__(
-            self, sender: str, tx_hash: str, **kwargs: Any
+            self, sender: str, tx_hash: Optional[str], **kwargs: Any
     ) -> None:
         """Initialize an 'prepare_tx' transaction payload.
 
@@ -64,40 +89,14 @@ class TXHashPayload(BaseAbciPayload):
         self._tx_hash = tx_hash
 
     @property
-    def round_id(self) -> TransactionType:
-        """Get the round id."""
-        return self.transaction_type
-
-    @property
-    def tx_hash(self) -> str:
+    def tx_hash(self) -> Optional[str]:
         """Get the tx hash"""
         return self._tx_hash
 
-
-class SignaturePayload(BaseTxPayload):
-    """Represent a transaction payload of type 'signature'."""
-
-    transaction_type = TransactionType.SIGNATURE
-
-    def __init__(self, sender: str, signature: str, **kwargs: Any) -> None:
-        """Initialize an 'signature' transaction payload.
-
-        :param sender: the sender (Ethereum) address
-        :param signature: the signature
-        :param kwargs: the keyword arguments
-        """
-        super().__init__(sender, **kwargs)
-        self._signature = signature
-
     @property
-    def signature(self) -> str:
-        """Get the signature."""
-        return self._signature
-
-    @property
-    def data(self) -> Dict:
+    def data(self) -> Dict[str, Optional[str]]:
         """Get the data."""
-        return dict(signature=self.signature)
+        return dict(tx_hash=self.tx_hash) if self.tx_hash is not None else {}
 
 class IsProfitablePayload(BaseAbciPayload):
     """Represent a transaction payload of type 'is_profitable'."""
@@ -121,3 +120,4 @@ class IsProfitablePayload(BaseAbciPayload):
     def data(self) -> Dict[str, Optional[bool]]:
         """Get the data."""
         return dict(is_profitable=self.is_profitable) if self.is_profitable is not None else {}
+ 

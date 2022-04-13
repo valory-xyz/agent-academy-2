@@ -18,14 +18,16 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the simple ABCI application."""
-from msilib.schema import EventMapping
-import struct
 from abc import ABC
 from enum import Enum
-from types import MappingProxyType
-from typing import Dict, List, Mapping, Optional, Tuple, Type, cast
+from typing import Dict, Optional, Tuple, Type, cast
 
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType, IsProfitablePayload
+from packages.keep3r_co.skills.keep3r_job.payloads import (
+    IsWorkablePayload,
+    TXHashPayload,
+    TransactionType,
+    IsProfitablePayload
+)
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
     AbciAppTransitionFunction,
@@ -34,27 +36,17 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
     DegenerateRound,
 )
-from packages.valory.skills.transaction_settlement_abci.payloads import SignaturePayload
 
 
 class Event(Enum):
     """Event enumeration for the simple abci demo."""
 
     DONE = "done"
+    NOT_WORKABLE = "not_workable"
     ROUND_TIMEOUT = "round_timeout"
     NO_MAJORITY = "no_majority"
     RESET_TIMEOUT = "reset_timeout"
     NOT_PROFITABLE = "not_profitable"
-
-
-def encode_float(value: float) -> bytes:  # pragma: nocover
-    """Encode a float value."""
-    return struct.pack("d", value)
-
-
-def rotate_list(my_list: list, positions: int) -> List[str]:
-    """Rotate a list n positions."""
-    return my_list[positions:] + my_list[:positions]
 
 
 class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attributes
@@ -65,11 +57,11 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
     """
 
     @property
-    def participant_to_signature(self) -> Mapping[str, SignaturePayload]:
-        """Get the participant_to_signature."""
+    def most_voted_tx_hash(self) -> str:
+        """Get the most_voted_tx_hash."""
         return cast(
-            Mapping[str, SignaturePayload],
-            self.db.get_strict("participant_to_signature"),
+            str,
+            self.db.get_strict("most_voted_tx_hash"),
         )
 
 
@@ -90,6 +82,30 @@ class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
         return self.period_state, Event.NO_MAJORITY
 
 
+class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+    """Check whether the keep3r job contract is workable."""
+
+    round_id = "is_workable"
+    allowed_tx_type = IsWorkablePayload.transaction_type
+    payload_attribute = "is_workable"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            state = self.period_state.update(
+                is_workable=self.most_voted_payload,
+            )
+            is_workable = self.most_voted_payload
+            if is_workable:
+                return state, Event.DONE
+            return state, Event.NOT_WORKABLE
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+            return self._return_no_majority_event()
+        return None
+
+
 class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     """A round in a which tx hash is prepared is selected"""
 
@@ -101,8 +117,7 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         """Process the end of the block."""
         if self.threshold_reached:
             state = self.period_state.update(
-                participant_to_selection=MappingProxyType(self.collection),
-                tx_hash=self.most_voted_payload,
+                most_voted_tx_hash=self.most_voted_payload,
             )
             return state, Event.DONE
         if not self.is_majority_possible(
@@ -122,7 +137,6 @@ class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
         if self.threshold_reached:
             state = self.period_state.update(
-                participant_to_selection=MappingProxyType(self.collection),
                 is_profitable=self.most_voted_payload
             )
             is_profitable = self.most_voted_payload
@@ -148,7 +162,13 @@ class FinishedPrepareTxRound(DegenerateRound, ABC):
 class FailedRound(DegenerateRound, ABC):
     """A round that represents that the period failed"""
 
-    round_id = "failed_prepare_tx_round"
+    round_id = "failed_round"
+
+
+class NothingToDoRound(DegenerateRound, ABC):
+    """A round that represents that the period failed"""
+
+    round_id = "nothing_to_do"
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):
@@ -173,8 +193,14 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         reset timeout: 30.0
     """
 
-    initial_round_cls: Type[AbstractRound] = PrepareTxRound
+    initial_round_cls: Type[AbstractRound] = IsWorkableRound
     transition_function: AbciAppTransitionFunction = {
+        IsWorkableRound: {
+            Event.DONE: PrepareTxRound,
+            Event.NOT_WORKABLE: NothingToDoRound,
+            Event.RESET_TIMEOUT: IsWorkableRound,
+            Event.NO_MAJORITY: IsWorkableRound,
+        },
         IsProfitableRound: {
             Event.DONE: PrepareTxRound,
             #TODO: Whats the correct round if job is not profitable?
@@ -185,12 +211,14 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.RESET_TIMEOUT: FailedRound,
             Event.NO_MAJORITY: FailedRound,
         },
+        NothingToDoRound: {},
         FinishedPrepareTxRound: {},
         FailedRound: {},
     }
     final_states = {
         FinishedPrepareTxRound,
         FailedRound,
+        NothingToDoRound
     }
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
