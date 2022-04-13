@@ -69,7 +69,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
         """
         with self.context.benchmark_tool.measure(self.state_id).local():
             self.context.logger.info(
-                "I am the designated sender, deploying the safe contract..."
+                f"Interacting with Job contract at {self.context.params.job_contract_address}"
             )
             is_workable = yield from self._get_workable()
             if is_workable is None:
@@ -90,7 +90,8 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="get_workable",
         )
-        return contract_api_response
+        is_workable = contract_api_response.state.body.get("data")
+        return is_workable
 
 
 class PrepareTxBehaviour(Keep3rJobAbciBaseState):

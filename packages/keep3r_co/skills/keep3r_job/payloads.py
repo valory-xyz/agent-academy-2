@@ -64,6 +64,11 @@ class IsWorkablePayload(BaseAbciPayload):
         """Get whether the contract is workable."""
         return self._is_workable
 
+    @property
+    def data(self) -> Dict[str, Optional[bool]]:
+        """Get the data."""
+        return dict(is_workable=self.is_workable) if self._is_workable is not None else {}
+
 
 class TXHashPayload(BaseAbciPayload):
     """Represent a transaction payload of type 'randomness'."""

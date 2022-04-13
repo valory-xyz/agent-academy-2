@@ -21,7 +21,6 @@
 
 from abc import ABC
 from enum import Enum
-from types import MappingProxyType
 from typing import Dict, Optional, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
@@ -93,7 +92,6 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         """Process the end of the block."""
         if self.threshold_reached:
             state = self.period_state.update(
-                participant_to_selection=MappingProxyType(self.collection),
                 is_workable=self.most_voted_payload,
             )
             is_workable = self.most_voted_payload
@@ -140,6 +138,12 @@ class FailedRound(DegenerateRound, ABC):
     round_id = "failed_round"
 
 
+class NothingToDoRound(DegenerateRound, ABC):
+    """A round that represents that the period failed"""
+
+    round_id = "nothing_to_do"
+
+
 class Keep3rJobAbciApp(AbciApp[Event]):
     """PrepareTxAbciApp
 
@@ -166,21 +170,23 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     transition_function: AbciAppTransitionFunction = {
         IsWorkableRound: {
             Event.DONE: PrepareTxRound,
-            Event.NOT_WORKABLE: FailedRound,
-            Event.RESET_TIMEOUT: FailedRound,
-            Event.NO_MAJORITY: FailedRound,
+            Event.NOT_WORKABLE: NothingToDoRound,
+            Event.RESET_TIMEOUT: IsWorkableRound,
+            Event.NO_MAJORITY: IsWorkableRound,
         },
         PrepareTxRound: {
             Event.DONE: FinishedPrepareTxRound,
             Event.RESET_TIMEOUT: FailedRound,
             Event.NO_MAJORITY: FailedRound,
         },
+        NothingToDoRound: {},
         FinishedPrepareTxRound: {},
         FailedRound: {},
     }
     final_states = {
         FinishedPrepareTxRound,
         FailedRound,
+        NothingToDoRound
     }
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
