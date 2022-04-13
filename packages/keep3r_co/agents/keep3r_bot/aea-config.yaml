@@ -21,6 +21,10 @@ protocols:
 skills:
 - keep3r_co/keep3r_abci:0.1.0
 - keep3r_co/keep3r_job:0.1.0
+- valory/abstract_round_abci:0.1.0
+- valory/registration_abci:0.1.0
+- valory/abstract_abci:0.1.0
+- valory/transaction_settlement_abci:0.1.0
 default_ledger: ethereum
 required_ledgers:
 - ethereum
