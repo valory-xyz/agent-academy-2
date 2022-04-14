@@ -19,14 +19,14 @@
 
 """This module contains the class to connect to a Keep3r Job contract."""
 import logging
-from typing import Any, Optional, cast
+from typing import Any, Optional, cast, Dict
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea.crypto.base import LedgerApi
 from aea_ledger_ethereum import EthereumApi
-from web3.types import Wei, TxParams
+from web3.types import Wei, TxParams, Nonce
 
 
 PUBLIC_ID = PublicId.from_str("gabrielfu/keep3r_job:0.1.0")

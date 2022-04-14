@@ -19,7 +19,9 @@
 
 """This module contains the behaviours for the 'abci' skill."""
 
-from typing import Set, Type
+from typing import Set, Type, cast, Generator
+
+from packages.valory.skills.abstract_round_abci.base import BasePeriodState
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     Keep3rJobAbciApp,
@@ -41,6 +43,10 @@ from packages.keep3r_co.skills.keep3r_abci.payloads import (
     SafeExistencePayload,
 )
 
+from packages.keep3r_co.skills.keep3r_abci.rounds import (
+    CheckSafeExistenceRound,
+)
+
 
 class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the price estimation."""
@@ -60,9 +66,9 @@ class CheckSafeExistenceBehaviour(BaseState):
     matching_round = CheckSafeExistenceRound
 
     @property
-    def period_state(self) -> PeriodState:
+    def period_state(self) -> BasePeriodState:
         """Return the period state."""
-        return cast(PeriodState, super().period_state)
+        return cast(BasePeriodState, super().period_state)
 
     def async_act(self) -> Generator:
         """

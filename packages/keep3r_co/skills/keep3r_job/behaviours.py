@@ -85,7 +85,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
             performative=ContractApiMessage.Performative.RAW_TRANSACTION,  # type: ignore
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="work",
-            job_contract_address=self.context.params.job_contract_address
+            job_contract_address=self.context.params.job_contract_address,
             sender_address=self.context.agent_address,
         )
 
@@ -96,7 +96,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
             self.context.logger.warning("get raw work transaction unsuccessful!")
             return None
 
-        tx_params = contract_api_response.raw_transaction.body
+        tx_params = job_contract_api_response.raw_transaction.body
 
         safe_contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
@@ -117,7 +117,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
             self.context.logger.warning("Get work transaction hash unsuccessful!")
             return None
         tx_hash = cast(
-            str, contract_api_response.raw_transaction.body.pop("hash")
+            str, job_contract_api_response.raw_transaction.body.pop("hash")
         )
 
         return tx_hash
