@@ -56,16 +56,21 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
     This state is replicated by the tendermint application.
     """
 
-
-    def __init__(self, job_ix=0):
-        self.job_ix = job_ix
-
     @property
     def most_voted_tx_hash(self) -> str:
         """Get the most_voted_tx_hash."""
         return cast(
             str,
             self.db.get_strict("most_voted_tx_hash"),
+        )
+
+    @property
+    def job_selection(self) -> str:
+        """Get the most_voted_tx_hash."""
+
+        return cast(
+            str,
+            self.db.get_strict("job_selection"),
         )
 
 
@@ -120,10 +125,10 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            state = self.period_state.update(
-                job_selection=self.most_voted_payload,
-            )
             job_selection = self.most_voted_payload
+            state = self.period_state.update(
+                job_selection=job_selection
+            )
             if job_selection:
                 return state, Event.DONE
             return state, Event.NOT_WORKABLE
@@ -199,7 +204,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     transition_function: AbciAppTransitionFunction = {
         JobSelectionRound: {
             Event.DONE: IsWorkableRound,
-            #Event.NOT_WORKABLE: NothingToDoRound,
+            Event.NOT_WORKABLE: NothingToDoRound,
             Event.RESET_TIMEOUT: NothingToDoRound,
             Event.NO_MAJORITY: NothingToDoRound,
         },
