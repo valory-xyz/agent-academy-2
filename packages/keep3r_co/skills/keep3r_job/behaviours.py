@@ -83,6 +83,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
     def _get_raw_work_transaction_hash(self) -> Generator[None, None, Optional[str]]:
         job_contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.RAW_TRANSACTION,  # type: ignore
+            contract_address=None,
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="work",
             job_contract_address=self.context.params.job_contract_address,
