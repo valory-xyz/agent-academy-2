@@ -71,7 +71,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         """
         with self.context.benchmark_tool.measure(self.state_id).local():
 
-            tx_hash = yield from self._get_raw_work_transaction()
+            tx_hash = yield from self._get_raw_work_transaction_hash()
             payload = TXHashPayload(self.context.agent_address, tx_hash)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
@@ -100,7 +100,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
 
         safe_contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_address=self.period_state.safe_contract_address,
+            contract_address=self.context.period_state.safe_contract_address,
             contract_id=str(GnosisSafeContract.contract_id),
             contract_callable="get_raw_safe_transaction_hash",
             to_address=tx_params["to_address"],
