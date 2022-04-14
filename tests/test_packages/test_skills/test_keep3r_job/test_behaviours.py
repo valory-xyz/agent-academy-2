@@ -28,6 +28,7 @@ from aea.helpers.transaction.base import RawTransaction
 from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     IsWorkableBehaviour,
+    JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
     PrepareTxBehaviour,
 )
@@ -128,6 +129,88 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         assert (
             state.state_id
             == make_degenerate_state(FinishedPrepareTxRound.round_id).state_id
+        )
+
+
+class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test case to test JobSelectionBehaviour."""
+
+    CONTRACT_ADDRESS: str = "contract_address"
+    CONTRACT_CALLABLE: str = "get_job_selection"
+    job_selection_behaviour_class: Type[BaseState] = JobSelectionBehaviour
+    
+    def test_is_job_selected(self) -> None:
+        """Test job selection."""
+        self.fast_forward_to_state(
+            self.abci_behaviour,
+            JobSelectionBehaviour.state_id,
+            self.period_state,
+        )
+        assert (
+            cast(
+                BaseState,
+                cast(BaseState, self.abci_behaviour.current_state),
+            ).state_id
+            == JobSelectionBehaviour.state_id
+        )
+        self.abci_behaviour.act_wrapper()
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=self.CONTRACT_CALLABLE,
+            ),
+            contract_id=str(CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=self.CONTRACT_CALLABLE,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": True},
+                ),
+            ),
+        )
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round()
+        state = cast(BaseState, self.abci_behaviour.current_state)
+        assert state.state_id == PrepareTxRound.round_id
+
+    def test_job_selection_false(self) -> None:
+        """Test job selection."""
+        self.fast_forward_to_state(
+            self.abci_behaviour,
+            JobSelectionBehaviour.state_id,
+            self.period_state,
+        )
+        assert (
+            cast(
+                BaseState,
+                cast(BaseState, self.abci_behaviour.current_state),
+            ).state_id
+            == JobSelectionBehaviour.state_id
+        )
+        self.abci_behaviour.act_wrapper()
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=self.CONTRACT_CALLABLE,
+            ),
+            contract_id=str(CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=self.CONTRACT_CALLABLE,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": False},
+                ),
+            ),
+        )
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(event=Event.NOT_WORKABLE)
+        state = cast(BaseState, self.abci_behaviour.current_state)
+        assert (
+            state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
         )
 
 

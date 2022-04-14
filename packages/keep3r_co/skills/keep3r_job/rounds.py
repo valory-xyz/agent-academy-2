@@ -56,7 +56,9 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
     This state is replicated by the tendermint application.
     """
 
-    job_ix = 0
+
+    def __init__(self, job_ix=0):
+        self.job_ix = job_ix
 
     @property
     def most_voted_tx_hash(self) -> str:
@@ -197,6 +199,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     transition_function: AbciAppTransitionFunction = {
         JobSelectionRound: {
             Event.DONE: IsWorkableRound,
+            #Event.NOT_WORKABLE: NothingToDoRound,
             Event.RESET_TIMEOUT: NothingToDoRound,
             Event.NO_MAJORITY: NothingToDoRound,
         },

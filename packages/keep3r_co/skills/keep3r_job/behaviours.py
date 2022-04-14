@@ -49,7 +49,8 @@ class Keep3rJobAbciBaseState(BaseState, ABC):
     @property
     def period_state(self) -> PeriodState:
         """Return the period state."""
-        return cast(PeriodState, super().period_state)
+        x = PeriodState()
+        return cast(x, super().period_state)
 
     @property
     def params(self) -> Params:
