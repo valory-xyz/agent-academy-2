@@ -39,9 +39,27 @@ from packages.valory.skills.reset_pause_abci.rounds import (
     ResetPauseABCIApp,
 )
 
+from packages.valory.skills.safe_deployment_abci.rounds import (
+    RandomnessSafeRound,
+    FinishedSafeRound,
+    SafeDeploymentAbciApp,
+)
+
+from packages.keep3r_co.skills.keep3r_abci.rounds import (
+    CheckSafeExistenceRound,
+    Event as CheckSafeExistenceEvent,
+)
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
-    FinishedRegistrationRound: PrepareTxRound,
+    FinishedRegistrationRound: CheckSafeExistenceRound,
+    CheckSafeExistenceRound: {
+        CheckSafeExistenceEvent.DONE: FinishedSafeRound,  # To the last round of safe deployment abci
+        CheckSafeExistenceEvent.NEGATIVE: RandomnessSafeRound,  # To the 1st round of safe deployment abci
+        CheckSafeExistenceEvent.NONE: RegistrationRound,  # NOTE: unreachable, to the first round of agent registration abci
+        CheckSafeExistenceEvent.CHECK_TIMEOUT: RegistrationRound,  # To the first round of agent registration abci
+        CheckSafeExistenceEvent.NO_MAJORITY: RegistrationRound,  # To the first round of agent registration abci
+    },
+    FinishedSafeRound: PrepareTxRound,
     FinishedPrepareTxRound: ResetAndPauseRound,
     FinishedResetAndPauseRound: RegistrationRound,
     FinishedResetAndPauseErrorRound: RegistrationRound,
@@ -50,6 +68,7 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
 Keep3rAbciApp = chain(
     (
         AgentRegistrationAbciApp,
+        SafeDeploymentAbciApp,
         Keep3rJobAbciApp,
         ResetPauseABCIApp,
     ),

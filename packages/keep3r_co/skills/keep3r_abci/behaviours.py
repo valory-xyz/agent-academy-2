@@ -37,6 +37,10 @@ from packages.valory.skills.reset_pause_abci.behaviours import (
     ResetPauseABCIConsensusBehaviour,
 )
 
+from packages.keep3r_co.skills.keep3r_abci.payloads import (
+    SafeExistencePayload,
+)
+
 
 class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the price estimation."""
@@ -48,3 +52,45 @@ class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
         *Keep3rJobRoundBehaviour.behaviour_states,
         *ResetPauseABCIConsensusBehaviour.behaviour_states,
     }
+
+class CheckSafeExistenceBehaviour(BaseState):
+    """Check Safe contract existence."""
+
+    state_id = "check_safe_existence"
+    matching_round = CheckSafeExistenceRound
+
+    @property
+    def period_state(self) -> PeriodState:
+        """Return the period state."""
+        return cast(PeriodState, super().period_state)
+
+    def async_act(self) -> Generator:
+        """
+        Do the action.
+
+        Steps:
+        - Check if any safe contract is deployed already
+        - Wait until ABCI application transitions to the next round.
+        - Go to the next behaviour state (set done event).
+        """
+
+        with self.context.benchmark_tool.measure(self.state_id).local():
+            exists = yield from self.safe_contract_exists()
+            payload = SafeExistencePayload(self.context.agent_address, exists)
+
+        with self.context.benchmark_tool.measure(self.state_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def safe_contract_exists(self) -> Generator[None, None, bool]:
+        """Check Contract deployment verification."""
+
+        if (
+            self.period_state.safe_contract_address == None
+        ):  # pragma: nocover
+            self.context.logger.warning("Safe contract has not been deployed!")
+            return False
+        
+        return True
