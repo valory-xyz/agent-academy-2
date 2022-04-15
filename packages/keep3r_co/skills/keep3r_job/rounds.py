@@ -120,10 +120,8 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            state = self.period_state.update(
-                job_selection=self.most_voted_payload,
-            )
             job_selection = self.most_voted_payload
+            state = self.period_state.update(job_selection=job_selection)
             if job_selection:
                 return state, Event.DONE
             return state, Event.NOT_WORKABLE
