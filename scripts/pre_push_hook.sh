@@ -15,6 +15,7 @@ tox --parallel \
     -e flake8 \
     -e check-hash \
     -e isort \
+    -e isort-check \
     -e black \
     -e bandit && \
     echo "Done successfully!" && exit 0

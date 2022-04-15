@@ -20,8 +20,8 @@
 """This module contains the price estimation ABCI application."""
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinishedPrepareTxRound,
-    Keep3rJobAbciApp,
     IsWorkableRound,
+    Keep3rJobAbciApp,
 )
 from packages.valory.skills.abstract_round_abci.abci_app_chain import (
     AbciAppTransitionMapping,
