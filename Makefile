@@ -120,3 +120,10 @@ run-mainnet-fork-docker:
 .PHONY: copyright
 copyright:
 	tox -e check-copyright
+
+.PHONY: check_abci_specs
+check_abci_specs:
+	 python scripts/generate_abciapp_spec.py -c packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp > packages/keep3r_co/skills/keep3r_job/fsm_specification.yaml || (echo "Failed to check job abci consistency" && exit 1)
+	 python scripts/generate_abciapp_spec.py -c packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp > packages/keep3r_co/skills/keep3r_abci/fsm_specification.yaml || (echo "Failed to check chained abci cosistency" && exit 1)
+	 echo "Successfully validated abcis!"
+
