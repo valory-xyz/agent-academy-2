@@ -20,7 +20,7 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
-from typing import Generator, Optional, Set, Type, cast, Any
+from typing import Any, Generator, Optional, Set, Type, cast
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
@@ -84,7 +84,9 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
         """Returns the appropriate job contract based on the period_count."""
         if not self.params.job_contract_addresses:
             return False
-        job_ix = self.period_state.period_count % len(self.context.params.job_contract_addresses)
+        job_ix = self.period_state.period_count % len(
+            self.context.params.job_contract_addresses
+        )
         next_job = self.context.params.job_contract_addresses[job_ix]
         return next_job
 
@@ -111,7 +113,9 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
-            self.context.logger.info(f"Job contract is workable {self.period_state.job_selection}: {is_workable}")
+            self.context.logger.info(
+                f"Job contract is workable {self.period_state.job_selection}: {is_workable}"
+            )
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
@@ -163,14 +167,12 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
             contract_callable="get_workable",
         )
         if (
-                contract_api_response.performative
-                != ContractApiMessage.Performative.RAW_TRANSACTION
+            contract_api_response.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
         ):  # pragma: nocover
             self.context.logger.warning("Get work transaction unsuccessful!")
             return None
-        tx_hash = cast(
-            str, contract_api_response.raw_transaction.body.pop("hash")
-        )
+        tx_hash = cast(str, contract_api_response.raw_transaction.body.pop("hash"))
 
         return tx_hash
 
@@ -184,5 +186,4 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
         JobSelectionBehaviour,  # type: ignore
         IsWorkableBehaviour,  # type: ignore
         PrepareTxBehaviour,  # type: ignore
-
     }
