@@ -22,8 +22,8 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Type, cast
-import pytest
 
+import pytest
 from aea.helpers.transaction.base import RawTransaction
 
 from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
@@ -98,8 +98,8 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
             self.abci_behaviour,
             self.prepare_tx_behaviour_class.state_id,
             PeriodState(
-	        StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
-	    ),
+                StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
+            ),
         )
         assert (
             cast(
@@ -138,13 +138,11 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
 class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test case to test JobSelectionBehaviour."""
 
-    CONTRACT_ADDRESS: str = "contract_address"
-    CONTRACT_CALLABLE: str = "get_job_selection"
     job_selection_behaviour_class: Type[BaseState] = JobSelectionBehaviour
-    
+
     def test_empty_jobs(self) -> None:
         """Test job selection."""
-	self.skill.skill_context.params.job_contract_addresses = []
+        self.skill.skill_context.params.job_contract_addresses = []
         self.fast_forward_to_state(
             self.abci_behaviour,
             JobSelectionBehaviour.state_id,
@@ -160,11 +158,11 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.abci_behaviour.act_wrapper()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
-        self.end_round(EVENT.NOT_WORKABLE)
+        self.end_round(Event.NOT_WORKABLE)
         state = cast(BaseState, self.abci_behaviour.current_state)
-	assert (
-	    state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
-	)
+        assert (
+            state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
+        )
 
     @pytest.mark.parametrize("n_jobs", range(1, 10))
     def test_n_jobs(self, n_jobs: int) -> None:
@@ -247,7 +245,6 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
             PeriodState(
                 StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
             ),
-            
         )
         assert (
             cast(

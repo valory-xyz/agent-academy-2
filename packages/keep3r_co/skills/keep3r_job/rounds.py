@@ -72,6 +72,7 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
             self.db.get_strict("job_selection"),
         )
 
+
 class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
     """Abstract round for the simple abci skill."""
 
@@ -150,7 +151,7 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
             )
             return state, Event.DONE
         if not self.is_majority_possible(
-	    self.collection, self.period_state.nb_participants
+            self.collection, self.period_state.nb_participants
         ):
             return self._return_no_majority_event()
         return None

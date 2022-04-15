@@ -80,15 +80,15 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
 
         self.set_done()
 
-    def _job_selection(self) -> str:
+    def _job_selection(self) -> Any:
         """Returns appropriate job contract for period_count."""
-	if not self.params.job_contract_address:
-	    return False
-	job_ix = self.period_state.period_count % len(
-		self.context.params.job_contract_addresses
-	)
-	next_job = self.context.params.job_contract_addresses[job_ix]
-	return next_job
+        if not self.params.job_contract_addresses:
+            return False
+        job_ix = self.period_state.period_count % len(
+            self.context.params.job_contract_addresses
+        )
+        next_job = self.context.params.job_contract_addresses[job_ix]
+        return next_job
 
 
 class IsWorkableBehaviour(Keep3rJobAbciBaseState):
@@ -114,7 +114,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
             self.context.logger.info(
-		f"Job contract is workable {self.period_state.job_selection}: {is_workable}")
+                f"Job contract is workable {self.period_state.job_selection}: {is_workable}")
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
