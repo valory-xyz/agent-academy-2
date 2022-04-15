@@ -120,6 +120,8 @@ jobs:
       run: tox -e mypy
     - name: Pylint
       run: tox -e pylint
+    - name: Pre-push hooks
+      run: bash scripts/pre_push_hook.sh
 
   test:
     continue-on-error: True

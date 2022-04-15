@@ -67,7 +67,9 @@ class IsWorkablePayload(BaseAbciPayload):
     @property
     def data(self) -> Dict[str, Optional[bool]]:
         """Get the data."""
-        return dict(is_workable=self.is_workable) if self._is_workable is not None else {}
+        return (
+            dict(is_workable=self.is_workable) if self._is_workable is not None else {}
+        )
 
 
 class TXHashPayload(BaseAbciPayload):
@@ -75,9 +77,7 @@ class TXHashPayload(BaseAbciPayload):
 
     transaction_type = TransactionType.PREPARE_TX
 
-    def __init__(
-            self, sender: str, tx_hash: Optional[str], **kwargs: Any
-    ) -> None:
+    def __init__(self, sender: str, tx_hash: Optional[str], **kwargs: Any) -> None:
         """Initialize an 'prepare_tx' transaction payload.
 
         :param sender: the sender (Ethereum) address

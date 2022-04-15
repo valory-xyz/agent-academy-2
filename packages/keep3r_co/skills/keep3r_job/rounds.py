@@ -120,7 +120,7 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
             )
             return state, Event.DONE
         if not self.is_majority_possible(
-                self.collection, self.period_state.nb_participants
+            self.collection, self.period_state.nb_participants
         ):
             return self._return_no_majority_event()
         return None
@@ -183,11 +183,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         FinishedPrepareTxRound: {},
         FailedRound: {},
     }
-    final_states = {
-        FinishedPrepareTxRound,
-        FailedRound,
-        NothingToDoRound
-    }
+    final_states = {FinishedPrepareTxRound, FailedRound, NothingToDoRound}
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
         Event.RESET_TIMEOUT: 30.0,
