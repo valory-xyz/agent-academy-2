@@ -20,7 +20,7 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
-from typing import Generator, Optional, Set, Type, cast
+from typing import Any, Generator, Optional, Set, Type, cast
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
@@ -49,8 +49,7 @@ class Keep3rJobAbciBaseState(BaseState, ABC):
     @property
     def period_state(self) -> PeriodState:
         """Return the period state."""
-        x = PeriodState()
-        return cast(x, super().period_state)
+        return cast(PeriodState, super().period_state)
 
     @property
     def params(self) -> Params:
@@ -71,26 +70,25 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
         job selection payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.state_id).local():
-            self.context.logger.info(
-                f"Interacting with Job contract at {self.context.params.job_contract_address}"
-            )
             job_selection = self._job_selection()
-            if job_selection is None:
-                job_selection = False
             payload = JobSelectionPayload(self.context.agent_address, job_selection)
+            self.context.logger.info(f"Job contract selected: {job_selection}")
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
-            self.context.logger.info(f"Job contract is selected {self.context.params.job_contract_address}: {job_selection}")
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
         self.set_done()
 
     def _job_selection(self) -> str:
-        next_job_ix = self.period_state.job_ix + 1
-        next_job = self.context.params.job_contracts[next_job_ix]
-        self.period_state.job_ix = next_job_ix
-        return next_job
+        """Returns appropriate job contract for period_count."""
+	if not self.params.job_contract_address:
+	    return False
+	job_ix = self.period_state.period_count % len(
+		self.context.params.job_contract_addresses
+	)
+	next_job = self.context.params.job_contract_addresses[job_ix]
+	return next_job
 
 
 class IsWorkableBehaviour(Keep3rJobAbciBaseState):
@@ -107,7 +105,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
         """
         with self.context.benchmark_tool.measure(self.state_id).local():
             self.context.logger.info(
-                f"Interacting with Job contract at {self.context.params.job_contract_address}"
+                f"Interacting with Job contract at {self.period_state.job_selection}"
             )
             is_workable = yield from self._get_workable()
             if is_workable is None:
@@ -115,7 +113,8 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
-            self.context.logger.info(f"Job contract is workable {self.context.params.job_contract_address}: {is_workable}")
+            self.context.logger.info(
+		f"Job contract is workable {self.period_state.job_selection}: {is_workable}")
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
@@ -124,7 +123,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
     def _get_workable(self) -> Generator:
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.context.params.job_contract_address,
+            contract_address=self.period_state.job_selection,
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="get_workable",
         )
@@ -162,19 +161,17 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
     def _get_raw_work_transaction(self) -> Generator[None, None, Optional[str]]:
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_address=self.context.params.job_contract_address,
+            contract_address=self.period_state.job_selection,
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="get_workable",
         )
         if (
-                contract_api_response.performative
-                != ContractApiMessage.Performative.RAW_TRANSACTION
+            contract_api_response.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
         ):  # pragma: nocover
             self.context.logger.warning("Get work transaction unsuccessful!")
             return None
-        tx_hash = cast(
-            str, contract_api_response.raw_transaction.body.pop("hash")
-        )
+        tx_hash = cast(str, contract_api_response.raw_transaction.body.pop("hash"))
 
         return tx_hash
 

@@ -61,7 +61,7 @@ class JobSelectionPayload(BaseAbciPayload):
         self._job_selection = job_selection
 
     @property
-    def job_selection(self) -> Any:
+    def job_selection(self) -> Optional[str]:
         """Get the job selection."""
         return self._job_selection
 
@@ -102,9 +102,7 @@ class TXHashPayload(BaseAbciPayload):
 
     transaction_type = TransactionType.PREPARE_TX
 
-    def __init__(
-            self, sender: str, tx_hash: Optional[str], **kwargs: Any
-    ) -> None:
+    def __init__( self, sender: str, tx_hash: Optional[str], **kwargs: Any) -> None:
         """Initialize an 'prepare_tx' transaction payload.
 
         :param sender: the sender (Ethereum) address
