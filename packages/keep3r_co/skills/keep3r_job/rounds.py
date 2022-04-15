@@ -125,8 +125,8 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         """Process the end of the block."""
         if self.threshold_reached:
             job_selection = self.most_voted_payload
-            state = self.period_state.update(job_selection=job_selection)
             if job_selection:
+                state = self.period_state.update(job_selection=job_selection)
                 return state, Event.DONE
             return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
