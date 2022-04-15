@@ -8,36 +8,6 @@ on:
   pull_request:
 
 jobs:
-  pre_push_hook:
-    continue-on-error: False
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.7]
-
-    timeout-minutes: 10
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        sudo apt-get update --fix-missing
-        sudo apt-get autoremove
-        sudo apt-get autoclean
-        pip install --upgrade setuptools
-        pip install pipenv
-    - name: Pipenv install requirements
-      run: |
-        pipenv install --dev --skip-lock
-    - name: pre-push hook
-      run: |
-        pipenv run bash scripts/pre_push_hook.sh
-
   lock_check:
     continue-on-error: False
     runs-on: ubuntu-latest
@@ -154,7 +124,6 @@ jobs:
   test:
     continue-on-error: True
     needs:
-      - pre_push_hook
       - lock_check
       - copyright_and_doc_check
       - linter_checks
