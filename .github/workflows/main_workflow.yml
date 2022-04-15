@@ -34,9 +34,6 @@ jobs:
     - name: Pipenv install requirements
       run: |
         pipenv install --dev --skip-lock
-    - name: Pipenv install
-      run: |
-        pipenv run pip install -e .[all]
     - name: pre-push hook
       run: |
         pipenv run bash scripts/pre_push_hook.sh
