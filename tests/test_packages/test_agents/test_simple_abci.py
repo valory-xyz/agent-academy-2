@@ -19,29 +19,21 @@
 
 """End2end tests for the valory/simple_abci skill."""
 
-import pytest
-
 from tests.test_packages.test_agents.base import BaseTestEnd2EndNormalExecution
 
 
-# check log messages of the happy path
-CHECK_STRINGS = (
-    "Entered in the 'registration' round for period 0",
-    "'registration' round is done",
-    "Entered in the 'randomness_startup' round for period 0",
-    "'randomness_startup' round is done",
-    "Entered in the 'select_keeper_at_startup' round for period 0",
-    "'select_keeper_at_startup' round is done",
-    "Entered in the 'reset_and_pause' round for period 0",
-    "'reset_and_pause' round is done",
-    "Period end",
-    "Entered in the 'randomness_startup' round for period 1",
-    "Entered in the 'select_keeper_at_startup' round for period 1",
-    "Entered in the 'reset_and_pause' round for period 1",
-)
+# round check log messages of the happy path
+EXPECTED_ROUND_LOG_COUNT = {
+    "registration": 1,
+    "randomness_startup": 3,
+    "select_keeper_at_startup": 2,
+    "reset_and_pause": 2,
+}
+
+# strict check log messages of the happy path
+STRICT_CHECK_STRINGS = ("Period end",)
 
 
-@pytest.mark.e2e
 class TestSimpleABCISingleAgent(
     BaseTestEnd2EndNormalExecution,
 ):
@@ -50,11 +42,12 @@ class TestSimpleABCISingleAgent(
     NB_AGENTS = 1
     agent_package = "valory/simple_abci:0.1.0"
     skill_package = "valory/simple_abci:0.1.0"
-    wait_to_finish = 40
-    check_strings = CHECK_STRINGS
+    wait_to_finish = 80
+    round_check_strings_to_n_periods = EXPECTED_ROUND_LOG_COUNT
+    strict_check_strings = STRICT_CHECK_STRINGS
+    use_benchmarks = True
 
 
-@pytest.mark.e2e
 class TestSimpleABCITwoAgents(
     BaseTestEnd2EndNormalExecution,
 ):
@@ -63,11 +56,11 @@ class TestSimpleABCITwoAgents(
     NB_AGENTS = 2
     agent_package = "valory/simple_abci:0.1.0"
     skill_package = "valory/simple_abci:0.1.0"
-    wait_to_finish = 80
-    check_strings = CHECK_STRINGS
+    wait_to_finish = 120
+    round_check_strings_to_n_periods = EXPECTED_ROUND_LOG_COUNT
+    strict_check_strings = STRICT_CHECK_STRINGS
 
 
-@pytest.mark.e2e
 class TestSimpleABCIFourAgents(
     BaseTestEnd2EndNormalExecution,
 ):
@@ -76,5 +69,6 @@ class TestSimpleABCIFourAgents(
     NB_AGENTS = 4
     agent_package = "valory/simple_abci:0.1.0"
     skill_package = "valory/simple_abci:0.1.0"
-    wait_to_finish = 80
-    check_strings = CHECK_STRINGS
+    wait_to_finish = 120
+    round_check_strings_to_n_periods = EXPECTED_ROUND_LOG_COUNT
+    strict_check_strings = STRICT_CHECK_STRINGS
