@@ -8,14 +8,14 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: Qmes4T968eLYkfRc1o3oXMa3irSMo6CY95kaAGvM3LfzAF
   __init__.py: QmUJJPrwqyWYnqeYpGypjgsQoXiGFpjHogSrrDmAedpdzV
-  behaviours.py: QmfSsAQdWMxexo2UnuUk2xK8MBCkFMKSiumWHxmq9c8GsC
+  behaviours.py: QmTJ4GqaZKtXFV7WXCKngwYka2NzU2V9GqM5FPPnGM6WH4
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmNnFR9VUrh81iUqPZbhrNWkTMdthqFaWsJFg8vpdpfNMQ
+  fsm_specification.yaml: QmUcPiwdjeK3RRNcYQEyvMxrSEStgfg8rymoFroqn5MrEo
   handlers.py: QmXEZTJVJHNhpHJMjhPRHdhmYMmVpu6LfNyYDE2k4mjLVA
-  models.py: QmbzgF4hfVAAydzzV9GKjRNUNC8wPmbEocdCQgM8c2D7MM
-  payload_tools.py: QmQaVcy9BeW1nQtFnt83Nzt9BTY3nVbjs2Xth2W3iUTPyW
-  payloads.py: Qmb1M1mDZp1p4pX1asBU8LkyDR5KVPEZuxFq48LapjGDte
-  rounds.py: QmPFQMABoKo9fuJoKXAxzWebAUd2YdPbBFJfutYHdCHm4q
+  models.py: Qmb8Euw1JFPaM6LVuAbENYje4TyTGQdGnC29i7UNRodvGD
+  payload_tools.py: QmQZS2sYDevTw7SaejgCx5B9Kzxjxxq39PpDoDaQUWAVgo
+  payloads.py: QmYXXTXx1SL48GLF1BoSrGnRdADMFeA7ePSrveUUCHLPQ1
+  rounds.py: QmcxH27UqEuSyACCaj6Lx5rnSexJupQjArbmNKtq1G1REC
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
@@ -65,6 +65,7 @@ models:
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      keeper_allowed_retries: 3
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
