@@ -33,6 +33,7 @@ MAX_RETRIES = 30
 LOCALHOST = "localhost"
 HTTP_LOCALHOST = f"http://{LOCALHOST}"
 
+
 # default hardhat key pairs (public key, private key)
 KEY_PAIRS: List[Tuple[str, str]] = [
     (

@@ -41,10 +41,10 @@ clean-test:
 
 .PHONY: lint
 lint:
-	black packages/valory tests scripts
-	isort packages/valory tests scripts
+	black packages tests scripts
+	isort packages tests scripts
 	flake8 packages tests scripts
-	darglint packages/valory/agents packages/valory/connections packages/valory/contracts packages/valory/skills tests
+	darglint packages tests
 
 .PHONY: pylint
 pylint:
@@ -60,7 +60,7 @@ static:
 
 .PHONY: test
 test:
-	pytest -rfE tests/ --cov-report=html --cov=packages/valory/skills/simple_abci --cov-report=xml --cov-report=term --cov-report=term-missing --cov-config=.coveragerc
+	pytest -rfE tests/ --cov-report=html --cov=packages --cov-report=xml --cov-report=term --cov-report=term-missing --cov-config=.coveragerc
 	find . -name ".coverage*" -not -name ".coveragerc" -exec rm -fr "{}" \;
 
 v := $(shell pip -V | grep virtualenvs)
