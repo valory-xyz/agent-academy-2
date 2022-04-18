@@ -201,6 +201,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_is_workable_true(self) -> None:
         """Test is workable."""
+        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
         self.fast_forward_to_state(
             self.abci_behaviour,
             IsWorkableBehaviour.state_id,
