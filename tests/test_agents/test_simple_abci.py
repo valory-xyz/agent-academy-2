@@ -19,7 +19,7 @@
 
 """End2end tests for the valory/simple_abci skill."""
 
-from tests.test_packages.test_agents.base import BaseTestEnd2EndNormalExecution
+from tests.test_agents.base import BaseTestEnd2EndNormalExecution
 
 
 # round check log messages of the happy path

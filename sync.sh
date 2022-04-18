@@ -36,10 +36,10 @@ cp -r ../consensus-algorithms/tests/helpers/constants.py tests/helpers
 cp -r ../consensus-algorithms/tests/helpers/contracts.py tests/helpers
 cp -r ../consensus-algorithms/tests/helpers/tendermint_utils.py tests/helpers
 cp -r ../consensus-algorithms/tests/test_agents/__init__.py tests/test_agents
-#manual > cp -r ../consensus-algorithms/tests/test_agents/base.py tests/test_agents
-#manual > cp -r ../consensus-algorithms/tests/test_agents/test_simple_abci.py tests/test_agents
-#manual > cp -r ../consensus-algorithms/tests/test_contracts/base.py tests/test_contracts
+cp -r ../consensus-algorithms/tests/test_agents/base.py tests/test_agents
+cp -r ../consensus-algorithms/tests/test_agents/test_simple_abci.py tests/test_agents
+cp -r ../consensus-algorithms/tests/test_contracts/base.py tests/test_contracts
 cp -r ../consensus-algorithms/tests/test_skills/__init__.py tests/test_skills
 #cp -r ../consensus-algorithms/tests/test_skills/test_simple_abci tests/test_skills
 cp -r ../agent-academy-1/tox.ini .
-echo "Manually sync: packages/valory/connections/abci, tests/helpers/docker, tests/test_agents/base.py, test_agents/test_simple_abci.py, tests/test_contracts/base.py"
+echo "Manually sync: tests/test_skills/test_simple_abci"
