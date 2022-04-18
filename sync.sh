@@ -1,4 +1,4 @@
-cp -r ../agent-academy-1/.github .github
+cp -r ../agent-academy-1/.github .
 cp -r ../consensus-algorithms/packages/open_aea/protocols packages/open_aea
 cp -r ../consensus-algorithms/packages/valory/agents/simple_abci packages/valory/agents
 cp -r ../consensus-algorithms/packages/valory/agents/__init__.py packages/valory/agents
@@ -27,12 +27,12 @@ cp -r ../consensus-algorithms/scripts/check_copyright.py scripts/
 cp -r ../consensus-algorithms/scripts/check_packages.py scripts/
 cp -r ../consensus-algorithms/scripts/generate_abciapp_spec.py scripts/
 cp -r ../consensus-algorithms/scripts/generate_ipfs_hashes.py scripts/
-#manual > cp -r ../consensus-algorithms/tests/helpers/docker tests/helpers
 cp -r ../consensus-algorithms/tests/data tests
-cp -r ../consensus-algorithms/tests/helpers helpers
+cp -r ../consensus-algorithms/tests/helpers/docker tests/helpers
 cp -r ../consensus-algorithms/tests/helpers/__init__.py tests/helpers
 cp -r ../consensus-algorithms/tests/helpers/async_utils.py tests/helpers
 cp -r ../consensus-algorithms/tests/helpers/base.py tests/helpers
+cp -r ../consensus-algorithms/tests/helpers/constants.py tests/helpers
 cp -r ../consensus-algorithms/tests/helpers/contracts.py tests/helpers
 cp -r ../consensus-algorithms/tests/helpers/tendermint_utils.py tests/helpers
 cp -r ../consensus-algorithms/tests/test_agents/__init__.py tests/test_agents
@@ -43,4 +43,5 @@ cp -r ../consensus-algorithms/tests/test_contracts/test_gnosis_safe_proxy_factor
 #manual > cp -r ../consensus-algorithms/tests/test_contracts/base.py tests/test_contracts
 cp -r ../consensus-algorithms/tests/test_skills/__init__.py tests/test_skills
 cp -r ../consensus-algorithms/tests/test_skills/test_simple_abci tests/test_skills
+cp -r ../agent-academy-1/tox.ini .
 echo "Manually sync: packages/valory/connections/abci, tests/helpers/docker, tests/test_agents/base.py, test_agents/test_simple_abci.py, tests/test_contracts/base.py"
