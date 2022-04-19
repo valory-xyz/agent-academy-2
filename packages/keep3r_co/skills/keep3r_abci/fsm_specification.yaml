@@ -15,10 +15,15 @@ states:
 - FailedRound
 - FinishedRegistrationFFWRound
 - PrepareTxRound
+- IsWorkableRound
 - RegistrationRound
 - RegistrationStartupRound
 - ResetAndPauseRound
 transition_func:
+    (IsWorkableRound, DONE): PrepareTxRound
+    (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
+    (IsWorkableRound, NO_MAJORITY): IsWorkableRound
+    (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
     (PrepareTxRound, DONE): ResetAndPauseRound
     (PrepareTxRound, NO_MAJORITY): FailedRound
     (PrepareTxRound, RESET_TIMEOUT): FailedRound
