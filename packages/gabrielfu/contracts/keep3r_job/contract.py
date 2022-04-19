@@ -88,7 +88,7 @@ class Keep3rJobContract(Contract):
     def work(  # pylint: disable=too-many-arguments,too-many-locals
         cls,
         ledger_api: EthereumApi,
-        job_contract_address: str,
+        contract_address: str,
         sender_address: str,
         gas: Optional[int] = None,
         gas_price: Optional[int] = None,
@@ -110,7 +110,7 @@ class Keep3rJobContract(Contract):
         """
 
         ledger_api = cast(EthereumApi, ledger_api)
-        job_contract = cls.get_instance(ledger_api, job_contract_address)
+        job_contract = cls.get_instance(ledger_api, contract_address)
 
         tx_parameters = TxParams({"from": sender_address})
 
