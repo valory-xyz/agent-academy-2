@@ -22,6 +22,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinishedPrepareTxRound,
     Keep3rJobAbciApp,
     IsWorkableRound,
+    FailedRound,
     NothingToDoRound
 )
 from packages.valory.skills.abstract_round_abci.abci_app_chain import (
@@ -44,20 +45,21 @@ from packages.valory.skills.reset_pause_abci.rounds import (
 
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
-    FinishedRegistrationRound: ResetAndPauseRound,
-    FinishedRegistrationFFWRound: ResetAndPauseRound,
+    FinishedRegistrationRound: IsWorkableRound,
+    FinishedRegistrationFFWRound: IsWorkableRound,
+
+    FinishedPrepareTxRound : ResetAndPauseRound,
+    FailedRound: ResetAndPauseRound,
+    NothingToDoRound: ResetAndPauseRound,
 
     FinishedResetAndPauseRound: RegistrationRound,
     FinishedResetAndPauseErrorRound: RegistrationStartupRound,
-#   FinishedPrepareTxRound: ResetAndPauseRound,
-#   FinishedResetAndPauseRound: RegistrationRound,
-#   FinishedResetAndPauseErrorRound: RegistrationRound,
 }
 
 Keep3rAbciApp = chain(
     (
         AgentRegistrationAbciApp,
-#       Keep3rJobAbciApp,
+        Keep3rJobAbciApp,
         ResetPauseABCIApp,
     ),
     abci_app_transition_mapping,

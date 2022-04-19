@@ -22,7 +22,6 @@
 from typing import Set, Type
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
-    Keep3rJobAbciApp,
     Keep3rJobRoundBehaviour,
 )
 from packages.valory.skills.abstract_round_abci.behaviours import (
@@ -45,6 +44,6 @@ class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
     abci_app_cls = Keep3rAbciApp  # type: ignore
     behaviour_states: Set[Type[BaseState]] = {
         *AgentRegistrationRoundBehaviour.behaviour_states,
-  #     *Keep3rJobRoundBehaviour.behaviour_states,
+        *Keep3rJobRoundBehaviour.behaviour_states,
         *ResetPauseABCIConsensusBehaviour.behaviour_states,
     }
