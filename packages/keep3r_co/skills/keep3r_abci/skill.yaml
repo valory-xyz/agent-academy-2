@@ -9,12 +9,14 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: QmT7TN1DvhK4LtLzv2gSQphVJCsy49b11hRU8ixiiYtHrf
   __init__.py: QmNMXn9ZQfgadg7KvXu2nCQsWuwoca5WmDXoMBkBGDNGbV
-  behaviours.py: QmU4JJrtQGjSJ9xwqmEXu1ErgyTFZmZGnHtHfAwm4XyXwr
-  composition.py: QmcgJjuC64nnkLZniWn2AHPGqgDBDsDyWumdPHuKv9Brzd
+  behaviours.py: QmRUUMyJVaD45rW9NtAc9u7s4XqbXkWMihgXUK9VjMU8nw
+  composition.py: QmQ6pAXdSfdHDUk9KW8EYhFKeuAq4Lgf7vFZFALFxE6TPW
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmQfnPoNGwSDqRMndYQhLHDL517n3Bm36Piczyocax8Gyp
+  fsm_specification.yaml: QmTQTFCWUZ6W4sBceTfsSWCX8xyqVbD4LPLLYvX8vpMcHt
   handlers.py: QmfKibZHU7Lwrw1vF9UGC6NzzqjaoqWjWNSj8HKecv2s6E
   models.py: QmbxipCZadt2WZWi9oo9eNLMyWsT6KSY1DxSC2aEdSAawg
+  payloads.py: QmStkh14VLxaePGzkkboptU6gTve1BJDqMUk2wFiN2XHcC
+  rounds.py: QmSjrx4AyujZUnJ5TSUpBhJsThhjXyHZxP8AVYBS1E6DmJ
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
@@ -25,6 +27,7 @@ protocols:
 skills:
 - keep3r_co/keep3r_job:0.1.0
 - valory/registration_abci:0.1.0
+- valory/safe_deployment_abci:0.1.0
 - valory/transaction_settlement_abci:0.1.0
 behaviours:
   main:
