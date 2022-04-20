@@ -158,7 +158,7 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
                 payload = IsProfitablePayload(self.context.agent_address, self.is_profitable)
             else:
                 #TODO: Implement payload if job is not profitable
-                payload = False
+                payload = IsProfitablePayload(self.context.agent_address, False)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
             self.context.logger.info(f"Safe transaction hash: {reward_multiplier}")

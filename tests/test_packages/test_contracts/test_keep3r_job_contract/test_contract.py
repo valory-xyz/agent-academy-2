@@ -88,6 +88,7 @@ class TestKeep3rJobContract(BaseContractTestCase):
 
 
     def test_get_reward_multiplier(self) -> None:
+        """Test `get_reward_multiplier` method."""
         # mock contract function
         mock_function = mock.MagicMock()
         mock_function.call.return_value = REWARD_MULTIPLIER
