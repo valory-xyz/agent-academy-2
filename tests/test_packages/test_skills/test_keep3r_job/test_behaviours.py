@@ -54,6 +54,8 @@ from tests.test_packages.test_skills.test_simple_abci.test_behaviours import (
 )
 
 
+AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
+
 class DummyRoundId:
     """Dummy class for setting round_id for exit condition."""
 
@@ -106,19 +108,26 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_contract_api_request(
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+                contract_address="address",
             ),
             contract_id=str(CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.RAW_TRANSACTION,
-                callable="get_workable",
+                callable="work",
                 raw_transaction=RawTransaction(
                     ledger_id="ethereum",
-                    body={"hash": "stub"},
+                    body={
+                        "to_address": "to",
+                        "value": "value",
+                        "data": "data",
+                        "safe_tx_gas": "safe_tx_gas",
+                        "operation": "operation"
+                    },
                 ),
             ),
         )
 
-        self.mock_a2a_transaction()
+        # self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round()
         state = cast(BaseState, self.abci_behaviour.current_state)

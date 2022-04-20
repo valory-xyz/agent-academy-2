@@ -86,7 +86,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
             contract_address=self.context.params.job_contract_address,
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="work",
-            # job_contract_address=self.context.params.job_contract_address,
+            job_contract_address=self.context.params.job_contract_address,
             sender_address=self.context.agent_address,
         )
 
@@ -101,7 +101,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
 
         safe_contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_address=self.context.period_state.safe_contract_address,
+            contract_address=self.context.params.args.period_setup.safe_contract_address,
             contract_id=str(GnosisSafeContract.contract_id),
             contract_callable="get_raw_safe_transaction_hash",
             to_address=tx_params["to_address"],
