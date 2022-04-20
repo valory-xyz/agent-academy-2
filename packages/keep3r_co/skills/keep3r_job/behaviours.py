@@ -104,13 +104,9 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
         is workable payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.state_id).local():
-            if self.params.job_contract_addresses:
-                job_ix = self.period_state.period_count % len(
-                    self.context.params.job_contract_addresses
-                )
-                self.context.logger.info(
-                    f"Interacting with Job contract {job_ix} for {self.period_state.job_selection}"
-                )
+            self.context.logger.info(
+                f"Interacting with Job contract at {self.period_state.job_selection}"
+            )
             is_workable = yield from self._get_workable()
             if is_workable is None:
                 is_workable = False
