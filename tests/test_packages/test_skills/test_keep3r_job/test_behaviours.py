@@ -25,6 +25,8 @@ from typing import Dict, Type, cast
 
 from aea.helpers.transaction.base import RawTransaction
 
+from packages.valory.skills.abstract_round_abci.base import (BaseTxPayload, StateDB)
+
 from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     Keep3rJobRoundBehaviour,
@@ -94,7 +96,10 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.fast_forward_to_state(
             self.abci_behaviour,
             self.preparetx_behaviour_class.state_id,
-            self.period_state,
+            PeriodState(
+                StateDB(initial_period=0, initial_data=dict(safe_contract_address="address")
+            ),
+        )
         )
         assert (
             cast(
@@ -108,7 +113,7 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_contract_api_request(
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
-                contract_address="address",
+                job_contract_address="address",
             ),
             contract_id=str(CONTRACT_ID),
             response_kwargs=dict(
