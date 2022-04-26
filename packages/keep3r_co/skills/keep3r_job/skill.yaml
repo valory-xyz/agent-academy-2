@@ -68,6 +68,8 @@ models:
     class_name: LedgerApiDialogues
   params:
     args:
+      period_setup:
+        safe_contract_address: null
       cleanup_history_depth: 1
       consensus:
         max_participants: 1
