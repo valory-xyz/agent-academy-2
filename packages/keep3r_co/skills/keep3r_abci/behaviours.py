@@ -21,9 +21,8 @@
 
 from typing import Set, Type
 
-from packages.keep3r_co.skills.keep3r_job.behaviours import (
-    Keep3rJobRoundBehaviour,
-)
+from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
+from packages.keep3r_co.skills.keep3r_job.behaviours import Keep3rJobRoundBehaviour
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseState,
@@ -35,7 +34,7 @@ from packages.valory.skills.registration_abci.behaviours import (
 from packages.valory.skills.reset_pause_abci.behaviours import (
     ResetPauseABCIConsensusBehaviour,
 )
-from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
+
 
 class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the price estimation."""

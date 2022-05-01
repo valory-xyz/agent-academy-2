@@ -19,11 +19,11 @@
 
 """This module contains the price estimation ABCI application."""
 from packages.keep3r_co.skills.keep3r_job.rounds import (
-    FinishedPrepareTxRound,
-    Keep3rJobAbciApp,
-    IsWorkableRound,
     FailedRound,
-    NothingToDoRound
+    FinishedPrepareTxRound,
+    IsWorkableRound,
+    Keep3rJobAbciApp,
+    NothingToDoRound,
 )
 from packages.valory.skills.abstract_round_abci.abci_app_chain import (
     AbciAppTransitionMapping,
@@ -31,10 +31,10 @@ from packages.valory.skills.abstract_round_abci.abci_app_chain import (
 )
 from packages.valory.skills.registration_abci.rounds import (
     AgentRegistrationAbciApp,
-    FinishedRegistrationRound,
     FinishedRegistrationFFWRound,
+    FinishedRegistrationRound,
     RegistrationRound,
-    RegistrationStartupRound
+    RegistrationStartupRound,
 )
 from packages.valory.skills.reset_pause_abci.rounds import (
     FinishedResetAndPauseErrorRound,
@@ -47,11 +47,9 @@ from packages.valory.skills.reset_pause_abci.rounds import (
 abci_app_transition_mapping: AbciAppTransitionMapping = {
     FinishedRegistrationRound: IsWorkableRound,
     FinishedRegistrationFFWRound: IsWorkableRound,
-
-    FinishedPrepareTxRound : ResetAndPauseRound,
+    FinishedPrepareTxRound: ResetAndPauseRound,
     FailedRound: ResetAndPauseRound,
     NothingToDoRound: ResetAndPauseRound,
-
     FinishedResetAndPauseRound: RegistrationRound,
     FinishedResetAndPauseErrorRound: RegistrationStartupRound,
 }
