@@ -28,6 +28,11 @@ from tests.test_packages.test_agents.base import BaseTestEnd2EndNormalExecution
 CHECK_STRINGS = (
     "Entered in the 'registration_startup' round for period 0",
     "'registration' round is done",
+    "Entered in the 'is_workable' round for period 0",
+    "'is_workable' round is done",
+    "Entered in the 'prepare_tx' round for period 0",
+    "'prepare_tx' round is done",
+    "Entered in the 'reset_and_pause' round for period 0",
     "'reset_and_pause' round is done",
     "Period end",
     "Entered in the 'registration' round for period 1",
@@ -42,8 +47,6 @@ class TestKeep3rABCISingleAgent(
     """Test that the ABCI keep3r_abci skill with only one agent."""
 
     NB_AGENTS = 1
-    #     agent_package = "valory/simple_abci:0.1.0"
-    #     skill_package = "valory/simple_abci:0.1.0"
     agent_package = "keep3r_co/keep3r_bot:0.1.0"
     skill_package = "keep3r_co/keep3r_abci:0.1.0"
     wait_to_finish = 40
