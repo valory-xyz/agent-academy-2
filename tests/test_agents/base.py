@@ -97,24 +97,24 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
             "list",
         )
         self.set_config(
-            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.consensus.max_participants",
+            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.consensus.max_participants",
             self.NB_AGENTS,
         )
         self.set_config(
-            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.reset_tendermint_after",
+            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.reset_tendermint_after",
             5,
         )
         self.set_config(
-            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.round_timeout_seconds",
+            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.round_timeout_seconds",
             self.ROUND_TIMEOUT_SECONDS,
             type_="float",
         )
         self.set_config(
-            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.tendermint_url",
+            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.tendermint_url",
             node.get_http_addr("localhost"),
         )
         self.set_config(
-            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.keeper_timeout",
+            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.keeper_timeout",
             self.KEEPER_TIMEOUT,
             type_="float",
         )
