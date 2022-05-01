@@ -21,7 +21,7 @@
 
 import pytest
 
-from tests.test_packages.test_agents.base import BaseTestEnd2EndNormalExecution
+from tests.test_agents.base import BaseTestEnd2EndNormalExecution
 
 
 # check log messages of the happy path
