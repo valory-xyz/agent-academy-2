@@ -52,9 +52,7 @@ from packages.valory.skills.abstract_round_abci.behaviour_utils import (
 )
 
 from tests.conftest import ROOT_DIR
-from tests.test_packages.test_skills.test_simple_abci.test_behaviours import (
-    FSMBehaviourBaseCase,
-)
+from tests.test_skills.test_simple_abci.test_behaviours import FSMBehaviourBaseCase
 
 
 class DummyRoundId:

@@ -28,11 +28,7 @@ import pytest
 from tests.helpers.constants import GANACHE_KEY_PAIRS, KEY_PAIRS
 from tests.helpers.constants import ROOT_DIR as _ROOT_DIR
 from tests.helpers.docker.base import launch_image
-from tests.helpers.docker.ganache import (
-    DEFAULT_GANACHE_ADDR,
-    DEFAULT_GANACHE_PORT,
-    GanacheForkDockerImage,
-)
+from tests.helpers.docker.ganache import DEFAULT_GANACHE_ADDR, DEFAULT_GANACHE_PORT
 from tests.helpers.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_ADDR,
     DEFAULT_HARDHAT_PORT,
@@ -114,17 +110,3 @@ def ganache_addr() -> str:
 def ganache_port() -> int:
     """Get the ganache port"""
     return DEFAULT_GANACHE_PORT
-
-
-@pytest.fixture(scope="function")
-def ganache_fork_scope_function(
-    ganache_addr: Any,
-    ganache_port: Any,
-    timeout: float = 3.0,
-    max_attempts: int = 40,
-) -> Generator:
-    """Launch the Ganache Fork. This fixture is scoped to a function which means it will destroyed at the end of the test."""
-    client = docker.from_env()
-    logging.info(f"Launching Ganache at port {ganache_port}")
-    image = GanacheForkDockerImage(client, ganache_addr, ganache_port)
-    yield from launch_image(image, timeout=timeout, max_attempts=max_attempts)

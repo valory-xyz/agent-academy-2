@@ -77,7 +77,9 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
-            self.context.logger.info(f"Job contract is workable {self.context.params.job_contract_address}: {is_workable}")
+            self.context.logger.info(
+                f"Job contract is workable {self.context.params.job_contract_address}: {is_workable}"
+            )
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
@@ -129,14 +131,12 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
             contract_callable="get_workable",
         )
         if (
-                contract_api_response.performative
-                != ContractApiMessage.Performative.RAW_TRANSACTION
+            contract_api_response.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
         ):  # pragma: nocover
             self.context.logger.warning("Get work transaction unsuccessful!")
             return None
-        tx_hash = cast(
-            str, contract_api_response.raw_transaction.body.pop("hash")
-        )
+        tx_hash = cast(str, contract_api_response.raw_transaction.body.pop("hash"))
 
         return tx_hash
 
@@ -149,5 +149,4 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
         IsWorkableBehaviour,  # type: ignore
         PrepareTxBehaviour,  # type: ignore
-
     }
