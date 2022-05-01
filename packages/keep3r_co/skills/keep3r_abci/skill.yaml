@@ -9,10 +9,10 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: QmT7TN1DvhK4LtLzv2gSQphVJCsy49b11hRU8ixiiYtHrf
   __init__.py: QmNMXn9ZQfgadg7KvXu2nCQsWuwoca5WmDXoMBkBGDNGbV
-  behaviours.py: QmZWCAR2DBxeHn4MfWFSrxUCwmbGkGQpxAjT8JY2fJdcor
-  composition.py: Qme5hjFmQdjv8CuBChLQALo5bcB5LEGzz1BkcivsyD4qph
+  behaviours.py: QmQG9e3pbYUB8FzufPpG5ywVomuvpdcWt7w11F27JmMP3s
+  composition.py: QmQoh3PdsChFyuNCgK79mJ28HDHL1GKaATT34ZA35Nikvu
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmZPmEDcsLcNsnThPv77US64Cc89aJDo5UZW3oSNDVZFuc
+  fsm_specification.yaml: QmYesZi2dfbgXKMuG2EPsjbHvZnjRNf2TfQfuf6zVtLDdp
   handlers.py: QmfKibZHU7Lwrw1vF9UGC6NzzqjaoqWjWNSj8HKecv2s6E
   models.py: QmbxipCZadt2WZWi9oo9eNLMyWsT6KSY1DxSC2aEdSAawg
 fingerprint_ignore_patterns: []
@@ -71,7 +71,7 @@ models:
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-      job_contract_address: "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
+      job_contract_address: '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
