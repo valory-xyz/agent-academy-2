@@ -66,9 +66,7 @@ class Keep3rJobContract(Contract):
         raise NotImplementedError
 
     @classmethod
-    def get_gas_price(
-            cls, ledger_api: LedgerApi
-    ) -> Optional[Wei]:
+    def get_gas_price(cls, ledger_api: LedgerApi) -> Optional[Wei]:
         """Get the gas price."""
         ethereum_api = cast(EthereumApi, ledger_api)
         gas_price = ethereum_api.api.eth.generate_gas_price()
@@ -76,7 +74,7 @@ class Keep3rJobContract(Contract):
 
     @classmethod
     def get_workable(
-            cls, ledger_api: LedgerApi, contract_address: str
+        cls, ledger_api: LedgerApi, contract_address: str
     ) -> Optional[bool]:
         """Get the workable flag from the contract."""
         ethereum_api = cast(EthereumApi, ledger_api)

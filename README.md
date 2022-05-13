@@ -53,18 +53,36 @@ to notify you of vulnerabilities and fixes in Tendermint Core. You can subscribe
 
 Complete documentation can be found on the [website](https://docs.tendermint.com/master/).
 
+<<<<<<< HEAD
 ### Install
+=======
+``` bash
+pytest tests/test_agents/test_simple_abci.py::TestSimpleABCISingleAgent
+```
+>>>>>>> main
 
 See the [install instructions](/docs/introduction/install.md).
 
+<<<<<<< HEAD
 ### Quick Start
+=======
+``` bash
+pytest tests/test_agents/test_simple_abci.py::TestSimpleABCITwoAgents
+```
+>>>>>>> main
 
 - [Single node](/docs/introduction/quick-start.md)
 - [Local cluster using docker-compose](/docs/tools/docker-compose.md)
 - [Remote cluster using Terraform and Ansible](/docs/tools/terraform-and-ansible.md)
 - [Join the Cosmos testnet](https://cosmos.network/testnet)
 
+<<<<<<< HEAD
 ## Contributing
+=======
+``` bash
+pytest tests/test_agents/test_simple_abci.py::TestSimpleABCIFourAgents
+```
+>>>>>>> main
 
 Please abide by the [Code of Conduct](CODE_OF_CONDUCT.md) in all interactions.
 
