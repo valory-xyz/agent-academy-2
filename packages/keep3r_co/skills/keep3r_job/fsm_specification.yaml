@@ -1,6 +1,7 @@
 alphabet_in:
 - DONE
 - NOT_WORKABLE
+- NOT_PROFITABLE
 - NO_MAJORITY
 - RESET_TIMEOUT
 default_start_state: IsWorkableRound
@@ -15,6 +16,7 @@ states:
 - FailedRound
 - FinishedPrepareTxRound
 - IsWorkableRound
+- IsProfitableRound
 - NothingToDoRound
 - PrepareTxRound
 transition_func:
@@ -22,6 +24,10 @@ transition_func:
     (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
     (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
+    (IsProfitableRound, DONE) : PrepareTxRound
+    (IsProfitableRound, NOT_PROFITABLE) : NothingToDoRound
+    (IsProfitableRound, NO_MAJORITY) : FailedRound
+    (IsProfitableRound, RESET_TIMEOUT) : FailedRound
     (PrepareTxRound, DONE): FinishedPrepareTxRound
     (PrepareTxRound, NO_MAJORITY): FailedRound
     (PrepareTxRound, RESET_TIMEOUT): FailedRound

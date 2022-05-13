@@ -24,14 +24,14 @@ from typing import FrozenSet, cast
 from unittest import mock
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
-    IsWorkablePayload,
     IsProfitablePayload,
+    IsWorkablePayload,
     TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
-    IsWorkableRound,
     IsProfitableRound,
+    IsWorkableRound,
     PeriodState,
     PrepareTxRound,
 )
@@ -209,7 +209,9 @@ class TestIsWorkableRound(BaseRoundTestClass):
         )
         assert event == Event.NOT_WORKABLE
 
+
 class TestIsProfitableRound(BaseRoundTestClass):
+    """Tests for ProfitabilityRound."""
 
     def test_run_positive(
         self,

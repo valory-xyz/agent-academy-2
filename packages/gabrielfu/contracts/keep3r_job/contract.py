@@ -83,12 +83,10 @@ class Keep3rJobContract(Contract):
         return workable
 
     @classmethod
-    def rewardMultiplier(
-        cls, ledger_api: LedgerApi, contract_address: str
-    ) -> int:
+    def rewardMultiplier(cls, ledger_api: LedgerApi, contract_address: str) -> dict:
         """Gets the reward multiplier for the specific job."""
         ethereum_api = cast(EthereumApi, ledger_api)
         contract = cls.get_instance(ethereum_api, contract_address)
         reward_multiplier = contract.functions.rewardMultiplier().call()
-        response_dict = {"rewardMultiplier" : reward_multiplier}
+        response_dict = {"rewardMultiplier": reward_multiplier}
         return response_dict

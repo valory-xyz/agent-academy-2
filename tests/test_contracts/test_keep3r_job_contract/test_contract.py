@@ -40,6 +40,7 @@ IS_WORKABLE = True
 
 REWARD_MULTIPLIER = 975
 
+
 class TestKeep3rJobContract(BaseContractTestCase):
     """Test Keep3rJobContract."""
 
@@ -85,7 +86,6 @@ class TestKeep3rJobContract(BaseContractTestCase):
         ):
             result = self.contract.get_workable(self.ledger_api, CONTRACT_ADDRESS)
         assert result == IS_WORKABLE
-
 
     def test_rewardMultiplier(self) -> None:
         """Test `rewardMultiplier` method."""

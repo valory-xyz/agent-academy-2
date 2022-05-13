@@ -27,8 +27,8 @@ from aea.helpers.transaction.base import RawTransaction
 
 from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
-    IsWorkableBehaviour,
     IsProfitableBehaviour,
+    IsWorkableBehaviour,
     Keep3rJobRoundBehaviour,
     PrepareTxBehaviour,
 )
@@ -255,7 +255,6 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         state = cast(BaseState, self.abci_behaviour.current_state)
         assert state.state_id == PrepareTxRound.round_id
 
-
     def test_is_profitable_false(self) -> None:
         """Test is profitable."""
         self.fast_forward_to_state(
@@ -292,4 +291,4 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         state = cast(BaseState, self.abci_behaviour.current_state)
         assert (
             state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
-       )
+        )

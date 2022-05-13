@@ -23,10 +23,10 @@ from enum import Enum
 from typing import Dict, Optional, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    IsProfitablePayload,
     IsWorkablePayload,
     TXHashPayload,
     TransactionType,
-    IsProfitablePayload
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -135,16 +135,15 @@ class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     payload_attribute = "is_profitable"
 
     def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
         if self.threshold_reached:
-            state = self.period_state.update(
-                is_profitable=self.most_voted_payload
-            )
+            state = self.period_state.update(is_profitable=self.most_voted_payload)
             is_profitable = self.most_voted_payload
 
             if is_profitable:
-                return self.period_state, Event.DONE
-            
-            return self.period_state, Event.NOT_PROFITABLE
+                return state, Event.DONE
+
+            return state, Event.NOT_PROFITABLE
 
         if not self.is_majority_possible(
             self.collection, self.period_state.nb_participants
@@ -205,8 +204,8 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         IsProfitableRound: {
             Event.DONE: PrepareTxRound,
             Event.NOT_PROFITABLE: NothingToDoRound,
-            Event.NO_MAJORITY: IsProfitableRound,
-            Event.RESET_TIMEOUT: IsProfitableRound
+            Event.NO_MAJORITY: FailedRound,
+            Event.RESET_TIMEOUT: IsProfitableRound,
         },
         PrepareTxRound: {
             Event.DONE: FinishedPrepareTxRound,
