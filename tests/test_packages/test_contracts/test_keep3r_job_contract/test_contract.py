@@ -100,4 +100,4 @@ class TestKeep3rJobContract(BaseContractTestCase):
             self.ledger_api, "get_contract_instance", return_value=mock_instance
         ):
             result = self.contract.get_reward_multiplier(self.ledger_api, CONTRACT_ADDRESS)
-        assert result == REWARD_MULTIPLIER
+        assert result.get("rewardMultiplier") == REWARD_MULTIPLIER
