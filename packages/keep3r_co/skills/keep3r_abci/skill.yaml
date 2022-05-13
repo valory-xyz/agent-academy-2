@@ -12,7 +12,7 @@ fingerprint:
   behaviours.py: QmU4JJrtQGjSJ9xwqmEXu1ErgyTFZmZGnHtHfAwm4XyXwr
   composition.py: QmSyrH85K8ej25x14xjco9CfnPapxKfYh4DCnytHKjLhy8
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmUF1ZQ26qNxAZ2Q9D8dMFKzzsPHK7f26KfQgzyq5Bgew6
+  fsm_specification.yaml: QmW1EJw9fkc6hJPT5ntT4Z7tqRTPe945ME2x66JCWPYDuR
   handlers.py: QmfKibZHU7Lwrw1vF9UGC6NzzqjaoqWjWNSj8HKecv2s6E
   models.py: QmbxipCZadt2WZWi9oo9eNLMyWsT6KSY1DxSC2aEdSAawg
 fingerprint_ignore_patterns: []
@@ -73,6 +73,7 @@ models:
       max_healthcheck: 120
       period_setup:
         safe_contract_address: null
+      profitablity_threshold: 500
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3

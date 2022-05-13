@@ -148,7 +148,6 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
     def async_act(self) -> Generator:
 
         with self.context.benchmark_tool.measure(self.state_id).local():
-            breakpoint()
             reward_multiplier = yield from self.rewardMultiplier()
             if reward_multiplier is None:
                 raise RuntimeError("Contract call has failed")

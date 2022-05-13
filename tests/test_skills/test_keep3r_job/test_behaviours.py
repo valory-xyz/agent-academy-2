@@ -235,17 +235,17 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         )
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
+            contract_id=str(CONTRACT_ID),
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_STATE,
                 callable=self.CONTRACT_CALLABLE,
             ),
-            contract_id=str(CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.STATE,
                 callable=self.CONTRACT_CALLABLE,
                 state=ContractApiMessage.State(
                     ledger_id="ethereum",
-                    body={"rewardMultiplier": 950},
+                    body={"data": True},
                 ),
             ),
         )
@@ -272,17 +272,17 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         )
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
+            contract_id=str(CONTRACT_ID),
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_STATE,
                 callable=self.CONTRACT_CALLABLE,
             ),
-            contract_id=str(CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.STATE,
                 callable=self.CONTRACT_CALLABLE,
                 state=ContractApiMessage.State(
                     ledger_id="ethereum",
-                    body={"rewardMultiplier": None},
+                    body={"data": False},
                 ),
             ),
         )
@@ -292,4 +292,4 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         state = cast(BaseState, self.abci_behaviour.current_state)
         assert (
             state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
-        )
+       )

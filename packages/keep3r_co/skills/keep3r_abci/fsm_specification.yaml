@@ -2,6 +2,7 @@ alphabet_in:
 - DONE
 - FAST_FORWARD
 - NOT_WORKABLE
+- NOT_PROFITABLE
 - NO_MAJORITY
 - RESET_AND_PAUSE_TIMEOUT
 - RESET_TIMEOUT
@@ -17,16 +18,22 @@ states:
 - FailedRound
 - FinishedRegistrationFFWRound
 - IsWorkableRound
+- IsProfitableRound
 - NothingToDoRound
 - PrepareTxRound
 - RegistrationRound
 - RegistrationStartupRound
 - ResetAndPauseRound
 transition_func:
-    (IsWorkableRound, DONE): PrepareTxRound
+    (IsWorkableRound, DONE): IsProfitableRound
     (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
     (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
+    (IsProfitableRound, DONE) : PrepareTxRound
+    (IsProfitableRound, NOT_PROFITABLE) : NothingToDoRound
+    # TODO: Should NO_MAJORITY transition to FailedRound or IsProfitableRound?
+    (IsProfitableRound, NO_MAJORITY) : FailedRound
+    (IsProfitableRound, RESET_TIMEOUT) : FailedRound
     (PrepareTxRound, DONE): ResetAndPauseRound
     (PrepareTxRound, NO_MAJORITY): FailedRound
     (PrepareTxRound, RESET_TIMEOUT): FailedRound
