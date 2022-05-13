@@ -87,8 +87,8 @@ class TestKeep3rJobContract(BaseContractTestCase):
         assert result == IS_WORKABLE
 
 
-    def test_get_reward_multiplier(self) -> None:
-        """Test `get_reward_multiplier` method."""
+    def test_rewardMultiplier(self) -> None:
+        """Test `rewardMultiplier` method."""
         # mock contract function
         mock_function = mock.MagicMock()
         mock_function.call.return_value = REWARD_MULTIPLIER
@@ -99,5 +99,5 @@ class TestKeep3rJobContract(BaseContractTestCase):
         with mock.patch.object(
             self.ledger_api, "get_contract_instance", return_value=mock_instance
         ):
-            result = self.contract.get_reward_multiplier(self.ledger_api, CONTRACT_ADDRESS)
+            result = self.contract.rewardMultiplier(self.ledger_api, CONTRACT_ADDRESS)
         assert result.get("rewardMultiplier") == REWARD_MULTIPLIER

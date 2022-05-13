@@ -20,7 +20,6 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
-from msilib.schema import Error
 from typing import Generator, Optional, Set, Type, cast
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
@@ -149,7 +148,8 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
     def async_act(self) -> Generator:
 
         with self.context.benchmark_tool.measure(self.state_id).local():
-            reward_multiplier = yield from self.get_reward_multiplier()
+            breakpoint()
+            reward_multiplier = yield from self.rewardMultiplier()
             if reward_multiplier is None:
                 raise RuntimeError("Contract call has failed")
             
@@ -157,7 +157,6 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
             if reward_multiplier > self.context.params.profitability_threshold:
                 payload = IsProfitablePayload(self.context.agent_address, self.is_profitable)
             else:
-                #TODO: Implement payload if job is not profitable
                 payload = IsProfitablePayload(self.context.agent_address, False)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
@@ -168,17 +167,12 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
         self.set_done()
 
 
-    def get_reward_multiplier(self):
+    def rewardMultiplier(self):
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
-            dialogue_reference=self.context.dialogue_reference,
-            ledger_id=self.context.default_ledger_id,
-            contract_id="gabrielfu/keep3r_job:0.1.0",
-            contract_address=self.context.strategy.contract_address,
-            callable="get_reward_multiplier",
-            kwargs=ContractApiMessage.Kwargs(
-                {"agent_address": self.context.agent_address, "token_id": self.context.token_id}
-            ),
+            contract_address=self.context.params.job_contract_address,
+            contract_id=str(Keep3rJobContract.contract_id),
+            contract_callable="rewardMultiplier"
         )
         if (
                 contract_api_response.performative
@@ -201,5 +195,6 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
         IsWorkableBehaviour,  # type: ignore
+        IsProfitableBehaviour, #type: ignore
         PrepareTxBehaviour,  # type: ignore
     }

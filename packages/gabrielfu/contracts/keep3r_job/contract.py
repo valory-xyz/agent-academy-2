@@ -83,7 +83,7 @@ class Keep3rJobContract(Contract):
         return workable
 
     @classmethod
-    def get_reward_multiplier(
+    def rewardMultiplier(
         cls, ledger_api: LedgerApi, contract_address: str
     ) -> int:
         """Gets the reward multiplier for the specific job."""
