@@ -187,7 +187,7 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
         )
         if (
             contract_api_response.performative
-            != ContractApiMessage.Performative.GET_STATE
+            != ContractApiMessage.Performative.STATE
         ):  # pragma: nocover
             self.context.logger.warning("Get reward multiplier unsuccessful!")
             return None

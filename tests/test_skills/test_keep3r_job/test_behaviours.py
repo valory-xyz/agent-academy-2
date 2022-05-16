@@ -233,6 +233,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
             ).state_id
             == IsProfitableBehaviour.state_id
         )
+        self.abci_behaviour.context.params.profitability_threshold = 100
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
             contract_id=str(CONTRACT_ID),
@@ -245,7 +246,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
                 callable=self.CONTRACT_CALLABLE,
                 state=ContractApiMessage.State(
                     ledger_id="ethereum",
-                    body={"data": True},
+                    body={"rewardMultiplier": 90},
                 ),
             ),
         )
@@ -269,6 +270,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
             ).state_id
             == IsProfitableBehaviour.state_id
         )
+        self.abci_behaviour.context.params.profitability_threshold = 100
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
             contract_id=str(CONTRACT_ID),
@@ -281,7 +283,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
                 callable=self.CONTRACT_CALLABLE,
                 state=ContractApiMessage.State(
                     ledger_id="ethereum",
-                    body={"data": False},
+                    body={"rewardMultiplier": 110},
                 ),
             ),
         )
