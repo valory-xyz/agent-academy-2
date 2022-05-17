@@ -165,7 +165,6 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
         )
 
-
     @pytest.mark.parametrize("n_jobs", range(1, 10))
     def test_n_jobs(self, n_jobs: int) -> None:
         """Test job selection."""
