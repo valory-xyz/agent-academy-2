@@ -61,12 +61,12 @@ class JobSelectionPayload(BaseAbciPayload):
         self._job_selection = job_selection
 
     @property
-    def job_selection(self) -> Any:
+    def job_selection(self) -> Optional[str]:
         """Get the job selection."""
         return self._job_selection
 
     @property
-    def data(self) -> Dict[str, Optional[bool]]:
+    def data(self) -> Dict[str, Optional[str]]:
         """Get the data."""
         return (
             dict(job_selection=self.job_selection)

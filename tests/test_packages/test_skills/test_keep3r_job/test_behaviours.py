@@ -141,7 +141,7 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     job_selection_behaviour_class: Type[BaseState] = JobSelectionBehaviour
 
-    def test_0_jobs(self) -> None:
+    def test_empty_jobs(self) -> None:
         """Test job selection."""
         self.skill.skill_context.params.job_contract_addresses = []
         self.fast_forward_to_state(
@@ -165,12 +165,14 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
         )
 
+
     @pytest.mark.parametrize("n_jobs", range(1, 10))
     def test_n_jobs(self, n_jobs: int) -> None:
         """Test job selection."""
         self.skill.skill_context.params.job_contract_addresses = [
             f"job_contract_{i}" for i in range(1, n_jobs)
         ]
+
         self.fast_forward_to_state(
             self.abci_behaviour,
             JobSelectionBehaviour.state_id,
@@ -200,6 +202,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_is_workable_true(self) -> None:
         """Test is workable."""
+        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
         self.fast_forward_to_state(
             self.abci_behaviour,
             IsWorkableBehaviour.state_id,
