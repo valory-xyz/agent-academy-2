@@ -125,6 +125,7 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         """Process the end of the block."""
         if self.threshold_reached:
             job_selection = self.most_voted_payload
+            state = self.period_state.update(job_selection=job_selection)
             if job_selection:
                 state = self.period_state.update(job_selection=job_selection)
                 return state, Event.DONE
@@ -220,11 +221,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         FinishedPrepareTxRound: {},
         FailedRound: {},
     }
-    final_states = {
-        FinishedPrepareTxRound,
-        FailedRound,
-        NothingToDoRound
-    }
+    final_states = {FinishedPrepareTxRound, FailedRound, NothingToDoRound}
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
         Event.RESET_TIMEOUT: 30.0,

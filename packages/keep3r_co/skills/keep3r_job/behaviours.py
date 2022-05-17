@@ -72,7 +72,7 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
         with self.context.benchmark_tool.measure(self.state_id).local():
             job_selection = self._job_selection()
             payload = JobSelectionPayload(self.context.agent_address, job_selection)
-            self.context.logger.info(f"Job contract selected: {job_selection}")
+            self.context.logger.info(f"Job contract selected : {job_selection}")
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -81,7 +81,7 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
         self.set_done()
 
     def _job_selection(self) -> Any:
-        """Returns appropriate job contract for period_count."""
+        """Returns the appropriate job contract based on the period_count."""
         if not self.params.job_contract_addresses:
             return False
         job_ix = self.period_state.period_count % len(
@@ -185,5 +185,4 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
         JobSelectionBehaviour,  # type: ignore
         IsWorkableBehaviour,  # type: ignore
         PrepareTxBehaviour,  # type: ignore
-
     }

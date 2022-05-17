@@ -94,6 +94,7 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self,
     ) -> None:
         """Test prepare tx."""
+
         self.fast_forward_to_state(
             self.abci_behaviour,
             self.prepare_tx_behaviour_class.state_id,
@@ -171,7 +172,6 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             f"job_contract_{i}" for i in range(1, n_jobs)
         ]
 
-        """Test job selection."""
         self.fast_forward_to_state(
             self.abci_behaviour,
             JobSelectionBehaviour.state_id,

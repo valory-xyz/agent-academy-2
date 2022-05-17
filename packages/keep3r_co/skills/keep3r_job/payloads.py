@@ -68,7 +68,11 @@ class JobSelectionPayload(BaseAbciPayload):
     @property
     def data(self) -> Dict[str, Optional[str]]:
         """Get the data."""
-        return dict(job_selection=self._job_selection) if self._job_selection is not None else {}
+        return (
+            dict(job_selection=self.job_selection)
+            if self._job_selection is not None
+            else {}
+        )
 
 
 class IsWorkablePayload(BaseAbciPayload):
@@ -94,7 +98,9 @@ class IsWorkablePayload(BaseAbciPayload):
     @property
     def data(self) -> Dict[str, Optional[bool]]:
         """Get the data."""
-        return dict(is_workable=self.is_workable) if self._is_workable is not None else {}
+        return (
+            dict(is_workable=self.is_workable) if self._is_workable is not None else {}
+        )
 
 
 class TXHashPayload(BaseAbciPayload):
