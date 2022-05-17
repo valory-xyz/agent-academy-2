@@ -120,7 +120,7 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
         )
 
         self.set_config(
-            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.benchmark_tool.args.log_dir",
+            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.benchmark_tool.args.log_dir",
             str(self.t),
             type_="str",
         )
