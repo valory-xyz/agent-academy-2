@@ -18,6 +18,10 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the price estimation ABCI application."""
+from packages.keep3r_co.skills.keep3r_abci.rounds import CheckSafeExistenceRound
+from packages.keep3r_co.skills.keep3r_abci.rounds import (
+    Event as CheckSafeExistenceEvent,
+)
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinishedPrepareTxRound,
     Keep3rJobAbciApp,
@@ -38,17 +42,12 @@ from packages.valory.skills.reset_pause_abci.rounds import (
     ResetAndPauseRound,
     ResetPauseABCIApp,
 )
-
 from packages.valory.skills.safe_deployment_abci.rounds import (
-    RandomnessSafeRound,
     FinishedSafeRound,
+    RandomnessSafeRound,
     SafeDeploymentAbciApp,
 )
 
-from packages.keep3r_co.skills.keep3r_abci.rounds import (
-    CheckSafeExistenceRound,
-    Event as CheckSafeExistenceEvent,
-)
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
     FinishedRegistrationRound: CheckSafeExistenceRound,

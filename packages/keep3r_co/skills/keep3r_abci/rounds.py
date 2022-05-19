@@ -21,9 +21,7 @@
 from enum import Enum
 
 from packages.keep3r_co.skills.keep3r_abci.payloads import SafeExistencePayload
-from packages.valory.skills.abstract_round_abci.base import (
-    VotingRound,
-)
+from packages.valory.skills.abstract_round_abci.base import VotingRound
 
 
 class Event(Enum):
@@ -34,6 +32,7 @@ class Event(Enum):
     NEGATIVE = "negative"
     NONE = "none"
     CHECK_TIMEOUT = "validate_timeout"
+
 
 class CheckSafeExistenceRound(VotingRound):
     """A round in a which the safe address is validated"""

@@ -34,6 +34,7 @@ class TransactionType(Enum):
         """Get the string value of the transaction type."""
         return self.value
 
+
 class SafeExistencePayload(BaseTxPayload):
     """Represent a transaction payload of type 'safe_existence'."""
 

@@ -21,10 +21,8 @@
 
 from abc import ABC
 from typing import Generator, Optional, Set, Type, cast
-from hexbytes import HexBytes
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
-from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload
 from packages.keep3r_co.skills.keep3r_job.rounds import (
@@ -32,6 +30,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     PeriodState,
     PrepareTxRound,
 )
+from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
@@ -71,7 +70,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         """
         with self.context.benchmark_tool.measure(self.state_id).local():
 
-            tx_hash = yield from self._get_raw_work_transaction()
+            tx_hash = yield from self._get_raw_work_transaction_hash()
             payload = TXHashPayload(self.context.agent_address, tx_hash)
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
@@ -81,11 +80,12 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         self.set_done()
 
     def _get_raw_work_transaction_hash(self) -> Generator[None, None, Optional[str]]:
+
         job_contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.RAW_TRANSACTION,  # type: ignore
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="work",
-            job_contract_address=self.context.params.job_contract_address
+            contract_address=self.context.params.job_contract_address,
             sender_address=self.context.agent_address,
         )
 
@@ -96,29 +96,28 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
             self.context.logger.warning("get raw work transaction unsuccessful!")
             return None
 
-        tx_params = contract_api_response.raw_transaction.body
+        tx_params = job_contract_api_response.raw_transaction.body
+        safe_contract_address = self.context.params.period_setup_params.get(
+            "safe_contract_address"
+        )
 
-        safe_contract_api_response = yield from self.get_contract_api_response(
+        safe_contract_api_msg = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_address=self.period_state.safe_contract_address,
+            contract_address=safe_contract_address,
             contract_id=str(GnosisSafeContract.contract_id),
             contract_callable="get_raw_safe_transaction_hash",
             to_address=tx_params["to_address"],
             value=tx_params["ether_value"],
             data=tx_params["data"],
             safe_tx_gas=tx_params["safe_tx_gas"],
-            operation=tx_params["operation"],
         )
-
         if (
-                safe_contract_api_response.performative
-                != ContractApiMessage.Performative.RAW_TRANSACTION
+            safe_contract_api_msg.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
         ):  # pragma: nocover
             self.context.logger.warning("Get work transaction hash unsuccessful!")
             return None
-        tx_hash = cast(
-            str, contract_api_response.raw_transaction.body.pop("hash")
-        )
+        tx_hash = cast(str, job_contract_api_response.raw_transaction.body.pop("hash"))
 
         return tx_hash
 

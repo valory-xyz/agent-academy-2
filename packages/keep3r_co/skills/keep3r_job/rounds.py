@@ -30,6 +30,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     BasePeriodState,
     CollectSameUntilThresholdRound,
     DegenerateRound,
+    StateDB,
 )
 
 
@@ -48,6 +49,21 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
 
     This state is replicated by the tendermint application.
     """
+
+    def __init__(
+        self,
+        db: StateDB,
+    ):
+        """Initialize the Period state"""
+        super().__init__(db)
+
+    @property
+    def safe_contract_address(self) -> str:
+        """Get the safe_contract_address."""
+        return cast(
+            str,
+            self.db.get_strict("safe_contract_address"),
+        )
 
     @property
     def most_voted_tx_hash(self) -> str:
@@ -90,7 +106,7 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
             )
             return state, Event.DONE
         if not self.is_majority_possible(
-                self.collection, self.period_state.nb_participants
+            self.collection, self.period_state.nb_participants
         ):
             return self._return_no_majority_event()
         return None

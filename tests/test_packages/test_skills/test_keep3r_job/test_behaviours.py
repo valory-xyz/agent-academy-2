@@ -41,6 +41,9 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinishedPrepareTxRound,
     PeriodState,
 )
+from packages.valory.contracts.gnosis_safe.contract import (
+    PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
+)
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 from packages.valory.skills.abstract_round_abci.behaviour_utils import (
@@ -103,6 +106,10 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         )
         self.abci_behaviour.act_wrapper()
 
+        # first mock the work tx itself
+
+        # then mock the safe tx
+
         self.mock_contract_api_request(
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
@@ -110,13 +117,38 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
             contract_id=str(CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.RAW_TRANSACTION,
-                callable="get_workable",
+                callable="work",
                 raw_transaction=RawTransaction(
                     ledger_id="ethereum",
-                    body={"hash": "stub"},
+                    body={
+                        "hash": "stub",
+                        "to_address": "to_address",
+                        "ether_value": 0,
+                        "data": b"",
+                        "safe_tx_gas": 2100000,
+                        "operation": "call",
+                    },
                 ),
             ),
         )
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+            ),
+            contract_id=str(GNOSIS_SAFE_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.RAW_TRANSACTION,
+                callable="get_raw_safe_transaction_hash",
+                raw_transaction=RawTransaction(
+                    ledger_id="ethereum",
+                    body={
+                        "tx_hash": "0xb0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9"
+                    },
+                ),
+            ),
+        )
+
+        self.abci_behaviour.act_wrapper()
 
         self.mock_a2a_transaction()
         self._test_done_flag_set()

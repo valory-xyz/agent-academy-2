@@ -19,12 +19,15 @@
 
 """This module contains the behaviours for the 'abci' skill."""
 
-from typing import Set, Type
+from typing import Generator, Set, Type, cast
 
+from packages.keep3r_co.skills.keep3r_abci.payloads import SafeExistencePayload
+from packages.keep3r_co.skills.keep3r_abci.rounds import CheckSafeExistenceRound
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     Keep3rJobAbciApp,
     Keep3rJobRoundBehaviour,
 )
+from packages.keep3r_co.skills.keep3r_job.rounds import PeriodState
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseState,
@@ -35,10 +38,6 @@ from packages.valory.skills.registration_abci.behaviours import (
 )
 from packages.valory.skills.reset_pause_abci.behaviours import (
     ResetPauseABCIConsensusBehaviour,
-)
-
-from packages.keep3r_co.skills.keep3r_abci.payloads import (
-    SafeExistencePayload,
 )
 
 
@@ -52,6 +51,7 @@ class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
         *Keep3rJobRoundBehaviour.behaviour_states,
         *ResetPauseABCIConsensusBehaviour.behaviour_states,
     }
+
 
 class CheckSafeExistenceBehaviour(BaseState):
     """Check Safe contract existence."""
@@ -87,10 +87,8 @@ class CheckSafeExistenceBehaviour(BaseState):
     def safe_contract_exists(self) -> Generator[None, None, bool]:
         """Check Contract deployment verification."""
 
-        if (
-            self.period_state.safe_contract_address == None
-        ):  # pragma: nocover
+        if self.period_state.safe_contract_address is None:  # pragma: nocover
             self.context.logger.warning("Safe contract has not been deployed!")
             return False
-        
+
         return True
