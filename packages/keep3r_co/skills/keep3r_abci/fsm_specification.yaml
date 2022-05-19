@@ -15,6 +15,8 @@ final_states:
 - FailedRound
 - FinishedRegistrationFFWRound
 - FinishedSafeRound
+- SafePresentRound
+- SafeAbsentRound
 label: packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp
 start_states:
 - RegistrationStartupRound
@@ -25,6 +27,9 @@ states:
 - RegistrationRound
 - RegistrationStartupRound
 - ResetAndPauseRound
+- CheckSafeExistenceRound
+- SafePresentRound
+- SafeAbsentRound
 - DeploySafeRound
 - FinishedSafeRound
 - RandomnessSafeRound
@@ -35,11 +40,16 @@ transition_func:
     (PrepareTxRound, NO_MAJORITY): FailedRound
     (PrepareTxRound, RESET_TIMEOUT): FailedRound
     (RegistrationRound, DONE): FinishedRegistrationFFWRound
-    (RegistrationStartupRound, DONE): RandomnessSafeRound
+    (RegistrationStartupRound, DONE): CheckSafeExistenceRound
     (RegistrationStartupRound, FAST_FORWARD): FinishedRegistrationFFWRound
     (ResetAndPauseRound, DONE): RegistrationRound
     (ResetAndPauseRound, NO_MAJORITY): RegistrationRound
     (ResetAndPauseRound, RESET_AND_PAUSE_TIMEOUT): RegistrationRound
+    (CheckSafeExistenceRound, DONE): SafePresentRound
+    (CheckSafeExistenceRound, NEGATIVE): SafeAbsentRound
+    (CheckSafeExistenceRound, NONE): CheckSafeExistenceRound
+    (CheckSafeExistenceRound, CHECK_TIMEOUT): CheckSafeExistenceRound
+    (CheckSafeExistenceRound, NO_MAJORITY): CheckSafeExistenceRound
     (DeploySafeRound, DEPLOY_TIMEOUT): SelectKeeperSafeRound
     (DeploySafeRound, DONE): ValidateSafeRound
     (DeploySafeRound, FAILED): SelectKeeperSafeRound

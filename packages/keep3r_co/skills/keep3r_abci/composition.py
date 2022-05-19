@@ -58,6 +58,7 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
 Keep3rAbciApp = chain(
     (
         AgentRegistrationAbciApp,
+        Keep3rCheckSafeAbciApp,
         SafeDeploymentAbciApp,
         Keep3rJobAbciApp,
         ResetPauseABCIApp,

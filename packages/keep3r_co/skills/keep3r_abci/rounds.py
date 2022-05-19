@@ -18,3 +18,4 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the preliminary check of safe contract existence in the keep3r ABCI application."""
+
