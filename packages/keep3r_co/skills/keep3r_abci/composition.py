@@ -18,14 +18,11 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the price estimation ABCI application."""
-from packages.keep3r_co.skills.keep3r_abci.rounds import CheckSafeExistenceRound
-from packages.keep3r_co.skills.keep3r_abci.rounds import (
-    Event as CheckSafeExistenceEvent,
-)
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    CheckSafeExistenceRound,
     FinishedPrepareTxRound,
     Keep3rJobAbciApp,
-    PrepareTxRound,
+    SafeNotDeployedRound,
 )
 from packages.valory.skills.abstract_round_abci.abci_app_chain import (
     AbciAppTransitionMapping,
@@ -51,14 +48,8 @@ from packages.valory.skills.safe_deployment_abci.rounds import (
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
     FinishedRegistrationRound: CheckSafeExistenceRound,
-    CheckSafeExistenceRound: {
-        CheckSafeExistenceEvent.DONE: FinishedSafeRound,  # To the last round of safe deployment abci
-        CheckSafeExistenceEvent.NEGATIVE: RandomnessSafeRound,  # To the 1st round of safe deployment abci
-        CheckSafeExistenceEvent.NONE: RegistrationRound,  # NOTE: unreachable, to the first round of agent registration abci
-        CheckSafeExistenceEvent.CHECK_TIMEOUT: RegistrationRound,  # To the first round of agent registration abci
-        CheckSafeExistenceEvent.NO_MAJORITY: RegistrationRound,  # To the first round of agent registration abci
-    },
-    FinishedSafeRound: PrepareTxRound,
+    SafeNotDeployedRound: RandomnessSafeRound,
+    FinishedSafeRound: CheckSafeExistenceRound,
     FinishedPrepareTxRound: ResetAndPauseRound,
     FinishedResetAndPauseRound: RegistrationRound,
     FinishedResetAndPauseErrorRound: RegistrationRound,

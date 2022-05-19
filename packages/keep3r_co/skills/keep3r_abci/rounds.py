@@ -18,30 +18,3 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the preliminary check of safe contract existence in the keep3r ABCI application."""
-from enum import Enum
-
-from packages.keep3r_co.skills.keep3r_abci.payloads import SafeExistencePayload
-from packages.valory.skills.abstract_round_abci.base import VotingRound
-
-
-class Event(Enum):
-    """Event enumeration for the price estimation demo."""
-
-    DONE = "done"
-    NO_MAJORITY = "no_majority"
-    NEGATIVE = "negative"
-    NONE = "none"
-    CHECK_TIMEOUT = "validate_timeout"
-
-
-class CheckSafeExistenceRound(VotingRound):
-    """A round in a which the safe address is validated"""
-
-    round_id = "check_safe_existence"
-    allowed_tx_type = SafeExistencePayload.transaction_type
-    payload_attribute = "vote"
-    done_event = Event.DONE
-    negative_event = Event.NEGATIVE
-    none_event = Event.NONE
-    no_majority_event = Event.NO_MAJORITY
-    collection_key = "participant_to_votes"

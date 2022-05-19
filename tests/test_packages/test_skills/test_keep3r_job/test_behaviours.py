@@ -124,7 +124,7 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
                         "hash": "stub",
                         "to_address": "to_address",
                         "ether_value": 0,
-                        "data": b"",
+                        "data": {},
                         "safe_tx_gas": 2100000,
                         "operation": "call",
                     },

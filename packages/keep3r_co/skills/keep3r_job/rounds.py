@@ -22,7 +22,11 @@ from abc import ABC
 from enum import Enum
 from typing import Dict, Optional, Tuple, Type, cast
 
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType
+from packages.keep3r_co.skills.keep3r_job.payloads import (
+    SafeExistencePayload,
+    TXHashPayload,
+    TransactionType,
+)
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
     AbciAppTransitionFunction,
@@ -30,13 +34,13 @@ from packages.valory.skills.abstract_round_abci.base import (
     BasePeriodState,
     CollectSameUntilThresholdRound,
     DegenerateRound,
-    StateDB,
 )
 
 
 class Event(Enum):
     """Event enumeration for the simple abci demo."""
 
+    NEGATIVE = "negative"
     DONE = "done"
     ROUND_TIMEOUT = "round_timeout"
     NO_MAJORITY = "no_majority"
@@ -49,13 +53,6 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
 
     This state is replicated by the tendermint application.
     """
-
-    def __init__(
-        self,
-        db: StateDB,
-    ):
-        """Initialize the Period state"""
-        super().__init__(db)
 
     @property
     def safe_contract_address(self) -> str:
@@ -124,6 +121,19 @@ class FailedRound(DegenerateRound, ABC):
     round_id = "failed_prepare_tx_round"
 
 
+class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+    """A round in a which the safe address is validated"""
+
+    round_id = "check_safe_existence"
+    allowed_tx_type = SafeExistencePayload.transaction_type
+
+
+class SafeNotDeployedRound(DegenerateRound, ABC):
+    """A round that represents that the period failed"""
+
+    round_id = "safe_not_deployed_round"
+
+
 class Keep3rJobAbciApp(AbciApp[Event]):
     """PrepareTxAbciApp
 
@@ -146,20 +156,22 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         reset timeout: 30.0
     """
 
-    initial_round_cls: Type[AbstractRound] = PrepareTxRound
+    initial_round_cls: Type[AbstractRound] = CheckSafeExistenceRound
     transition_function: AbciAppTransitionFunction = {
+        CheckSafeExistenceRound: {
+            Event.DONE: PrepareTxRound,  # To the last round of safe deployment abci
+            Event.NEGATIVE: SafeNotDeployedRound,  # To the 1st round of safe deployment abci
+        },
         PrepareTxRound: {
             Event.DONE: FinishedPrepareTxRound,
             Event.RESET_TIMEOUT: FailedRound,
             Event.NO_MAJORITY: FailedRound,
         },
+        SafeNotDeployedRound: {},
         FinishedPrepareTxRound: {},
         FailedRound: {},
     }
-    final_states = {
-        FinishedPrepareTxRound,
-        FailedRound,
-    }
+    final_states = {FinishedPrepareTxRound, FailedRound, SafeNotDeployedRound}
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
         Event.RESET_TIMEOUT: 30.0,
