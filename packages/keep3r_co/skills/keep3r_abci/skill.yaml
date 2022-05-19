@@ -9,10 +9,10 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: QmT7TN1DvhK4LtLzv2gSQphVJCsy49b11hRU8ixiiYtHrf
   __init__.py: QmNMXn9ZQfgadg7KvXu2nCQsWuwoca5WmDXoMBkBGDNGbV
-  behaviours.py: QmU4JJrtQGjSJ9xwqmEXu1ErgyTFZmZGnHtHfAwm4XyXwr
-  composition.py: QmSyrH85K8ej25x14xjco9CfnPapxKfYh4DCnytHKjLhy8
+  behaviours.py: QmQG9e3pbYUB8FzufPpG5ywVomuvpdcWt7w11F27JmMP3s
+  composition.py: QmQoh3PdsChFyuNCgK79mJ28HDHL1GKaATT34ZA35Nikvu
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmW1EJw9fkc6hJPT5ntT4Z7tqRTPe945ME2x66JCWPYDuR
+  fsm_specification.yaml: QmbXPSvmNPsFTM2GDZyRWH6TPCDYXfTkRhvhZ67hZBEJQ5
   handlers.py: QmfKibZHU7Lwrw1vF9UGC6NzzqjaoqWjWNSj8HKecv2s6E
   models.py: QmbxipCZadt2WZWi9oo9eNLMyWsT6KSY1DxSC2aEdSAawg
 fingerprint_ignore_patterns: []
@@ -25,6 +25,8 @@ protocols:
 skills:
 - keep3r_co/keep3r_job:0.1.0
 - valory/registration_abci:0.1.0
+- valory/reset_pause_abci:0.1.0
+- valory/safe_deployment_abci:0.1.0
 - valory/transaction_settlement_abci:0.1.0
 behaviours:
   main:
@@ -69,8 +71,10 @@ models:
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      job_contract_address: '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       keeper_timeout: 30.0
       max_healthcheck: 120
+      observation_interval: 10
       period_setup:
         safe_contract_address: null
       profitablity_threshold: 500
@@ -85,17 +89,6 @@ models:
       tendermint_max_retries: 5
       tendermint_url: http://localhost:26657
     class_name: Params
-  randomness_api:
-    args:
-      api_id: cloudflare
-      headers: []
-      method: GET
-      parameters: []
-      response_key: null
-      response_type: dict
-      retries: 5
-      url: https://drand.cloudflare.com/public/latest
-    class_name: RandomnessApi
   requests:
     args: {}
     class_name: Requests

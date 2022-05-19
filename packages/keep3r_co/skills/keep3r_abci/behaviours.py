@@ -21,10 +21,8 @@
 
 from typing import Set, Type
 
-from packages.keep3r_co.skills.keep3r_job.behaviours import (
-    Keep3rJobAbciApp,
-    Keep3rJobRoundBehaviour,
-)
+from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
+from packages.keep3r_co.skills.keep3r_job.behaviours import Keep3rJobRoundBehaviour
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseState,
@@ -42,7 +40,7 @@ class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the price estimation."""
 
     initial_state_cls = RegistrationStartupBehaviour
-    abci_app_cls = Keep3rJobAbciApp  # type: ignore
+    abci_app_cls = Keep3rAbciApp  # type: ignore
     behaviour_states: Set[Type[BaseState]] = {
         *AgentRegistrationRoundBehaviour.behaviour_states,
         *Keep3rJobRoundBehaviour.behaviour_states,
