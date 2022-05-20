@@ -19,14 +19,14 @@
 
 """This module contains the class to connect to a Keep3r Job contract."""
 import logging
-from typing import Any, Optional, cast, Dict
+from typing import Any, Dict, Optional, cast
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea.crypto.base import LedgerApi
 from aea_ledger_ethereum import EthereumApi
-from web3.types import Wei, TxParams, Nonce
+from web3.types import Nonce, TxParams, Wei
 
 
 PUBLIC_ID = PublicId.from_str("gabrielfu/keep3r_job:0.1.0")
@@ -66,9 +66,7 @@ class Keep3rJobContract(Contract):
         raise NotImplementedError
 
     @classmethod
-    def get_gas_price(
-            cls, ledger_api: LedgerApi
-    ) -> Optional[Wei]:
+    def get_gas_price(cls, ledger_api: LedgerApi) -> Optional[Wei]:
         """Get the gas price."""
         ethereum_api = cast(EthereumApi, ledger_api)
         gas_price = ethereum_api.api.eth.generate_gas_price()
@@ -76,7 +74,7 @@ class Keep3rJobContract(Contract):
 
     @classmethod
     def get_workable(
-            cls, ledger_api: LedgerApi, contract_address: str
+        cls, ledger_api: LedgerApi, contract_address: str
     ) -> Optional[bool]:
         """Get the workable flag from the contract."""
         ethereum_api = cast(EthereumApi, ledger_api)
@@ -95,7 +93,7 @@ class Keep3rJobContract(Contract):
         max_fee_per_gas: Optional[int] = None,
         max_priority_fee_per_gas: Optional[int] = None,
         nonce: Optional[Nonce] = None,
-    ) -> Optional[JSONLike]:
+    ) -> Any:
         """
         Get the raw work transaction
 
@@ -107,6 +105,8 @@ class Keep3rJobContract(Contract):
         :param max_fee_per_gas: max
         :param max_priority_fee_per_gas: max
         :param nonce: the nonce
+
+        :return: the transaction
         """
 
         ledger_api = cast(EthereumApi, ledger_api)
@@ -138,7 +138,9 @@ class Keep3rJobContract(Contract):
         if nonce is not None:
             tx_parameters["nonce"] = Nonce(nonce)
 
-        work_transaction_dict = job_contract.functions.work().buildTransaction(tx_parameters)
+        work_transaction_dict = job_contract.functions.work().buildTransaction(
+            tx_parameters
+        )
         # Auto estimation of gas does not work. We use a little more gas just in case
         work_transaction_dict["gas"] = Wei(work_transaction_dict["gas"] + 50000)
 

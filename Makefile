@@ -41,10 +41,10 @@ clean-test:
 
 .PHONY: lint
 lint:
-	black packages/valory tests scripts
-	isort packages/valory tests scripts
+	black packages tests scripts
+	isort packages tests scripts
 	flake8 packages tests scripts
-	darglint packages/valory/agents packages/valory/connections packages/valory/contracts packages/valory/skills tests
+	darglint packages skills tests
 
 .PHONY: pylint
 pylint:

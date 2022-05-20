@@ -8,13 +8,13 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: QmVwFKStDzJFm4dbFKGSnLQGGjpH5zjhcPRwYirPCDYAJU
   __init__.py: QmYUJartJbWWdWz6jFAfq3gRnLhg2Gxn4XgRESkfV3HTTj
-  behaviours.py: QmYJh5rUWXJ47riqcnFSHqNMuMFjkQY3AuXnd2gppthMF3
+  behaviours.py: QmTdYukJdDQuEFnq4qrkCMWiRFzQSU9uLMtM6SbwUZfKWS
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
   fsm_specification.yaml: QmNwCWan3D88fRhwuHXMNrjzYyy5mAQPLGTbrDHDZSXqBy
   handlers.py: QmZTHtQixDRmtAL3hmngJppak3whchYnvKFNbwbFU3AmUp
   models.py: QmZuwjmq6dtnEqYRX9yikB31ayr2CkZc2BzqfqUZt4QWQL
-  payloads.py: Qmbhp6Mez62237x2hBE3n1su5XUjWm2UmYdUJJdK7ghtBM
-  rounds.py: Qmaxv9rCG9EiQ54Wx2VNnHbYmrYfN4kCrUsVtw3sHUJqJp
+  payloads.py: Qmc8FUuNXVzTMTbWYHZbxsTEgfZxJ71VLpA8b2Eyr8T9eo
+  rounds.py: QmUojZigjQzMSoCvZjeXjbFqzmJxZN5shZQeP1rcgDPNXK
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0
@@ -68,17 +68,16 @@ models:
     class_name: LedgerApiDialogues
   params:
     args:
-      period_setup:
-        safe_contract_address: null
       cleanup_history_depth: 1
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-      job_contract_address: "address"
+      job_contract_address: address
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
-      period_setup: {}
+      period_setup:
+        safe_contract_address: stub
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3

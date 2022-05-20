@@ -19,9 +19,10 @@
 
 """This module contains the price estimation ABCI application."""
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    CheckSafeExistenceRound,
     FinishedPrepareTxRound,
     Keep3rJobAbciApp,
-    PrepareTxRound,
+    SafeNotDeployedRound,
 )
 from packages.valory.skills.abstract_round_abci.abci_app_chain import (
     AbciAppTransitionMapping,
@@ -38,24 +39,17 @@ from packages.valory.skills.reset_pause_abci.rounds import (
     ResetAndPauseRound,
     ResetPauseABCIApp,
 )
-
 from packages.valory.skills.safe_deployment_abci.rounds import (
-    RandomnessSafeRound,
     FinishedSafeRound,
+    RandomnessSafeRound,
     SafeDeploymentAbciApp,
 )
 
-from packages.keep3r_co.skills.keep3r_abci.rounds import (
-    CheckSafeExistenceRound,
-    SafePresentRound,
-    SafeAbsentRound,
-    Keep3rCheckSafeAbciApp,
-)
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
     FinishedRegistrationRound: CheckSafeExistenceRound,
-    SafePresentRound: PrepareTxRound,
-    SafeAbsentRound: RegistrationRound,
+    SafeNotDeployedRound: RandomnessSafeRound,
+    FinishedSafeRound: CheckSafeExistenceRound,
     FinishedPrepareTxRound: ResetAndPauseRound,
     FinishedResetAndPauseRound: RegistrationRound,
     FinishedResetAndPauseErrorRound: RegistrationRound,
@@ -64,7 +58,6 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
 Keep3rAbciApp = chain(
     (
         AgentRegistrationAbciApp,
-        Keep3rCheckSafeAbciApp,
         SafeDeploymentAbciApp,
         Keep3rJobAbciApp,
         ResetPauseABCIApp,

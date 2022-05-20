@@ -29,10 +29,37 @@ class TransactionType(Enum):
     """Enumeration of transaction types."""
 
     PREPARE_TX = "prepare_tx"
+    SAFE_EXISTENCE = "safe_existence"
 
     def __str__(self) -> str:
         """Get the string value of the transaction type."""
         return self.value
+
+
+class SafeExistencePayload(BaseTxPayload):
+    """Represent a transaction payload of type 'safe_existence'."""
+
+    transaction_type = TransactionType.SAFE_EXISTENCE
+
+    def __init__(self, sender: str, vote: Optional[bool] = None, **kwargs: Any) -> None:
+        """Initialize an 'safe_existence' transaction payload.
+
+        :param sender: the sender (Ethereum) address
+        :param vote: the vote whether a safe contract exists
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._vote = vote
+
+    @property
+    def vote(self) -> Optional[bool]:
+        """Get the vote."""
+        return self._vote
+
+    @property
+    def data(self) -> Dict:
+        """Get the data."""
+        return dict(vote=self.vote) if self.vote is not None else {}
 
 
 class BaseAbciPayload(BaseTxPayload, ABC):
@@ -48,9 +75,7 @@ class TXHashPayload(BaseAbciPayload):
 
     transaction_type = TransactionType.PREPARE_TX
 
-    def __init__(
-            self, sender: str, tx_hash: Optional[str], **kwargs: Any
-    ) -> None:
+    def __init__(self, sender: str, tx_hash: Optional[str], **kwargs: Any) -> None:
         """Initialize an 'prepare_tx' transaction payload.
 
         :param sender: the sender (Ethereum) address

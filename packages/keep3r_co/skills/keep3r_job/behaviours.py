@@ -21,22 +21,66 @@
 
 from abc import ABC
 from typing import Generator, Optional, Set, Type, cast
-from hexbytes import HexBytes
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
-from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload
+from packages.keep3r_co.skills.keep3r_job.payloads import (
+    SafeExistencePayload,
+    TXHashPayload,
+)
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    CheckSafeExistenceRound,
     Keep3rJobAbciApp,
     PeriodState,
     PrepareTxRound,
 )
+from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseState,
 )
+
+
+class CheckSafeExistenceBehaviour(BaseState):
+    """Check Safe contract existence."""
+
+    state_id = "check_safe_existence"
+    matching_round = CheckSafeExistenceRound
+
+    @property
+    def period_state(self) -> PeriodState:
+        """Return the period state."""
+        return cast(PeriodState, super().period_state)
+
+    def async_act(self) -> Generator:
+        """
+        Do the action.
+
+        Steps:
+        - Check if any safe contract is deployed already
+        - Wait until ABCI application transitions to the next round.
+        - Go to the next behaviour state (set done event).
+        """
+
+        with self.context.benchmark_tool.measure(self.state_id).local():
+            exists = self.safe_contract_exists()
+            payload = SafeExistencePayload(self.context.agent_address, exists)
+
+        with self.context.benchmark_tool.measure(self.state_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def safe_contract_exists(self) -> bool:
+        """Check Contract deployment verification."""
+
+        if self.period_state.safe_contract_address is None:  # pragma: nocover
+            self.context.logger.warning("Safe contract has not been deployed!")
+            return False
+
+        return True
 
 
 class Keep3rJobAbciBaseState(BaseState, ABC):
@@ -81,12 +125,12 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         self.set_done()
 
     def _get_raw_work_transaction_hash(self) -> Generator[None, None, Optional[str]]:
+
         job_contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_address=self.context.params.job_contract_address,
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="work",
-            job_contract_address=self.context.params.job_contract_address,
+            contract_address=self.context.params.job_contract_address,
             sender_address=self.context.agent_address,
         )
 
@@ -98,28 +142,27 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
             return None
 
         tx_params = job_contract_api_response.raw_transaction.body
+        safe_contract_address = self.context.params.period_setup_params.get(
+            "safe_contract_address"
+        )
 
-        safe_contract_api_response = yield from self.get_contract_api_response(
+        safe_contract_api_msg = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_address=self.context.params.period_setup.safe_contract_address,
+            contract_address=safe_contract_address,
             contract_id=str(GnosisSafeContract.contract_id),
             contract_callable="get_raw_safe_transaction_hash",
             to_address=tx_params["to_address"],
             value=tx_params["ether_value"],
             data=tx_params["data"],
             safe_tx_gas=tx_params["safe_tx_gas"],
-            operation=tx_params["operation"],
         )
-
         if (
-                safe_contract_api_response.performative
-                != ContractApiMessage.Performative.RAW_TRANSACTION
+            safe_contract_api_msg.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
         ):  # pragma: nocover
             self.context.logger.warning("Get work transaction hash unsuccessful!")
             return None
-        tx_hash = cast(
-            str, job_contract_api_response.raw_transaction.body.pop("hash")
-        )
+        tx_hash = cast(str, job_contract_api_response.raw_transaction.body.pop("hash"))
 
         return tx_hash
 
@@ -130,5 +173,6 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     initial_state_cls = PrepareTxBehaviour  # type: ignore
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
+        CheckSafeExistenceBehaviour,  # type: ignore
         PrepareTxBehaviour,  # type: ignore
     }
