@@ -17,4 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests for skills."""
+"""This module contains the agent packages authored by Keep3r Co."""  # pragma: nocover

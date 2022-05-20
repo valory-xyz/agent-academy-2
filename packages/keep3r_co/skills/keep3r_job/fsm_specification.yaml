@@ -1,19 +1,33 @@
 alphabet_in:
 - DONE
+- NEGATIVE
+- NOT_WORKABLE
 - NO_MAJORITY
 - RESET_TIMEOUT
-default_start_state: PrepareTxRound
+default_start_state: CheckSafeExistenceRound
 final_states:
 - FailedRound
 - FinishedPrepareTxRound
+- NothingToDoRound
+- SafeNotDeployedRound
 label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
 start_states:
-- PrepareTxRound
+- CheckSafeExistenceRound
 states:
+- CheckSafeExistenceRound
 - FailedRound
 - FinishedPrepareTxRound
+- IsWorkableRound
+- NothingToDoRound
 - PrepareTxRound
+- SafeNotDeployedRound
 transition_func:
+    (CheckSafeExistenceRound, DONE): PrepareTxRound
+    (CheckSafeExistenceRound, NEGATIVE): SafeNotDeployedRound
+    (IsWorkableRound, DONE): PrepareTxRound
+    (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
+    (IsWorkableRound, NO_MAJORITY): IsWorkableRound
+    (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
     (PrepareTxRound, DONE): FinishedPrepareTxRound
     (PrepareTxRound, NO_MAJORITY): FailedRound
     (PrepareTxRound, RESET_TIMEOUT): FailedRound

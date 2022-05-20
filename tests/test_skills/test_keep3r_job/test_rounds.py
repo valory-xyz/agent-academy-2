@@ -19,12 +19,17 @@
 
 """Test the base.py module of the skill."""
 import logging  # noqa: F401
+from types import MappingProxyType
 from typing import FrozenSet, cast
 from unittest import mock
 
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload
+from packages.keep3r_co.skills.keep3r_job.payloads import (
+    IsWorkablePayload,
+    TXHashPayload,
+)
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
+    IsWorkableRound,
     PeriodState,
     PrepareTxRound,
 )
@@ -113,3 +118,91 @@ class TestPrepareTxRound(BaseRoundTestClass):
             == cast(PeriodState, actual_next_state).participants
         )
         assert event == Event.DONE
+
+
+class TestIsWorkableRound(BaseRoundTestClass):
+    """Tests for RegistrationRound."""
+
+    def test_run_positive(
+        self,
+    ) -> None:
+        """Run tests."""
+
+        test_round = IsWorkableRound(
+            state=self.period_state, consensus_params=self.consensus_params
+        )
+
+        first_payload, *payloads = [
+            IsWorkablePayload(
+                sender=participant,
+                is_workable=True,
+            )
+            for participant in self.participants
+        ]
+
+        test_round.process_payload(first_payload)
+        assert test_round.collection[first_payload.sender] == first_payload
+        assert test_round.end_block() is None
+
+        self._test_no_majority_event(test_round)
+
+        for payload in payloads:
+            test_round.process_payload(payload)
+
+        actual_next_state = self.period_state.update(
+            participant_to_selection=MappingProxyType(test_round.collection),
+            is_workable=test_round.most_voted_payload,
+        )
+
+        res = test_round.end_block()
+        assert res is not None
+        state, event = res
+        assert all(
+            [
+                key in cast(PeriodState, state).participant_to_selection
+                for key in cast(PeriodState, actual_next_state).participant_to_selection
+            ]
+        )
+        assert event == Event.DONE
+
+    def test_run_negative(
+        self,
+    ) -> None:
+        """Run tests."""
+
+        test_round = IsWorkableRound(
+            state=self.period_state, consensus_params=self.consensus_params
+        )
+
+        first_payload, *payloads = [
+            IsWorkablePayload(
+                sender=participant,
+                is_workable=False,
+            )
+            for participant in self.participants
+        ]
+
+        test_round.process_payload(first_payload)
+        assert test_round.collection[first_payload.sender] == first_payload
+        assert test_round.end_block() is None
+
+        self._test_no_majority_event(test_round)
+
+        for payload in payloads:
+            test_round.process_payload(payload)
+
+        actual_next_state = self.period_state.update(
+            participant_to_selection=MappingProxyType(test_round.collection),
+            is_workable=test_round.most_voted_payload,
+        )
+
+        res = test_round.end_block()
+        assert res is not None
+        state, event = res
+        assert all(
+            [
+                key in cast(PeriodState, state).participant_to_selection
+                for key in cast(PeriodState, actual_next_state).participant_to_selection
+            ]
+        )
+        assert event == Event.NOT_WORKABLE

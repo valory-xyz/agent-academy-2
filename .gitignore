@@ -2,5 +2,10 @@
 .DS_Store
 .pytest_cache
 coverage.xml
+.tox
+.coverage
+htmlcov
 __pycache__
 Pipfile.lock
+*.egg-info
+generate_abciapp_spec.py
