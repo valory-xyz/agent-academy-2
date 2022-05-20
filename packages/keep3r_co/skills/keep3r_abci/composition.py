@@ -21,10 +21,9 @@
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     FailedRound,
     FinishedPrepareTxRound,
-    IsWorkableRound,
-
+    JobSelectionRound,
     Keep3rJobAbciApp,
-    NothingToDoRound, JobSelectionRound,
+    NothingToDoRound,
 )
 from packages.valory.skills.abstract_round_abci.abci_app_chain import (
     AbciAppTransitionMapping,
