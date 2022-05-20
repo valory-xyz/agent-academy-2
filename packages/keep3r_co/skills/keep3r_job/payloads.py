@@ -31,6 +31,7 @@ class TransactionType(Enum):
     PREPARE_TX = "prepare_tx"
     IS_WORKABLE = "is_workable"
     JOB_SELECTION = "job_selection"
+    IS_PROFITABLE = "is_profitable"
 
     def __str__(self) -> str:
         """Get the string value of the transaction type."""
@@ -127,3 +128,34 @@ class TXHashPayload(BaseAbciPayload):
     def data(self) -> Dict[str, Optional[str]]:
         """Get the data."""
         return dict(tx_hash=self.tx_hash) if self.tx_hash is not None else {}
+
+
+class IsProfitablePayload(BaseAbciPayload):
+    """Represent a transaction payload of type 'is_profitable'."""
+
+    # Why do I have to set this transaction type here if its not used anywhere else?
+    transaction_type = TransactionType.IS_PROFITABLE
+
+    def __init__(self, sender: str, is_profitable: bool, **kwargs: Any) -> None:
+        """Initialize an 'is_profitable' transaction payload.
+
+        :param sender: the sender (Ethereum) address
+        :param is_profitable: whether the job is profitable
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._is_profitable = is_profitable
+
+    @property
+    def is_profitable(self) -> bool:
+        """Get whether the contract is workable."""
+        return self._is_profitable
+
+    @property
+    def data(self) -> Dict[str, Optional[bool]]:
+        """Get the data."""
+        return (
+            dict(is_profitable=self.is_profitable)
+            if self.is_profitable is not None
+            else {}
+        )

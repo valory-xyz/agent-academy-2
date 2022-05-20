@@ -1,6 +1,7 @@
 alphabet_in:
 - DONE
 - FAST_FORWARD
+- NOT_PROFITABLE
 - NOT_WORKABLE
 - NO_MAJORITY
 - RESET_AND_PAUSE_TIMEOUT
@@ -11,6 +12,7 @@ label: packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp
 start_states:
 - RegistrationStartupRound
 states:
+- IsProfitableRound
 - IsWorkableRound
 - JobSelectionRound
 - PrepareTxRound
@@ -18,6 +20,10 @@ states:
 - RegistrationStartupRound
 - ResetAndPauseRound
 transition_func:
+    (IsProfitableRound, DONE): PrepareTxRound
+    (IsProfitableRound, NOT_PROFITABLE): ResetAndPauseRound
+    (IsProfitableRound, NO_MAJORITY): ResetAndPauseRound
+    (IsProfitableRound, RESET_TIMEOUT): IsProfitableRound
     (IsWorkableRound, DONE): PrepareTxRound
     (IsWorkableRound, NOT_WORKABLE): ResetAndPauseRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound

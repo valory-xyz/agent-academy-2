@@ -9,3 +9,4 @@ __pycache__
 Pipfile.lock
 *.egg-info
 generate_abciapp_spec.py
+pre_push_hook.sh

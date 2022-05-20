@@ -18,12 +18,12 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the simple ABCI application."""
-
 from abc import ABC
 from enum import Enum
 from typing import Dict, Optional, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
     TXHashPayload,
@@ -47,6 +47,7 @@ class Event(Enum):
     ROUND_TIMEOUT = "round_timeout"
     NO_MAJORITY = "no_majority"
     RESET_TIMEOUT = "reset_timeout"
+    NOT_PROFITABLE = "not_profitable"
 
 
 class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attributes
@@ -158,6 +159,32 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
+class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+    """The round in which the profitability of the job is estimated"""
+
+    round_id = "get_is_profitable"
+    allowed_tx_type = IsProfitablePayload.transaction_type
+    payload_attribute = "is_profitable"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            state = self.period_state.update(is_profitable=self.most_voted_payload)
+            is_profitable = self.most_voted_payload
+
+            if is_profitable:
+                return state, Event.DONE
+
+            return state, Event.NOT_PROFITABLE
+
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+
+            return self._return_no_majority_event()
+        return None
+
+
 class FinishedPrepareTxRound(DegenerateRound, ABC):
     """A round that represents the transition to the RandomnessTransactionSubmissionRound"""
 
@@ -211,6 +238,12 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.NOT_WORKABLE: NothingToDoRound,
             Event.RESET_TIMEOUT: IsWorkableRound,
             Event.NO_MAJORITY: IsWorkableRound,
+        },
+        IsProfitableRound: {
+            Event.DONE: PrepareTxRound,
+            Event.NOT_PROFITABLE: NothingToDoRound,
+            Event.NO_MAJORITY: FailedRound,
+            Event.RESET_TIMEOUT: IsProfitableRound,
         },
         PrepareTxRound: {
             Event.DONE: FinishedPrepareTxRound,

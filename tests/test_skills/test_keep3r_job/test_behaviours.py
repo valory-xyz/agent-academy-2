@@ -28,6 +28,7 @@ from aea.helpers.transaction.base import RawTransaction
 
 from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
+    IsProfitableBehaviour,
     IsWorkableBehaviour,
     JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
@@ -271,6 +272,90 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(event=Event.NOT_WORKABLE)
+        state = cast(BaseState, self.abci_behaviour.current_state)
+        assert (
+            state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
+        )
+
+
+class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test case to test IsProfitableBehaviour."""
+
+    CONTRACT_ADDRESS: str = "contract_address"
+    CONTRACT_CALLABLE: str = "rewardMultiplier"
+    is_profitable_behaviour_class: Type[BaseState] = IsProfitableBehaviour
+
+    def test_is_profitable_true(self) -> None:
+        """Test is profitable."""
+        self.fast_forward_to_state(
+            self.abci_behaviour,
+            self.is_profitable_behaviour_class.state_id,
+            self.period_state,
+        )
+        assert (
+            cast(
+                BaseState,
+                cast(BaseState, self.abci_behaviour.current_state),
+            ).state_id
+            == IsProfitableBehaviour.state_id
+        )
+        self.abci_behaviour.context.params.profitability_threshold = 100
+        self.abci_behaviour.act_wrapper()
+        self.mock_contract_api_request(
+            contract_id=str(CONTRACT_ID),
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=self.CONTRACT_CALLABLE,
+            ),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=self.CONTRACT_CALLABLE,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"rewardMultiplier": 90},
+                ),
+            ),
+        )
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round()
+        state = cast(BaseState, self.abci_behaviour.current_state)
+        assert state.state_id == PrepareTxRound.round_id
+
+    def test_is_profitable_false(self) -> None:
+        """Test is profitable."""
+        self.fast_forward_to_state(
+            self.abci_behaviour,
+            self.is_profitable_behaviour_class.state_id,
+            self.period_state,
+        )
+        assert (
+            cast(
+                BaseState,
+                cast(BaseState, self.abci_behaviour.current_state),
+            ).state_id
+            == IsProfitableBehaviour.state_id
+        )
+        self.abci_behaviour.context.params.profitability_threshold = 100
+        self.abci_behaviour.act_wrapper()
+        self.mock_contract_api_request(
+            contract_id=str(CONTRACT_ID),
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=self.CONTRACT_CALLABLE,
+            ),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=self.CONTRACT_CALLABLE,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"rewardMultiplier": 110},
+                ),
+            ),
+        )
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(event=Event.NOT_PROFITABLE)
         state = cast(BaseState, self.abci_behaviour.current_state)
         assert (
             state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
