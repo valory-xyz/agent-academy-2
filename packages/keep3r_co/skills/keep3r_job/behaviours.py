@@ -25,10 +25,12 @@ from typing import Generator, Optional, Set, Type, cast
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    IsProfitablePayload,
     IsWorkablePayload,
     TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    IsProfitableRound,
     IsWorkableRound,
     Keep3rJobAbciApp,
     PeriodState,
@@ -141,6 +143,60 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         return tx_hash
 
 
+class IsProfitableBehaviour(Keep3rJobAbciBaseState):
+    """Checks if job is profitable."""
+
+    state_id = "get_is_profitable"
+    matching_round = IsProfitableRound
+
+    def async_act(self) -> Generator:
+        """Do the action
+
+        Steps:
+        - Call the contract to get the rewardMultiplier
+        - Check if the job is profitable given the current rewardMultiplier
+        - Set Payload accordingly and send transaction, then end the round.
+        """
+
+        with self.context.benchmark_tool.measure(self.state_id).local():
+            reward_multiplier = yield from self.rewardMultiplier()
+            if reward_multiplier is None:
+                raise RuntimeError("Contract call has failed")
+
+            # TODO: compute a more meaningful profitability measure
+            if reward_multiplier > self.context.params.profitability_threshold:
+                payload = IsProfitablePayload(self.context.agent_address, True)
+            else:
+                payload = IsProfitablePayload(self.context.agent_address, False)
+
+        with self.context.benchmark_tool.measure(self.state_id).consensus():
+            self.context.logger.info(f"Safe transaction hash: {reward_multiplier}")
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def rewardMultiplier(self) -> Generator:
+        """Calls the contract to get the rewardMultiplier for the job."""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=self.context.params.job_contract_address,
+            contract_id=str(Keep3rJobContract.contract_id),
+            contract_callable="rewardMultiplier",
+        )
+        if (
+            contract_api_response.performative != ContractApiMessage.Performative.STATE
+        ):  # pragma: nocover
+            self.context.logger.warning("Get reward multiplier unsuccessful!")
+            return None
+
+        reward_multiplier = cast(
+            int, contract_api_response.state.body.pop("rewardMultiplier")
+        )
+        return reward_multiplier
+
+
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the preparetx abci app."""
 
@@ -148,5 +204,6 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
         IsWorkableBehaviour,  # type: ignore
+        IsProfitableBehaviour,  # type: ignore
         PrepareTxBehaviour,  # type: ignore
     }

@@ -36,7 +36,7 @@ _logger = logging.getLogger(
 )
 
 NULL_ADDRESS: str = "0x" + "0" * 40
-CONTRACT_ADDRESS = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
+CONTRACT_ADDRESS = "0x2150b45626199CFa5089368BDcA30cd0bfB152D6"
 
 
 class Keep3rJobContract(Contract):
@@ -81,3 +81,12 @@ class Keep3rJobContract(Contract):
         contract = cls.get_instance(ethereum_api, contract_address)
         workable = contract.functions.workable().call()
         return workable
+
+    @classmethod
+    def rewardMultiplier(cls, ledger_api: LedgerApi, contract_address: str) -> dict:
+        """Gets the reward multiplier for the specific job."""
+        ethereum_api = cast(EthereumApi, ledger_api)
+        contract = cls.get_instance(ethereum_api, contract_address)
+        reward_multiplier = contract.functions.rewardMultiplier().call()
+        response_dict = {"rewardMultiplier": reward_multiplier}
+        return response_dict

@@ -19,7 +19,11 @@
 
 """Test the payloads.py module of the skill."""
 
-from packages.keep3r_co.skills.keep3r_job.payloads import TXHashPayload, TransactionType
+from packages.keep3r_co.skills.keep3r_job.payloads import (
+    IsProfitablePayload,
+    TXHashPayload,
+    TransactionType,
+)
 
 
 def test_preparetx_payload() -> None:
@@ -30,3 +34,13 @@ def test_preparetx_payload() -> None:
     assert payload.sender == "sender"
     assert payload.tx_hash == "test_hash"
     assert payload.transaction_type == TransactionType.PREPARE_TX
+
+
+def test_is_profitable_payload() -> None:
+    """Test `IsProfitablePayload`"""
+
+    payload = IsProfitablePayload(sender="sender", is_profitable=True)
+
+    assert payload.sender == "sender"
+    assert payload.is_profitable is True
+    assert payload.transaction_type == TransactionType.IS_PROFITABLE
