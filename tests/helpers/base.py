@@ -23,9 +23,11 @@ import logging
 import os
 import time
 from os import PathLike
-from typing import Any, Generator
+from typing import Any, Generator, Tuple, Type
 
 import requests
+
+from packages.valory.skills.abstract_round_abci.base import AbstractRound
 
 from tests.helpers.constants import DEFAULT_REQUESTS_TIMEOUT, MAX_RETRIES
 
@@ -72,3 +74,10 @@ def try_send(gen: Generator, obj: Any = None) -> None:
     """
     with contextlib.suppress(StopIteration):
         gen.send(obj)
+
+
+def make_round_class(name: str, bases: Tuple = (AbstractRound,)) -> Type:
+    """Make a round class."""
+    new_round_cls = type(name, bases, {})
+    assert issubclass(new_round_cls, AbstractRound)
+    return new_round_cls

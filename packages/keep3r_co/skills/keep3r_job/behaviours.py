@@ -114,7 +114,8 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
             self.context.logger.info(
-                f"Job contract is workable {self.period_state.job_selection}: {is_workable}")
+                f"Job contract is workable {self.period_state.job_selection}: {is_workable}"
+            )
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 

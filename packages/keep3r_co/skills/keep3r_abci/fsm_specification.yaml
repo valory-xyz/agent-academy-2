@@ -1,31 +1,38 @@
 alphabet_in:
 - DONE
 - FAST_FORWARD
+- NOT_WORKABLE
 - NO_MAJORITY
 - RESET_AND_PAUSE_TIMEOUT
 - RESET_TIMEOUT
 default_start_state: RegistrationStartupRound
-final_states:
-- FailedRound
-- FinishedRegistrationFFWRound
+final_states: []
 label: packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp
 start_states:
 - RegistrationStartupRound
 states:
-- FailedRound
-- FinishedRegistrationFFWRound
+- IsWorkableRound
+- JobSelectionRound
 - PrepareTxRound
 - RegistrationRound
 - RegistrationStartupRound
 - ResetAndPauseRound
 transition_func:
+    (IsWorkableRound, DONE): PrepareTxRound
+    (IsWorkableRound, NOT_WORKABLE): ResetAndPauseRound
+    (IsWorkableRound, NO_MAJORITY): IsWorkableRound
+    (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
+    (JobSelectionRound, DONE): IsWorkableRound
+    (JobSelectionRound, NOT_WORKABLE): ResetAndPauseRound
+    (JobSelectionRound, NO_MAJORITY): ResetAndPauseRound
+    (JobSelectionRound, RESET_TIMEOUT): ResetAndPauseRound
     (PrepareTxRound, DONE): ResetAndPauseRound
-    (PrepareTxRound, NO_MAJORITY): FailedRound
-    (PrepareTxRound, RESET_TIMEOUT): FailedRound
-    (RegistrationRound, DONE): FinishedRegistrationFFWRound
-    (RegistrationStartupRound, DONE): PrepareTxRound
-    (RegistrationStartupRound, FAST_FORWARD): FinishedRegistrationFFWRound
+    (PrepareTxRound, NO_MAJORITY): ResetAndPauseRound
+    (PrepareTxRound, RESET_TIMEOUT): ResetAndPauseRound
+    (RegistrationRound, DONE): JobSelectionRound
+    (RegistrationStartupRound, DONE): JobSelectionRound
+    (RegistrationStartupRound, FAST_FORWARD): JobSelectionRound
     (ResetAndPauseRound, DONE): RegistrationRound
-    (ResetAndPauseRound, NO_MAJORITY): RegistrationRound
-    (ResetAndPauseRound, RESET_AND_PAUSE_TIMEOUT): RegistrationRound
+    (ResetAndPauseRound, NO_MAJORITY): RegistrationStartupRound
+    (ResetAndPauseRound, RESET_AND_PAUSE_TIMEOUT): RegistrationStartupRound
 

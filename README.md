@@ -47,19 +47,19 @@ pipenv shell
 To run the test:
 
 ``` bash
-pytest tests/test_packages/test_agents/test_simple_abci.py::TestSimpleABCISingleAgent
+pytest tests/test_agents/test_simple_abci.py::TestSimpleABCISingleAgent
 ```
 
 or
 
 ``` bash
-pytest tests/test_packages/test_agents/test_simple_abci.py::TestSimpleABCITwoAgents
+pytest tests/test_agents/test_simple_abci.py::TestSimpleABCITwoAgents
 ```
 
 or even
 
 ``` bash
-pytest tests/test_packages/test_agents/test_simple_abci.py::TestSimpleABCIFourAgents
+pytest tests/test_agents/test_simple_abci.py::TestSimpleABCIFourAgents
 ```
 
 ## Useful commands:

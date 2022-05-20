@@ -16,4 +16,5 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-"""Skill directory."""
+
+"""This module contains the skills packages authored by Keep3r Co."""
