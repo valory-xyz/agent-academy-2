@@ -215,9 +215,12 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
     def rewardMultiplier(self) -> Generator:
         """Calls the contract to get the rewardMultiplier for the job."""
 
+        job_ix = self.period_state.period_count % len(
+            self.context.params.job_contract_addresses
+        )
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
-            contract_address=self.context.params.job_contract_address,
+            contract_address=self.context.params.job_contract_addresses[job_ix],
             contract_id=str(Keep3rJobContract.contract_id),
             contract_callable="rewardMultiplier",
         )

@@ -287,10 +287,13 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_is_profitable_true(self) -> None:
         """Test is profitable."""
+        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
         self.fast_forward_to_state(
             self.abci_behaviour,
             self.is_profitable_behaviour_class.state_id,
-            self.period_state,
+            PeriodState(
+                StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
+            ),
         )
         assert (
             cast(
@@ -324,10 +327,13 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_is_profitable_false(self) -> None:
         """Test is profitable."""
+        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
         self.fast_forward_to_state(
             self.abci_behaviour,
             self.is_profitable_behaviour_class.state_id,
-            self.period_state,
+            PeriodState(
+                StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
+            ),
         )
         assert (
             cast(
