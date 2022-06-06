@@ -34,15 +34,19 @@ from packages.valory.skills.registration_abci.behaviours import (
 from packages.valory.skills.reset_pause_abci.behaviours import (
     ResetPauseABCIConsensusBehaviour,
 )
+from packages.valory.skills.safe_deployment_abci.behaviours import (
+    SafeDeploymentRoundBehaviour,
+)
 
 
 class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
-    """This behaviour manages the consensus stages for the price estimation."""
+    """This behaviour manages the consensus stages for the keepr abci app."""
 
     initial_state_cls = RegistrationStartupBehaviour
     abci_app_cls = Keep3rAbciApp  # type: ignore
     behaviour_states: Set[Type[BaseState]] = {
         *AgentRegistrationRoundBehaviour.behaviour_states,
+        *SafeDeploymentRoundBehaviour.behaviour_states,
         *Keep3rJobRoundBehaviour.behaviour_states,
         *ResetPauseABCIConsensusBehaviour.behaviour_states,
     }
