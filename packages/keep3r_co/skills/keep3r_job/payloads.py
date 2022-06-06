@@ -42,25 +42,29 @@ class SafeExistencePayload(BaseTxPayload):
 
     transaction_type = TransactionType.SAFE_EXISTENCE
 
-    def __init__(self, sender: str, vote: Optional[bool] = None, **kwargs: Any) -> None:
+    def __init__(
+        self, sender: str, safe_exists: Optional[bool] = None, **kwargs: Any
+    ) -> None:
         """Initialize an 'safe_existence' transaction payload.
 
         :param sender: the sender (Ethereum) address
-        :param vote: the vote whether a safe contract exists
+        :param safe_exists: the safe_exists whether a safe contract exists
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
-        self._vote = vote
+        self._safe_exists = safe_exists
 
     @property
-    def vote(self) -> Optional[bool]:
-        """Get the vote."""
-        return self._vote
+    def safe_exists(self) -> Optional[bool]:
+        """Get the safe_exists."""
+        return self._safe_exists
 
     @property
     def data(self) -> Dict:
         """Get the data."""
-        return dict(vote=self.vote) if self.vote is not None else {}
+        return (
+            dict(safe_exists=self.safe_exists) if self.safe_exists is not None else {}
+        )
 
 
 class BaseAbciPayload(BaseTxPayload, ABC):
