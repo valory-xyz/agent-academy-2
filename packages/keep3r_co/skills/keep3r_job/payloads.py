@@ -49,7 +49,7 @@ class SafeExistencePayload(BaseTxPayload):
         """Initialize an 'safe_existence' transaction payload.
 
         :param sender: the sender (Ethereum) address
-        :param safe_exists: the safe_exists whether a safe contract exists
+        :param safe_exists: whether a safe contract exists
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
