@@ -147,7 +147,7 @@ class Keep3rJobContract(Contract):
         result = dict(cast(Dict, work_transaction_dict))
 
         return result
-    
+
     @classmethod
     def rewardMultiplier(cls, ledger_api: LedgerApi, contract_address: str) -> dict:
         """Gets the reward multiplier for the specific job."""
