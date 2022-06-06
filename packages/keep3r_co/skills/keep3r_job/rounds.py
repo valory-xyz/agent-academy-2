@@ -159,6 +159,23 @@ class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractR
 
     round_id = "check_safe_existence"
     allowed_tx_type = SafeExistencePayload.transaction_type
+    payload_attribute = "safe_exists"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            state = self.period_state.update(
+                safe_exists=self.most_voted_payload,
+            )
+            safe_exists = self.most_voted_payload
+            if safe_exists:
+                return state, Event.DONE
+            return state, Event.NEGATIVE
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+            return self._return_no_majority_event()
+        return None
 
 
 class SafeNotDeployedRound(DegenerateRound, ABC):
