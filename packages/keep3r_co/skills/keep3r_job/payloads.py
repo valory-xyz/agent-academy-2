@@ -43,9 +43,7 @@ class SafeExistencePayload(BaseTxPayload):
 
     transaction_type = TransactionType.SAFE_EXISTENCE
 
-    def __init__(
-        self, sender: str, safe_exists: bool, **kwargs: Any
-    ) -> None:
+    def __init__(self, sender: str, safe_exists: bool, **kwargs: Any) -> None:
         """Initialize an 'safe_existence' transaction payload.
 
         :param sender: the sender (Ethereum) address
