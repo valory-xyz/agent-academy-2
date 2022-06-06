@@ -1,6 +1,7 @@
 alphabet_in:
 - DONE
 - NEGATIVE
+- NOT_PROFITABLE
 - NOT_WORKABLE
 - NO_MAJORITY
 - RESET_TIMEOUT
@@ -17,6 +18,7 @@ states:
 - CheckSafeExistenceRound
 - FailedRound
 - FinishedPrepareTxRound
+- IsProfitableRound
 - IsWorkableRound
 - NothingToDoRound
 - PrepareTxRound
@@ -24,6 +26,10 @@ states:
 transition_func:
     (CheckSafeExistenceRound, DONE): PrepareTxRound
     (CheckSafeExistenceRound, NEGATIVE): SafeNotDeployedRound
+    (IsProfitableRound, DONE): PrepareTxRound
+    (IsProfitableRound, NOT_PROFITABLE): NothingToDoRound
+    (IsProfitableRound, NO_MAJORITY): FailedRound
+    (IsProfitableRound, RESET_TIMEOUT): IsProfitableRound
     (IsWorkableRound, DONE): PrepareTxRound
     (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound

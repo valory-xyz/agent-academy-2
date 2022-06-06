@@ -12,7 +12,7 @@ fingerprint:
   behaviours.py: QmWvaH9qpiGm6aLScfU48NJo4svN4c2S1trZDdGAAWte4L
   composition.py: Qme6h3zstouHhWoqUsxtUWcC5YVajJgTrJYsbz8LhpzNVm
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmXYdhnYbf5aqZtjZ98Zu4fcGwQXH7CobA84BAvvhGD5aD
+  fsm_specification.yaml: QmWrFpFEfgVxTUbjqxsmu9jZrZt6i2hAbbkyUGw3EtEJR8
   handlers.py: QmfKibZHU7Lwrw1vF9UGC6NzzqjaoqWjWNSj8HKecv2s6E
   models.py: QmbxipCZadt2WZWi9oo9eNLMyWsT6KSY1DxSC2aEdSAawg
   payloads.py: QmaUoHrEBzhAzam6uyN3GGLYTJEBVbW9kCPkcTYVrepR1F
@@ -79,6 +79,7 @@ models:
       observation_interval: 10
       period_setup:
         safe_contract_address: null
+      profitablity_threshold: 500
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3

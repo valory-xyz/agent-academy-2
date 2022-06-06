@@ -78,6 +78,7 @@ models:
       observation_interval: 10
       period_setup:
         safe_contract_address: stub
+      profitablity_threshold: 500
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3

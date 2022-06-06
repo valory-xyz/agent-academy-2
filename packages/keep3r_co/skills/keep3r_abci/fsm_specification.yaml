@@ -5,6 +5,7 @@ alphabet_in:
 - FAST_FORWARD
 - NEGATIVE
 - NONE
+- NOT_PROFITABLE
 - NOT_WORKABLE
 - NO_MAJORITY
 - RESET_AND_PAUSE_TIMEOUT
@@ -19,6 +20,7 @@ start_states:
 states:
 - CheckSafeExistenceRound
 - DeploySafeRound
+- IsProfitableRound
 - IsWorkableRound
 - PrepareTxRound
 - RandomnessSafeRound
@@ -33,6 +35,10 @@ transition_func:
     (DeploySafeRound, DEPLOY_TIMEOUT): SelectKeeperSafeRound
     (DeploySafeRound, DONE): ValidateSafeRound
     (DeploySafeRound, FAILED): SelectKeeperSafeRound
+    (IsProfitableRound, DONE): PrepareTxRound
+    (IsProfitableRound, NOT_PROFITABLE): ResetAndPauseRound
+    (IsProfitableRound, NO_MAJORITY): ResetAndPauseRound
+    (IsProfitableRound, RESET_TIMEOUT): IsProfitableRound
     (IsWorkableRound, DONE): PrepareTxRound
     (IsWorkableRound, NOT_WORKABLE): ResetAndPauseRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
