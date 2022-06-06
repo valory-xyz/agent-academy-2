@@ -44,7 +44,7 @@ lint:
 	black packages tests scripts
 	isort packages tests scripts
 	flake8 packages tests scripts
-	darglint packages skills tests
+	darglint packages tests
 
 .PHONY: pylint
 pylint:
