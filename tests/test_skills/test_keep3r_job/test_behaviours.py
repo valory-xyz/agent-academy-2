@@ -47,6 +47,9 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     PeriodState,
     PrepareTxRound,
 )
+from packages.valory.contracts.gnosis_safe.contract import (
+    PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
+)
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload, StateDB
 from packages.valory.skills.abstract_round_abci.behaviour_utils import (
@@ -56,6 +59,9 @@ from packages.valory.skills.abstract_round_abci.behaviour_utils import (
 
 from tests.conftest import ROOT_DIR
 from tests.test_skills.test_simple_abci.test_behaviours import FSMBehaviourBaseCase
+
+
+AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
 
 
 class DummyRoundId:
@@ -83,6 +89,10 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     benchmark_dir: TemporaryDirectory
     done_event = Event.DONE
 
+    @property
+    def current_state(self) -> BaseState:
+        return cast(BaseState, self.abci_behaviour.current_state)
+
 
 class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test SelectKeeperBehaviour."""
@@ -98,7 +108,12 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
             self.abci_behaviour,
             self.prepare_tx_behaviour_class.state_id,
             PeriodState(
-                StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
+                StateDB(
+                    initial_period=0, initial_data=dict(
+                        job_selection="some_job",
+                        safe_contract_address="0xaed599aadfee8e32cedb59db2b1120d33a7bacfd",
+                    )
+                ),
             ),
         )
         assert (
@@ -110,27 +125,56 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         )
         self.abci_behaviour.act_wrapper()
 
+        # first mock the work tx itself
+
+        # then mock the safe tx
+
         self.mock_contract_api_request(
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+                contract_address="0xaed599aadfee8e32cedb59db2b1120d33a7bacfd",
             ),
             contract_id=str(CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.RAW_TRANSACTION,
-                callable="get_workable",
+                callable="work",
                 raw_transaction=RawTransaction(
                     ledger_id="ethereum",
-                    body={"hash": "stub"},
+                    body={
+                        "hash": "stub",
+                        "to_address": "to_address",
+                        "ether_value": 0,
+                        "data": {},
+                        "safe_tx_gas": 2100000,
+                        "operation": "call",
+                    },
+                ),
+            ),
+        )
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+            ),
+            contract_id=str(GNOSIS_SAFE_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.RAW_TRANSACTION,
+                callable="get_raw_safe_transaction_hash",
+                raw_transaction=RawTransaction(
+                    ledger_id="ethereum",
+                    body={
+                        "tx_hash": "0xb0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9"
+                    },
                 ),
             ),
         )
 
+        self.abci_behaviour.act_wrapper()
+
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round()
-        state = cast(BaseState, self.abci_behaviour.current_state)
         assert (
-            state.state_id
+            self.current_state.state_id
             == make_degenerate_state(FinishedPrepareTxRound.round_id).state_id
         )
 
@@ -295,13 +339,9 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
                 StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
             ),
         )
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.abci_behaviour.current_state),
-            ).state_id
-            == IsProfitableBehaviour.state_id
-        )
+
+        assert self.current_state.state_id == IsProfitableBehaviour.state_id
+
         self.abci_behaviour.context.params.profitability_threshold = 100
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
@@ -327,7 +367,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_is_profitable_false(self) -> None:
         """Test is profitable."""
-        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
+        # self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
         self.fast_forward_to_state(
             self.abci_behaviour,
             self.is_profitable_behaviour_class.state_id,

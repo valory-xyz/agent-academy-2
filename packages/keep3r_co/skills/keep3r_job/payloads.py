@@ -29,6 +29,7 @@ class TransactionType(Enum):
     """Enumeration of transaction types."""
 
     PREPARE_TX = "prepare_tx"
+    SAFE_EXISTENCE = "safe_existence"
     IS_WORKABLE = "is_workable"
     JOB_SELECTION = "job_selection"
     IS_PROFITABLE = "is_profitable"
@@ -36,6 +37,34 @@ class TransactionType(Enum):
     def __str__(self) -> str:
         """Get the string value of the transaction type."""
         return self.value
+
+
+class SafeExistencePayload(BaseTxPayload):
+    """Represent a transaction payload of type 'safe_existence'."""
+
+    transaction_type = TransactionType.SAFE_EXISTENCE
+
+    def __init__(self, sender: str, safe_exists: bool, **kwargs: Any) -> None:
+        """Initialize an 'safe_existence' transaction payload.
+
+        :param sender: the sender (Ethereum) address
+        :param safe_exists: whether a safe contract exists
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._safe_exists = safe_exists
+
+    @property
+    def safe_exists(self) -> Optional[bool]:
+        """Get the safe_exists."""
+        return self._safe_exists
+
+    @property
+    def data(self) -> Dict:
+        """Get the data."""
+        return (
+            dict(safe_exists=self.safe_exists) if self.safe_exists is not None else {}
+        )
 
 
 class BaseAbciPayload(BaseTxPayload, ABC):
@@ -133,7 +162,7 @@ class TXHashPayload(BaseAbciPayload):
 class IsProfitablePayload(BaseAbciPayload):
     """Represent a transaction payload of type 'is_profitable'."""
 
-    # Why do I have to set this transaction type here if its not used anywhere else?
+    # Why do I have to set this transaction type here if it's not used anywhere else?
     transaction_type = TransactionType.IS_PROFITABLE
 
     def __init__(self, sender: str, is_profitable: bool, **kwargs: Any) -> None:
@@ -148,7 +177,7 @@ class IsProfitablePayload(BaseAbciPayload):
 
     @property
     def is_profitable(self) -> bool:
-        """Get whether the contract is workable."""
+        """Get whether the contract is profitable."""
         return self._is_profitable
 
     @property

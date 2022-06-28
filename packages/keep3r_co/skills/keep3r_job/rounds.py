@@ -26,6 +26,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
+    SafeExistencePayload,
     TXHashPayload,
     TransactionType,
 )
@@ -42,6 +43,7 @@ from packages.valory.skills.abstract_round_abci.base import (
 class Event(Enum):
     """Event enumeration for the simple abci demo."""
 
+    NEGATIVE = "negative"
     DONE = "done"
     NOT_WORKABLE = "not_workable"
     ROUND_TIMEOUT = "round_timeout"
@@ -56,6 +58,14 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
 
     This state is replicated by the tendermint application.
     """
+
+    @property
+    def safe_contract_address(self) -> str:
+        """Get the safe_contract_address."""
+        return cast(
+            str,
+            self.db.get_strict("safe_contract_address"),
+        )
 
     @property
     def most_voted_tx_hash(self) -> str:
@@ -203,6 +213,36 @@ class NothingToDoRound(DegenerateRound, ABC):
     round_id = "nothing_to_do"
 
 
+class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+    """A round in a which the safe address is validated"""
+
+    round_id = "check_safe_existence"
+    allowed_tx_type = SafeExistencePayload.transaction_type
+    payload_attribute = "safe_exists"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            state = self.period_state.update(
+                safe_exists=self.most_voted_payload,
+            )
+            safe_exists = self.most_voted_payload
+            if safe_exists:
+                return state, Event.DONE
+            return state, Event.NEGATIVE
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+            return self._return_no_majority_event()
+        return None
+
+
+class SafeNotDeployedRound(DegenerateRound, ABC):
+    """A round that represents that the period failed"""
+
+    round_id = "safe_not_deployed_round"
+
+
 class Keep3rJobAbciApp(AbciApp[Event]):
     """PrepareTxAbciApp
 
@@ -225,8 +265,12 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         reset timeout: 30.0
     """
 
-    initial_round_cls: Type[AbstractRound] = JobSelectionRound
+    initial_round_cls: Type[AbstractRound] = CheckSafeExistenceRound
     transition_function: AbciAppTransitionFunction = {
+        CheckSafeExistenceRound: {
+            Event.DONE: JobSelectionRound,  # To the last round of safe deployment abci
+            Event.NEGATIVE: SafeNotDeployedRound,  # To the 1st round of safe deployment abci
+        },
         JobSelectionRound: {
             Event.DONE: IsWorkableRound,
             Event.NOT_WORKABLE: NothingToDoRound,
@@ -250,11 +294,17 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.RESET_TIMEOUT: FailedRound,
             Event.NO_MAJORITY: FailedRound,
         },
-        NothingToDoRound: {},
+        SafeNotDeployedRound: {},
         FinishedPrepareTxRound: {},
         FailedRound: {},
+        NothingToDoRound: {},
     }
-    final_states = {FinishedPrepareTxRound, FailedRound, NothingToDoRound}
+    final_states = {
+        FinishedPrepareTxRound,
+        FailedRound,
+        NothingToDoRound,
+        SafeNotDeployedRound,
+    }
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
         Event.RESET_TIMEOUT: 30.0,

@@ -1,26 +1,34 @@
 alphabet_in:
 - DONE
+- NEGATIVE
 - NOT_PROFITABLE
 - NOT_WORKABLE
 - NO_MAJORITY
 - RESET_TIMEOUT
-default_start_state: JobSelectionRound
+default_start_state: CheckSafeExistenceRound
+#default_start_state: JobSelectionRound
 final_states:
 - FailedRound
 - FinishedPrepareTxRound
 - NothingToDoRound
+- SafeNotDeployedRound
 label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
 start_states:
-- JobSelectionRound
+- CheckSafeExistenceRound
+#- JobSelectionRound
 states:
+- CheckSafeExistenceRound
 - FailedRound
 - FinishedPrepareTxRound
 - IsProfitableRound
 - IsWorkableRound
-- JobSelectionRound
+#- JobSelectionRound
 - NothingToDoRound
 - PrepareTxRound
+- SafeNotDeployedRound
 transition_func:
+    (CheckSafeExistenceRound, DONE): PrepareTxRound
+    (CheckSafeExistenceRound, NEGATIVE): SafeNotDeployedRound
     (IsProfitableRound, DONE): PrepareTxRound
     (IsProfitableRound, NOT_PROFITABLE): NothingToDoRound
     (IsProfitableRound, NO_MAJORITY): FailedRound
@@ -29,10 +37,10 @@ transition_func:
     (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
     (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
-    (JobSelectionRound, DONE): IsWorkableRound
-    (JobSelectionRound, NOT_WORKABLE): NothingToDoRound
-    (JobSelectionRound, NO_MAJORITY): NothingToDoRound
-    (JobSelectionRound, RESET_TIMEOUT): NothingToDoRound
+#    (JobSelectionRound, DONE): IsWorkableRound
+#    (JobSelectionRound, NOT_WORKABLE): NothingToDoRound
+#    (JobSelectionRound, NO_MAJORITY): NothingToDoRound
+#    (JobSelectionRound, RESET_TIMEOUT): NothingToDoRound
     (PrepareTxRound, DONE): FinishedPrepareTxRound
     (PrepareTxRound, NO_MAJORITY): FailedRound
     (PrepareTxRound, RESET_TIMEOUT): FailedRound
