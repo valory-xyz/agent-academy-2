@@ -22,7 +22,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     CheckSafeExistenceRound,
     FailedRound,
     FinishedPrepareTxRound,
-    JobSelectionRound,
     Keep3rJobAbciApp,
     NothingToDoRound,
     SafeNotDeployedRound,

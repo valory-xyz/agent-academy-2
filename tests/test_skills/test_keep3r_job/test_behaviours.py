@@ -43,10 +43,10 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
     FinishedPrepareTxRound,
+    IsProfitableRound,
     NothingToDoRound,
     PeriodState,
     PrepareTxRound,
-    IsProfitableRound,
 )
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
@@ -93,6 +93,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
 
     @property
     def current_state(self) -> BaseState:
+        """Current state"""
         return cast(BaseState, self.abci_behaviour.current_state)
 
 
@@ -215,7 +216,6 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round()
-
         assert self.current_state.state_id == IsWorkableBehaviour.state_id
 
 
@@ -257,7 +257,6 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round()
-
         assert self.current_state.state_id == IsProfitableRound.round_id
 
     def test_is_workable_false(self) -> None:
@@ -334,7 +333,6 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round()
-
         assert self.current_state.state_id == PrepareTxRound.round_id
 
     def test_is_profitable_false(self) -> None:
