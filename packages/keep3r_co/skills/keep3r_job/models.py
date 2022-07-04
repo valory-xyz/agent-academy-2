@@ -62,7 +62,6 @@ class Params(BaseParams):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
-        self.job_contract_address = self._ensure("job_contract_address", kwargs)
         self.job_contract_addresses = self._ensure("job_contract_addresses", kwargs)
         super().__init__(*args, **kwargs)
 

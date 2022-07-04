@@ -138,7 +138,6 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
             job_selection = self.most_voted_payload
             state = self.period_state.update(job_selection=job_selection)
             if job_selection:
-                state = self.period_state.update(job_selection=job_selection)
                 return state, Event.DONE
             return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
@@ -278,7 +277,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.NO_MAJORITY: NothingToDoRound,
         },
         IsWorkableRound: {
-            Event.DONE: PrepareTxRound,
+            Event.DONE: IsProfitableRound,
             Event.NOT_WORKABLE: NothingToDoRound,
             Event.RESET_TIMEOUT: IsWorkableRound,
             Event.NO_MAJORITY: IsWorkableRound,

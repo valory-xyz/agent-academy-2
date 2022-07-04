@@ -26,8 +26,8 @@ from unittest import mock
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
-    SafeExistencePayload,
     JobSelectionPayload,
+    SafeExistencePayload,
     TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
