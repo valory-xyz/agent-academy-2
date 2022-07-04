@@ -40,7 +40,7 @@ transition_func:
     (IsProfitableRound, NOT_PROFITABLE): ResetAndPauseRound
     (IsProfitableRound, NO_MAJORITY): ResetAndPauseRound
     (IsProfitableRound, RESET_TIMEOUT): IsProfitableRound
-    (IsWorkableRound, DONE): PrepareTxRound
+    (IsWorkableRound, DONE): IsProfitableRound
     (IsWorkableRound, NOT_WORKABLE): ResetAndPauseRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
     (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound

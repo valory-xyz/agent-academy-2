@@ -139,7 +139,7 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
             state = self.period_state.update(job_selection=job_selection)
             if job_selection:
                 return state, Event.DONE
-            return state, Event.NOT_WORKABLE
+            return state, Event.NOT_WORKABLE  # NO_JOBS ?
         if not self.is_majority_possible(
             self.collection, self.period_state.nb_participants
         ):
@@ -180,16 +180,12 @@ class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         if self.threshold_reached:
             state = self.period_state.update(is_profitable=self.most_voted_payload)
             is_profitable = self.most_voted_payload
-
             if is_profitable:
                 return state, Event.DONE
-
             return state, Event.NOT_PROFITABLE
-
         if not self.is_majority_possible(
             self.collection, self.period_state.nb_participants
         ):
-
             return self._return_no_majority_event()
         return None
 
@@ -269,6 +265,8 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         CheckSafeExistenceRound: {
             Event.DONE: JobSelectionRound,  # To the last round of safe deployment abci
             Event.NEGATIVE: SafeNotDeployedRound,  # To the 1st round of safe deployment abci
+            Event.RESET_TIMEOUT: NothingToDoRound,
+            Event.NO_MAJORITY: CheckSafeExistenceRound,
         },
         JobSelectionRound: {
             Event.DONE: IsWorkableRound,

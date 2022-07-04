@@ -20,7 +20,7 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
-from typing import Any, Generator, Optional, Set, Type, cast
+from typing import Generator, Optional, Set, Type, cast
 
 from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
 from packages.keep3r_co.skills.keep3r_job.models import Params
@@ -125,9 +125,9 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
         job selection payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.state_id).local():
-            job_selection = self.current_job_contract
-            payload = JobSelectionPayload(self.context.agent_address, job_selection)
-            self.context.logger.info(f"Job contract selected : {job_selection}")
+            job_contract = self.current_job_contract
+            payload = JobSelectionPayload(self.context.agent_address, job_contract)
+            self.context.logger.info(f"Job contract selected : {job_contract}")
 
         with self.context.benchmark_tool.measure(self.state_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -282,7 +282,7 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
         self.set_done()
 
     def rewardMultiplier(self) -> Generator:
-        """Calls the contract to get the rewardMultiplier for the job."""
+        """Calls the contract to get the reward multiplier for the job."""
 
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
@@ -303,9 +303,9 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
 
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
-    """This behaviour manages the consensus stages for the preparetx abci app."""
+    """This behaviour manages the consensus stages for the Keep3rJobAbciApp."""
 
-    initial_state_cls = PrepareTxBehaviour  # type: ignore
+    initial_state_cls = CheckSafeExistenceBehaviour  # type: ignore
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
         CheckSafeExistenceBehaviour,  # type: ignore
