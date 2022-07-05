@@ -19,14 +19,14 @@
 
 """This module contains the class to connect to a Keep3r Job contract."""
 import logging
-from typing import Any, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea.crypto.base import LedgerApi
 from aea_ledger_ethereum import EthereumApi
-from web3.types import Wei
+from web3.types import Nonce, TxParams, Wei
 
 
 PUBLIC_ID = PublicId.from_str("gabrielfu/keep3r_job:0.1.0")
@@ -81,6 +81,72 @@ class Keep3rJobContract(Contract):
         contract = cls.get_instance(ethereum_api, contract_address)
         workable = contract.functions.workable().call()
         return workable
+
+    @classmethod
+    def work(  # pylint: disable=too-many-arguments,too-many-locals
+        cls,
+        ledger_api: EthereumApi,
+        job_contract_address: str,
+        sender_address: str,
+        gas: Optional[int] = None,
+        gas_price: Optional[int] = None,
+        max_fee_per_gas: Optional[int] = None,
+        max_priority_fee_per_gas: Optional[int] = None,
+        nonce: Optional[Nonce] = None,
+    ) -> Any:
+        """
+        Get the raw work transaction
+
+        :param ledger_api: the ledger API object
+        :param job_contract_address: the job contract address
+        :param sender_address: the address of the sender
+        :param gas: Gas
+        :param gas_price: gas price
+        :param max_fee_per_gas: max
+        :param max_priority_fee_per_gas: max
+        :param nonce: the nonce
+
+        :return: the transaction
+        """
+
+        ledger_api = cast(EthereumApi, ledger_api)
+        job_contract = cls.get_instance(ledger_api, job_contract_address)
+
+        tx_parameters = TxParams({"from": sender_address})
+
+        if gas_price is not None:
+            tx_parameters["gasPrice"] = Wei(gas_price)  # pragma: nocover
+
+        if max_fee_per_gas is not None:
+            tx_parameters["maxFeePerGas"] = Wei(max_fee_per_gas)  # pragma: nocover
+
+        if max_priority_fee_per_gas is not None:
+            tx_parameters["maxPriorityFeePerGas"] = Wei(  # pragma: nocover
+                max_priority_fee_per_gas
+            )
+
+        if (
+            gas_price is None
+            and max_fee_per_gas is None
+            and max_priority_fee_per_gas is None
+        ):
+            tx_parameters.update(ledger_api.try_get_gas_pricing())
+
+        if gas is not None:
+            tx_parameters["gas"] = Wei(gas)
+
+        if nonce is not None:
+            tx_parameters["nonce"] = Nonce(nonce)
+
+        work_transaction_dict = job_contract.functions.work().buildTransaction(
+            tx_parameters
+        )
+        # Auto estimation of gas does not work. We use a little more gas just in case
+        work_transaction_dict["gas"] = Wei(work_transaction_dict["gas"] + 50000)
+
+        result = dict(cast(Dict, work_transaction_dict))
+
+        return result
 
     @classmethod
     def rewardMultiplier(cls, ledger_api: LedgerApi, contract_address: str) -> dict:

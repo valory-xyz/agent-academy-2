@@ -1,0 +1,337 @@
+<svg width="936" height="963" viewBox="0 0 702 722.25" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="translate(1.414280030709056,704.8038953445728) scale(0.353570007677264)">
+<title>finite_state_machine</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1948.05 1981,-1948.05 1981,4 -4,4"/>
+<!-- 0 -->
+<g id="node1" class="node">
+<title>RegistrationStartupRound</title>
+<ellipse fill="none" stroke="black" cx="1441" cy="-1832.15" rx="111.78" ry="111.78"/>
+<text text-anchor="middle" x="1441" y="-1827.95" font-family="Times,serif" font-size="14.00">RegistrationStartupRound</text>
+</g>
+<!-- 2 -->
+<g id="node2" class="node">
+<title>CheckSafeExistenceRound</title>
+<ellipse fill="none" stroke="black" cx="657" cy="-1551.3" rx="116.32" ry="116.32"/>
+<text text-anchor="middle" x="657" y="-1547.1" font-family="Times,serif" font-size="14.00">CheckSafeExistenceRound</text>
+</g>
+<!-- 0&#45;&gt;2 -->
+<g id="edge1" class="edge">
+<title>RegistrationStartupRound-&gt;CheckSafeExistenceRound</title>
+<path fill="none" stroke="black" d="M1335.67,-1793.69C1190.05,-1741.9 927.99,-1648.69 775.63,-1594.5"/>
+<polygon fill="black" stroke="black" points="776.81,-1591.2 766.21,-1591.15 774.46,-1597.8 776.81,-1591.2"/>
+<text text-anchor="middle" x="1092.44" y="-1689.66" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- 1 -->
+<g id="edge2" class="edge">
+<title>RegistrationStartupRound-&gt;CheckSafeExistenceRound</title>
+<path fill="none" stroke="black" d="M1340.76,-1781.86C1277.27,-1751.74 1192.91,-1713.7 1116,-1685.46 1003.91,-1644.31 872.8,-1607.34 779.47,-1582.86"/>
+<polygon fill="black" stroke="black" points="780.26,-1579.45 769.7,-1580.31 778.49,-1586.23 780.26,-1579.45"/>
+<text text-anchor="middle" x="1208.62" y="-1689.66" font-family="Times,serif" font-size="14.00">FAST_FORWARD</text>
+</g>
+<!-- 0&#45;&gt;1 -->
+<g id="node4" class="node">
+<title>RandomnessSafeRound</title>
+<ellipse fill="none" stroke="black" cx="513" cy="-1279.04" rx="103.11" ry="103.11"/>
+<text text-anchor="middle" x="513" y="-1274.84" font-family="Times,serif" font-size="14.00">RandomnessSafeRound</text>
+</g>
+<!-- 3 -->
+<g id="edge19" class="edge">
+<title>CheckSafeExistenceRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M602.76,-1448.51C590.73,-1425.92 577.98,-1402.01 566,-1379.51"/>
+<polygon fill="black" stroke="black" points="569.06,-1377.82 561.27,-1370.64 562.88,-1381.11 569.06,-1377.82"/>
+<text text-anchor="middle" x="620.38" y="-1404.54" font-family="Times,serif" font-size="14.00">NEGATIVE</text>
+</g>
+<!-- 4 -->
+<g id="node8" class="node">
+<title>JobSelectionRound</title>
+<ellipse fill="none" stroke="black" cx="994" cy="-1279.04" rx="86.28" ry="86.28"/>
+<text text-anchor="middle" x="994" y="-1274.84" font-family="Times,serif" font-size="14.00">JobSelectionRound</text>
+</g>
+<!-- 8 -->
+<g id="edge18" class="edge">
+<title>CheckSafeExistenceRound-&gt;JobSelectionRound</title>
+<path fill="none" stroke="black" d="M750.37,-1481.71C790.21,-1451.83 836.89,-1416.01 878,-1382.34 892.77,-1370.24 908.28,-1356.97 922.99,-1344.11"/>
+<polygon fill="black" stroke="black" points="925.39,-1346.66 930.6,-1337.44 920.77,-1341.4 925.39,-1346.66"/>
+<text text-anchor="middle" x="874.44" y="-1404.54" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- 6 -->
+<g id="node3" class="node">
+<title>RegistrationRound</title>
+<ellipse fill="none" stroke="black" cx="84" cy="-84" rx="83.99" ry="83.99"/>
+<text text-anchor="middle" x="84" y="-79.8" font-family="Times,serif" font-size="14.00">RegistrationRound</text>
+</g>
+<!-- 8&#45;&gt;6 -->
+<g id="edge3" class="edge">
+<title>RegistrationRound-&gt;CheckSafeExistenceRound</title>
+<path fill="none" stroke="black" d="M75.53,-167.65C71.69,-211.95 68,-267.5 68,-317.2 68,-1280.04 68,-1280.04 68,-1280.04 68,-1481.91 357.33,-1533.57 530.43,-1546.41"/>
+<polygon fill="black" stroke="black" points="530.41,-1549.92 540.63,-1547.13 530.9,-1542.93 530.41,-1549.92"/>
+<text text-anchor="middle" x="87.44" y="-772.71" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- 5 -->
+<g id="edge5" class="edge">
+<title>RandomnessSafeRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M616.09,-1289.06C627.17,-1287.13 634.3,-1283.79 634.3,-1279.04 634.3,-1275.92 631.23,-1273.41 625.99,-1271.51"/>
+<polygon fill="black" stroke="black" points="626.65,-1268.06 616.09,-1269.02 624.94,-1274.85 626.65,-1268.06"/>
+<text text-anchor="middle" x="694.18" y="-1274.84" font-family="Times,serif" font-size="14.00">ROUND_TIMEOUT</text>
+</g>
+<!-- 8&#45;&gt;5 -->
+<g id="edge6" class="edge">
+<title>RandomnessSafeRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M613.85,-1301.83C681.1,-1306.23 754.07,-1298.63 754.07,-1279.04 754.07,-1260.44 688.32,-1252.65 624.13,-1255.67"/>
+<polygon fill="black" stroke="black" points="623.64,-1252.19 613.85,-1256.25 624.03,-1259.18 623.64,-1252.19"/>
+<text text-anchor="middle" x="803.07" y="-1274.84" font-family="Times,serif" font-size="14.00">NO_MAJORITY</text>
+</g>
+<!-- 2&#45;&gt;4 -->
+<g id="node5" class="node">
+<title>SelectKeeperSafeRound</title>
+<ellipse fill="none" stroke="black" cx="316" cy="-1017.51" rx="105.35" ry="105.35"/>
+<text text-anchor="middle" x="316" y="-1013.31" font-family="Times,serif" font-size="14.00">SelectKeeperSafeRound</text>
+</g>
+<!-- 2&#45;&gt;6 -->
+<g id="edge4" class="edge">
+<title>RandomnessSafeRound-&gt;SelectKeeperSafeRound</title>
+<path fill="none" stroke="black" d="M454.18,-1194.08C441.45,-1176.38 427.93,-1157.93 415,-1140.93 406.74,-1130.08 397.94,-1118.8 389.13,-1107.69"/>
+<polygon fill="black" stroke="black" points="391.68,-1105.27 382.71,-1099.63 386.2,-1109.63 391.68,-1105.27"/>
+<text text-anchor="middle" x="445.44" y="-1145.13" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- 2&#45;&gt;5 -->
+<g id="edge8" class="edge">
+<title>SelectKeeperSafeRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M230.16,-1078.88C193.72,-1108.12 162.09,-1140.54 174.23,-1157.73 224.87,-1229.46 322.16,-1258.68 399.54,-1270.46"/>
+<polygon fill="black" stroke="black" points="399.43,-1273.98 409.83,-1271.94 400.43,-1267.05 399.43,-1273.98"/>
+<text text-anchor="middle" x="234.88" y="-1145.13" font-family="Times,serif" font-size="14.00">ROUND_TIMEOUT</text>
+</g>
+<!-- 1&#45;&gt;3 -->
+<g id="edge9" class="edge">
+<title>SelectKeeperSafeRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M301.53,-1121.98C303.26,-1134.55 306.81,-1146.79 313,-1157.73 333.59,-1194.15 370.1,-1220.76 406.35,-1239.55"/>
+<polygon fill="black" stroke="black" points="405.04,-1242.81 415.55,-1244.16 408.18,-1236.55 405.04,-1242.81"/>
+<text text-anchor="middle" x="362" y="-1145.13" font-family="Times,serif" font-size="14.00">NO_MAJORITY</text>
+</g>
+<!-- 6&#45;&gt;6 -->
+<g id="node6" class="node">
+<title>DeploySafeRound</title>
+<ellipse fill="none" stroke="black" cx="328" cy="-776.91" rx="82.26" ry="82.26"/>
+<text text-anchor="middle" x="328" y="-772.71" font-family="Times,serif" font-size="14.00">DeploySafeRound</text>
+</g>
+<!-- 6&#45;&gt;5 -->
+<g id="edge7" class="edge">
+<title>SelectKeeperSafeRound-&gt;DeploySafeRound</title>
+<path fill="none" stroke="black" d="M359.79,-921.41C362.7,-912.31 365.19,-903.12 367,-894.09 369.17,-883.22 368.84,-871.97 366.95,-860.95"/>
+<polygon fill="black" stroke="black" points="370.31,-859.94 364.79,-850.9 363.47,-861.41 370.31,-859.94"/>
+<text text-anchor="middle" x="388.44" y="-881.49" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- 5&#45;&gt;5 -->
+<g id="edge11" class="edge">
+<title>DeploySafeRound-&gt;SelectKeeperSafeRound</title>
+<path fill="none" stroke="black" d="M250.76,-806.36C219.47,-822.16 186.57,-845.23 168.79,-877.29 159.15,-894.66 186.68,-923.8 220.44,-950.95"/>
+<polygon fill="black" stroke="black" points="218.65,-953.99 228.67,-957.43 222.98,-948.49 218.65,-953.99"/>
+<text text-anchor="middle" x="231.6" y="-881.49" font-family="Times,serif" font-size="14.00">DEPLOY_TIMEOUT</text>
+</g>
+<!-- 7 -->
+<g id="edge12" class="edge">
+<title>DeploySafeRound-&gt;SelectKeeperSafeRound</title>
+<path fill="none" stroke="black" d="M315.01,-858.34C314.29,-864.74 313.68,-871.11 313.22,-877.29 312.63,-885.26 312.24,-893.49 312.01,-901.79"/>
+<polygon fill="black" stroke="black" points="308.51,-901.85 311.8,-911.92 315.51,-902 308.51,-901.85"/>
+<text text-anchor="middle" x="338.88" y="-881.49" font-family="Times,serif" font-size="14.00">FAILED</text>
+</g>
+<!-- 5&#45;&gt;7 -->
+<g id="node7" class="node">
+<title>ValidateSafeRound</title>
+<ellipse fill="none" stroke="black" cx="498" cy="-555.07" rx="86.82" ry="86.82"/>
+<text text-anchor="middle" x="498" y="-550.87" font-family="Times,serif" font-size="14.00">ValidateSafeRound</text>
+</g>
+<!-- 7&#45;&gt;8 -->
+<g id="edge10" class="edge">
+<title>DeploySafeRound-&gt;ValidateSafeRound</title>
+<path fill="none" stroke="black" d="M367.63,-704.51C377.02,-689.3 387.42,-673.65 398.11,-659.73 407.48,-647.53 418.11,-635.21 428.86,-623.53"/>
+<polygon fill="black" stroke="black" points="431.67,-625.65 435.93,-615.96 426.55,-620.88 431.67,-625.65"/>
+<text text-anchor="middle" x="418.44" y="-663.93" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- 7&#45;&gt;5 -->
+<g id="edge13" class="edge">
+<title>ValidateSafeRound-&gt;CheckSafeExistenceRound</title>
+<path fill="none" stroke="black" d="M412.43,-569.35C305.11,-591.43 135,-646.79 135,-775.91 135,-1280.04 135,-1280.04 135,-1280.04 135,-1457.79 376.63,-1518.77 531.1,-1539.6"/>
+<polygon fill="black" stroke="black" points="530.78,-1543.08 541.15,-1540.91 531.69,-1536.14 530.78,-1543.08"/>
+<text text-anchor="middle" x="154.44" y="-1013.31" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- ValidateSafeRound&#45;&gt;RandomnessSafeRound -->
+<g id="edge14" class="edge">
+<title>ValidateSafeRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M482.62,-640.59C471.69,-705.17 457.96,-796.51 452.24,-877.29 445.19,-976.74 464.56,-1088.87 483.26,-1169.18"/>
+<polygon fill="black" stroke="black" points="479.94,-1170.37 485.65,-1179.3 486.76,-1168.76 479.94,-1170.37"/>
+<text text-anchor="middle" x="488.38" y="-881.49" font-family="Times,serif" font-size="14.00">NEGATIVE</text>
+</g>
+<!-- ValidateSafeRound&#45;&gt;RandomnessSafeRound -->
+<g id="edge15" class="edge">
+<title>ValidateSafeRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M506.46,-641.52C512.43,-706.18 519.89,-797.22 523,-877.29 526.78,-974.66 523.43,-1085.39 519.62,-1165.75"/>
+<polygon fill="black" stroke="black" points="516.12,-1165.73 519.13,-1175.89 523.11,-1166.07 516.12,-1165.73"/>
+<text text-anchor="middle" x="543.44" y="-881.49" font-family="Times,serif" font-size="14.00">NONE</text>
+</g>
+<!-- ValidateSafeRound&#45;&gt;RandomnessSafeRound -->
+<g id="edge16" class="edge">
+<title>ValidateSafeRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M518.53,-639.39C522.81,-657.53 527.18,-676.64 531,-694.53 548.27,-775.49 558.96,-794.89 567,-877.29 579.18,-1002.14 553.85,-1033.7 535,-1157.73 534.51,-1160.93 534,-1164.18 533.48,-1167.45"/>
+<polygon fill="black" stroke="black" points="530.02,-1166.92 531.87,-1177.35 536.93,-1168.04 530.02,-1166.92"/>
+<text text-anchor="middle" x="639.37" y="-881.49" font-family="Times,serif" font-size="14.00">VALIDATE_TIMEOUT</text>
+</g>
+<!-- ValidateSafeRound&#45;&gt;RandomnessSafeRound -->
+<g id="edge17" class="edge">
+<title>ValidateSafeRound-&gt;RandomnessSafeRound</title>
+<path fill="none" stroke="black" d="M557.13,-618.91C609.9,-679.66 683.42,-777.01 714,-877.29 750.01,-995.39 664.21,-1121 593.74,-1199.47"/>
+<polygon fill="black" stroke="black" points="591.11,-1197.16 586.97,-1206.92 596.29,-1201.87 591.11,-1197.16"/>
+<text text-anchor="middle" x="767" y="-881.49" font-family="Times,serif" font-size="14.00">NO_MAJORITY</text>
+</g>
+<!-- IsWorkableRound -->
+<g id="node9" class="node">
+<title>IsWorkableRound</title>
+<ellipse fill="none" stroke="black" cx="994" cy="-1017.51" rx="81.67" ry="81.67"/>
+<text text-anchor="middle" x="994" y="-1013.31" font-family="Times,serif" font-size="14.00">IsWorkableRound</text>
+</g>
+<!-- JobSelectionRound&#45;&gt;IsWorkableRound -->
+<g id="edge20" class="edge">
+<title>JobSelectionRound-&gt;IsWorkableRound</title>
+<path fill="none" stroke="black" d="M994,-1192.7C994,-1166.1 994,-1136.68 994,-1109.7"/>
+<polygon fill="black" stroke="black" points="997.5,-1109.49 994,-1099.49 990.5,-1109.49 997.5,-1109.49"/>
+<text text-anchor="middle" x="1013.44" y="-1145.13" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- ResetAndPauseRound -->
+<g id="node10" class="node">
+<title>ResetAndPauseRound</title>
+<ellipse fill="none" stroke="black" cx="1164" cy="-318.2" rx="97.31" ry="97.31"/>
+<text text-anchor="middle" x="1164" y="-314" font-family="Times,serif" font-size="14.00">ResetAndPauseRound</text>
+</g>
+<!-- JobSelectionRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge21" class="edge">
+<title>JobSelectionRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M1079.16,-1263.88C1158.48,-1245.84 1272.95,-1206.32 1331,-1122.93 1440.09,-966.2 1285.54,-868.67 1363.9,-694.53 1377.3,-664.75 1402.75,-672 1415,-641.73 1443.89,-570.32 1453.09,-535.36 1415,-468.41 1383.07,-412.28 1320.77,-375.07 1266.23,-351.84"/>
+<polygon fill="black" stroke="black" points="1267.42,-348.55 1256.85,-347.95 1264.74,-355.01 1267.42,-348.55"/>
+<text text-anchor="middle" x="1420.54" y="-772.71" font-family="Times,serif" font-size="14.00">NOT_WORKABLE</text>
+</g>
+<!-- JobSelectionRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge22" class="edge">
+<title>JobSelectionRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M1080,-1272.42C1224.65,-1257.79 1501,-1205.4 1501,-1018.51 1501,-1018.51 1501,-1018.51 1501,-554.07 1501,-439.16 1367.48,-375.85 1268.53,-344.71"/>
+<polygon fill="black" stroke="black" points="1269.35,-341.31 1258.77,-341.71 1267.3,-348 1269.35,-341.31"/>
+<text text-anchor="middle" x="1557.38" y="-772.71" font-family="Times,serif" font-size="14.00">RESET_TIMEOUT</text>
+</g>
+<!-- JobSelectionRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge23" class="edge">
+<title>JobSelectionRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M945,-1207.9C929.23,-1182.23 913.21,-1152.27 903,-1122.93 840.16,-942.44 840.89,-883.98 866,-694.53 879.67,-591.34 874.11,-558.06 927,-468.41 957.4,-416.86 1013.36,-380.39 1063.27,-356.41"/>
+<polygon fill="black" stroke="black" points="1064.94,-359.49 1072.51,-352.08 1061.97,-353.15 1064.94,-359.49"/>
+<text text-anchor="middle" x="915" y="-772.71" font-family="Times,serif" font-size="14.00">NO_MAJORITY</text>
+</g>
+<!-- IsWorkableRound&#45;&gt;IsWorkableRound -->
+<g id="edge26" class="edge">
+<title>IsWorkableRound-&gt;IsWorkableRound</title>
+<path fill="none" stroke="black" d="M1075.47,-1028.32C1086.5,-1026.51 1093.83,-1022.9 1093.83,-1017.51 1093.83,-1013.97 1090.67,-1011.2 1085.39,-1009.2"/>
+<polygon fill="black" stroke="black" points="1086.03,-1005.75 1075.47,-1006.7 1084.31,-1012.54 1086.03,-1005.75"/>
+<text text-anchor="middle" x="1150.22" y="-1013.31" font-family="Times,serif" font-size="14.00">RESET_TIMEOUT</text>
+</g>
+<!-- IsWorkableRound&#45;&gt;IsWorkableRound -->
+<g id="edge27" class="edge">
+<title>IsWorkableRound-&gt;IsWorkableRound</title>
+<path fill="none" stroke="black" d="M1072.89,-1039.85C1134.6,-1045.9 1206.6,-1038.46 1206.6,-1017.51 1206.6,-997.71 1142.26,-989.97 1083.09,-994.3"/>
+<polygon fill="black" stroke="black" points="1082.56,-990.83 1072.89,-995.17 1083.15,-997.81 1082.56,-990.83"/>
+<text text-anchor="middle" x="1255.6" y="-1013.31" font-family="Times,serif" font-size="14.00">NO_MAJORITY</text>
+</g>
+<!-- IsWorkableRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge25" class="edge">
+<title>IsWorkableRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M996.48,-935.54C997.45,-853.11 994.07,-732.24 968,-694.53 957.35,-679.12 939.92,-692.35 929.9,-676.53 925.9,-670.22 929.39,-667.18 929.9,-659.73 935.71,-574.11 916.69,-544.69 956,-468.41 979.51,-422.77 1024.17,-387.93 1066.09,-363.44"/>
+<polygon fill="black" stroke="black" points="1068.03,-366.37 1074.99,-358.38 1064.57,-360.29 1068.03,-366.37"/>
+<text text-anchor="middle" x="987.54" y="-663.93" font-family="Times,serif" font-size="14.00">NOT_WORKABLE</text>
+</g>
+<!-- IsProfitableRound -->
+<g id="node11" class="node">
+<title>IsProfitableRound</title>
+<ellipse fill="none" stroke="black" cx="1102" cy="-776.91" rx="81.69" ry="81.69"/>
+<text text-anchor="middle" x="1102" y="-772.71" font-family="Times,serif" font-size="14.00">IsProfitableRound</text>
+</g>
+<!-- IsWorkableRound&#45;&gt;IsProfitableRound -->
+<g id="edge24" class="edge">
+<title>IsWorkableRound-&gt;IsProfitableRound</title>
+<path fill="none" stroke="black" d="M1027.43,-942.65C1039.12,-916.81 1052.33,-887.64 1064.34,-861.1"/>
+<polygon fill="black" stroke="black" points="1067.6,-862.38 1068.54,-851.83 1061.22,-859.5 1067.6,-862.38"/>
+<text text-anchor="middle" x="1074.44" y="-881.49" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- ResetAndPauseRound&#45;&gt;RegistrationStartupRound -->
+<g id="edge36" class="edge">
+<title>ResetAndPauseRound-&gt;RegistrationStartupRound</title>
+<path fill="none" stroke="black" d="M1261.3,-324.6C1401.06,-338.2 1642,-386.02 1642,-554.07 1642,-1552.3 1642,-1552.3 1642,-1552.3 1642,-1631.67 1587.75,-1703.83 1535.62,-1754.86"/>
+<polygon fill="black" stroke="black" points="1533.06,-1752.46 1528.28,-1761.91 1537.91,-1757.5 1533.06,-1752.46"/>
+<text text-anchor="middle" x="1742.72" y="-1013.31" font-family="Times,serif" font-size="14.00">RESET_AND_PAUSE_TIMEOUT</text>
+</g>
+<!-- ResetAndPauseRound&#45;&gt;RegistrationStartupRound -->
+<g id="edge37" class="edge">
+<title>ResetAndPauseRound-&gt;RegistrationStartupRound</title>
+<path fill="none" stroke="black" d="M1260.8,-330.42C1456.13,-355.75 1879,-425.45 1879,-554.07 1879,-1552.3 1879,-1552.3 1879,-1552.3 1879,-1703.63 1690.64,-1776.4 1560.97,-1808.57"/>
+<polygon fill="black" stroke="black" points="1559.85,-1805.24 1550.96,-1811 1561.5,-1812.04 1559.85,-1805.24"/>
+<text text-anchor="middle" x="1928" y="-1013.31" font-family="Times,serif" font-size="14.00">NO_MAJORITY</text>
+</g>
+<!-- ResetAndPauseRound&#45;&gt;RegistrationRound -->
+<g id="edge35" class="edge">
+<title>ResetAndPauseRound-&gt;RegistrationRound</title>
+<path fill="none" stroke="black" d="M1068.63,-296.69C862.81,-252.44 379.24,-148.47 176.26,-104.83"/>
+<polygon fill="black" stroke="black" points="176.73,-101.35 166.22,-102.67 175.26,-108.2 176.73,-101.35"/>
+<text text-anchor="middle" x="643.44" y="-190.19" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- IsProfitableRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge29" class="edge">
+<title>IsProfitableRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M1171.4,-732.65C1202.74,-709.51 1237.3,-678.25 1258,-641.73 1300.54,-566.66 1283.64,-536.38 1291,-450.41 1291.63,-442.97 1294.03,-440.43 1291,-433.61 1282.1,-413.62 1267.8,-395.66 1251.94,-380.22"/>
+<polygon fill="black" stroke="black" points="1254.25,-377.58 1244.56,-373.3 1249.46,-382.69 1254.25,-377.58"/>
+<text text-anchor="middle" x="1350.28" y="-550.87" font-family="Times,serif" font-size="14.00">NOT_PROFITABLE</text>
+</g>
+<!-- IsProfitableRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge30" class="edge">
+<title>IsProfitableRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M1077.9,-698.34C1070.52,-683.96 1061.05,-670.19 1049,-659.73 1027.65,-641.2 1004.92,-664.37 988,-641.73 941.87,-580.03 960.01,-540.18 988,-468.41 1003.49,-428.67 1036.54,-396.17 1069.87,-371.77"/>
+<polygon fill="black" stroke="black" points="1072.22,-374.39 1078.33,-365.74 1068.16,-368.69 1072.22,-374.39"/>
+<text text-anchor="middle" x="1037" y="-550.87" font-family="Times,serif" font-size="14.00">NO_MAJORITY</text>
+</g>
+<!-- IsProfitableRound&#45;&gt;IsProfitableRound -->
+<g id="edge31" class="edge">
+<title>IsProfitableRound-&gt;IsProfitableRound</title>
+<path fill="none" stroke="black" d="M1181.9,-795.28C1193.8,-792.42 1201.84,-786.29 1201.84,-776.91 1201.84,-770.31 1197.87,-765.32 1191.37,-761.95"/>
+<polygon fill="black" stroke="black" points="1192.5,-758.63 1181.9,-758.54 1190.12,-765.22 1192.5,-758.63"/>
+<text text-anchor="middle" x="1258.23" y="-772.71" font-family="Times,serif" font-size="14.00">RESET_TIMEOUT</text>
+</g>
+<!-- PrepareTxRound -->
+<g id="node12" class="node">
+<title>PrepareTxRound</title>
+<ellipse fill="none" stroke="black" cx="1172" cy="-555.07" rx="77.02" ry="77.02"/>
+<text text-anchor="middle" x="1172" y="-550.87" font-family="Times,serif" font-size="14.00">PrepareTxRound</text>
+</g>
+<!-- IsProfitableRound&#45;&gt;PrepareTxRound -->
+<g id="edge28" class="edge">
+<title>IsProfitableRound-&gt;PrepareTxRound</title>
+<path fill="none" stroke="black" d="M1126.58,-698.71C1132.81,-679.15 1139.52,-658.06 1145.83,-638.26"/>
+<polygon fill="black" stroke="black" points="1149.18,-639.25 1148.88,-628.66 1142.51,-637.12 1149.18,-639.25"/>
+<text text-anchor="middle" x="1156.44" y="-663.93" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- PrepareTxRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge32" class="edge">
+<title>PrepareTxRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M1142.54,-483.6C1139.05,-472.65 1136.05,-461.35 1134.11,-450.41 1132.44,-440.93 1132.07,-431.11 1132.64,-421.29"/>
+<polygon fill="black" stroke="black" points="1136.15,-421.36 1133.56,-411.08 1129.18,-420.73 1136.15,-421.36"/>
+<text text-anchor="middle" x="1154.44" y="-437.81" font-family="Times,serif" font-size="14.00">DONE</text>
+</g>
+<!-- PrepareTxRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge33" class="edge">
+<title>PrepareTxRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M1172.81,-477.92C1172.89,-468.65 1172.95,-459.31 1173,-450.41 1173.03,-442.94 1173.29,-441.07 1173,-433.61 1172.89,-430.9 1172.77,-428.16 1172.64,-425.39"/>
+<polygon fill="black" stroke="black" points="1176.13,-425.1 1172.11,-415.3 1169.14,-425.47 1176.13,-425.1"/>
+<text text-anchor="middle" x="1230.38" y="-437.81" font-family="Times,serif" font-size="14.00">RESET_TIMEOUT</text>
+</g>
+<!-- PrepareTxRound&#45;&gt;ResetAndPauseRound -->
+<g id="edge34" class="edge">
+<title>PrepareTxRound-&gt;ResetAndPauseRound</title>
+<path fill="none" stroke="black" d="M1119.67,-498.03C1107.7,-487.21 1094.5,-476.69 1081,-468.41 1060.87,-456.05 1044.58,-469.73 1031,-450.41 1009.59,-419.95 1034.11,-390.43 1067.68,-367.13"/>
+<polygon fill="black" stroke="black" points="1070,-369.79 1076.39,-361.34 1066.12,-363.96 1070,-369.79"/>
+<text text-anchor="middle" x="1080" y="-437.81" font-family="Times,serif" font-size="14.00">NO_MAJORITY</text>
+</g>
+</g>
+</svg>

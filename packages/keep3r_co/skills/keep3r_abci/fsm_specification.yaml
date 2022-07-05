@@ -1,30 +1,46 @@
 alphabet_in:
+- DEPLOY_TIMEOUT
 - DONE
+- FAILED
 - FAST_FORWARD
+- NEGATIVE
+- NONE
 - NOT_PROFITABLE
 - NOT_WORKABLE
 - NO_MAJORITY
 - RESET_AND_PAUSE_TIMEOUT
 - RESET_TIMEOUT
+- ROUND_TIMEOUT
+- VALIDATE_TIMEOUT
 default_start_state: RegistrationStartupRound
 final_states: []
 label: packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp
 start_states:
 - RegistrationStartupRound
 states:
+- CheckSafeExistenceRound
+- DeploySafeRound
 - IsProfitableRound
 - IsWorkableRound
 - JobSelectionRound
 - PrepareTxRound
+- RandomnessSafeRound
 - RegistrationRound
 - RegistrationStartupRound
 - ResetAndPauseRound
+- SelectKeeperSafeRound
+- ValidateSafeRound
 transition_func:
+    (CheckSafeExistenceRound, DONE): JobSelectionRound
+    (CheckSafeExistenceRound, NEGATIVE): RandomnessSafeRound
+    (DeploySafeRound, DEPLOY_TIMEOUT): SelectKeeperSafeRound
+    (DeploySafeRound, DONE): ValidateSafeRound
+    (DeploySafeRound, FAILED): SelectKeeperSafeRound
     (IsProfitableRound, DONE): PrepareTxRound
     (IsProfitableRound, NOT_PROFITABLE): ResetAndPauseRound
     (IsProfitableRound, NO_MAJORITY): ResetAndPauseRound
     (IsProfitableRound, RESET_TIMEOUT): IsProfitableRound
-    (IsWorkableRound, DONE): PrepareTxRound
+    (IsWorkableRound, DONE): IsProfitableRound
     (IsWorkableRound, NOT_WORKABLE): ResetAndPauseRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
     (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
@@ -35,10 +51,20 @@ transition_func:
     (PrepareTxRound, DONE): ResetAndPauseRound
     (PrepareTxRound, NO_MAJORITY): ResetAndPauseRound
     (PrepareTxRound, RESET_TIMEOUT): ResetAndPauseRound
-    (RegistrationRound, DONE): JobSelectionRound
-    (RegistrationStartupRound, DONE): JobSelectionRound
-    (RegistrationStartupRound, FAST_FORWARD): JobSelectionRound
+    (RandomnessSafeRound, DONE): SelectKeeperSafeRound
+    (RandomnessSafeRound, NO_MAJORITY): RandomnessSafeRound
+    (RandomnessSafeRound, ROUND_TIMEOUT): RandomnessSafeRound
+    (RegistrationRound, DONE): CheckSafeExistenceRound
+    (RegistrationStartupRound, DONE): CheckSafeExistenceRound
+    (RegistrationStartupRound, FAST_FORWARD): CheckSafeExistenceRound
     (ResetAndPauseRound, DONE): RegistrationRound
     (ResetAndPauseRound, NO_MAJORITY): RegistrationStartupRound
     (ResetAndPauseRound, RESET_AND_PAUSE_TIMEOUT): RegistrationStartupRound
-
+    (SelectKeeperSafeRound, DONE): DeploySafeRound
+    (SelectKeeperSafeRound, NO_MAJORITY): RandomnessSafeRound
+    (SelectKeeperSafeRound, ROUND_TIMEOUT): RandomnessSafeRound
+    (ValidateSafeRound, DONE): CheckSafeExistenceRound
+    (ValidateSafeRound, NEGATIVE): RandomnessSafeRound
+    (ValidateSafeRound, NONE): RandomnessSafeRound
+    (ValidateSafeRound, NO_MAJORITY): RandomnessSafeRound
+    (ValidateSafeRound, VALIDATE_TIMEOUT): RandomnessSafeRound
