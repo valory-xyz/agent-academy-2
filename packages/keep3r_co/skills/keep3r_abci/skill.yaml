@@ -12,7 +12,7 @@ fingerprint:
   behaviours.py: QmWvaH9qpiGm6aLScfU48NJo4svN4c2S1trZDdGAAWte4L
   composition.py: Qme6h3zstouHhWoqUsxtUWcC5YVajJgTrJYsbz8LhpzNVm
   dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmTvnKKybj9BhsabyBxkZbacZ4RwUsYVfrcbaKD6TNutf1
+  fsm_specification.yaml: QmXpoFeSzXZTvArXkRj246L3NMKgHTnXxtdWccnsmcv73u
   handlers.py: QmfKibZHU7Lwrw1vF9UGC6NzzqjaoqWjWNSj8HKecv2s6E
   models.py: QmbxipCZadt2WZWi9oo9eNLMyWsT6KSY1DxSC2aEdSAawg
   payloads.py: QmaUoHrEBzhAzam6uyN3GGLYTJEBVbW9kCPkcTYVrepR1F
@@ -73,13 +73,14 @@ models:
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-      job_contract_address: '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      job_contract_addresses:
+      - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
       period_setup:
         safe_contract_address: null
-      profitablity_threshold: 500
+      profitability_threshold: 500
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3

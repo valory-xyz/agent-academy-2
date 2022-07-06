@@ -25,6 +25,7 @@ from typing import Dict, Optional, Tuple, Type, cast
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
+    JobSelectionPayload,
     SafeExistencePayload,
     TXHashPayload,
     TransactionType,
@@ -74,6 +75,14 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
             self.db.get_strict("most_voted_tx_hash"),
         )
 
+    @property
+    def job_selection(self) -> str:
+        """Get the job_selection."""
+        return cast(
+            str,
+            self.db.get_strict("job_selection"),
+        )
+
 
 class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
     """Abstract round for the simple abci skill."""
@@ -116,6 +125,28 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
+class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+    """Handle the keep3r job selection."""
+
+    round_id = "job_selection"
+    allowed_tx_type = JobSelectionPayload.transaction_type
+    payload_attribute = "job_selection"
+
+    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+        """Process the end of the block."""
+        if self.threshold_reached:
+            job_selection = self.most_voted_payload
+            state = self.period_state.update(job_selection=job_selection)
+            if job_selection:
+                return state, Event.DONE
+            return state, Event.NOT_WORKABLE  # NO_JOBS ?
+        if not self.is_majority_possible(
+            self.collection, self.period_state.nb_participants
+        ):
+            return self._return_no_majority_event()
+        return None
+
+
 class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     """A round in a which tx hash is prepared is selected"""
 
@@ -149,16 +180,12 @@ class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         if self.threshold_reached:
             state = self.period_state.update(is_profitable=self.most_voted_payload)
             is_profitable = self.most_voted_payload
-
             if is_profitable:
                 return state, Event.DONE
-
             return state, Event.NOT_PROFITABLE
-
         if not self.is_majority_possible(
             self.collection, self.period_state.nb_participants
         ):
-
             return self._return_no_majority_event()
         return None
 
@@ -236,11 +263,19 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     initial_round_cls: Type[AbstractRound] = CheckSafeExistenceRound
     transition_function: AbciAppTransitionFunction = {
         CheckSafeExistenceRound: {
-            Event.DONE: PrepareTxRound,  # To the last round of safe deployment abci
+            Event.DONE: JobSelectionRound,  # To the last round of safe deployment abci
             Event.NEGATIVE: SafeNotDeployedRound,  # To the 1st round of safe deployment abci
+            Event.RESET_TIMEOUT: NothingToDoRound,
+            Event.NO_MAJORITY: CheckSafeExistenceRound,
+        },
+        JobSelectionRound: {
+            Event.DONE: IsWorkableRound,
+            Event.NOT_WORKABLE: NothingToDoRound,
+            Event.RESET_TIMEOUT: NothingToDoRound,
+            Event.NO_MAJORITY: NothingToDoRound,
         },
         IsWorkableRound: {
-            Event.DONE: PrepareTxRound,
+            Event.DONE: IsProfitableRound,
             Event.NOT_WORKABLE: NothingToDoRound,
             Event.RESET_TIMEOUT: IsWorkableRound,
             Event.NO_MAJORITY: IsWorkableRound,

@@ -23,12 +23,14 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, Type, cast
 
+import pytest
 from aea.helpers.transaction.base import RawTransaction
 
 from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     IsProfitableBehaviour,
     IsWorkableBehaviour,
+    JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
     PrepareTxBehaviour,
 )
@@ -41,6 +43,7 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
     FinishedPrepareTxRound,
+    IsProfitableRound,
     NothingToDoRound,
     PeriodState,
     PrepareTxRound,
@@ -60,6 +63,7 @@ from tests.test_skills.test_simple_abci.test_behaviours import FSMBehaviourBaseC
 
 
 AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
+SOME_CONTRACT_ADDRESS = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
 
 
 class DummyRoundId:
@@ -87,32 +91,36 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     benchmark_dir: TemporaryDirectory
     done_event = Event.DONE
 
+    @property
+    def current_state(self) -> BaseState:
+        """Current state"""
+        return cast(BaseState, self.abci_behaviour.current_state)
+
 
 class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test SelectKeeperBehaviour."""
 
-    preparetx_behaviour_class: Type[BaseState] = PrepareTxBehaviour
+    prepare_tx_behaviour_class: Type[BaseState] = PrepareTxBehaviour
 
-    def test_preparetx(
+    def test_prepare_tx(
         self,
     ) -> None:
         """Test prepare tx."""
+
         self.fast_forward_to_state(
             self.abci_behaviour,
-            self.preparetx_behaviour_class.state_id,
+            self.prepare_tx_behaviour_class.state_id,
             PeriodState(
                 StateDB(
-                    initial_period=0, initial_data=dict(safe_contract_address="address")
+                    initial_period=0,
+                    initial_data=dict(
+                        job_selection="some_job",
+                        safe_contract_address=SOME_CONTRACT_ADDRESS,
+                    ),
                 ),
             ),
         )
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.abci_behaviour.current_state),
-            ).state_id
-            == self.preparetx_behaviour_class.state_id
-        )
+        assert self.current_state.state_id == self.prepare_tx_behaviour_class.state_id
         self.abci_behaviour.act_wrapper()
 
         # first mock the work tx itself
@@ -122,7 +130,7 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_contract_api_request(
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
-                contract_address="address",
+                contract_address=SOME_CONTRACT_ADDRESS,
             ),
             contract_id=str(CONTRACT_ID),
             response_kwargs=dict(
@@ -163,11 +171,52 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round()
-        state = cast(BaseState, self.abci_behaviour.current_state)
-        assert (
-            state.state_id
-            == make_degenerate_state(FinishedPrepareTxRound.round_id).state_id
+        degenerate_state = make_degenerate_state(FinishedPrepareTxRound.round_id)
+        assert self.current_state.state_id == degenerate_state.state_id
+
+
+class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test case to test JobSelectionBehaviour."""
+
+    job_selection_behaviour_class: Type[BaseState] = JobSelectionBehaviour
+
+    def test_empty_jobs(self) -> None:
+        """Test empty jobs."""
+        self.skill.skill_context.params.job_contract_addresses = []
+        self.fast_forward_to_state(
+            self.abci_behaviour,
+            JobSelectionBehaviour.state_id,
+            self.period_state,
         )
+        assert self.current_state.state_id == JobSelectionBehaviour.state_id
+
+        self.abci_behaviour.act_wrapper()
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(Event.NOT_WORKABLE)
+        state = cast(BaseState, self.abci_behaviour.current_state)
+        expected_state_id = make_degenerate_state(NothingToDoRound.round_id).state_id
+        assert state.state_id == expected_state_id
+
+    @pytest.mark.parametrize("n_jobs", range(1, 10))
+    def test_n_jobs(self, n_jobs: int) -> None:
+        """Test n jobs."""
+        self.skill.skill_context.params.job_contract_addresses = [
+            f"job_contract_{i}" for i in range(1, n_jobs)
+        ]
+
+        self.fast_forward_to_state(
+            self.abci_behaviour,
+            JobSelectionBehaviour.state_id,
+            self.period_state,
+        )
+        assert self.current_state.state_id == JobSelectionBehaviour.state_id
+
+        self.abci_behaviour.act_wrapper()
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round()
+        assert self.current_state.state_id == IsWorkableBehaviour.state_id
 
 
 class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -178,19 +227,17 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
     is_workable_behaviour_class: Type[BaseState] = IsWorkableBehaviour
 
     def test_is_workable_true(self) -> None:
-        """Test is workable."""
+        """Test is workable true."""
+        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
         self.fast_forward_to_state(
             self.abci_behaviour,
             IsWorkableBehaviour.state_id,
-            self.period_state,
+            PeriodState(
+                StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
+            ),
         )
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.abci_behaviour.current_state),
-            ).state_id
-            == IsWorkableBehaviour.state_id
-        )
+        assert self.current_state.state_id == IsWorkableBehaviour.state_id
+
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
             request_kwargs=dict(
@@ -210,23 +257,19 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round()
-        state = cast(BaseState, self.abci_behaviour.current_state)
-        assert state.state_id == PrepareTxRound.round_id
+        assert self.current_state.state_id == IsProfitableRound.round_id
 
     def test_is_workable_false(self) -> None:
-        """Test is workable."""
+        """Test is workable false."""
         self.fast_forward_to_state(
             self.abci_behaviour,
             IsWorkableBehaviour.state_id,
-            self.period_state,
+            PeriodState(
+                StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
+            ),
         )
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.abci_behaviour.current_state),
-            ).state_id
-            == IsWorkableBehaviour.state_id
-        )
+        assert self.current_state.state_id == IsWorkableBehaviour.state_id
+
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
             request_kwargs=dict(
@@ -246,10 +289,8 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(event=Event.NOT_WORKABLE)
-        state = cast(BaseState, self.abci_behaviour.current_state)
-        assert (
-            state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
-        )
+        degenerate_state = make_degenerate_state(NothingToDoRound.round_id)
+        assert self.current_state.state_id == degenerate_state.state_id
 
 
 class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -260,19 +301,18 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
     is_profitable_behaviour_class: Type[BaseState] = IsProfitableBehaviour
 
     def test_is_profitable_true(self) -> None:
-        """Test is profitable."""
+        """Test is profitable true."""
+        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
         self.fast_forward_to_state(
             self.abci_behaviour,
             self.is_profitable_behaviour_class.state_id,
-            self.period_state,
+            PeriodState(
+                StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
+            ),
         )
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.abci_behaviour.current_state),
-            ).state_id
-            == IsProfitableBehaviour.state_id
-        )
+
+        assert self.current_state.state_id == IsProfitableBehaviour.state_id
+
         self.abci_behaviour.context.params.profitability_threshold = 100
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
@@ -293,23 +333,20 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round()
-        state = cast(BaseState, self.abci_behaviour.current_state)
-        assert state.state_id == PrepareTxRound.round_id
+        assert self.current_state.state_id == PrepareTxRound.round_id
 
     def test_is_profitable_false(self) -> None:
-        """Test is profitable."""
+        """Test is profitable false."""
+        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
         self.fast_forward_to_state(
             self.abci_behaviour,
             self.is_profitable_behaviour_class.state_id,
-            self.period_state,
+            PeriodState(
+                StateDB(initial_period=0, initial_data=dict(job_selection="some_job"))
+            ),
         )
-        assert (
-            cast(
-                BaseState,
-                cast(BaseState, self.abci_behaviour.current_state),
-            ).state_id
-            == IsProfitableBehaviour.state_id
-        )
+        assert self.current_state.state_id == IsProfitableBehaviour.state_id
+
         self.abci_behaviour.context.params.profitability_threshold = 100
         self.abci_behaviour.act_wrapper()
         self.mock_contract_api_request(
@@ -330,7 +367,5 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(event=Event.NOT_PROFITABLE)
-        state = cast(BaseState, self.abci_behaviour.current_state)
-        assert (
-            state.state_id == make_degenerate_state(NothingToDoRound.round_id).state_id
-        )
+        degenerate_state = make_degenerate_state(NothingToDoRound.round_id)
+        assert self.current_state.state_id == degenerate_state.state_id

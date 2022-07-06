@@ -22,6 +22,7 @@ states:
 - DeploySafeRound
 - IsProfitableRound
 - IsWorkableRound
+- JobSelectionRound
 - PrepareTxRound
 - RandomnessSafeRound
 - RegistrationRound
@@ -30,7 +31,7 @@ states:
 - SelectKeeperSafeRound
 - ValidateSafeRound
 transition_func:
-    (CheckSafeExistenceRound, DONE): PrepareTxRound
+    (CheckSafeExistenceRound, DONE): JobSelectionRound
     (CheckSafeExistenceRound, NEGATIVE): RandomnessSafeRound
     (DeploySafeRound, DEPLOY_TIMEOUT): SelectKeeperSafeRound
     (DeploySafeRound, DONE): ValidateSafeRound
@@ -39,10 +40,14 @@ transition_func:
     (IsProfitableRound, NOT_PROFITABLE): ResetAndPauseRound
     (IsProfitableRound, NO_MAJORITY): ResetAndPauseRound
     (IsProfitableRound, RESET_TIMEOUT): IsProfitableRound
-    (IsWorkableRound, DONE): PrepareTxRound
+    (IsWorkableRound, DONE): IsProfitableRound
     (IsWorkableRound, NOT_WORKABLE): ResetAndPauseRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
     (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
+    (JobSelectionRound, DONE): IsWorkableRound
+    (JobSelectionRound, NOT_WORKABLE): ResetAndPauseRound
+    (JobSelectionRound, NO_MAJORITY): ResetAndPauseRound
+    (JobSelectionRound, RESET_TIMEOUT): ResetAndPauseRound
     (PrepareTxRound, DONE): ResetAndPauseRound
     (PrepareTxRound, NO_MAJORITY): ResetAndPauseRound
     (PrepareTxRound, RESET_TIMEOUT): ResetAndPauseRound
@@ -63,4 +68,3 @@ transition_func:
     (ValidateSafeRound, NONE): RandomnessSafeRound
     (ValidateSafeRound, NO_MAJORITY): RandomnessSafeRound
     (ValidateSafeRound, VALIDATE_TIMEOUT): RandomnessSafeRound
-

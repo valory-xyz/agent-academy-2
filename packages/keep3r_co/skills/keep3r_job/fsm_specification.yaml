@@ -20,21 +20,25 @@ states:
 - FinishedPrepareTxRound
 - IsProfitableRound
 - IsWorkableRound
+- JobSelectionRound
 - NothingToDoRound
 - PrepareTxRound
 - SafeNotDeployedRound
 transition_func:
-    (CheckSafeExistenceRound, DONE): PrepareTxRound
+    (CheckSafeExistenceRound, DONE): JobSelectionRound
     (CheckSafeExistenceRound, NEGATIVE): SafeNotDeployedRound
     (IsProfitableRound, DONE): PrepareTxRound
     (IsProfitableRound, NOT_PROFITABLE): NothingToDoRound
     (IsProfitableRound, NO_MAJORITY): FailedRound
     (IsProfitableRound, RESET_TIMEOUT): IsProfitableRound
-    (IsWorkableRound, DONE): PrepareTxRound
+    (IsWorkableRound, DONE): IsProfitableRound
     (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
     (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
+    (JobSelectionRound, DONE): IsWorkableRound
+    (JobSelectionRound, NOT_WORKABLE): NothingToDoRound
+    (JobSelectionRound, NO_MAJORITY): NothingToDoRound
+    (JobSelectionRound, RESET_TIMEOUT): NothingToDoRound
     (PrepareTxRound, DONE): FinishedPrepareTxRound
     (PrepareTxRound, NO_MAJORITY): FailedRound
     (PrepareTxRound, RESET_TIMEOUT): FailedRound
-
