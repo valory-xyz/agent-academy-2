@@ -1,12 +1,22 @@
-.mypy_cache
-.DS_Store
-.pytest_cache
-coverage.xml
-.tox
-.coverage
-htmlcov
+
+# hidden files
+.*
+!/.github
+!/.gitignore
+
+# python
 __pycache__
 Pipfile.lock
 *.egg-info
+
+# logs
+*.log
+
+# test coverage
+coverage.txt
+coverage.xml
+htmlcov
+
+# other
 generate_abciapp_spec.py
 pre_push_hook.sh
