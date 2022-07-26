@@ -35,7 +35,6 @@ clean-test:
 	rm -fr .hypothesis
 	rm -fr .pytest_cache
 	rm -fr .mypy_cache/
-	rm -fr .hypothesis/
 	find . -name 'log.txt' -exec rm -fr {} +
 	find . -name 'log.*.txt' -exec rm -fr {} +
 
@@ -52,7 +51,7 @@ pylint:
 
 .PHONY: hashes
 hashes:
-	python scripts/generate_ipfs_hashes.py
+	python -m autonomy.cli hash all
 
 .PHONY: static
 static:
@@ -121,13 +120,9 @@ run-mainnet-fork-docker:
 copyright:
 	tox -e check-copyright
 
-
-
 .PHONY: check_abci_specs
 check_abci_specs:
-	cp scripts/generate_abciapp_spec.py generate_abciapp_spec.py
-	python generate_abciapp_spec.py -c packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp > packages/keep3r_co/skills/keep3r_job/fsm_specification.yaml || (echo "Failed to check job abci consistency" && exit 1)
-	python generate_abciapp_spec.py -c packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp > packages/keep3r_co/skills/keep3r_abci/fsm_specification.yaml || (echo "Failed to check chained abci cosistency" && exit 1)
-	rm generate_abciapp_spec.py
+	python -m autonomy.cli analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp packages/keep3r_co/skills/keep3r_job/fsm_specification.yaml || (echo "Failed to check job abci consistency" && exit 1)
+	python -m autonomy.cli analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp packages/keep3r_co/skills/keep3r_abci/fsm_specification.yaml || (echo "Failed to check chained abci consistency" && exit 1)
 	echo "Successfully validated abcis!"
 
