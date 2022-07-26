@@ -6,21 +6,21 @@ description: ABCI application for common apps.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: QmYgDsnQnryPwFXnaNTns1ypH9jqvYeHGgmP9K2y4tXFJy
-  __init__.py: QmcMo5TeB1s4UWwEwXT8Xdsw7nNXzwJe7YXE3RgsSwEp7R
-  behaviours.py: QmZUyyQWAXhPWY3ny2HZkykb5fJgHjkqxKPFVYfR1wCSh1
-  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmXVQp8pmwwURGntFJ41QziXMFysTpkZy9wjVn1KoACZgA
-  handlers.py: QmThK5PB67624VnCWmBXBz1MzwVp9XBWA97x3rsAwADnW1
-  models.py: QmP1o1MJF1qQtRurgzZ2fdRHWdu3G6xrTxUWy9GdYtHihT
-  payloads.py: QmdJ8VRZmEXnJWx4oNcizaxjgBtEhanFBY2cU3g4UWM7s5
-  rounds.py: QmUq6h9dV27yVpqBqsXUEtrDoTKqinCgAWtaMKvEe8Nv18
+  README.md: bafybeieztbubb6yn5umyt5ulknvb2xxppz5ecxaosxqsaejnrcrrwfu2ji
+  __init__.py: bafybeigqj2uodavhrygpqn6iah3ljp53z54c5fxyh5ykgkxuhh5lof6pda
+  behaviours.py: bafybeiffsl57u7z3wh5ct63xop2aar5l2pxz2ay7qi5qgq4czt3mr7fwvq
+  dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
+  fsm_specification.yaml: bafybeieh66zifcswdynmwld3y2gyiixiad6zzgqejuhpevhlskmcfa6s44
+  handlers.py: bafybeicpsvxk2x55d7xh6r3frt3i5awvfnazq7acjphgp6icr574dgtlky
+  models.py: bafybeiaka4eit5vsjh7j2pr7oq7vvmxbk526z35pqzfojfb6kvpnm3yrpy
+  payloads.py: bafybeig6hh4vg2zjivr26xxbab54nn2xcragqlh7ff4s2sql24tchz3yia
+  rounds.py: bafybeidan7byxemuysju2knh3r4l7ugn3gcql5noarqt6gpin6z7h445cm
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0
+- valory/abstract_round_abci:0.1.0:bafybeicvvipsdvzaf5yvzn74liubbsn6bgi6h3lh2i5ostexwmfxvbu4x4
 behaviours:
   main:
     args: {}

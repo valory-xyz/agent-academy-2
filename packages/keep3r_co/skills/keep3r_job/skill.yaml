@@ -6,29 +6,29 @@ description: ABCI application for demonstation.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: QmVwFKStDzJFm4dbFKGSnLQGGjpH5zjhcPRwYirPCDYAJU
-  __init__.py: QmYUJartJbWWdWz6jFAfq3gRnLhg2Gxn4XgRESkfV3HTTj
-  behaviours.py: Qmep7Pp3QPdSrTDh1PxjhHsLNqBPL457sTqbaMRTkXpqR9
-  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmRooFhhHwhJ8zXKa2sHu5LQ8ahEXu1wq2vDBnAYxMXdZh
-  handlers.py: QmZTHtQixDRmtAL3hmngJppak3whchYnvKFNbwbFU3AmUp
-  models.py: QmPEZGQp7uEvnwzZFC98zMGJY4XT5tKc87HFj8xkg1tQ3a
-  payloads.py: QmPbnaaEbEmEYXbF7BjHaSi4ZWWxouaok17zUb2HnEBnd2
-  rounds.py: QmcBcrUeCdxGwa5B9riL1sTHTN5tD3dWbRbbukWS9oFTm9
+  README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
+  __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
+  behaviours.py: bafybeihuypmffda5vchcky5jimfq3dhfk2i7tvtr5wncz7fqttmdp2mh2a
+  dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
+  fsm_specification.yaml: bafybeibtq5txusplitfevezbziar2kxbqgcttrr4zo3ftpqdbea2jjtvba
+  handlers.py: bafybeiffeqj7hnh7nf76o36zplf4mjvyjzmo4me7izop2zspmj3kcdvamu
+  models.py: bafybeianjqgdcuivv4b2562wnnwmgtc7aklmllzotno3rpqifmjpvh5bne
+  payloads.py: bafybeiasxrgd6o4bupl2yucxr3yod5wtvuv7vcwrkcex3xq5bcmfljhwpu
+  rounds.py: bafybeignwnfj3e5lfwogx7jbdj7qmslhfoi56ldtfcvbvejgxeg4my6lpa
 fingerprint_ignore_patterns: []
 connections:
-- valory/abci:0.1.0
-- valory/http_client:0.1.0
-- valory/ledger:0.1.0
+- valory/abci:0.1.0:bafybeifjqmtdwznrzqevn2sln74xfm2gewvgneda26egg7qpokcwjwwr4y
+- valory/http_client:0.1.0:bafybeigxjc25bp4vdmhuhdq6f3a5j7g2auyvaf5s3xl6eqov4mcm2jgcmu
+- valory/ledger:0.1.0:bafybeieszkfizyqfxmjsgsdjj4353oxkmcjxa6knafkf5u7adh3xsgdys4
 contracts: []
 protocols:
-- open_aea/signing:1.0.0
-- valory/abci:0.1.0
-- valory/contract_api:1.0.0
-- valory/http:1.0.0
-- valory/ledger_api:1.0.0
+- open_aea/signing:1.0.0:bafybeicc6dd4kaalwfqreh7xhwyovg7rqy7g7tsy4oddke7ft7hbj43g4y
+- valory/abci:0.1.0:bafybeiedib4f7ryh6rr3c67ymg62wshuc3kxrfx7egd3nsz6l7laaflpzi
+- valory/contract_api:1.0.0:bafybeih4vhywhz25qpsskwcn34bmzs4oavqzd5hfdjbo42bjchfqt7vp6m
+- valory/http:1.0.0:bafybeihtz7ctxytxlah3mw2vhdup5hbjocfgocnzz3ajsgqdyzjlwe2eku
+- valory/ledger_api:1.0.0:bafybeibpni27yfhpub3mnaxoiye5sh4orfpd4aftd255bd37z2etatym6u
 skills:
-- valory/abstract_round_abci:0.1.0
+- valory/abstract_round_abci:0.1.0:bafybeicvvipsdvzaf5yvzn74liubbsn6bgi6h3lh2i5ostexwmfxvbu4x4
 behaviours:
   main:
     args: {}

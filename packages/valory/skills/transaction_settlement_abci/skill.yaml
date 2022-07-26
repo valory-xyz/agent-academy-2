@@ -6,25 +6,25 @@ description: ABCI application for transaction settlement.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: Qmes4T968eLYkfRc1o3oXMa3irSMo6CY95kaAGvM3LfzAF
-  __init__.py: QmUJJPrwqyWYnqeYpGypjgsQoXiGFpjHogSrrDmAedpdzV
-  behaviours.py: QmV46siL4QrT4xn2iw2AWLMZwWAZ2jKjp7oXkSLnPWJzVD
-  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmPZuCw7qesAcrqebg3ktHkTtkzDzJfUFL9cUEnpA1vxtD
-  handlers.py: QmXEZTJVJHNhpHJMjhPRHdhmYMmVpu6LfNyYDE2k4mjLVA
-  models.py: Qmb8Euw1JFPaM6LVuAbENYje4TyTGQdGnC29i7UNRodvGD
-  payload_tools.py: QmeC21j7moiYR75xQo9f9bBzdvW3FQDmecAogG5gbZevfZ
-  payloads.py: QmRYqBh9fDEXP4GxwjbNtGwHqaYmDUx5zBsWZxW6fhWwQp
-  rounds.py: QmPacDvAEHimaoBqWwyhc5wKavvGhF7kZWtsHwkqVCLpvM
+  README.md: bafybeihvqvbj2tiiyimz3e27gqhb7ku5rut7hycfahi4qle732kvj5fs7q
+  __init__.py: bafybeicyrp6x2efg43gfdekxuofrlidc3w6aubzmyioqwnryropp6u7sby
+  behaviours.py: bafybeiddysctfsod3wwvhj3st2jjky3mh4wnd55mkchk4nheig2cfragma
+  dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
+  fsm_specification.yaml: bafybeiasicqrq2jggl5yo6yipyldcphpyvao5cm2zixnyis3eklqk47qpy
+  handlers.py: bafybeieefhav6cdkbfecjsqeb5gdrvfwclfghiicjoq4453cm6tggh2spu
+  models.py: bafybeif57ig5diz3plmtc2mveh5xjydm37j27waeqaqanulcxmw4dncqey
+  payload_tools.py: bafybeihlqtnbcanm3m76cod2n3kpmetck5zsq4aaneo5uuuvn6i47m247a
+  payloads.py: bafybeibpwhqbjvqi7um2cu4calbdhhzukpi6tn6y3qp4qb4nwx2bzjbmqu
+  rounds.py: bafybeiasn4a54w2x3amec3sefnxhuqqqmf5ffxg4h5q4xzfwqqtoy42jli
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0
-- valory/gnosis_safe_proxy_factory:0.1.0
+- valory/gnosis_safe:0.1.0:bafybeid5roune5tojdvadlcbrzxf7def574ksrwijuuam6zus6u7p7thia
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
 protocols:
-- valory/contract_api:1.0.0
+- valory/contract_api:1.0.0:bafybeih4vhywhz25qpsskwcn34bmzs4oavqzd5hfdjbo42bjchfqt7vp6m
 skills:
-- valory/abstract_round_abci:0.1.0
+- valory/abstract_round_abci:0.1.0:bafybeicvvipsdvzaf5yvzn74liubbsn6bgi6h3lh2i5ostexwmfxvbu4x4
 behaviours:
   main:
     args: {}

@@ -4,23 +4,24 @@ version: 0.1.0
 license: Apache-2.0
 description: Simple ABCI example.
 aea_version: '>=1.0.0, <2.0.0'
-fingerprint: {}
+fingerprint:
+  README.md: bafybeiaj6b3suwbl3lcdm2bixo6puuwp7nzrjbtguvygt4xoboeasxs6lq
 fingerprint_ignore_patterns: []
 connections:
-- valory/abci:0.1.0
-- valory/http_client:0.1.0
-- valory/ledger:0.1.0
+- valory/abci:0.1.0:bafybeifjqmtdwznrzqevn2sln74xfm2gewvgneda26egg7qpokcwjwwr4y
+- valory/http_client:0.1.0:bafybeigxjc25bp4vdmhuhdq6f3a5j7g2auyvaf5s3xl6eqov4mcm2jgcmu
+- valory/ledger:0.1.0:bafybeieszkfizyqfxmjsgsdjj4353oxkmcjxa6knafkf5u7adh3xsgdys4
 contracts: []
 protocols:
-- open_aea/signing:1.0.0
-- valory/abci:0.1.0
-- valory/contract_api:1.0.0
-- valory/http:1.0.0
-- valory/ledger_api:1.0.0
+- open_aea/signing:1.0.0:bafybeicc6dd4kaalwfqreh7xhwyovg7rqy7g7tsy4oddke7ft7hbj43g4y
+- valory/abci:0.1.0:bafybeiedib4f7ryh6rr3c67ymg62wshuc3kxrfx7egd3nsz6l7laaflpzi
+- valory/contract_api:1.0.0:bafybeih4vhywhz25qpsskwcn34bmzs4oavqzd5hfdjbo42bjchfqt7vp6m
+- valory/http:1.0.0:bafybeihtz7ctxytxlah3mw2vhdup5hbjocfgocnzz3ajsgqdyzjlwe2eku
+- valory/ledger_api:1.0.0:bafybeibpni27yfhpub3mnaxoiye5sh4orfpd4aftd255bd37z2etatym6u
 skills:
-- valory/abstract_abci:0.1.0
-- valory/abstract_round_abci:0.1.0
-- valory/simple_abci:0.1.0
+- valory/abstract_abci:0.1.0:bafybeicmwzbui3s4ouhtufcrlmmglnhgo4j2a3jdhfmqnqwlihdfubmmdq
+- valory/abstract_round_abci:0.1.0:bafybeicvvipsdvzaf5yvzn74liubbsn6bgi6h3lh2i5ostexwmfxvbu4x4
+- valory/simple_abci:0.1.0:bafybeigl4nkswpdwketx33ffce6m57hu46g2mtbiv5c5wzminlebgrnztu
 default_ledger: ethereum
 required_ledgers:
 - ethereum

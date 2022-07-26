@@ -6,36 +6,36 @@ description: abstract round-based ABCI application
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: QmYNXPppPSnW61ipqKNH8pyMh8qzTERwQaducYYq1dnBJb
-  __init__.py: QmPuJK7gMKruSTcaYk9otrFncfD9h6vBZVoAtkwhTBgcxa
-  abci_app_chain.py: QmeCPxwjec4pxtedv8NeG2Gmj58GY2GycXvgwfyjEyqPGm
-  base.py: QmRAFqSRS1111MGV4FJec9aeBBQFyi7BN6o7oxfZDtn9ng
-  behaviour_utils.py: Qmewx981tf8LxxtZuca6RcQU46guFPdDYc6GLb6dCFE2Tm
-  behaviours.py: QmeNvG7nPdXdAvKsrLNjJDEnnRUhf5hVetrJLm45EzCVq2
-  common.py: QmPUbu6Qqx1Dr6x9vLyChp4L1YSFhLEonZdUjQ1G2N4Zkn
-  dialogues.py: QmemiTJxfwp2PFxFQyAUHTx8FsthhWL3mYgonBhC3cTjWH
-  handlers.py: QmZ5g9Mc9wqTt3699yweN46XJN5XU5yQnurjGP9spwi3iL
-  io/__init__.py: QmPfA2syTybFaGmmMMt5gevZHEXPyjVf7wR1UE22NzpZZ3
-  io/ipfs.py: Qmc7BLSKb2kESC1wdCc7FxaLiSHcmPcfiBuXBuLXevUdE7
-  io/load.py: QmSa3vgVvQiMJabBvSnPjTMtYiDgrrHPugDGCvSf4kAfS3
-  io/paths.py: QmT1e6Ygak8Fe4NxSrd2mb6EB1Rr6dsYZPL8dWh3aNMb12
-  io/store.py: QmXHnLF1Jg2hmhUwYj4E4QoMmx6EoLhUtzEGqztLKtKFej
-  models.py: QmSN39VAyMxYxqGBaAnYjJNLwGDCCQGz8DgRxPW8QvU2YC
-  serializer.py: QmV1rutPMEPbbMVwvM4My6s8fwT7S9KhgLTqrbjHLEfdJG
-  utils.py: QmSWEFvrVYMYxkGT1LBh1b6yZPg5mZe5dqXqZcvxzwHZqD
+  README.md: bafybeievb7bhfm46p5adx3x4gvsynjpq35fcrrapzn5m2whcdt4ufxfvfq
+  __init__.py: bafybeiaxhdfjmhbstyi5oqeu7wzst44snhbyoggrpusgs2c3tn3cluzhpm
+  abci_app_chain.py: bafybeihltwwe3bw7pllbc3xxyojfq3xup2mc55aahh6scpc2ywtvpskzji
+  base.py: bafybeibj5fr3geqyewvbd5klqjt655rvjkuirudby6en3kffyjh3adx4ge
+  behaviour_utils.py: bafybeihwyydv2uw3urjplws5mveq5w2cp3xh5tet2wtyg6ooaysaabnfpq
+  behaviours.py: bafybeihoj66k6hn7eywc5vy65go3ycpm6marhpo4jptct3ckdk3tndnkxe
+  common.py: bafybeiaq4ut44csikkmpzqqqcaaaabmjabh7dxalkuqtjiozkqzbe4wjsm
+  dialogues.py: bafybeihue27ngzs4ehbkrwh4265lnmtfcyf7o4fyas5b4hi6u5vfhqnpzi
+  handlers.py: bafybeie7tj3yzvhtata7hslwfvv5vjp2wdnar3g5k2rt4af2c4jkfpigju
+  io/__init__.py: bafybeiattfgecxl5y276etqe5jiuhqk3grcov6qky5cgokstmwhrbaodri
+  io/ipfs.py: bafybeigmsaoxdcpg5qvsxjkhilpfvcdmpsb2lie4fu5oqc2ows6i7pifwa
+  io/load.py: bafybeib63wgk7wcghrvldqn6dpurkw6o7q3eohg3dpinnf7rhw4qwo2j7q
+  io/paths.py: bafybeicfno2l4vwtmjcm3rzpp6tqi3xlkof47pypf5teecad22d44u2ple
+  io/store.py: bafybeiee7uhs372q3kxd5s3itufb3ws24ey74my2jpnivit3kboon6xsaq
+  models.py: bafybeib3zgzofowologfyolf42sbdiaypykrrvjmd5e4rnrkakz5dlo4lu
+  serializer.py: bafybeiddggjdvkouykkvdan4chpi3simshwluayyu67ctkfapymwxzz4te
+  utils.py: bafybeib54lujsevmqojfsgefmjedrtavmvjvhjf2qknop2ur2dpmodp3fq
 fingerprint_ignore_patterns: []
 connections:
-- valory/abci:0.1.0
-- valory/http_client:0.1.0
-- valory/ledger:0.1.0
+- valory/abci:0.1.0:bafybeifjqmtdwznrzqevn2sln74xfm2gewvgneda26egg7qpokcwjwwr4y
+- valory/http_client:0.1.0:bafybeigxjc25bp4vdmhuhdq6f3a5j7g2auyvaf5s3xl6eqov4mcm2jgcmu
+- valory/ledger:0.1.0:bafybeieszkfizyqfxmjsgsdjj4353oxkmcjxa6knafkf5u7adh3xsgdys4
 contracts: []
 protocols:
-- valory/abci:0.1.0
-- valory/contract_api:1.0.0
-- valory/http:1.0.0
-- valory/ledger_api:1.0.0
+- valory/abci:0.1.0:bafybeiedib4f7ryh6rr3c67ymg62wshuc3kxrfx7egd3nsz6l7laaflpzi
+- valory/contract_api:1.0.0:bafybeih4vhywhz25qpsskwcn34bmzs4oavqzd5hfdjbo42bjchfqt7vp6m
+- valory/http:1.0.0:bafybeihtz7ctxytxlah3mw2vhdup5hbjocfgocnzz3ajsgqdyzjlwe2eku
+- valory/ledger_api:1.0.0:bafybeibpni27yfhpub3mnaxoiye5sh4orfpd4aftd255bd37z2etatym6u
 skills:
-- valory/abstract_abci:0.1.0
+- valory/abstract_abci:0.1.0:bafybeicmwzbui3s4ouhtufcrlmmglnhgo4j2a3jdhfmqnqwlihdfubmmdq
 behaviours:
   main:
     args: {}

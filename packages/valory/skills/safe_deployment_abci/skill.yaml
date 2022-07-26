@@ -6,24 +6,24 @@ description: ABCI application for safe deployments.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: QmSdHvedQdaQvWBPjhoDqqZioSFgr43sdTaJqbraDqDFFY
-  __init__.py: QmbdzASxkeaGpU5FLXVJnBfyRgTYEo2CDz1BNebhepCCsA
-  behaviours.py: QmdZDqteDnkcfoEVL9raJugwNpE5bEfu7yEsQYg4xiTfMD
-  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmZR2tTuXqSCQX9xa1RwycwFWQMqSyekt2p8wFnpaufmmo
-  handlers.py: QmUS4UE6hYLsHs1RW9KxaTNhrq5pmg9Vy3w7nPgc4wV5kg
-  models.py: QmeNMN5CE91cdGPnbpBMsCiueQedzFsr65SDYdZatKgcpu
-  payloads.py: QmNxFKPXvTpGc6ZbmboLB7J8nJGdFzEnFiaSy5bkccqG7d
-  rounds.py: QmYSp4H8UGCNDt5vzps5YPBccgPjys72JQZew7BJjk9Tgk
+  README.md: bafybeib7wipqo3cwbdtdkbdfsb7qcpsrrmc2qjhge74stytcbalk4xpkmm
+  __init__.py: bafybeigftdgpuynk4j6pqy4i4nrdthomrol5ufzgvuulszjuubpngyl7we
+  behaviours.py: bafybeihcc66rhn3v43rivpgxcoqiabvahbrgmjrgmlw4d6spkoe2xyoofq
+  dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
+  fsm_specification.yaml: bafybeifer72pgikkihjglddt6ujcx2gnrmbjvkqanku62ugrroimqjilmy
+  handlers.py: bafybeic2rdsfhikgu6vvbx3defegq4n6wwsbhw4orfeiiyzv6s5mgfnbku
+  models.py: bafybeihofkfdrk5aqsjupnpw3wvj4qzzgjhkap3ohno3aqbtr2l3hsnndy
+  payloads.py: bafybeiajdz24osjwh7qvioa4vjssa73nqssnsgpwhowevmxnwqj4usrn5q
+  rounds.py: bafybeiewfdwhqblhbag5ebaucpwd6baue7yol2dq5zuv4faelsi6jpwhde
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0
-- valory/gnosis_safe_proxy_factory:0.1.0
+- valory/gnosis_safe:0.1.0:bafybeid5roune5tojdvadlcbrzxf7def574ksrwijuuam6zus6u7p7thia
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
 protocols:
-- valory/contract_api:1.0.0
+- valory/contract_api:1.0.0:bafybeih4vhywhz25qpsskwcn34bmzs4oavqzd5hfdjbo42bjchfqt7vp6m
 skills:
-- valory/abstract_round_abci:0.1.0
+- valory/abstract_round_abci:0.1.0:bafybeicvvipsdvzaf5yvzn74liubbsn6bgi6h3lh2i5ostexwmfxvbu4x4
 behaviours:
   main:
     args: {}

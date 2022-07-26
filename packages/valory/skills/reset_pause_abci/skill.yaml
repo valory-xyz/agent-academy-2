@@ -6,24 +6,24 @@ description: ABCI application for resetting and pausing app executions.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: Qmcvjeds5EyiUvea61GNy8YE4rYzvMDh79GJMhBz3NK7Q5
-  __init__.py: QmUFuoq77B1FjZSeHGAyW8AgJnGNh9Z1amEGK7UTH8iP7J
-  behaviours.py: QmWhtx7pKtsQCk5XpvYmkxw4CGVpSAaJSfdZqJZizco5wF
-  dialogues.py: Qmd54DnNEsybMJb78HTcW2HABVBZCL1FuQL8ELKq3xB6Jw
-  fsm_specification.yaml: QmUeA76vgnHNSyrQDsU1zWgMwB13WXk6ZqorvAcactLPwY
-  handlers.py: QmetZ5zoEr9SSkqgR9zfWdB9CEsDeBQqrXypYZ1f9UAF6H
-  models.py: QmPegRgrqVr6fMECoYCd3k7VDKdndBNMTuiPVrGTM9SW3o
-  payloads.py: QmSds2L9BKR4157xqGgH22dG8ojq6hc1BG2JH9NgzhxgVp
-  rounds.py: QmfXwDXfqLQWS5THNPaz4N7rk515hJqyd3u4aV6W995FH1
+  README.md: bafybeigyx3zutnbq2sqlgeo2hi2vjgpmnlspnkyh4wemjfrqkrpel27bwi
+  __init__.py: bafybeicx55fcmu5t2lrrs4wqi6bdvsmoq2csfqebyzwy6oh4olmhnvmelu
+  behaviours.py: bafybeid4j3fz7yce6nwedkrqecrbtmazlzmpv7oppsfzwcaxiw3zya5pdi
+  dialogues.py: bafybeig24cmh3v5cuixhsokxn5ydcw2yebbmiivakmzcghbmbc5ae2oxaq
+  fsm_specification.yaml: bafybeic5ui56sq44s2umsymfwf7pp357guiypsgbkcotzsqjaokjdwikhm
+  handlers.py: bafybeihv444cbdxsjh3rzkxnq2lvoubq4cdkdfknctqaiyb5ty34ewhbyi
+  models.py: bafybeiatpikthew7w4qsyoeu7hzza2g4es6wpoaprqe6r2pvyr6oedanty
+  payloads.py: bafybeib726fzcbjfkx3ikf2l55mqk7hc2aspxdcpglayevhzeeqiz6xu7m
+  rounds.py: bafybeih7pk5uhroigsowovovqg5ck43i2bvh4fngsoojfh34b46yoklfpa
 fingerprint_ignore_patterns: []
 connections:
-- valory/abci:0.1.0
+- valory/abci:0.1.0:bafybeifjqmtdwznrzqevn2sln74xfm2gewvgneda26egg7qpokcwjwwr4y
 contracts: []
 protocols:
-- open_aea/signing:1.0.0
-- valory/abci:0.1.0
+- open_aea/signing:1.0.0:bafybeicc6dd4kaalwfqreh7xhwyovg7rqy7g7tsy4oddke7ft7hbj43g4y
+- valory/abci:0.1.0:bafybeiedib4f7ryh6rr3c67ymg62wshuc3kxrfx7egd3nsz6l7laaflpzi
 skills:
-- valory/abstract_round_abci:0.1.0
+- valory/abstract_round_abci:0.1.0:bafybeicvvipsdvzaf5yvzn74liubbsn6bgi6h3lh2i5ostexwmfxvbu4x4
 behaviours:
   main:
     args: {}
