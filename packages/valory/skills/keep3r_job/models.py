@@ -21,7 +21,6 @@
 
 from typing import Any
 
-from packages.keep3r_co.skills.keep3r_job.rounds import Event, Keep3rJobAbciApp
 from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
@@ -30,6 +29,7 @@ from packages.valory.skills.abstract_round_abci.models import Requests as BaseRe
 from packages.valory.skills.abstract_round_abci.models import (
     SharedState as BaseSharedState,
 )
+from packages.valory.skills.keep3r_job.rounds import Event, Keep3rJobAbciApp
 
 
 MARGIN = 5
@@ -63,6 +63,7 @@ class Params(BaseParams):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
         self.job_contract_addresses = self._ensure("job_contract_addresses", kwargs)
+        self.safe_contract_address = kwargs.get("safe_contract_address", "")
         super().__init__(*args, **kwargs)
 
 

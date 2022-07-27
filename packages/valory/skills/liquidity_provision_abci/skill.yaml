@@ -23,8 +23,8 @@ connections:
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
-- valory/uniswap_v2_erc20:0.1.0:bafybeid2rdlyshie6yamr6lzf3g3kfovlhvww3rszmtaad2pmawwgmfvce
-- valory/uniswap_v2_router_02:0.1.0:bafybeie7xfg2erv4gzuy46vjvqav4fnrzugvkx5twt5h3n2yocakbpzn4u
+- valory/uniswap_v2_erc20:0.1.0:bafybeif5hwyufxidd76d4ssyeuezqdyt23sa4xhba2gnh3dagkqs4rstru
+- valory/uniswap_v2_router_02:0.1.0:bafybeih7ajk6hpmp5zbgtw6jdpljnzocwd57toqdvm4x5bye2vuwji4zrq
 protocols:
 - open_aea/signing:1.0.0:bafybeieirkuq6azgis33bmukr5u2gx4chp5kswiw3wd5hbjsaukgwzmp5a
 - valory/abci:0.1.0:bafybeicbj36urbjkn6y7hrhm57dspyuuvpcnxhr3r6y2cwxammpom633g4
@@ -33,7 +33,7 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeib62tcfpwhmnhaj7wz5i5h4eprdhffdk3q4a7xjc2odwlgsx5gapu
-- valory/liquidity_rebalancing_abci:0.1.0:bafybeib5e7ge2eo2m7gz6dg3kcr42m37xqrnzr3ze4zxuy5a6qqissarpm
+- valory/liquidity_rebalancing_abci:0.1.0:bafybeifjn52kymtfxrt6syex6uqicnnvreisu4jgepkiztfmido3y2kyjq
 - valory/registration_abci:0.1.0:bafybeibu7crkvn3omxb3n7ioew2uc3nxikmhp4wikszh3juxlwi6cqgmkq
 - valory/reset_pause_abci:0.1.0:bafybeiadipav6vui2nw6senffjhmozhzcbpdwy7ri53ekxd2rbiidj2dfy
 - valory/safe_deployment_abci:0.1.0:bafybeiftn7fnsyerc3clt5k3mulvjjc2bwpuydxodeekv627ovbnmeihly

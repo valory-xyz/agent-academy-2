@@ -24,7 +24,7 @@ from unittest import mock
 
 from aea.test_tools.test_contract import BaseContractTestCase
 
-from packages.gabrielfu.contracts.keep3r_job.contract import (
+from packages.valory.contracts.keep3r_job.contract import (
     CONTRACT_ADDRESS,
     Keep3rJobContract,
     PUBLIC_ID,

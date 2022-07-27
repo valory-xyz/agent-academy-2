@@ -22,14 +22,6 @@ from abc import ABC
 from enum import Enum
 from typing import Dict, Optional, Tuple, Type, cast
 
-from packages.keep3r_co.skills.keep3r_job.payloads import (
-    IsProfitablePayload,
-    IsWorkablePayload,
-    JobSelectionPayload,
-    SafeExistencePayload,
-    TXHashPayload,
-    TransactionType,
-)
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
     AbciAppTransitionFunction,
@@ -37,6 +29,14 @@ from packages.valory.skills.abstract_round_abci.base import (
     BaseSynchronizedData,
     CollectSameUntilThresholdRound,
     DegenerateRound,
+)
+from packages.valory.skills.keep3r_job.payloads import (
+    IsProfitablePayload,
+    IsWorkablePayload,
+    JobSelectionPayload,
+    SafeExistencePayload,
+    TXHashPayload,
+    TransactionType,
 )
 
 
@@ -52,7 +52,9 @@ class Event(Enum):
     NOT_PROFITABLE = "not_profitable"
 
 
-class SynchronizedData(BaseSynchronizedData):  # pylint: disable=too-many-instance-attributes
+class SynchronizedData(
+    BaseSynchronizedData
+):  # pylint: disable=too-many-instance-attributes
     """
     Class to represent synchronized data.
 

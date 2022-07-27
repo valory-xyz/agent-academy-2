@@ -18,17 +18,17 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the price estimation ABCI application."""
-from packages.keep3r_co.skills.keep3r_job.rounds import (
+from packages.valory.skills.abstract_round_abci.abci_app_chain import (
+    AbciAppTransitionMapping,
+    chain,
+)
+from packages.valory.skills.keep3r_job.rounds import (
     CheckSafeExistenceRound,
     FailedRound,
     FinishedPrepareTxRound,
     Keep3rJobAbciApp,
     NothingToDoRound,
     SafeNotDeployedRound,
-)
-from packages.valory.skills.abstract_round_abci.abci_app_chain import (
-    AbciAppTransitionMapping,
-    chain,
 )
 from packages.valory.skills.registration_abci.rounds import (
     AgentRegistrationAbciApp,

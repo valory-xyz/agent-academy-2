@@ -1,42 +1,43 @@
-name: keep3r_job
-author: keep3r_co
+name: keep3r_abci
+author: valory
 version: 0.1.0
 type: skill
-description: ABCI application for demonstation.
+description: ABCI application for cryptocurrency price estimation aggregating observations
+  from different sources.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
-  __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeihuypmffda5vchcky5jimfq3dhfk2i7tvtr5wncz7fqttmdp2mh2a
+  README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
+  __init__.py: bafybeihzcsfqn6zggjwunxo3x5xjclhvmnkn4t4rblurlj7new37leorua
+  behaviours.py: bafybeibwrb24azttw4yaygls3izsvwizmqispf3taylgolsf4ym73d7x44
+  composition.py: bafybeiccv7e3dnb2ufwasqrbdga4yvkxw27qriaf7svaoavmnyps7md6my
   dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
-  fsm_specification.yaml: bafybeibtq5txusplitfevezbziar2kxbqgcttrr4zo3ftpqdbea2jjtvba
-  handlers.py: bafybeiffeqj7hnh7nf76o36zplf4mjvyjzmo4me7izop2zspmj3kcdvamu
-  models.py: bafybeianjqgdcuivv4b2562wnnwmgtc7aklmllzotno3rpqifmjpvh5bne
-  payloads.py: bafybeiasxrgd6o4bupl2yucxr3yod5wtvuv7vcwrkcex3xq5bcmfljhwpu
-  rounds.py: bafybeignwnfj3e5lfwogx7jbdj7qmslhfoi56ldtfcvbvejgxeg4my6lpa
+  fsm_specification.yaml: bafybeihudzdxf4mejrtzhgtczh37drsg6rn7ct4epfjxcvgqnwaidawjse
+  handlers.py: bafybeih4lf67rr27fe2xq5g2wna6agtiaex5xcbo4dedk27qb4xrl5g7z4
+  models.py: bafybeievub42pzupfpsqkriftshurlqsc6hiyykvb746d7vi5qivyiwtg4
+  payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
+  rounds.py: bafybeicxdpuq7pmz7aszaax4oxpk7olavo4pbb56ng63ieuxnd7vl53m4q
 fingerprint_ignore_patterns: []
-connections:
-- valory/abci:0.1.0:bafybeiaqoaub5jverxutngxtbfcshucsg7fqkcrdgbjfdsrdbfntwyhawq
-- valory/http_client:0.1.0:bafybeibh3iu7kojc4d5eiigqh6kx2vdmu2q7vhcvvq2rz6suegsscyd66y
-- valory/ledger:0.1.0:bafybeifxxshi4u3xyyllip5e3yafawywcwpvqxgnybchi5kj74zm4b4n2e
-contracts: []
+connections: []
+contracts:
+- valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
 protocols:
-- open_aea/signing:1.0.0:bafybeieirkuq6azgis33bmukr5u2gx4chp5kswiw3wd5hbjsaukgwzmp5a
-- valory/abci:0.1.0:bafybeicbj36urbjkn6y7hrhm57dspyuuvpcnxhr3r6y2cwxammpom633g4
 - valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
-- valory/http:1.0.0:bafybeifhmibx3l7f3xdwxhweczizadxs6p3oludvapvwdeu4o5f3oahqme
-- valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeib62tcfpwhmnhaj7wz5i5h4eprdhffdk3q4a7xjc2odwlgsx5gapu
+- valory/keep3r_job:0.1.0:bafybeiedo5ks4y4sxzhqmkj24cdcpyn4eat2gkr5ygy5v4scrgjc26egla
+- valory/registration_abci:0.1.0:bafybeibu7crkvn3omxb3n7ioew2uc3nxikmhp4wikszh3juxlwi6cqgmkq
+- valory/reset_pause_abci:0.1.0:bafybeiadipav6vui2nw6senffjhmozhzcbpdwy7ri53ekxd2rbiidj2dfy
+- valory/safe_deployment_abci:0.1.0:bafybeiftn7fnsyerc3clt5k3mulvjjc2bwpuydxodeekv627ovbnmeihly
+- valory/transaction_settlement_abci:0.1.0:bafybeibwdngl33qbg5w6fvv6castzgmzjdkkx5pomfgnqb4lzfn5yn6kzy
 behaviours:
   main:
     args: {}
-    class_name: Keep3rJobRoundBehaviour
+    class_name: Keep3rAbciAppConsensusBehaviour
 handlers:
   abci:
     args: {}
-    class_name: ABCIHandler
+    class_name: Keep3rAbciHandler
   contract_api:
     args: {}
     class_name: ContractApiHandler
@@ -77,31 +78,22 @@ models:
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
+      on_chain_service_id: null
       period_setup:
-        safe_contract_address: stub
+        safe_contract_address: null
       profitability_threshold: 500
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3
       round_timeout_seconds: 30.0
-      service_id: keep3r_job
+      service_id: price_estimation
+      service_registry_address: null
       sleep_time: 1
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
       tendermint_url: http://localhost:26657
     class_name: Params
-  randomness_api:
-    args:
-      api_id: cloudflare
-      headers: []
-      method: GET
-      parameters: []
-      response_key: null
-      response_type: dict
-      retries: 5
-      url: https://drand.cloudflare.com/public/latest
-    class_name: RandomnessApi
   requests:
     args: {}
     class_name: Requests

@@ -1,5 +1,5 @@
 name: keep3r_job
-author: gabrielfu
+author: valory
 version: 0.1.0
 type: contract
 description: Keep3r job contract
@@ -9,7 +9,7 @@ fingerprint:
   README.md: bafybeiavzjioe4yitbfo2vozub3qlcdycu54czhe6ocui76e6opfxjltdi
   __init__.py: bafybeiabbvc2pxlrwjxv3qpj6gphfmqhurnb5ctrdmanwy4y5axrp2ecpm
   build/Keep3rJob.json: bafybeifaat7a5enr56xntjgdkwqmujnxpesn2mefh2u23rqy3wscarke4u
-  contract.py: bafybeibqw6gzvoapbwksg3rfribmrjhn6wl6iqemej65bqcpjhkoupi6pu
+  contract.py: bafybeiaerzikv7tcwh5hbl3vo2vtnezhzxx6arvvitbbj5wjsdwwkdaxw4
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rJobContract

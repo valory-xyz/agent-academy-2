@@ -21,9 +21,6 @@
 
 from typing import Any
 
-from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
-from packages.keep3r_co.skills.keep3r_job.models import Params as Keep3rJobParams
-from packages.keep3r_co.skills.keep3r_job.rounds import Event as Keep3rJobEvent
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
 )
@@ -31,6 +28,9 @@ from packages.valory.skills.abstract_round_abci.models import Requests as BaseRe
 from packages.valory.skills.abstract_round_abci.models import (
     SharedState as BaseSharedState,
 )
+from packages.valory.skills.keep3r_abci.composition import Keep3rAbciApp
+from packages.valory.skills.keep3r_job.models import Params as Keep3rJobParams
+from packages.valory.skills.keep3r_job.rounds import Event as Keep3rJobEvent
 from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
 from packages.valory.skills.safe_deployment_abci.rounds import Event as SafeEvent
 from packages.valory.skills.transaction_settlement_abci.rounds import Event as TSEvent

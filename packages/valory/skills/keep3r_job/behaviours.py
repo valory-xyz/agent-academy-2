@@ -22,16 +22,22 @@
 from abc import ABC
 from typing import Generator, Optional, Set, Type, cast
 
-from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
-from packages.keep3r_co.skills.keep3r_job.models import Params
-from packages.keep3r_co.skills.keep3r_job.payloads import (
+from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.valory.contracts.keep3r_job.contract import Keep3rJobContract
+from packages.valory.protocols.contract_api.message import ContractApiMessage
+from packages.valory.skills.abstract_round_abci.behaviours import (
+    AbstractRoundBehaviour,
+    BaseBehaviour,
+)
+from packages.valory.skills.keep3r_job.models import Params
+from packages.valory.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
     SafeExistencePayload,
     TXHashPayload,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job.rounds import (
     CheckSafeExistenceRound,
     IsProfitableRound,
     IsWorkableRound,
@@ -39,12 +45,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     Keep3rJobAbciApp,
     PrepareTxRound,
     SynchronizedData,
-)
-from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
-from packages.valory.protocols.contract_api.message import ContractApiMessage
-from packages.valory.skills.abstract_round_abci.behaviours import (
-    AbstractRoundBehaviour,
-    BaseBehaviour,
 )
 
 
@@ -223,9 +223,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
             return None
 
         tx_params = job_contract_api_response.raw_transaction.body
-        safe_contract_address = self.context.params.period_setup_params.get(
-            "safe_contract_address"
-        )
+        safe_contract_address = self.context.params.safe_contract_address
 
         safe_contract_api_msg = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore

@@ -11,7 +11,7 @@ final_states:
 - FinishedPrepareTxRound
 - NothingToDoRound
 - SafeNotDeployedRound
-label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
+label: packages.valory.skills.keep3r_job.rounds.Keep3rJobAbciApp
 start_states:
 - CheckSafeExistenceRound
 states:
