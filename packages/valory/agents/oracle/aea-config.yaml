@@ -1,0 +1,153 @@
+agent_name: oracle
+author: valory
+version: 0.1.0
+license: Apache-2.0
+description: Oracle agent.
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: bafybeia6rbpcaovvels4mn3ufkbbvwrsibury3x5g6eyo4lws4w2uk3x4q
+fingerprint_ignore_patterns: []
+connections:
+- valory/abci:0.1.0:bafybeiaqoaub5jverxutngxtbfcshucsg7fqkcrdgbjfdsrdbfntwyhawq
+- valory/http_client:0.1.0:bafybeibh3iu7kojc4d5eiigqh6kx2vdmu2q7vhcvvq2rz6suegsscyd66y
+- valory/ledger:0.1.0:bafybeifxxshi4u3xyyllip5e3yafawywcwpvqxgnybchi5kj74zm4b4n2e
+- valory/p2p_libp2p_client:0.1.0:bafybeig3dk2fsunmi74cocm7itl3vqqbujjvt3b5aadjkvjrbguoraspkq
+contracts:
+- valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
+- valory/offchain_aggregator:0.1.0:bafybeiexr4ggkzocdz3cojmwzhkgmx3fjnvisvbnh7jumlz32lsm4hp7ii
+- valory/service_registry:0.1.0:bafybeidtwbj7mwiskbbmsw43zzooivuq6nripdzn7yuoou66rq7spom54m
+protocols:
+- open_aea/signing:1.0.0:bafybeieirkuq6azgis33bmukr5u2gx4chp5kswiw3wd5hbjsaukgwzmp5a
+- valory/abci:0.1.0:bafybeicbj36urbjkn6y7hrhm57dspyuuvpcnxhr3r6y2cwxammpom633g4
+- valory/acn:1.1.0:bafybeibvuomoe7dln75slklaaag7vmppbpy2huhyupfygh4cgwdqp2roue
+- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
+- valory/http:1.0.0:bafybeifhmibx3l7f3xdwxhweczizadxs6p3oludvapvwdeu4o5f3oahqme
+- valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
+- valory/tendermint:0.1.0:bafybeigrenadbkdzpkxbjmpkubxzmihk45v6jbwosngciqdccth4lvp7cm
+skills:
+- valory/abstract_abci:0.1.0:bafybeihdlbwh2m6n4pgu4bylzte6vihjzgfl4bkfz372umtd3vil5briam
+- valory/abstract_round_abci:0.1.0:bafybeib62tcfpwhmnhaj7wz5i5h4eprdhffdk3q4a7xjc2odwlgsx5gapu
+- valory/oracle_abci:0.1.0:bafybeih54jxgv7ehtd3ed26oqmhd7khsofvt2aexp3plfcdbfcylurrscq
+- valory/oracle_deployment_abci:0.1.0:bafybeibhy5bicwnxijr67n37j6qzkqemaug3pe4wpovwlxr4rvmpz27vcm
+- valory/price_estimation_abci:0.1.0:bafybeibfdrjrpdomly66obcv43iba3vp6kpjskk5znteqiznpztvxmzdi4
+- valory/registration_abci:0.1.0:bafybeibu7crkvn3omxb3n7ioew2uc3nxikmhp4wikszh3juxlwi6cqgmkq
+- valory/reset_pause_abci:0.1.0:bafybeiadipav6vui2nw6senffjhmozhzcbpdwy7ri53ekxd2rbiidj2dfy
+- valory/safe_deployment_abci:0.1.0:bafybeiftn7fnsyerc3clt5k3mulvjjc2bwpuydxodeekv627ovbnmeihly
+- valory/transaction_settlement_abci:0.1.0:bafybeibwdngl33qbg5w6fvv6castzgmzjdkkx5pomfgnqb4lzfn5yn6kzy
+default_ledger: ethereum
+required_ledgers:
+- ethereum
+- cosmos
+default_routing: {}
+connection_private_key_paths: {}
+private_key_paths: {}
+logging_config:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    standard:
+      format: '[%(asctime)s] [%(levelname)s] %(message)s'
+  handlers:
+    logfile:
+      class: logging.FileHandler
+      formatter: standard
+      filename: ${LOG_FILE:str:log.txt}
+      level: INFO
+    console:
+      class: logging.StreamHandler
+      formatter: standard
+      stream: ext://sys.stdout
+  loggers:
+    aea:
+      handlers:
+      - logfile
+      - console
+      propagate: false
+dependencies:
+  open-aea-ledger-cosmos: {}
+  open-aea-ledger-ethereum: {}
+skill_exception_policy: stop_and_exit
+connection_exception_policy: just_log
+default_connection: null
+---
+public_id: valory/abci:0.1.0
+type: connection
+config:
+  target_skill_id: valory/oracle_abci:0.1.0
+  host: ${ABCI_HOST:str:localhost}
+  port: ${ABCI_PORT:int:26658}
+  use_tendermint: ${ABCI_USE_TENDERMINT:bool:false}
+---
+public_id: valory/oracle_abci:0.1.0
+type: skill
+models:
+  benchmark_tool:
+    args:
+      log_dir: ${SKILL_ORACLE_ABCI_MODELS_BENCHMARK_TOOL_ARGS_LOG_DIR:str:/benchmarks}
+  price_api:
+    args:
+      url: ${SKILL_ORACLE_ABCI_MODELS_PRICE_API_ARGS_URL:str:https://api.coinbase.com/v2/prices/BTC-USD/buy}
+      api_id: ${SKILL_ORACLE_ABCI_MODELS_PRICE_API_ARGS_API_ID:str:coinbase}
+      parameters: ${SKILL_ORACLE_ABCI_MODELS_PRICE_API_ARGS_PARAMETERS:list:none}
+      response_key: ${SKILL_ORACLE_ABCI_MODELS_PRICE_API_ARGS_RESPONSE_KEY:str:data:amount}
+      headers: ${SKILL_ORACLE_ABCI_MODELS_PRICE_API_ARGS_HEADERS:list:none}
+  randomness_api:
+    args:
+      url: ${SKILL_ORACLE_ABCI_MODELS_RANDOMNESS_API_ARGS_URL:str:https://drand.cloudflare.com/public/latest}
+      api_id: ${SKILL_ORACLE_ABCI_MODELS_RANDOMNESS_API_ARGS_API_ID:str:cloudflare}
+  params:
+    args:
+      consensus:
+        max_participants: ${MAX_PARTICIPANTS:int:4}
+      setup:
+        safe_contract_address: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_SETUP_SAFE_CONTRACT_ADDRESS:list:[]}
+        oracle_contract_address: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_SETUP_ORACLE_CONTRACT_ADDRESS:list:[]}
+      round_timeout_seconds: ${ORACLE_PARAMS_ROUND_TIMEOUT_SECONDS:float:7.0}
+      tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
+      tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
+      reset_tendermint_after: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_RESET_TENDERMINT_AFTER:int:10}
+      observation_interval: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_OBSERVATION_INTERVAL:int:300}
+      max_healthcheck: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_MAX_HEALTHCHECK:int:1200}
+      broadcast_to_server: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_BROADCAST_TO_SERVER:bool:false}
+      service_registry_address: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_SERVICE_REGISTRY_ADDRESS:str:none}
+      share_tm_config_on_startup: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_SHARE_TM_CONFIG_ON_STARTUP:bool:false}
+      on_chain_service_id: ${SKILL_ORACLE_ABCI_MODELS_PARAMS_ARGS_ON_CHAIN_SERVICE_ID:int:none}
+  server_api:
+    args:
+      url: ${SKILL_ORACLE_ABCI_MODELS_SERVER_API_ARGS_URL:str:http://192.168.2.17:9999/deposit}
+---
+public_id: valory/ledger:0.1.0
+type: connection
+config:
+  ledger_apis:
+    ethereum:
+      address: ${LEDGER_ADDRESS:str:http://localhost:8545}
+      chain_id: ${LEDGER_CHAIN_ID:int:31337}
+      poa_chain: ${LEDGER_POA_CHAIN:bool:false}
+      default_gas_price_strategy: ${LEDGER_DEFAULT_GAS_PRICE_STRATEGY:str:eip1559}
+---
+public_id: valory/p2p_libp2p_client:0.1.0
+type: connection
+config:
+  nodes:
+  - uri: ${P2P_URI:str:acn.staging.autonolas.tech:9005}
+    public_key: ${P2P_PUBLIC_KEY:str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
+  - uri: ${P2P_URI:str:acn.staging.autonolas.tech:9006}
+    public_key: ${P2P_PUBLIC_KEY:str:02e741c62d706e1dcf6986bf37fa74b98681bc32669623ac9ee6ff72488d4f59e8}
+cert_requests:
+- identifier: acn
+  ledger_id: ethereum
+  message_format: '{public_key}'
+  not_after: '2023-01-01'
+  not_before: '2022-01-01'
+  public_key: ${P2P_PUBLIC_KEY:str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
+  save_path: .certs/acn_cosmos_9005.txt
+- identifier: acn
+  ledger_id: ethereum
+  message_format: '{public_key}'
+  not_after: '2023-01-01'
+  not_before: '2022-01-01'
+  public_key: ${P2P_PUBLIC_KEY:str:02e741c62d706e1dcf6986bf37fa74b98681bc32669623ac9ee6ff72488d4f59e8}
+  save_path: .certs/acn_cosmos_9006.txt
+is_abstract: true

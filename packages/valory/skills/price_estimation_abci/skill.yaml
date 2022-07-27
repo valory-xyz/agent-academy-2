@@ -1,0 +1,152 @@
+name: price_estimation_abci
+author: valory
+version: 0.1.0
+type: skill
+description: ABCI application for cryptocurrency price estimation aggregating observations
+  from different sources.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: bafybeicbdi5spc3w3xlg7x5b4oxvq6jxqq6ihzl7gvvv6uoj6tp3xe6ryy
+  __init__.py: bafybeihw3etjrdz7ah6yie3b2z5g4xpfk5wlnbtr2emxyug3hfu6fmmmim
+  behaviours.py: bafybeidd2gvhk7tcdsa7ovpebv7777xq3t3l6nhzcjasvepchbk3ahldvm
+  dialogues.py: bafybeig4tc4thbpsixmbn35kj7jim2gzd7cvxxu4u3xoeyxqzpumuhrdzm
+  fsm_specification.yaml: bafybeidfkkbbisseanwkbcceo7bffy6nwmuw5nxrie26a7noqylqylcujm
+  handlers.py: bafybeiaktxa76cpjytsjtbkftrhp7cppmweoxvglqmxc2cdcymdnzdsyua
+  models.py: bafybeiezevn6fbuvt7sxhsbozzbm2wnj5fiu47plhamdytenugjquy5jyq
+  payloads.py: bafybeibjub6tjzflmuba34cnukxriipey3cpkcdejtkc3jqrvinxqs3us4
+  rounds.py: bafybeihvqee2jhwfcl7bas7h6gw5pywsfya4lcuoe4kvf3zgszn4r3hrry
+fingerprint_ignore_patterns: []
+connections: []
+contracts:
+- valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
+- valory/offchain_aggregator:0.1.0:bafybeiexr4ggkzocdz3cojmwzhkgmx3fjnvisvbnh7jumlz32lsm4hp7ii
+protocols:
+- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
+skills:
+- valory/abstract_round_abci:0.1.0:bafybeib62tcfpwhmnhaj7wz5i5h4eprdhffdk3q4a7xjc2odwlgsx5gapu
+behaviours:
+  main:
+    args: {}
+    class_name: ObserverRoundBehaviour
+handlers:
+  abci:
+    args: {}
+    class_name: ABCIPriceEstimationHandler
+  contract_api:
+    args: {}
+    class_name: ContractApiHandler
+  http:
+    args: {}
+    class_name: HttpHandler
+  ledger_api:
+    args: {}
+    class_name: LedgerApiHandler
+  signing:
+    args: {}
+    class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
+models:
+  abci_dialogues:
+    args: {}
+    class_name: AbciDialogues
+  benchmark_tool:
+    args:
+      log_dir: /logs
+    class_name: BenchmarkTool
+  contract_api_dialogues:
+    args: {}
+    class_name: ContractApiDialogues
+  http_dialogues:
+    args: {}
+    class_name: HttpDialogues
+  ledger_api_dialogues:
+    args: {}
+    class_name: LedgerApiDialogues
+  params:
+    args:
+      broadcast_to_server: false
+      cleanup_history_depth: 1
+      cleanup_history_depth_current: null
+      consensus:
+        max_participants: 1
+      drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      finalize_timeout: 60.0
+      history_check_timeout: 1205
+      keeper_allowed_retries: 3
+      keeper_timeout: 30.0
+      max_healthcheck: 120
+      observation_aggregator_function: median
+      observation_interval: 10
+      on_chain_service_id: null
+      oracle:
+        min_answer: 1000000000000000000
+        max_answer: 1000000000000000000000000
+        decimals: 18
+        description: BTC
+      reset_tendermint_after: 2
+      retry_attempts: 400
+      retry_timeout: 3
+      round_timeout_seconds: 30.0
+      service_id: price_estimation
+      service_registry_address: null
+      setup:
+        oracle_contract_address: []
+        safe_contract_address: []
+      sleep_time: 1
+      tendermint_check_sleep_delay: 3
+      tendermint_com_url: http://localhost:8080
+      tendermint_max_retries: 5
+      tendermint_url: http://localhost:26657
+      validate_timeout: 1205
+    class_name: Params
+  price_api:
+    args:
+      api_id: coinbase
+      convert_id: USD
+      currency_id: BTC
+      headers: []
+      method: GET
+      parameters: []
+      response_key: data:amount
+      response_type: float
+      retries: 5
+      url: https://api.coinbase.com/v2/prices/BTC-USD/buy
+    class_name: PriceApi
+  randomness_api:
+    args:
+      api_id: cloudflare
+      headers: []
+      method: GET
+      parameters: []
+      response_key: null
+      response_type: dict
+      retries: 5
+      url: https://drand.cloudflare.com/public/latest
+    class_name: RandomnessApi
+  requests:
+    args: {}
+    class_name: Requests
+  server_api:
+    args:
+      api_id: oracle_server
+      headers:
+      - Content-Type: application/json
+      method: POST
+      parameters: []
+      response_key: null
+      response_type: dict
+      retries: 5
+      url: http://192.168.2.17:9999/deposit
+    class_name: ServerApi
+  signing_dialogues:
+    args: {}
+    class_name: SigningDialogues
+  state:
+    args: {}
+    class_name: SharedState
+dependencies: {}
+is_abstract: true

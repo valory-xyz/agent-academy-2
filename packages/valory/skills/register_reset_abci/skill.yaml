@@ -1,42 +1,40 @@
-name: keep3r_job
-author: keep3r_co
+name: register_reset_abci
+author: valory
 version: 0.1.0
 type: skill
-description: ABCI application for demonstation.
+description: ABCI application for dummy skill that registers and resets
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
-  __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeihuypmffda5vchcky5jimfq3dhfk2i7tvtr5wncz7fqttmdp2mh2a
+  README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
+  __init__.py: bafybeib3wx66crh3jb56hmo5snirxfolxvjhongpygddadn3ui5cftmnpm
+  behaviours.py: bafybeick2z3fmwjcnacvcnxglpexpub27isshhgb7rbmjekoggq52vuxmq
+  composition.py: bafybeicokngkvzfxu4nawhfxt6zlrk2ml6i37u7i3e5zfv4hybrkefl3nu
   dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
-  fsm_specification.yaml: bafybeibtq5txusplitfevezbziar2kxbqgcttrr4zo3ftpqdbea2jjtvba
-  handlers.py: bafybeiffeqj7hnh7nf76o36zplf4mjvyjzmo4me7izop2zspmj3kcdvamu
-  models.py: bafybeianjqgdcuivv4b2562wnnwmgtc7aklmllzotno3rpqifmjpvh5bne
-  payloads.py: bafybeiasxrgd6o4bupl2yucxr3yod5wtvuv7vcwrkcex3xq5bcmfljhwpu
-  rounds.py: bafybeignwnfj3e5lfwogx7jbdj7qmslhfoi56ldtfcvbvejgxeg4my6lpa
+  fsm_specification.yaml: bafybeifva5d2gmavgwmlpypk6tlejka556ylgp6fv7sl6p2sh36j3afswq
+  handlers.py: bafybeigw2jmgtfv6h7tsfxqiwaupiuq44wi2i26imkmksk5cpqp7nnb3h4
+  models.py: bafybeiejymnwh3epj4h7o5eitre36uxhi5aejzmm3r7sundxafrb3xayou
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeiaqoaub5jverxutngxtbfcshucsg7fqkcrdgbjfdsrdbfntwyhawq
 - valory/http_client:0.1.0:bafybeibh3iu7kojc4d5eiigqh6kx2vdmu2q7vhcvvq2rz6suegsscyd66y
-- valory/ledger:0.1.0:bafybeifxxshi4u3xyyllip5e3yafawywcwpvqxgnybchi5kj74zm4b4n2e
 contracts: []
 protocols:
 - open_aea/signing:1.0.0:bafybeieirkuq6azgis33bmukr5u2gx4chp5kswiw3wd5hbjsaukgwzmp5a
 - valory/abci:0.1.0:bafybeicbj36urbjkn6y7hrhm57dspyuuvpcnxhr3r6y2cwxammpom633g4
-- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
 - valory/http:1.0.0:bafybeifhmibx3l7f3xdwxhweczizadxs6p3oludvapvwdeu4o5f3oahqme
-- valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeib62tcfpwhmnhaj7wz5i5h4eprdhffdk3q4a7xjc2odwlgsx5gapu
+- valory/registration_abci:0.1.0:bafybeibu7crkvn3omxb3n7ioew2uc3nxikmhp4wikszh3juxlwi6cqgmkq
+- valory/reset_pause_abci:0.1.0:bafybeiadipav6vui2nw6senffjhmozhzcbpdwy7ri53ekxd2rbiidj2dfy
 behaviours:
   main:
     args: {}
-    class_name: Keep3rJobRoundBehaviour
+    class_name: RegisterResetAbciAppConsensusBehaviour
 handlers:
   abci:
     args: {}
-    class_name: ABCIHandler
+    class_name: ABCIRegisterResetHandler
   contract_api:
     args: {}
     class_name: ContractApiHandler
@@ -69,39 +67,28 @@ models:
   params:
     args:
       cleanup_history_depth: 1
+      cleanup_history_depth_current: null
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-      job_contract_addresses:
-      - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       keeper_timeout: 30.0
       max_healthcheck: 120
-      observation_interval: 10
-      period_setup:
-        safe_contract_address: stub
-      profitability_threshold: 500
-      reset_tendermint_after: 2
+      observation_interval: 15
+      on_chain_service_id: null
+      reset_tendermint_after: 1
       retry_attempts: 400
       retry_timeout: 3
-      round_timeout_seconds: 30.0
-      service_id: keep3r_job
+      round_timeout_seconds: 15.0
+      service_id: register_reset_abci
+      service_registry_address: null
+      setup: {}
+      share_tm_config_on_startup: false
       sleep_time: 1
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
       tendermint_url: http://localhost:26657
     class_name: Params
-  randomness_api:
-    args:
-      api_id: cloudflare
-      headers: []
-      method: GET
-      parameters: []
-      response_key: null
-      response_type: dict
-      retries: 5
-      url: https://drand.cloudflare.com/public/latest
-    class_name: RandomnessApi
   requests:
     args: {}
     class_name: Requests

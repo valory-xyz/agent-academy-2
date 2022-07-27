@@ -1,0 +1,220 @@
+name: apy_estimation_abci
+author: valory
+version: 0.1.0
+type: skill
+description: This skill implements the APY estimation for an AEA.
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: bafybeiceds6hedhgipxihnl2qt7i2woxsn4fw5ue3evm4aqvknjfpwnbay
+  __init__.py: bafybeif4et2adwa4mtx4clsfcpqk77w23kdq5642vulkddnrsxms6ngbma
+  behaviours.py: bafybeieirqt6xrvrasquyv5jzg4u2chrwpxlnfkk5aacq5eli2qc55f3c4
+  dialogues.py: bafybeig4tc4thbpsixmbn35kj7jim2gzd7cvxxu4u3xoeyxqzpumuhrdzm
+  fsm_specification.yaml: bafybeid56g5zov7zb2hnauahbejn5k3ilymrbg2aihhybzvzwdhbbctexq
+  handlers.py: bafybeibmzghvqekt7iymu6s6yn5tk7lpdmejba4n7dpsz2do3cgfqz7b2a
+  ml/__init__.py: bafybeibceypb22objsuli3abse3rgyycs4hodokjfj5oei4ms4xlqkra5a
+  ml/forecasting.py: bafybeib54a6dzcjlilbkzcpgwrycbkjlrmzox33tas547r2v5hja2qm52m
+  ml/optimization.py: bafybeibeftwvgkjxlykbcn6rnkenuoljluykh3yx4pjijnulixmoexmcvq
+  ml/preprocessing.py: bafybeieha65b5cslcyyjobjupebyqovod7aigohdidcawz5b6tlxqxpruq
+  models.py: bafybeib3rgkfyzbyqfk5aupfxkx2zvyknldrne5chzjb2jsut72epzvgm4
+  payloads.py: bafybeiaomj7i7ouzwzgs2un7w5vptkilmhrs3sk7hzapc6pswltjav3xea
+  rounds.py: bafybeibaajmnddve5opvq6ijre2ssuxvutreqjqhr7wlqp44ztugo3f3hm
+  tasks.py: bafybeihudp5vyhelqnl5eqakjpvuekaoamtbrghss4k2yysvkczspjbbia
+  tools/__init__.py: bafybeid6nc7k2qjndgigeoxhtun27ih5wof3hl4j6fsijulttuwhjydyeu
+  tools/etl.py: bafybeif52kzh46ebiu6s47hbgov6adz557ziv42xmh3j6ejgyyfqzh7pzq
+  tools/general.py: bafybeiggrhs5pko3q4soobaj7vsimrlwixpfprrup7jtwzr3o6eh5ezuh4
+  tools/io.py: bafybeiay2r3f2zsmiqt4xb47lm42tg3lhjbhknnmej3grifemc5eumongu
+  tools/queries.py: bafybeifjtuv4v7f3cp6eyf5vnirtd463yy4x3frzyudgg4xwdie7drk7bi
+fingerprint_ignore_patterns: []
+connections:
+- valory/abci:0.1.0:bafybeiaqoaub5jverxutngxtbfcshucsg7fqkcrdgbjfdsrdbfntwyhawq
+- valory/http_client:0.1.0:bafybeibh3iu7kojc4d5eiigqh6kx2vdmu2q7vhcvvq2rz6suegsscyd66y
+- valory/ledger:0.1.0:bafybeifxxshi4u3xyyllip5e3yafawywcwpvqxgnybchi5kj74zm4b4n2e
+contracts: []
+protocols:
+- open_aea/signing:1.0.0:bafybeieirkuq6azgis33bmukr5u2gx4chp5kswiw3wd5hbjsaukgwzmp5a
+- valory/abci:0.1.0:bafybeicbj36urbjkn6y7hrhm57dspyuuvpcnxhr3r6y2cwxammpom633g4
+- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
+- valory/http:1.0.0:bafybeifhmibx3l7f3xdwxhweczizadxs6p3oludvapvwdeu4o5f3oahqme
+- valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
+skills:
+- valory/abstract_round_abci:0.1.0:bafybeib62tcfpwhmnhaj7wz5i5h4eprdhffdk3q4a7xjc2odwlgsx5gapu
+- valory/registration_abci:0.1.0:bafybeibu7crkvn3omxb3n7ioew2uc3nxikmhp4wikszh3juxlwi6cqgmkq
+behaviours:
+  main:
+    args: {}
+    class_name: EstimatorRoundBehaviour
+handlers:
+  abci:
+    args: {}
+    class_name: ABCIAPYEstimationHandler
+  contract_api:
+    args: {}
+    class_name: ContractApiHandler
+  http:
+    args: {}
+    class_name: HttpHandler
+  ledger_api:
+    args: {}
+    class_name: LedgerApiHandler
+  signing:
+    args: {}
+    class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
+models:
+  abci_dialogues:
+    args: {}
+    class_name: AbciDialogues
+  benchmark_tool:
+    args:
+      log_dir: /logs
+    class_name: BenchmarkTool
+  contract_api_dialogues:
+    args: {}
+    class_name: ContractApiDialogues
+  ethereum_subgraph:
+    args:
+      api_id: eth
+      headers:
+      - Content-Type: application/json
+      method: POST
+      parameters: null
+      response_key: data
+      response_type: dict
+      retries: 5
+      url: https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks
+    class_name: ETHSubgraph
+  fantom_subgraph:
+    args:
+      api_id: fantom
+      headers:
+      - Content-Type: application/json
+      method: POST
+      parameters: null
+      response_key: data
+      response_type: dict
+      retries: 5
+      url: https://api.thegraph.com/subgraphs/name/matthewlilley/fantom-blocks
+    class_name: FantomSubgraph
+  http_dialogues:
+    args: {}
+    class_name: HttpDialogues
+  ledger_api_dialogues:
+    args: {}
+    class_name: LedgerApiDialogues
+  params:
+    args:
+      cleanup_history_depth: 1
+      cleanup_history_depth_current: null
+      consensus:
+        max_participants: 1
+      drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      estimation:
+        steps_forward: 1
+      history_end: 1655136875
+      history_interval_in_unix: 86400
+      history_start: 1652544875
+      ipfs_domain_name: /dns/registry.autonolas.tech/tcp/443/https
+      keeper_timeout: 30.0
+      max_healthcheck: 120
+      observation_interval: 10
+      on_chain_service_id: null
+      optimizer:
+        n_trials: 2
+        timeout: null
+        n_jobs: 1
+        show_progress_bar: false
+        scoring: pinball
+        alpha: 0.25
+        window_size: null
+      pair_ids:
+        uniswap_subgraph:
+        - '0x5777d92f208679db4b9778590fa3cab3ac9e2168'
+        - '0xa374094527e1673a86de625aa59517c5de346d32'
+        spooky_subgraph:
+        - '0x2a651563c9d3af67ae0388a5c8f89b867038089e'
+        - '0x2b4c76d0dc16be1c31d4c1dc53bf9b45987fc75c'
+      reset_tendermint_after: 2
+      retry_attempts: 400
+      retry_timeout: 3
+      round_timeout_seconds: 120.0
+      service_id: apy_estimation
+      service_registry_address: null
+      setup: {}
+      share_tm_config_on_startup: false
+      sleep_time: 5
+      tendermint_check_sleep_delay: 3
+      tendermint_com_url: http://localhost:8080
+      tendermint_max_retries: 5
+      tendermint_url: http://localhost:26657
+      testing:
+        steps_forward: 1
+    class_name: APYParams
+  randomness_api:
+    args:
+      api_id: cloudflare
+      headers: []
+      method: GET
+      parameters: []
+      response_key: null
+      response_type: dict
+      retries: 5
+      url: https://drand.cloudflare.com/public/latest
+    class_name: RandomnessApi
+  requests:
+    args: {}
+    class_name: Requests
+  signing_dialogues:
+    args: {}
+    class_name: SigningDialogues
+  spooky_subgraph:
+    args:
+      api_id: spookyswap
+      bundle_id: 1
+      chain_subgraph: fantom_subgraph
+      headers:
+      - Content-Type: application/json
+      method: POST
+      non_indexed_error_key: errors
+      non_indexed_error_type: list
+      parameters: null
+      response_key: data
+      response_type: dict
+      retries: 5
+      url: https://api.thegraph.com/subgraphs/name/eerieeight/spookyswap
+    class_name: SpookySwapSubgraph
+  state:
+    args: {}
+    class_name: SharedState
+  uniswap_subgraph:
+    args:
+      api_id: uniswap
+      bundle_id: 1
+      chain_subgraph: ethereum_subgraph
+      headers:
+      - Content-Type: application/json
+      method: POST
+      non_indexed_error_key: errors
+      non_indexed_error_type: list
+      parameters: null
+      response_key: data
+      response_type: dict
+      retries: 5
+      url: https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2
+    class_name: UniswapSubgraph
+dependencies:
+  joblib:
+    version: <1.2,>=1.1.0
+  numpy:
+    version: <1.22,>=1.21.4
+  optuna:
+    version: <2.11,>=2.10.0
+  pandas:
+    version: <1.4,>=1.3.4
+  pmdarima:
+    version: <1.9,>=1.8.4
+  scikit-learn:
+    version: <1.1,>=1.0.1
+is_abstract: true

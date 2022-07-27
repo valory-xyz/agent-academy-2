@@ -1,26 +1,31 @@
-name: keep3r_job
-author: keep3r_co
+name: liquidity_rebalancing_abci
+author: valory
 version: 0.1.0
 type: skill
-description: ABCI application for demonstation.
+description: This skill implements liquidity rebalancing capacities to move into and
+  out of Uniswap-V2-based liquidity pools.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
-  __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeihuypmffda5vchcky5jimfq3dhfk2i7tvtr5wncz7fqttmdp2mh2a
+  README.md: bafybeihfrpp7ureemqrsxumuot5h4lcpfdajs7br5wowlqqyo2axfcecuu
+  __init__.py: bafybeiaikx37b2ditrxk2646yn24e6sp5utlbgiz4lyyhidbl2ut6kkajy
+  behaviours.py: bafybeifyh27txzmnrcbhxsbgbx4gjfgvca3wdlnwexfzwtnsr6qybqzewq
   dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
-  fsm_specification.yaml: bafybeibtq5txusplitfevezbziar2kxbqgcttrr4zo3ftpqdbea2jjtvba
-  handlers.py: bafybeiffeqj7hnh7nf76o36zplf4mjvyjzmo4me7izop2zspmj3kcdvamu
-  models.py: bafybeianjqgdcuivv4b2562wnnwmgtc7aklmllzotno3rpqifmjpvh5bne
-  payloads.py: bafybeiasxrgd6o4bupl2yucxr3yod5wtvuv7vcwrkcex3xq5bcmfljhwpu
-  rounds.py: bafybeignwnfj3e5lfwogx7jbdj7qmslhfoi56ldtfcvbvejgxeg4my6lpa
+  fsm_specification.yaml: bafybeiebkzfdeky4ivxp5fhbawsrjw6dzhrbqi66w7qpujlzdudtotfhgq
+  handlers.py: bafybeicap4nttt2g2updfdf62454a5i5dcstpcwlzaz5gtsqnlz5auuuae
+  models.py: bafybeibj52o6wufgv36auawxzisjzy4x2xr2eydxd57hjcx57abify64vy
+  payloads.py: bafybeigvs7s5gnr2ocq7ofrvh7tksla2fh3ymgshhdtooe2wb7bdnw6bta
+  rounds.py: bafybeibxjnvm5r62qnvv54c6xjcym4j2cuxk4kvv566jwcdbamwyr5qjvq
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeiaqoaub5jverxutngxtbfcshucsg7fqkcrdgbjfdsrdbfntwyhawq
 - valory/http_client:0.1.0:bafybeibh3iu7kojc4d5eiigqh6kx2vdmu2q7vhcvvq2rz6suegsscyd66y
 - valory/ledger:0.1.0:bafybeifxxshi4u3xyyllip5e3yafawywcwpvqxgnybchi5kj74zm4b4n2e
-contracts: []
+contracts:
+- valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
+- valory/uniswap_v2_erc20:0.1.0:bafybeid2rdlyshie6yamr6lzf3g3kfovlhvww3rszmtaad2pmawwgmfvce
+- valory/uniswap_v2_router_02:0.1.0:bafybeie7xfg2erv4gzuy46vjvqav4fnrzugvkx5twt5h3n2yocakbpzn4u
 protocols:
 - open_aea/signing:1.0.0:bafybeieirkuq6azgis33bmukr5u2gx4chp5kswiw3wd5hbjsaukgwzmp5a
 - valory/abci:0.1.0:bafybeicbj36urbjkn6y7hrhm57dspyuuvpcnxhr3r6y2cwxammpom633g4
@@ -32,11 +37,11 @@ skills:
 behaviours:
   main:
     args: {}
-    class_name: Keep3rJobRoundBehaviour
+    class_name: LiquidityRebalancingConsensusBehaviour
 handlers:
   abci:
     args: {}
-    class_name: ABCIHandler
+    class_name: ABCILiquidityRebalancing
   contract_api:
     args: {}
     class_name: ContractApiHandler
@@ -49,6 +54,9 @@ handlers:
   signing:
     args: {}
     class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
 models:
   abci_dialogues:
     args: {}
@@ -69,39 +77,45 @@ models:
   params:
     args:
       cleanup_history_depth: 1
+      cleanup_history_depth_current: null
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-      job_contract_addresses:
-      - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      finalize_timeout: 60.0
+      history_check_timeout: 1205
+      keeper_allowed_retries: 3
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
-      period_setup:
-        safe_contract_address: stub
-      profitability_threshold: 500
+      on_chain_service_id: null
+      rebalancing:
+        chain: Ethereum
+        token_base_address: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9'
+        token_base_ticker: WETH
+        token_a_address: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82'
+        token_a_ticker: TKA
+        token_b_address: '0x9A676e781A523b5d0C0e43731313A708CB607508'
+        token_b_ticker: TKB
+        lp_token_address: '0x50CD56fb094F8f06063066a619D898475dD3EedE'
+        default_minter: '0x0000000000000000000000000000000000000000'
+        ab_pool_address: '0x86A6C37D3E868580a65C723AAd7E0a945E170416'
+        max_allowance: 1.1579209e+77
+        deadline: 300
+        sleep_seconds: 1
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3
       round_timeout_seconds: 30.0
-      service_id: keep3r_job
+      service_id: liquidity_rebalancing
+      service_registry_address: null
+      setup: {}
       sleep_time: 1
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
       tendermint_url: http://localhost:26657
+      validate_timeout: 1205
     class_name: Params
-  randomness_api:
-    args:
-      api_id: cloudflare
-      headers: []
-      method: GET
-      parameters: []
-      response_key: null
-      response_type: dict
-      retries: 5
-      url: https://drand.cloudflare.com/public/latest
-    class_name: RandomnessApi
   requests:
     args: {}
     class_name: Requests
@@ -112,4 +126,4 @@ models:
     args: {}
     class_name: SharedState
 dependencies: {}
-is_abstract: false
+is_abstract: true
