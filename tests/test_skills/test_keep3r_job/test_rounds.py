@@ -57,18 +57,16 @@ def get_participants() -> FrozenSet[str]:
 class BaseRoundTestClass:
     """Base test class for Rounds."""
 
-    period_state: SynchronizedData
+    synchronized_data: SynchronizedData
     consensus_params: ConsensusParams
     participants: FrozenSet[str]
 
     @classmethod
-    def setup(
-        cls,
-    ) -> None:
+    def setup(cls) -> None:
         """Setup the test class."""
 
         cls.participants = get_participants()
-        cls.period_state = SynchronizedData(
+        cls.synchronized_data = SynchronizedData(
             AbciAppDB(
                 setup_data=dict(
                     participants=[cls.participants], all_participants=[cls.participants],
@@ -95,7 +93,7 @@ class TestPrepareTxRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = PrepareTxRound(
-            state=self.period_state, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
         )
         test_hash = "test_hash"
 
@@ -111,7 +109,7 @@ class TestPrepareTxRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = self.period_state.update(
+        actual_next_state = self.synchronized_data.update(
             most_voted_tx_hash=test_round.most_voted_payload,
         )
 
@@ -134,7 +132,7 @@ class TestSafeExistenceRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = CheckSafeExistenceRound(
-            state=self.period_state, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
         )
 
         first_payload, *payloads = [
@@ -154,7 +152,7 @@ class TestSafeExistenceRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = self.period_state.update(
+        actual_next_state = self.synchronized_data.update(
             participant_to_selection=MappingProxyType(test_round.collection),
             safe_exists=test_round.most_voted_payload,
         )
@@ -177,7 +175,7 @@ class TestSafeExistenceRound(BaseRoundTestClass):
     ) -> None:
         """Run tests."""
         test_round = CheckSafeExistenceRound(
-            state=self.period_state, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
         )
 
         first_payload, *payloads = [
@@ -197,7 +195,7 @@ class TestSafeExistenceRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = self.period_state.update(
+        actual_next_state = self.synchronized_data.update(
             participant_to_selection=MappingProxyType(test_round.collection),
             safe_exists=test_round.most_voted_payload,
         )
@@ -225,7 +223,7 @@ class TestJobSelectionRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = JobSelectionRound(
-            state=self.period_state, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
         )
 
         first_payload, *payloads = [
@@ -245,7 +243,7 @@ class TestJobSelectionRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = self.period_state.update(
+        actual_next_state = self.synchronized_data.update(
             participant_to_selection=MappingProxyType(test_round.collection),
             job_selection=test_round.most_voted_payload,
         )
@@ -273,7 +271,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = IsWorkableRound(
-            state=self.period_state, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
         )
 
         first_payload, *payloads = [
@@ -293,7 +291,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = self.period_state.update(
+        actual_next_state = self.synchronized_data.update(
             participant_to_selection=MappingProxyType(test_round.collection),
             is_workable=test_round.most_voted_payload,
         )
@@ -317,7 +315,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = IsWorkableRound(
-            state=self.period_state, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
         )
 
         first_payload, *payloads = [
@@ -337,7 +335,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = self.period_state.update(
+        actual_next_state = self.synchronized_data.update(
             participant_to_selection=MappingProxyType(test_round.collection),
             is_workable=test_round.most_voted_payload,
         )
@@ -365,7 +363,7 @@ class TestIsProfitableRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = IsProfitableRound(
-            state=self.period_state, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
         )
 
         first_payload, *payloads = [
@@ -385,7 +383,7 @@ class TestIsProfitableRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = self.period_state.update(
+        actual_next_state = self.synchronized_data.update(
             participant_to_selection=MappingProxyType(test_round.collection),
             is_profitable=test_round.most_voted_payload,
         )
@@ -409,7 +407,7 @@ class TestIsProfitableRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = IsProfitableRound(
-            state=self.period_state, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
         )
 
         first_payload, *payloads = [
@@ -429,7 +427,7 @@ class TestIsProfitableRound(BaseRoundTestClass):
         for payload in payloads:
             test_round.process_payload(payload)
 
-        actual_next_state = self.period_state.update(
+        actual_next_state = self.synchronized_data.update(
             participant_to_selection=MappingProxyType(test_round.collection),
             is_profitable=test_round.most_voted_payload,
         )
