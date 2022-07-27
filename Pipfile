@@ -49,7 +49,7 @@ types-requests = "==2.27.25"
 types-protobuf = "==3.19.20"
 
 [requires]
-python_version = "3.10"
+python_version = "3.7"
 
 [dev-packages.mkdocs-mermaid-plugin]
 git = "https://github.com/pugong/mkdocs-mermaid-plugin.git"

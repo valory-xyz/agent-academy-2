@@ -38,6 +38,17 @@ clean-test:
 	find . -name 'log.txt' -exec rm -fr {} +
 	find . -name 'log.*.txt' -exec rm -fr {} +
 
+.PHONY: formatters
+formatters:
+	tox -e isort
+	tox -e black
+
+.PHONY: generators
+generators:
+	python -m autonomy.cli hash all
+	python scripts/check_copyright.py
+	python scripts/check_doc_ipfs_hashes.py --fix
+
 .PHONY: lint
 lint:
 	black packages tests scripts
