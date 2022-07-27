@@ -26,21 +26,30 @@ from typing import Dict, Type, cast
 import pytest
 from aea.helpers.transaction.base import RawTransaction
 
-from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
-from packages.keep3r_co.skills.keep3r_job.behaviours import (
+from packages.valory.contracts.gnosis_safe.contract import (
+    PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
+)
+from packages.valory.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
+from packages.valory.protocols.contract_api.message import ContractApiMessage
+from packages.valory.skills.abstract_round_abci.base import AbciAppDB, BaseTxPayload
+from packages.valory.skills.abstract_round_abci.behaviour_utils import (
+    BaseBehaviour,
+    make_degenerate_behaviour,
+)
+from packages.valory.skills.keep3r_job.behaviours import (
     IsProfitableBehaviour,
     IsWorkableBehaviour,
     JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
     PrepareTxBehaviour,
 )
-from packages.keep3r_co.skills.keep3r_job.handlers import (
+from packages.valory.skills.keep3r_job.handlers import (
     ContractApiHandler,
     HttpHandler,
     LedgerApiHandler,
     SigningHandler,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job.rounds import (
     Event,
     FinishedPrepareTxRound,
     IsProfitableRound,
@@ -48,19 +57,9 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     PrepareTxRound,
     SynchronizedData,
 )
-from packages.valory.contracts.gnosis_safe.contract import (
-    PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
-)
-from packages.valory.protocols.contract_api.message import ContractApiMessage
-from packages.valory.skills.abstract_round_abci.base import BaseTxPayload, AbciAppDB
-from packages.valory.skills.abstract_round_abci.behaviour_utils import (
-    BaseBehaviour,
-    make_degenerate_behaviour,
-)
 
 from tests.conftest import ROOT_DIR
 from tests.test_skills.base import FSMBehaviourBaseCase
-from tests.test_skills.test_simple_abci.test_behaviours import SimpleAbciFSMBehaviourBaseCase
 
 
 AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
@@ -80,7 +79,7 @@ class DummyRoundId:
 class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     """Base test case."""
 
-    path_to_skill = Path(ROOT_DIR, "packages", "keep3r_co", "skills", "keep3r_job")
+    path_to_skill = Path(ROOT_DIR, "packages", "valory", "skills", "keep3r_job")
 
     behaviour: Keep3rJobRoundBehaviour
     ledger_handler: LedgerApiHandler
@@ -88,7 +87,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     contract_handler: ContractApiHandler
     signing_handler: SigningHandler
     old_tx_type_to_payload_cls: Dict[str, Type[BaseTxPayload]]
-    synchronized_data: SynchronizedData
+    synchronized_data: SynchronizedData = SynchronizedData(AbciAppDB(setup_data={}))
     benchmark_dir: TemporaryDirectory
     done_event = Event.DONE
 
@@ -120,7 +119,10 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
                 ),
             ),
         )
-        assert self.current_behaviour.behaviour_id == self.prepare_tx_behaviour_class.behaviour_id
+        assert (
+            self.current_behaviour.behaviour_id
+            == self.prepare_tx_behaviour_class.behaviour_id
+        )
         self.behaviour.act_wrapper()
 
         # first mock the work tx itself
@@ -232,9 +234,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.fast_forward_to_behaviour(
             self.behaviour,
             IsWorkableBehaviour.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(setup_data=dict(job_selection=["some_job"]))
-            ),
+            SynchronizedData(AbciAppDB(setup_data=dict(job_selection=["some_job"]))),
         )
         assert self.current_behaviour.behaviour_id == IsWorkableBehaviour.behaviour_id
 
@@ -264,9 +264,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.fast_forward_to_behaviour(
             self.behaviour,
             IsWorkableBehaviour.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(setup_data=dict(job_selection=["some_job"]))
-            ),
+            SynchronizedData(AbciAppDB(setup_data=dict(job_selection=["some_job"]))),
         )
         assert self.current_behaviour.behaviour_id == IsWorkableBehaviour.behaviour_id
 
@@ -306,9 +304,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.fast_forward_to_behaviour(
             self.behaviour,
             self.is_profitable_behaviour_class.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(setup_data=dict(job_selection=["some_job"]))
-            ),
+            SynchronizedData(AbciAppDB(setup_data=dict(job_selection=["some_job"]))),
         )
 
         assert self.current_behaviour.behaviour_id == IsProfitableBehaviour.behaviour_id
@@ -341,9 +337,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.fast_forward_to_behaviour(
             self.behaviour,
             self.is_profitable_behaviour_class.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(setup_data=dict(job_selection=["some_job"]))
-            ),
+            SynchronizedData(AbciAppDB(setup_data=dict(job_selection=["some_job"]))),
         )
         assert self.current_behaviour.behaviour_id == IsProfitableBehaviour.behaviour_id
 

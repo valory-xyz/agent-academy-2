@@ -19,7 +19,7 @@
 
 """Test the dialogues.py module of the skill."""
 
-import packages.keep3r_co.skills.keep3r_job.dialogues  # noqa
+import packages.valory.skills.keep3r_job.dialogues  # noqa
 
 
 def test_import() -> None:

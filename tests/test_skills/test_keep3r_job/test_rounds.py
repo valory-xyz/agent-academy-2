@@ -23,14 +23,19 @@ from types import MappingProxyType
 from typing import FrozenSet, cast
 from unittest import mock
 
-from packages.keep3r_co.skills.keep3r_job.payloads import (
+from packages.valory.skills.abstract_round_abci.base import (
+    AbciAppDB,
+    AbstractRound,
+    ConsensusParams,
+)
+from packages.valory.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
     SafeExistencePayload,
     TXHashPayload,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job.rounds import (
     CheckSafeExistenceRound,
     Event,
     IsProfitableRound,
@@ -38,11 +43,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     JobSelectionRound,
     PrepareTxRound,
     SynchronizedData,
-)
-from packages.valory.skills.abstract_round_abci.base import (
-    AbstractRound,
-    ConsensusParams,
-    AbciAppDB,
 )
 
 
@@ -69,7 +69,8 @@ class BaseRoundTestClass:
         cls.synchronized_data = SynchronizedData(
             AbciAppDB(
                 setup_data=dict(
-                    participants=[cls.participants], all_participants=[cls.participants],
+                    participants=[cls.participants],
+                    all_participants=[cls.participants],
                 ),
             )
         )
@@ -93,7 +94,8 @@ class TestPrepareTxRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = PrepareTxRound(
-            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
         )
         test_hash = "test_hash"
 
@@ -132,7 +134,8 @@ class TestSafeExistenceRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = CheckSafeExistenceRound(
-            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
         )
 
         first_payload, *payloads = [
@@ -175,7 +178,8 @@ class TestSafeExistenceRound(BaseRoundTestClass):
     ) -> None:
         """Run tests."""
         test_round = CheckSafeExistenceRound(
-            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
         )
 
         first_payload, *payloads = [
@@ -223,7 +227,8 @@ class TestJobSelectionRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = JobSelectionRound(
-            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
         )
 
         first_payload, *payloads = [
@@ -271,7 +276,8 @@ class TestIsWorkableRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = IsWorkableRound(
-            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
         )
 
         first_payload, *payloads = [
@@ -315,7 +321,8 @@ class TestIsWorkableRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = IsWorkableRound(
-            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
         )
 
         first_payload, *payloads = [
@@ -363,7 +370,8 @@ class TestIsProfitableRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = IsProfitableRound(
-            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
         )
 
         first_payload, *payloads = [
@@ -407,7 +415,8 @@ class TestIsProfitableRound(BaseRoundTestClass):
         """Run tests."""
 
         test_round = IsProfitableRound(
-            synchronized_data=self.synchronized_data, consensus_params=self.consensus_params
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
         )
 
         first_payload, *payloads = [
