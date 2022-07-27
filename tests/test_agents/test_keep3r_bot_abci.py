@@ -17,7 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""End2end tests for the keep3r_co/keep3r_abci skill."""
+"""End2end tests for the valory/keep3r_abci skill."""
 
 import pytest
 
@@ -41,39 +41,39 @@ CHECK_STRINGS = (
 
 
 @pytest.mark.e2e
+@pytest.mark.parametrize("nb_nodes", (1,))
 class TestKeep3rABCISingleAgent(
     BaseTestEnd2EndExecution,
 ):
     """Test that the ABCI keep3r_abci skill with only one agent."""
 
-    NB_AGENTS = 1
-    agent_package = "keep3r_co/keep3r_bot:0.1.0"
-    skill_package = "keep3r_co/keep3r_abci:0.1.0"
+    agent_package = "valory/keep3r_bot:0.1.0"
+    skill_package = "valory/keep3r_abci:0.1.0"
     wait_to_finish = 40
     check_strings = CHECK_STRINGS
 
 
 @pytest.mark.e2e
+@pytest.mark.parametrize("nb_nodes", (2,))
 class TestKeep3rABCITwoAgents(
     BaseTestEnd2EndExecution,
 ):
     """Test that the ABCI keep3r_abci skill with two agents."""
 
-    NB_AGENTS = 2
-    agent_package = "keep3r_co/keep3r_bot:0.1.0"
-    skill_package = "keep3r_co/keep3r_abci:0.1.0"
+    agent_package = "valory/keep3r_bot:0.1.0"
+    skill_package = "valory/keep3r_abci:0.1.0"
     wait_to_finish = 80
     check_strings = CHECK_STRINGS
 
 
 @pytest.mark.e2e
+@pytest.mark.parametrize("nb_nodes", (4,))
 class TestKeep3rABCIFourAgents(
     BaseTestEnd2EndExecution,
 ):
     """Test that the ABCI keep3r_abci skill with four agents."""
 
-    NB_AGENTS = 4
-    agent_package = "keep3r_co/keep3r_bot:0.1.0"
-    skill_package = "keep3r_co/keep3r_abci:0.1.0"
+    agent_package = "valory/keep3r_bot:0.1.0"
+    skill_package = "valory/keep3r_abci:0.1.0"
     wait_to_finish = 80
     check_strings = CHECK_STRINGS
