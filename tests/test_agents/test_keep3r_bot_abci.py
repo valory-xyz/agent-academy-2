@@ -21,7 +21,7 @@
 
 import pytest
 
-from tests.test_agents.base import BaseTestEnd2EndNormalExecution
+from tests.test_agents.base import BaseTestEnd2EndExecution
 
 
 # check log messages of the happy path
@@ -42,7 +42,7 @@ CHECK_STRINGS = (
 
 @pytest.mark.e2e
 class TestKeep3rABCISingleAgent(
-    BaseTestEnd2EndNormalExecution,
+    BaseTestEnd2EndExecution,
 ):
     """Test that the ABCI keep3r_abci skill with only one agent."""
 
@@ -55,7 +55,7 @@ class TestKeep3rABCISingleAgent(
 
 @pytest.mark.e2e
 class TestKeep3rABCITwoAgents(
-    BaseTestEnd2EndNormalExecution,
+    BaseTestEnd2EndExecution,
 ):
     """Test that the ABCI keep3r_abci skill with two agents."""
 
@@ -68,7 +68,7 @@ class TestKeep3rABCITwoAgents(
 
 @pytest.mark.e2e
 class TestKeep3rABCIFourAgents(
-    BaseTestEnd2EndNormalExecution,
+    BaseTestEnd2EndExecution,
 ):
     """Test that the ABCI keep3r_abci skill with four agents."""
 

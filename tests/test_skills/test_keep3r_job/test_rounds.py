@@ -36,13 +36,13 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     IsProfitableRound,
     IsWorkableRound,
     JobSelectionRound,
-    PeriodState,
     PrepareTxRound,
+    SynchronizedData,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbstractRound,
     ConsensusParams,
-    StateDB,
+    AbciAppDB,
 )
 
 
@@ -57,7 +57,7 @@ def get_participants() -> FrozenSet[str]:
 class BaseRoundTestClass:
     """Base test class for Rounds."""
 
-    period_state: PeriodState
+    period_state: SynchronizedData
     consensus_params: ConsensusParams
     participants: FrozenSet[str]
 
@@ -68,11 +68,10 @@ class BaseRoundTestClass:
         """Setup the test class."""
 
         cls.participants = get_participants()
-        cls.period_state = PeriodState(
-            StateDB(
-                initial_period=0,
-                initial_data=dict(
-                    participants=cls.participants, all_participants=cls.participants
+        cls.period_state = SynchronizedData(
+            AbciAppDB(
+                setup_data=dict(
+                    participants=[cls.participants], all_participants=[cls.participants],
                 ),
             )
         )
@@ -120,8 +119,8 @@ class TestPrepareTxRound(BaseRoundTestClass):
         assert res is not None
         state, event = res
         assert (
-            cast(PeriodState, state).participants
-            == cast(PeriodState, actual_next_state).participants
+            cast(SynchronizedData, state).participants
+            == cast(SynchronizedData, actual_next_state).participants
         )
         assert event == Event.DONE
 
@@ -165,8 +164,10 @@ class TestSafeExistenceRound(BaseRoundTestClass):
         state, event = res
         assert all(
             [
-                key in cast(PeriodState, state).participant_to_selection
-                for key in cast(PeriodState, actual_next_state).participant_to_selection
+                key in cast(SynchronizedData, state).participant_to_selection
+                for key in cast(
+                    SynchronizedData, actual_next_state
+                ).participant_to_selection
             ]
         )
         assert event == Event.NEGATIVE
@@ -206,8 +207,10 @@ class TestSafeExistenceRound(BaseRoundTestClass):
         state, event = res
         assert all(
             [
-                key in cast(PeriodState, state).participant_to_selection
-                for key in cast(PeriodState, actual_next_state).participant_to_selection
+                key in cast(SynchronizedData, state).participant_to_selection
+                for key in cast(
+                    SynchronizedData, actual_next_state
+                ).participant_to_selection
             ]
         )
         assert event == Event.DONE
@@ -252,8 +255,10 @@ class TestJobSelectionRound(BaseRoundTestClass):
         state, event = res
         assert all(
             [
-                key in cast(PeriodState, state).participant_to_selection
-                for key in cast(PeriodState, actual_next_state).participant_to_selection
+                key in cast(SynchronizedData, state).participant_to_selection
+                for key in cast(
+                    SynchronizedData, actual_next_state
+                ).participant_to_selection
             ]
         )
         assert event == Event.DONE
@@ -298,8 +303,10 @@ class TestIsWorkableRound(BaseRoundTestClass):
         state, event = res
         assert all(
             [
-                key in cast(PeriodState, state).participant_to_selection
-                for key in cast(PeriodState, actual_next_state).participant_to_selection
+                key in cast(SynchronizedData, state).participant_to_selection
+                for key in cast(
+                    SynchronizedData, actual_next_state
+                ).participant_to_selection
             ]
         )
         assert event == Event.DONE
@@ -340,8 +347,10 @@ class TestIsWorkableRound(BaseRoundTestClass):
         state, event = res
         assert all(
             [
-                key in cast(PeriodState, state).participant_to_selection
-                for key in cast(PeriodState, actual_next_state).participant_to_selection
+                key in cast(SynchronizedData, state).participant_to_selection
+                for key in cast(
+                    SynchronizedData, actual_next_state
+                ).participant_to_selection
             ]
         )
         assert event == Event.NOT_WORKABLE
@@ -386,8 +395,10 @@ class TestIsProfitableRound(BaseRoundTestClass):
         state, event = res
         assert all(
             [
-                key in cast(PeriodState, state).participant_to_selection
-                for key in cast(PeriodState, actual_next_state).participant_to_selection
+                key in cast(SynchronizedData, state).participant_to_selection
+                for key in cast(
+                    SynchronizedData, actual_next_state
+                ).participant_to_selection
             ]
         )
         assert event == Event.DONE
@@ -428,8 +439,10 @@ class TestIsProfitableRound(BaseRoundTestClass):
         state, event = res
         assert all(
             [
-                key in cast(PeriodState, state).participant_to_selection
-                for key in cast(PeriodState, actual_next_state).participant_to_selection
+                key in cast(SynchronizedData, state).participant_to_selection
+                for key in cast(
+                    SynchronizedData, actual_next_state
+                ).participant_to_selection
             ]
         )
         assert event == Event.NOT_PROFITABLE

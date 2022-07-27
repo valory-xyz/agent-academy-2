@@ -62,6 +62,9 @@ GANACHE_CONFIGURATION = dict(
 )
 
 
+ANY_ADDRESS = "0.0.0.0"  # nosec
+
+
 @pytest.fixture()
 def key_pairs() -> List[Tuple[str, str]]:
     """Get the default key paris for hardhat."""

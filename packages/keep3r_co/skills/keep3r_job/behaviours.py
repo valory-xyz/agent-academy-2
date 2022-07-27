@@ -37,27 +37,27 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     IsWorkableRound,
     JobSelectionRound,
     Keep3rJobAbciApp,
-    PeriodState,
     PrepareTxRound,
+    SynchronizedData,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
-    BaseState,
+    BaseBehaviour,
 )
 
 
-class CheckSafeExistenceBehaviour(BaseState):
+class CheckSafeExistenceBehaviour(BaseBehaviour):
     """Check Safe contract existence."""
 
-    state_id = "check_safe_existence"
+    behaviour_id = "check_safe_existence"
     matching_round = CheckSafeExistenceRound
 
     @property
-    def period_state(self) -> PeriodState:
-        """Return the period state."""
-        return cast(PeriodState, super().period_state)
+    def synchronized_data(self) -> SynchronizedData:
+        """Return the synchronized data."""
+        return cast(SynchronizedData, super().synchronized_data)
 
     def async_act(self) -> Generator:
         """
@@ -69,11 +69,11 @@ class CheckSafeExistenceBehaviour(BaseState):
         - Go to the next behaviour state (set done event).
         """
 
-        with self.context.benchmark_tool.measure(self.state_id).local():
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
             exists = self.safe_contract_exists()
             payload = SafeExistencePayload(self.context.agent_address, exists)
 
-        with self.context.benchmark_tool.measure(self.state_id).consensus():
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
@@ -82,20 +82,20 @@ class CheckSafeExistenceBehaviour(BaseState):
     def safe_contract_exists(self) -> bool:
         """Check Contract deployment verification."""
 
-        if self.period_state.safe_contract_address is None:  # pragma: nocover
+        if self.synchronized_data.safe_contract_address is None:  # pragma: nocover
             self.context.logger.warning("Safe contract has not been deployed!")
             return False
 
         return True
 
 
-class Keep3rJobAbciBaseState(BaseState, ABC):
+class Keep3rJobAbciBaseBehaviour(BaseBehaviour, ABC):
     """Base state behaviour for the simple abci skill."""
 
     @property
-    def period_state(self) -> PeriodState:
-        """Return the period state."""
-        return cast(PeriodState, super().period_state)
+    def synchronized_data(self) -> SynchronizedData:
+        """Return the synchronized data."""
+        return cast(SynchronizedData, super().synchronized_data)
 
     @property
     def params(self) -> Params:
@@ -108,14 +108,14 @@ class Keep3rJobAbciBaseState(BaseState, ABC):
         if not self.context.params.job_contract_addresses:
             return None
         addresses = self.context.params.job_contract_addresses
-        job_ix = self.period_state.period_count % len(addresses)
+        job_ix = self.synchronized_data.period_count % len(addresses)
         return self.context.params.job_contract_addresses[job_ix]
 
 
-class JobSelectionBehaviour(Keep3rJobAbciBaseState):
+class JobSelectionBehaviour(Keep3rJobAbciBaseBehaviour):
     """Check whether the job contract is selected."""
 
-    state_id = "job_selection"
+    behaviour_id = "job_selection"
     matching_round = JobSelectionRound
 
     def async_act(self) -> Generator:
@@ -124,22 +124,22 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
 
         job selection payload is shared between participants.
         """
-        with self.context.benchmark_tool.measure(self.state_id).local():
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
             job_contract = self.current_job_contract
             payload = JobSelectionPayload(self.context.agent_address, job_contract)
             self.context.logger.info(f"Job contract selected : {job_contract}")
 
-        with self.context.benchmark_tool.measure(self.state_id).consensus():
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
         self.set_done()
 
 
-class IsWorkableBehaviour(Keep3rJobAbciBaseState):
+class IsWorkableBehaviour(Keep3rJobAbciBaseBehaviour):
     """Check whether the job contract is workable."""
 
-    state_id = "is_workable"
+    behaviour_id = "is_workable"
     matching_round = IsWorkableRound
 
     def async_act(self) -> Generator:
@@ -148,7 +148,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
 
         is workable payload is shared between participants.
         """
-        with self.context.benchmark_tool.measure(self.state_id).local():
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
             self.context.logger.info(
                 f"Interacting with Job contract at {self.current_job_contract}"
             )
@@ -157,7 +157,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
                 is_workable = False
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
-        with self.context.benchmark_tool.measure(self.state_id).consensus():
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             self.context.logger.info(
                 f"Job contract is workable {self.current_job_contract}: {is_workable}"
             )
@@ -178,10 +178,10 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
         return is_workable
 
 
-class PrepareTxBehaviour(Keep3rJobAbciBaseState):
+class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
     """Deploy Safe."""
 
-    state_id = "prepare_tx"
+    behaviour_id = "prepare_tx"
     matching_round = PrepareTxRound
 
     def async_act(self) -> Generator:
@@ -194,12 +194,12 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         - Otherwise, wait until the next round.
         - If a timeout is hit, set exit A event, otherwise set done event.
         """
-        with self.context.benchmark_tool.measure(self.state_id).local():
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             tx_hash = yield from self._get_raw_work_transaction_hash()
             payload = TXHashPayload(self.context.agent_address, tx_hash)
 
-        with self.context.benchmark_tool.measure(self.state_id).consensus():
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
@@ -248,10 +248,10 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         return tx_hash
 
 
-class IsProfitableBehaviour(Keep3rJobAbciBaseState):
+class IsProfitableBehaviour(Keep3rJobAbciBaseBehaviour):
     """Checks if job is profitable."""
 
-    state_id = "get_is_profitable"
+    behaviour_id = "get_is_profitable"
     matching_round = IsProfitableRound
 
     def async_act(self) -> Generator:
@@ -263,7 +263,7 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
         - Set Payload accordingly and send transaction, then end the round.
         """
 
-        with self.context.benchmark_tool.measure(self.state_id).local():
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
             reward_multiplier = yield from self.rewardMultiplier()
             if reward_multiplier is None:
                 raise RuntimeError("Contract call has failed")
@@ -274,7 +274,7 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
             else:
                 payload = IsProfitablePayload(self.context.agent_address, False)
 
-        with self.context.benchmark_tool.measure(self.state_id).consensus():
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             self.context.logger.info(f"Safe transaction hash: {reward_multiplier}")
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
@@ -305,9 +305,9 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseState):
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the Keep3rJobAbciApp."""
 
-    initial_state_cls = CheckSafeExistenceBehaviour  # type: ignore
+    initial_behaviour_cls = CheckSafeExistenceBehaviour  # type: ignore
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
-    behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
+    behaviours: Set[Type[Keep3rJobAbciBaseBehaviour]] = {  # type: ignore
         CheckSafeExistenceBehaviour,  # type: ignore
         JobSelectionBehaviour,  # type: ignore
         IsWorkableBehaviour,  # type: ignore

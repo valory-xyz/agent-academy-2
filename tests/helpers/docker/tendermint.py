@@ -27,10 +27,9 @@ from typing import Any, Dict, List
 
 import docker
 import pytest
+from autonomy.constants import TENDERMINT_IMAGE_NAME, TENDERMINT_IMAGE_VERSION
 from docker.errors import ImageNotFound
 from docker.models.containers import Container
-
-from autonomy.constants import TENDERMINT_IMAGE_NAME, TENDERMINT_IMAGE_VERSION
 
 from tests.helpers.base import tendermint_health_check
 from tests.helpers.docker.base import DockerImage
