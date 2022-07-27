@@ -1,7 +1,12 @@
+
+# we copy .github and tox.ini from agent-academy-1 since it was recently updated
+# for the other packages, we update only those we have (and need)
+# copy the complete scripts folder for convenience
+
 cp -r ../agent-academy-1/.github .
+ cp -r ../open-autonomy/scripts/ .
 cp -r ../open-autonomy/packages/open_aea/ packages/
 cp -r ../open-autonomy/packages/valory/ packages/
- cp -r ../open-autonomy/scripts/ .
 cp -r ../open-autonomy/tests/data tests
 cp -r ../open-autonomy/tests/helpers/docker tests/helpers
 cp -r ../open-autonomy/tests/helpers/__init__.py tests/helpers
