@@ -62,7 +62,7 @@ pylint:
 
 .PHONY: hashes
 hashes:
-	python -m autonomy.cli hash all
+	python scripts/generate_ipfs_hashes.py
 
 .PHONY: static
 static:
