@@ -22,22 +22,39 @@ import json
 import logging
 import time
 import warnings
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import pytest
 from aea.configurations.base import PublicId
-from aea.test_tools.test_cases import AEATestCaseMany
+from aea.test_tools.test_cases import AEATestCaseMany, Result
 
-from tests.helpers.tendermint_utils import (
-    BaseTendermintTestClass,
-    TendermintLocalNetworkBuilder,
-    TendermintNodeInfo,
-)
+from tests.conftest import ANY_ADDRESS
+from tests.fixture_helpers import UseFlaskTendermintNode
+
+
+_HTTP = "http://"
+
+
+@dataclass
+class RoundChecks:
+    """
+    Class for the necessary checks of a round during the tests.
+
+    name: is the name of the round for which the checks should be performed.
+    event: is the name of the event that is considered as successful.
+    n_periods: is the number of periods this event should appear for the check to be considered successful.
+    """
+
+    name: str
+    success_event: str = "DONE"
+    n_periods: int = 1
 
 
 @pytest.mark.e2e
-class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
+@pytest.mark.integration
+class BaseTestEnd2End(AEATestCaseMany, UseFlaskTendermintNode):
     """
     Base class for end-to-end tests of agents with a skill extending the abstract_abci_round skill.
 
@@ -45,140 +62,217 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
     agents with the configured (agent_package) agent, and a Tendermint network
     of 'n' nodes, one for each agent.
 
-    Test subclasses must set NB_AGENTS, agent_package, wait_to_finish and check_strings.
+    Test subclasses must set `agent_package`, `wait_to_finish` and `check_strings`.
     """
 
-    NB_AGENTS: int
+    # where to fetch agent from
     IS_LOCAL = True
+    # whether to capture logs of subprocesses
     capture_log = True
+    # generic service configurations
     ROUND_TIMEOUT_SECONDS = 10.0
     KEEPER_TIMEOUT = 30.0
+    # generic node healthcheck configuration
     HEALTH_CHECK_MAX_RETRIES = 20
     HEALTH_CHECK_SLEEP_INTERVAL = 3.0
+    # log option for agent process
     cli_log_options = ["-v", "DEBUG"]
-    processes: List
+    # reserved variable for subprocesses collection
+    processes: Dict
+    # name of agent and skill (the one with composed abci apps) to be tested
     agent_package: str
     skill_package: str
+    # time to wait for testable log strings to appear
     wait_to_finish: int
-    # dictionary with the round names expected to appear in output as keys
-    # and the number of periods they are expected to appear for as values.
-    round_check_strings_to_n_periods: Optional[Dict[str, int]] = None
+    # the "happy path" is a successful finish of the FSM execution
+    happy_path: Tuple[RoundChecks, ...] = ()
     # tuple of strings expected to appear in output as is.
     strict_check_strings: Tuple[str, ...] = ()
+    # process to be excluded from checks
+    exclude_from_checks: List[int] = []
+    # dictionary of extra config overrides to be applied
     extra_configs: List[Dict[str, Any]] = []
+    # ledger used for testing
+    ledger_id: str = "ethereum"
+    key_file_name: str = "ethereum_private_key.txt"
+
+    @classmethod
+    def set_config(
+        cls,
+        dotted_path: str,
+        value: Any,
+        type_: Optional[str] = None,
+        aev: bool = True,
+    ) -> Result:
+        """Set config value."""
+        return super().set_config(dotted_path, value, type_, aev)
 
     def __set_extra_configs(self) -> None:
         """Set the current agent's extra config overrides that are skill specific."""
         for config in self.extra_configs:
             self.set_config(**config)
 
-    def __set_configs(self, node: TendermintNodeInfo) -> None:
+    def __set_configs(self, i: int, nb_agents: int) -> None:
         """Set the current agent's config overrides."""
         # each agent has its Tendermint node instance
         self.set_config(
+            "agent.logging_config.handlers.logfile.filename",
+            str(self.t / f"abci_{i}.txt"),
+        )
+        self.set_config(
+            "vendor.valory.connections.abci.config.host",
+            ANY_ADDRESS,
+        )
+        self.set_config(
             "vendor.valory.connections.abci.config.port",
-            node.abci_port,
+            self.get_abci_port(i),
+        )
+        self.set_config(
+            "vendor.valory.connections.abci.config.use_tendermint",
+            False,
         )
         self.set_config(
             "vendor.valory.connections.abci.config.tendermint_config.rpc_laddr",
-            node.rpc_laddr,
+            self.get_laddr(i),
         )
         self.set_config(
             "vendor.valory.connections.abci.config.tendermint_config.p2p_laddr",
-            node.p2p_laddr,
-        )
-        self.set_config(
-            "vendor.valory.connections.abci.config.tendermint_config.home",
-            str(node.home),
+            self.get_laddr(i, p2p=True),
         )
         self.set_config(
             "vendor.valory.connections.abci.config.tendermint_config.p2p_seeds",
-            json.dumps(self.tendermint_net_builder.get_p2p_seeds()),
+            json.dumps(self.p2p_seeds),
             "list",
         )
         self.set_config(
-            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.consensus.max_participants",
-            self.NB_AGENTS,
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.consensus.max_participants",
+            nb_agents,
         )
         self.set_config(
-            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.reset_tendermint_after",
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.reset_tendermint_after",
             5,
         )
         self.set_config(
-            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.round_timeout_seconds",
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.round_timeout_seconds",
             self.ROUND_TIMEOUT_SECONDS,
             type_="float",
         )
         self.set_config(
-            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.tendermint_url",
-            node.get_http_addr("localhost"),
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.tendermint_url",
+            f"{_HTTP}{ANY_ADDRESS}:{self.get_port(i)}",
         )
         self.set_config(
-            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.keeper_timeout",
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.tendermint_com_url",
+            f"{_HTTP}{ANY_ADDRESS}:{self.get_com_port(i)}",
+        )
+        self.set_config(
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.keeper_timeout",
             self.KEEPER_TIMEOUT,
             type_="float",
         )
-
         self.set_config(
-            f"vendor.{PublicId.from_str(self.skill_package).author}.skills.{PublicId.from_str(self.skill_package).name}.models.benchmark_tool.args.log_dir",
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.benchmark_tool.args.log_dir",
             str(self.t),
             type_="str",
+        )
+        self.set_config(
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.observation_interval",
+            3,
+            type_="int",
+        )
+        self.set_config(
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.service_registry_address",
+            "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",  # address on staging chain
+            type_="str",
+        )
+        self.set_config(  # dummy service
+            f"vendor.valory.skills.{PublicId.from_str(self.skill_package).name}.models.params.args.on_chain_service_id",
+            "1",
+            type_="int",
         )
 
         self.__set_extra_configs()
 
-    def setup(self) -> None:
-        """Set up the test."""
-        self.agent_names = [f"agent_{i:05d}" for i in range(self.NB_AGENTS)]
-        self.processes = []
-        self.tendermint_net_builder = TendermintLocalNetworkBuilder(
-            self.NB_AGENTS, Path(self.t)
-        )
+    @staticmethod
+    def _get_agent_name(i: int) -> str:
+        """Get the ith agent's name."""
+        return f"agent_{i:05d}"
 
-        for agent_id, agent_name in enumerate(self.agent_names):
-            logging.debug(f"Processing agent {agent_name}...")
-            node = self.tendermint_net_builder.nodes[agent_id]
-            self.fetch_agent(self.agent_package, agent_name, is_local=self.IS_LOCAL)
-            self.set_agent_context(agent_name)
-            if hasattr(self, "key_pairs"):
-                Path(self.current_agent_context, "ethereum_private_key.txt").write_text(
-                    self.key_pairs[agent_id][1]  # type: ignore
-                )
-            else:
-                self.generate_private_key("ethereum", "ethereum_private_key.txt")
-            self.add_private_key("ethereum", "ethereum_private_key.txt")
-            self.__set_configs(node)
+    def __prepare_agent_i(self, i: int, nb_agents: int) -> None:
+        """Prepare the i-th agent."""
+        agent_name = self._get_agent_name(i)
+        logging.info(f"Processing agent {agent_name}...")
+        self.fetch_agent(self.agent_package, agent_name, is_local=self.IS_LOCAL)
+        self.set_agent_context(agent_name)
+        if hasattr(self, "key_pairs"):
+            Path(self.current_agent_context, self.key_file_name).write_text(
+                self.key_pairs[i][1]  # type: ignore
+            )
+        else:
+            self.generate_private_key(self.ledger_id, self.key_file_name)
+        self.add_private_key(self.ledger_id, self.key_file_name)
+        self.__set_configs(i, nb_agents)
+        # issue certificates for libp2p proof of representation
+        self.generate_private_key("cosmos", "cosmos_private_key.txt")
+        self.add_private_key("cosmos", "cosmos_private_key.txt")
+        self.run_cli_command("issue-certificates", cwd=self._get_cwd())
+
+    def prepare(self, nb_nodes: int) -> None:
+        """Set up the agents."""
+        for agent_id in range(nb_nodes):
+            self.__prepare_agent_i(agent_id, nb_nodes)
 
         # run 'aea install' in only one AEA project, to save time
-        self.set_agent_context(self.agent_names[0])
+        self.set_agent_context(self._get_agent_name(0))
         self.run_install()
+
+    def prepare_and_launch(self, nb_nodes: int) -> None:
+        """Prepare and launch the agents."""
+        self.processes = dict.fromkeys(range(nb_nodes))
+        self.prepare(nb_nodes)
+        for agent_id in range(nb_nodes):
+            self._launch_agent_i(agent_id)
 
     def _launch_agent_i(self, i: int) -> None:
         """Launch the i-th agent."""
-        agent_name = self.agent_names[i]
-        logging.debug(f"Launching agent {agent_name}...")
+        agent_name = self._get_agent_name(i)
+        logging.info(f"Launching agent {agent_name}...")
         self.set_agent_context(agent_name)
         process = self.run_agent()
-        self.processes.append(process)
+        self.processes[i] = process
+
+    def terminate_processes(self) -> None:
+        """Terminate processes"""
+        for i, process in self.processes.items():
+            self.terminate_agents(process)
+            outs, errs = process.communicate()
+            logging.info(f"subprocess logs {process}: {outs} --- {errs}")
+            if not self.is_successfully_terminated(process):
+                agent_name = self._get_agent_name(i)
+                warnings.warn(
+                    UserWarning(
+                        f"ABCI {agent_name} with process {process} wasn't successfully terminated."
+                    )
+                )
 
     @staticmethod
     def __generate_full_strings_from_rounds(
-        round_check_strings_to_n_periods: Dict[str, int]
+        happy_path: Tuple[RoundChecks, ...]
     ) -> Dict[str, int]:
         """Generate the full strings from the given round strings"""
         full_strings = {}
-        for round_str, n_periods in round_check_strings_to_n_periods.items():
-            entered_str = f"Entered in the '{round_str}' round for period"
-            done_str = f"'{round_str}' round is done with event: Event.DONE"
-            full_strings[entered_str] = n_periods
-            full_strings[done_str] = n_periods
+        for round_check in happy_path:
+            entered_str = f"Entered in the '{round_check.name}' round for period"
+            done_str = f"'{round_check.name}' round is done with event: Event.{round_check.success_event}"
+            full_strings[entered_str] = round_check.n_periods
+            full_strings[done_str] = round_check.n_periods
 
         return full_strings
 
     @classmethod
     def missing_from_output(  # type: ignore
         cls,
-        round_check_strings_to_n_periods: Optional[Dict[str, int]] = None,
+        happy_path: Tuple[RoundChecks, ...] = (),
         strict_check_strings: Tuple[str, ...] = (),
         period: int = 1,
         is_terminating: bool = True,
@@ -189,8 +283,7 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
 
         Read process stdout in thread and terminate when all strings are present or timeout expired.
 
-        :param round_check_strings_to_n_periods: dictionary with the round names expected to appear in output as keys
-            and the number of periods they are expected to appear for as values.
+        :param happy_path: the happy path of the testing FSM.
         :param strict_check_strings: tuple of strings expected to appear in output as is.
         :param period: period of checking.
         :param is_terminating: whether the agents are terminated if any of the check strings do not appear in the logs.
@@ -204,9 +297,10 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
 
         # Perform checks for the round strings.
         missing_round_strings = []
-        if round_check_strings_to_n_periods is not None:
+        if len(happy_path):
+            logging.info("Performing checks for the round strings.")
             check_strings_to_n_periods = cls.__generate_full_strings_from_rounds(
-                round_check_strings_to_n_periods
+                happy_path
             )
             # Create dictionary to keep track of how many times this string has appeared so far.
             check_strings_to_n_appearances = dict.fromkeys(check_strings_to_n_periods)
@@ -239,31 +333,35 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
                 )
             ]
 
-        if is_terminating:
-            cls.terminate_agents(kwargs["process"])
-
         return missing_strict_strings, missing_round_strings
 
-    @staticmethod
     def __check_missing_strings(
-        missing_strict_strings: List[str], missing_round_strings: List[str], i: int
+        self,
+        missing_strict_strings: List[str],
+        missing_round_strings: List[str],
+        i: int,
     ) -> None:
         """Checks for missing strings in agent's output."""
+        agent_name = self._get_agent_name(i)
         missing_agent_logs = ""
         if missing_strict_strings:
-            missing_agent_logs += (
-                f"Strings {missing_strict_strings} didn't appear in agent_{i} output.\n"
-            )
+            missing_agent_logs += f"Strings {missing_strict_strings} didn't appear in {agent_name} output.\n"
         missing_agent_logs += "\n".join(missing_round_strings)
 
         assert missing_agent_logs == "", missing_agent_logs
 
-    def _check_aea_messages(self) -> None:
-        """Check that *each* AEA prints these messages."""
-        for i, process in enumerate(self.processes):
-            missing_strict_strings, missing_round_strings = self.missing_from_output(
+    def check_aea_messages(self) -> None:
+        """
+        Check that *each* AEA prints these messages.
+
+        First failing check will cause assertion error and test tear down.
+        """
+        for i, process in self.processes.items():
+            if i in self.exclude_from_checks:
+                continue
+            (missing_strict_strings, missing_round_strings,) = self.missing_from_output(
                 process=process,
-                round_check_strings_to_n_periods=self.round_check_strings_to_n_periods,
+                happy_path=self.happy_path,
                 strict_check_strings=self.strict_check_strings,
                 timeout=self.wait_to_finish,
             )
@@ -272,32 +370,8 @@ class BaseTestEnd2End(AEATestCaseMany, BaseTendermintTestClass):
                 missing_strict_strings, missing_round_strings, i
             )
 
-            if not self.is_successfully_terminated(process):
-                warnings.warn(
-                    UserWarning(
-                        f"ABCI agent with process {process} wasn't successfully terminated."
-                    )
-                )
 
-
-class BaseTestEnd2EndNormalExecution(BaseTestEnd2End):
-    """Test that the ABCI simple skill works together with Tendermint under normal circumstances."""
-
-    def test_run(self) -> None:
-        """Run the ABCI skill."""
-        for agent_id in range(self.NB_AGENTS):
-            self._launch_agent_i(agent_id)
-
-        logging.info("Waiting Tendermint nodes to be up")
-        self.health_check(
-            self.tendermint_net_builder,
-            max_retries=self.HEALTH_CHECK_MAX_RETRIES,
-            sleep_interval=self.HEALTH_CHECK_SLEEP_INTERVAL,
-        )
-        self._check_aea_messages()
-
-
-class BaseTestEnd2EndAgentCatchup(BaseTestEnd2End):
+class BaseTestEnd2EndExecution(BaseTestEnd2End):
     """
     Test that an agent that is launched later can synchronize with the rest of the network
 
@@ -317,51 +391,75 @@ class BaseTestEnd2EndAgentCatchup(BaseTestEnd2End):
       node can receive the responses
     """
 
-    # mandatory argument
-    stop_string: str
+    nb_nodes: int = 0  # number of agents with tendermint nodes
 
-    restart_after: int = 60
-    wait_before_stop: int = 15
+    # configuration specific for agent restart
+    stop_string: str  # mandatory argument if n_terminal > 0
+    n_terminal: int = 0  # number of agents to be restarted
+    wait_to_kill: int = 0  # delay the termination event
+    restart_after: int = 60  # how long to wait before restart
+    wait_before_stop: int = 15  # how long to check logs for `stop_string`
 
-    def setup(self) -> None:
-        """Set up the test."""
-        if not hasattr(self, "stop_string"):
-            pytest.fail("'stop_string' is a mandatory argument.")
-        super().setup()
+    def check(self) -> None:
+        """Check pre-conditions of the test"""
+        if self.n_terminal > self.nb_nodes:
+            fail_msg = "Cannot terminate {nb_nodes} out of {n_terminal} agents:"
+            pytest.fail(
+                fail_msg.format(nb_nodes=self.nb_nodes, n_terminal=self.n_terminal)
+            )
+        if self.n_terminal and not hasattr(self, "stop_string"):
+            pytest.fail("'stop_string' must be provided for agent termination.")
 
-    def test_run(self) -> None:
+    def test_run(self, nb_nodes: int) -> None:
         """Run the test."""
+        self.nb_nodes = nb_nodes
+        self.check()
 
-        for agent_id in range(self.NB_AGENTS):
-            self._launch_agent_i(agent_id)
-
-        logging.info("Waiting Tendermint nodes to be up")
+        self.prepare_and_launch(nb_nodes)
         self.health_check(
-            self.tendermint_net_builder,
             max_retries=self.HEALTH_CHECK_MAX_RETRIES,
             sleep_interval=self.HEALTH_CHECK_SLEEP_INTERVAL,
         )
+        if self.n_terminal:
+            self._restart_agents()
+        self.check_aea_messages()
+        self.terminate_processes()
+
+    def _restart_agents(self) -> None:
+        """Stops and restarts agents after stop string is found."""
 
         # stop the last agent as soon as the "stop string" is found in the output
-        process_to_stop = self.processes[-1]
-        logging.debug(f"Waiting for string {self.stop_string} in last agent output")
+        # once found, we start terminating the first agent
+        logging.info(f"Waiting for string {self.stop_string} in last agent output")
         missing_strict_strings, _ = self.missing_from_output(
-            process=process_to_stop,
+            process=self.processes[max(self.processes)],
             strict_check_strings=(self.stop_string,),
             timeout=self.wait_before_stop,
         )
         if missing_strict_strings:
-            raise RuntimeError("cannot stop agent correctly")
-        logging.debug("Last agent stopped")
-        self.processes.pop(-1)
+            msg = f"cannot stop agent, stop string `{self.stop_string}` not found"
+            raise RuntimeError(msg)
+
+        if self.wait_to_kill:
+            logging.info("Waiting to terminate agents")
+            time.sleep(self.wait_to_kill)
+
+        # terminate the agents - sequentially
+        # don't pop before termination, seems to lead to failure!
+        for i in range(self.n_terminal):
+            agent_name = self._get_agent_name(i)
+            self.terminate_agents(self.processes[i], timeout=0)
+            self.processes.pop(i)
+            logging.info(f"Terminated {agent_name}")
 
         # wait for some time before restarting
-        logging.debug(
+        logging.info(
             f"Waiting {self.restart_after} seconds before restarting the agent"
         )
         time.sleep(self.restart_after)
 
-        # restart agent
-        logging.debug("Restart the agent")
-        self._launch_agent_i(-1)
-        self._check_aea_messages()
+        # restart agents
+        for i in range(self.n_terminal):
+            agent_name = self._get_agent_name(i)
+            self._launch_agent_i(i)
+            logging.info(f"Restarted {agent_name}")

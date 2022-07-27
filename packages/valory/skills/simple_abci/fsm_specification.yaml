@@ -18,10 +18,10 @@ transition_func:
     (RandomnessStartupRound, NO_MAJORITY): RandomnessStartupRound
     (RandomnessStartupRound, ROUND_TIMEOUT): RandomnessStartupRound
     (RegistrationRound, DONE): RandomnessStartupRound
+    (RegistrationRound, NO_MAJORITY): RegistrationRound
     (ResetAndPauseRound, DONE): RandomnessStartupRound
     (ResetAndPauseRound, NO_MAJORITY): RegistrationRound
     (ResetAndPauseRound, RESET_TIMEOUT): RegistrationRound
     (SelectKeeperAtStartupRound, DONE): ResetAndPauseRound
     (SelectKeeperAtStartupRound, NO_MAJORITY): RegistrationRound
     (SelectKeeperAtStartupRound, ROUND_TIMEOUT): RegistrationRound
-

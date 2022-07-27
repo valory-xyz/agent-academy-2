@@ -6,10 +6,10 @@ description: connection to wrap communication with an ABCI server.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  Makefile: bafybeihlw4kwpf3evct7j63o74fz73rruo2p6wdes2ti2ul5xpamuhwdvi
+  Makefile: bafybeibdgarch56r46dfy7x7fouj52nbjpjs4fgtrd3prgtwelowyjan5i
   __init__.py: bafybeihmlekg5twsic5wviy3voopxqnsexrylsa5o5lscs7qnlc7w2jco4
-  check_dependencies.py: bafybeifua74lhrhubqukf7qaygbx7p7myvpqidn4zqieqkcwrbygq4t7xm
-  connection.py: bafybeidtl53xvyf4nrk3cz4e6cc6dnm3ku4cciqlkkoymiq66x65qa7cnq
+  check_dependencies.py: bafybeihmhemryyl2iacwwrqebr7us7wx4otvwbdbtckwkl5kxqopidyzwm
+  connection.py: bafybeihvdaqkolmv5cdq4l5ta66vdhcgfeh5qagajdn5scuy3wpsc5bzmq
   dialogues.py: bafybeiby4chuigbm5zgeqfy6hwgxh3m37c2o76m3crr6icfbocnfw2ylbq
   gogoproto/__init__.py: bafybeicfrdhpgcnnexzz4o5vohvqvcgpe6wnputnkdhfl2la24vfoslqay
   gogoproto/gogo_pb2.py: bafybeih2nnsem7jmzljqgc4qptoaj2zlfbuyooqiymuvomwrzzavs26ufe
@@ -32,8 +32,8 @@ fingerprint:
   tendermint/types/validator_pb2.py: bafybeihbukxnnvzbc2w75uln5qxyj3sle7euezbwo6pk65rbdznexgatbm
   tendermint/version/types_pb2.py: bafybeiee7dx3fxa4vnuyosl6qps7z6guk3p627lan7owqjuq3rgjhfqnty
   tendermint_decoder.py: bafybeiawoouu44c3rqqcvokas5byrgen2d7xyzgujhl2tec5ok5cj6he3q
-  tendermint_encoder.py: bafybeiccc7cvcutznzw4a6x5gjjx3cmr7pp6fxdjnweaha3i7a3nm4uley
-  version.txt: bafybeiczm6ganuwqkuswhyv2oyhz7svuyicfkmw2pzgqr36ukbzvt5yg2i
+  tendermint_encoder.py: bafybeie3pmkuixp367tltoa7urishsizma6n27ftb6uqaeg4gn6os5waym
+  version.txt: bafybeifjb44fd7qve2ku62ythui6z4mvd4k7qkjomlcdnl3ymb3bnq6xee
 fingerprint_ignore_patterns: []
 build_entrypoint: check_dependencies.py
 connections: []

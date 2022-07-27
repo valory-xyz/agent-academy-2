@@ -19,19 +19,28 @@
 
 """This module contains testing utilities."""
 import logging
+import platform
 import re
 import shutil
 import subprocess  # nosec
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generator
+from typing import Any, Dict, Generator, List
 
 import docker
 import pytest
+from docker.errors import ImageNotFound, NotFound
 from docker.models.containers import Container
 
 
+SEPARATOR = ("\n" + "*" * 40) * 3 + "\n"
 logger = logging.getLogger(__name__)
+
+
+skip_docker_tests = pytest.mark.skipif(
+    platform.system() != "Linux",
+    reason="Docker daemon is not available in Windows and macOS CI containers.",
+)
 
 
 class DockerImage(ABC):
@@ -96,6 +105,10 @@ class DockerImage(ABC):
         """Instantiate the image in a container."""
 
     @abstractmethod
+    def create_many(self, nb_containers: int) -> List[Container]:
+        """Instantiate the image in many containers, parametrized."""
+
+    @abstractmethod
     def wait(self, max_attempts: int = 15, sleep_rate: float = 1.0) -> bool:
         """
         Wait until the image is running.
@@ -106,38 +119,97 @@ class DockerImage(ABC):
         """
 
 
+def _pre_launch(image: DockerImage) -> None:
+    """Run pre-launch checks."""
+    image.check_skip()
+    image.stop_if_already_running()
+
+
+def _start_container(
+    image: DockerImage, container: Container, timeout: float, max_attempts: int
+) -> None:
+    """
+    Start a container.
+
+    :param image: an instance of Docker image.
+    :param container: the container to start, created from the image.
+    :param timeout: timeout to launch
+    :param max_attempts: max launch attempts
+    """
+    container.start()
+    logger.info(f"Setting up image {image.tag}...")
+    success = image.wait(max_attempts, timeout)
+    if not success:
+        container.stop()
+        logger.error(
+            f"{SEPARATOR}Logs from container {container.name}:\n{container.logs().decode()}"
+        )
+        container.remove()
+        pytest.fail(f"{image.tag} doesn't work. Exiting...")
+    else:
+        logger.info("Done!")
+        time.sleep(timeout)
+
+
+def _stop_container(container: Container, tag: str) -> None:
+    """Stop a container."""
+    logger.info(f"Stopping container {container.name} from image {tag}...")
+    container.stop()
+    try:
+        logger.info(
+            f"{SEPARATOR}Logs from container {container.name}:\n{container.logs().decode()}"
+        )
+        if str(container.name).startswith("node"):
+            logger.info(f"{SEPARATOR}Logs from container log file {container.name}:\n")
+            bits, _ = container.get_archive(f"/logs/{container.name}.txt")
+            for chunk in bits:
+                logger.info(chunk.decode())
+    except (ImageNotFound, NotFound) as e:
+        logger.error(e)
+    finally:
+        container.remove()
+
+
 def launch_image(
     image: DockerImage, timeout: float = 2.0, max_attempts: int = 10
-) -> Generator:
+) -> Generator[DockerImage, None, None]:
     """
-    Launch image.
+    Launch a single container.
 
     :param image: an instance of Docker image.
     :param timeout: timeout to launch
     :param max_attempts: max launch attempts
     :yield: image
     """
-    image.check_skip()
-    image.stop_if_already_running()
+    _pre_launch(image)
     container = image.create()
-    container.start()
-    logger.info(f"Setting up image {image.tag}...")
-    success = image.wait(max_attempts, timeout)
-    if not success:
-        container.stop()
-        logger.info("Error logs from container:\n%s", container.logs().decode())
-        container.remove()
-        pytest.fail(f"{image.tag} doesn't work. Exiting...")
-    else:
-        logger.info("Done!")
-        time.sleep(timeout)
-        yield image
-        logger.info(f"Stopping the image {image.tag}...")
-        container.stop()
-        logger.info("Logs from container:\n%s", container.logs().decode())
-        container.remove()
+    _start_container(image, container, timeout, max_attempts)
+    yield image
+    _stop_container(container, image.tag)
 
 
+def launch_many_containers(
+    image: DockerImage, nb_containers: int, timeout: float = 2.0, max_attempts: int = 10
+) -> Generator[DockerImage, None, None]:
+    """
+    Launch many containers from an image.
+
+    :param image: an instance of Docker image.
+    :param nb_containers: the number of containers to launch from the image.
+    :param timeout: timeout to launch
+    :param max_attempts: max launch attempts
+    :yield: image
+    """
+    _pre_launch(image)
+    containers = image.create_many(nb_containers)
+    for container in containers:
+        _start_container(image, container, timeout, max_attempts)
+    yield image
+    for container in containers:
+        _stop_container(container, image.tag)
+
+
+@skip_docker_tests
 class DockerBaseTest(ABC):
     """Base pytest class for setting up Docker images."""
 
@@ -161,8 +233,8 @@ class DockerBaseTest(ABC):
         success = cls._image.wait(cls.max_attempts, cls.timeout)
         if not success:
             cls._container.stop()
-            logger.info(
-                "Error logs from container:\n%s", cls._container.logs().decode()
+            logger.error(
+                f"{SEPARATOR}Logs from container {cls._container.name}:\n{cls._container.logs().decode()}"
             )
             cls._container.remove()
             pytest.fail(f"{cls._image.tag} doesn't work. Exiting...")
@@ -176,7 +248,9 @@ class DockerBaseTest(ABC):
         """Tear down the test."""
         logger.info(f"Stopping the image {cls._image.tag}...")
         cls._container.stop()
-        logger.info("Logs from container:\n%s", cls._container.logs().decode())
+        logger.info(
+            f"{SEPARATOR}Logs from container {cls._container.name}:\n{cls._container.logs().decode()}"
+        )
         cls._container.remove()
 
     @classmethod

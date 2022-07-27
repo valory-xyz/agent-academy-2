@@ -8,34 +8,37 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeievb7bhfm46p5adx3x4gvsynjpq35fcrrapzn5m2whcdt4ufxfvfq
   __init__.py: bafybeiaxhdfjmhbstyi5oqeu7wzst44snhbyoggrpusgs2c3tn3cluzhpm
-  abci_app_chain.py: bafybeihltwwe3bw7pllbc3xxyojfq3xup2mc55aahh6scpc2ywtvpskzji
-  base.py: bafybeibj5fr3geqyewvbd5klqjt655rvjkuirudby6en3kffyjh3adx4ge
-  behaviour_utils.py: bafybeihwyydv2uw3urjplws5mveq5w2cp3xh5tet2wtyg6ooaysaabnfpq
-  behaviours.py: bafybeihoj66k6hn7eywc5vy65go3ycpm6marhpo4jptct3ckdk3tndnkxe
-  common.py: bafybeiaq4ut44csikkmpzqqqcaaaabmjabh7dxalkuqtjiozkqzbe4wjsm
-  dialogues.py: bafybeihue27ngzs4ehbkrwh4265lnmtfcyf7o4fyas5b4hi6u5vfhqnpzi
-  handlers.py: bafybeie7tj3yzvhtata7hslwfvv5vjp2wdnar3g5k2rt4af2c4jkfpigju
+  abci_app_chain.py: bafybeich2ufsbkuehbuqzxeofoq5agfdpvy7bvhgcncxbf3gcq6qrxtvj4
+  base.py: bafybeibqzl32tkpkedy4rrx5tf5ktuqqn5d4l4uwcwg74m7ch4bo3w4ru4
+  behaviour_utils.py: bafybeie27cigguvbazlqnslhfapnmq46adqjyrnwipdapwxcngwvrhm2ni
+  behaviours.py: bafybeif3knc6efobddgkh3xc3yqwgtlk7z4zflftd7sic5j3at5rrhsute
+  common.py: bafybeicz7feaxvwftwi7qe2x4g4f6edwsh434kr4duebafbwphqyxzuyka
+  dialogues.py: bafybeibvnmcn7kofol2h6owljhde4llfc3kwwkb5helxsgsy47mokhwb4i
+  handlers.py: bafybeidammqyvz2wvqirr3it4tfy7vbe5kxybwkz5o3y4ogo3wrbaqwcmy
   io/__init__.py: bafybeiattfgecxl5y276etqe5jiuhqk3grcov6qky5cgokstmwhrbaodri
   io/ipfs.py: bafybeigmsaoxdcpg5qvsxjkhilpfvcdmpsb2lie4fu5oqc2ows6i7pifwa
   io/load.py: bafybeib63wgk7wcghrvldqn6dpurkw6o7q3eohg3dpinnf7rhw4qwo2j7q
   io/paths.py: bafybeicfno2l4vwtmjcm3rzpp6tqi3xlkof47pypf5teecad22d44u2ple
   io/store.py: bafybeiee7uhs372q3kxd5s3itufb3ws24ey74my2jpnivit3kboon6xsaq
-  models.py: bafybeib3zgzofowologfyolf42sbdiaypykrrvjmd5e4rnrkakz5dlo4lu
-  serializer.py: bafybeiddggjdvkouykkvdan4chpi3simshwluayyu67ctkfapymwxzz4te
-  utils.py: bafybeib54lujsevmqojfsgefmjedrtavmvjvhjf2qknop2ur2dpmodp3fq
+  models.py: bafybeiclzcy6s7qkbolp7wagckbcuz2leq5mwmqx226mi3qigsnn5xeheu
+  serializer.py: bafybeiezjdtp33nub7ual5ibt4vi7dj3ilmyw7wqq374ctub5oo7wgp7mm
+  utils.py: bafybeifnvnlpajv5iqv6wumlfppomcmcfbbb5rpiiqhouxqs5ddwlkqjjy
 fingerprint_ignore_patterns: []
 connections:
-- valory/abci:0.1.0:bafybeifjqmtdwznrzqevn2sln74xfm2gewvgneda26egg7qpokcwjwwr4y
-- valory/http_client:0.1.0:bafybeigxjc25bp4vdmhuhdq6f3a5j7g2auyvaf5s3xl6eqov4mcm2jgcmu
-- valory/ledger:0.1.0:bafybeieszkfizyqfxmjsgsdjj4353oxkmcjxa6knafkf5u7adh3xsgdys4
-contracts: []
+- valory/abci:0.1.0:bafybeiaqoaub5jverxutngxtbfcshucsg7fqkcrdgbjfdsrdbfntwyhawq
+- valory/http_client:0.1.0:bafybeibh3iu7kojc4d5eiigqh6kx2vdmu2q7vhcvvq2rz6suegsscyd66y
+- valory/ledger:0.1.0:bafybeifxxshi4u3xyyllip5e3yafawywcwpvqxgnybchi5kj74zm4b4n2e
+contracts:
+- valory/service_registry:0.1.0:bafybeidtwbj7mwiskbbmsw43zzooivuq6nripdzn7yuoou66rq7spom54m
 protocols:
-- valory/abci:0.1.0:bafybeiedib4f7ryh6rr3c67ymg62wshuc3kxrfx7egd3nsz6l7laaflpzi
-- valory/contract_api:1.0.0:bafybeih4vhywhz25qpsskwcn34bmzs4oavqzd5hfdjbo42bjchfqt7vp6m
-- valory/http:1.0.0:bafybeihtz7ctxytxlah3mw2vhdup5hbjocfgocnzz3ajsgqdyzjlwe2eku
-- valory/ledger_api:1.0.0:bafybeibpni27yfhpub3mnaxoiye5sh4orfpd4aftd255bd37z2etatym6u
+- valory/abci:0.1.0:bafybeicbj36urbjkn6y7hrhm57dspyuuvpcnxhr3r6y2cwxammpom633g4
+- valory/acn:1.1.0:bafybeibvuomoe7dln75slklaaag7vmppbpy2huhyupfygh4cgwdqp2roue
+- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
+- valory/http:1.0.0:bafybeifhmibx3l7f3xdwxhweczizadxs6p3oludvapvwdeu4o5f3oahqme
+- valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
+- valory/tendermint:0.1.0:bafybeigrenadbkdzpkxbjmpkubxzmihk45v6jbwosngciqdccth4lvp7cm
 skills:
-- valory/abstract_abci:0.1.0:bafybeicmwzbui3s4ouhtufcrlmmglnhgo4j2a3jdhfmqnqwlihdfubmmdq
+- valory/abstract_abci:0.1.0:bafybeihdlbwh2m6n4pgu4bylzte6vihjzgfl4bkfz372umtd3vil5briam
 behaviours:
   main:
     args: {}
@@ -56,6 +59,9 @@ handlers:
   signing:
     args: {}
     class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
 models:
   abci_dialogues:
     args: {}
@@ -89,7 +95,7 @@ dependencies:
   joblib:
     version: <1.2,>=1.1.0
   open-aea-cli-ipfs:
-    version: <2.0.0,>=1.7.0
+    version: <2.0.0,>=1.13.0
   pandas:
     version: <1.4,>=1.3.4
   pmdarima:
