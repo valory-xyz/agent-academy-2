@@ -12,7 +12,7 @@ fingerprint:
   composition.py: bafybeiblfxwtrrvfslekna4ks46xxry2rw55g67bpqlgsvvod7apzrmjoq
   dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
   fsm_specification.yaml: bafybeihudzdxf4mejrtzhgtczh37drsg6rn7ct4epfjxcvgqnwaidawjse
-  handlers.py: bafybeih4lf67rr27fe2xq5g2wna6agtiaex5xcbo4dedk27qb4xrl5g7z4
+  handlers.py: bafybeib3qidwprx7xthgjwlvirvky4b5ladtcj2kn3x5btz26aaqjdut6i
   models.py: bafybeiezqimkgp37uhrxy2ihcianynfxhvezwzf63bc5cfehzhz5tnekmi
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
   rounds.py: bafybeicxdpuq7pmz7aszaax4oxpk7olavo4pbb56ng63ieuxnd7vl53m4q
@@ -28,7 +28,7 @@ protocols:
 - valory/http:1.0.0:bafybeifhmibx3l7f3xdwxhweczizadxs6p3oludvapvwdeu4o5f3oahqme
 - valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
 skills:
-- valory/keep3r_job:0.1.0:bafybeih2rbu4dtpwgaeotpnavqooqh3kyed7uyb5liqjayegcav7yuim2i
+- valory/keep3r_job:0.1.0:bafybeiaoctkyikylhmpcl4lnpyq26gybhyyymwmj2g4ipvv4kkjfwr2lbq
 - valory/registration_abci:0.1.0:bafybeiextiecxab2drlwqmifd33yzxrsoi3q2nq5rufg2ga42x3errj5wm
 - valory/reset_pause_abci:0.1.0:bafybeifuu43bgmeilzyfrf2k6lenbq3g5anypecxvewz5ogtpafmoon7vq
 - valory/safe_deployment_abci:0.1.0:bafybeihfykgpnergo6mke33oxhyyd2772xy73vuad3iomx5h2vixsv75cy
@@ -40,7 +40,7 @@ behaviours:
 handlers:
   abci:
     args: {}
-    class_name: Keep3rAbciHandler
+    class_name: ABCIHandler
   contract_api:
     args: {}
     class_name: ContractApiHandler
@@ -53,6 +53,9 @@ handlers:
   signing:
     args: {}
     class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
 models:
   abci_dialogues:
     args: {}
