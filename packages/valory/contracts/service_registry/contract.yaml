@@ -1,0 +1,17 @@
+name: service_registry
+author: valory
+version: 0.1.0
+type: contract
+description: Service Registry contract
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  __init__.py: bafybeidey4syohls5hxmso6qsp5p4uhtzle5txv2mlbym6ktjzknich6oa
+  build/ServiceRegistry.json: bafybeihlnbesnzonomapmpvqr6mm2fhtxrbz6yiimpz3ro5244bzxb2phi
+  contract.py: bafybeidilm6exlk53pano7hkpqdwnynm3ktdmyvfvjqphyvn5dmzttorpu
+fingerprint_ignore_patterns: []
+contracts: []
+class_name: ServiceRegistryContract
+contract_interface_paths:
+  ethereum: build/ServiceRegistry.json
+dependencies: {}

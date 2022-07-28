@@ -18,16 +18,22 @@
 # ------------------------------------------------------------------------------
 """Connection to interact with an ABCI server."""
 import asyncio
+import json
 import logging
+import os
+import platform
 import signal
 import subprocess  # nosec
 from asyncio import AbstractEventLoop, AbstractServer, CancelledError, Task
 from io import BytesIO
 from logging import Logger
+from pathlib import Path
+from threading import Event, Thread
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from aea.configurations.base import PublicId
 from aea.connections.base import Connection, ConnectionStates
+from aea.exceptions import enforce
 from aea.mail.base import Envelope
 from aea.protocols.dialogue.base import DialogueLabel
 from google.protobuf.message import DecodeError
@@ -49,6 +55,7 @@ from packages.valory.protocols.abci import AbciMessage
 
 PUBLIC_ID = CONNECTION_PUBLIC_ID
 
+ENCODING = "utf-8"
 LOCALHOST = "127.0.0.1"
 DEFAULT_ABCI_PORT = 26658
 DEFAULT_P2P_PORT = 26656
@@ -58,6 +65,7 @@ DEFAULT_P2P_LISTEN_ADDRESS = f"tcp://{DEFAULT_LISTEN_ADDRESS}:{DEFAULT_P2P_PORT}
 DEFAULT_RPC_LISTEN_ADDRESS = f"tcp://{LOCALHOST}:{DEFAULT_RPC_PORT}"
 MAX_READ_IN_BYTES = 2 ** 20  # Max we'll consume on a read stream (1 MiB)
 MAX_VARINT_BYTES = 10  # Max size of varint we support
+DEFAULT_TENDERMINT_LOG_FILE = "tendermint.log"
 
 
 class DecodeVarintError(Exception):
@@ -65,7 +73,20 @@ class DecodeVarintError(Exception):
 
 
 class TooLargeVarint(Exception):
-    """This exception is raised when a too large size of bytes is received."""
+    """This exception is raised when a message with varint exceeding the max size is received."""
+
+    def __init__(self, received_size: int, max_size: int = MAX_READ_IN_BYTES):
+        """
+        Initialize the exception object.
+
+        :param received_size: the received size.
+        :param max_size: the maximum amount the connection supports.
+        """
+        super().__init__(
+            f"The max message size is {max_size}, received message with varint {received_size}."
+        )
+        self.received_size = received_size
+        self.max_size = max_size
 
 
 class ShortBufferLengthError(Exception):
@@ -116,21 +137,25 @@ class _TendermintABCISerializer:
         :return: the decoded int.
 
         :raise: DecodeVarintError if the varint could not be decoded.
+        :raise: EOFError if EOF byte is read and the process of decoding a varint has not started.
         """
+        enforce(max_length >= 1, "max bytes must be at least one")
         nb_read_bytes = 0
         shift = 0
         result = 0
         success = False
         byte = await cls._read_one(buffer)
-        nb_read_bytes += 1
         while byte is not None and nb_read_bytes <= max_length:
+            nb_read_bytes += 1
             result |= (byte & 0x7F) << shift
             shift += 7
             if not byte & 0x80:
                 success = True
                 break
             byte = await cls._read_one(buffer)
-            nb_read_bytes += 1
+        # byte is None when EOF is reached
+        if byte is None and nb_read_bytes == 0:
+            raise EOFError()
         if not success:
             raise DecodeVarintError("could not decode varint")
         return result >> 1
@@ -170,7 +195,7 @@ class VarintMessageReader:  # pylint: disable=too-few-public-methods
         """Read next message."""
         varint = await _TendermintABCISerializer.decode_varint(self._reader)
         if varint > MAX_READ_IN_BYTES:
-            raise TooLargeVarint()
+            raise TooLargeVarint(received_size=varint, max_size=MAX_READ_IN_BYTES)
         message_bytes = await self.read_until(varint)
         if len(message_bytes) < varint:
             raise ShortBufferLengthError(varint, message_bytes)
@@ -247,7 +272,7 @@ class TcpServerChannel:  # pylint: disable=too-many-instance-attributes
         self._is_stopped = False
         self.queue = asyncio.Queue()
         self._server = await asyncio.start_server(
-            self.receive_messages, host=self.address, port=self.port, loop=self._loop
+            self.receive_messages, host=self.address, port=self.port
         )
 
     async def disconnect(self) -> None:
@@ -292,7 +317,6 @@ class TcpServerChannel:  # pylint: disable=too-many-instance-attributes
                 message.ParseFromString(message_bytes)
             except (
                 DecodeVarintError,
-                TooLargeVarint,
                 DecodeError,
             ) as e:  # pragma: nocover
                 self.logger.error(
@@ -304,6 +328,17 @@ class TcpServerChannel:  # pylint: disable=too-many-instance-attributes
                     self.logger.info("connection at EOF, stop receiving loop.")
                     return
                 continue
+            except TooLargeVarint as e:  # pragma: nocover
+                self.logger.error(
+                    f"A message exceeding the configured max size was received. "
+                    f"{type(e).__name__}: {e} "
+                    f"Closing the connection to the node."
+                )
+                await self.disconnect()
+                return
+            except EOFError:
+                self.logger.info("connection at EOF, stop receiving loop.")
+                return
             except CancelledError:  # pragma: nocover
                 self.logger.debug(f"Read task for peer {peer_name} cancelled.")
                 return
@@ -347,16 +382,33 @@ class TcpServerChannel:  # pylint: disable=too-many-instance-attributes
         writer.write(data)
 
 
+class StoppableThread(Thread):
+    """Thread class with a stop() method."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialise the thread."""
+        super().__init__(*args, **kwargs)
+        self._stop_event = Event()
+
+    def stop(self) -> None:
+        """Set the stop event."""
+        self._stop_event.set()
+
+    def stopped(self) -> bool:
+        """Check if the thread is stopped."""
+        return self._stop_event.is_set()
+
+
 class TendermintParams:  # pylint: disable=too-few-public-methods
     """Tendermint node parameters."""
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
         proxy_app: str,
-        rpc_laddr: str,
-        p2p_laddr: str,
-        p2p_seeds: List[str],
-        consensus_create_empty_blocks: bool,
+        rpc_laddr: str = DEFAULT_RPC_LISTEN_ADDRESS,
+        p2p_laddr: str = DEFAULT_P2P_LISTEN_ADDRESS,
+        p2p_seeds: Optional[List[str]] = None,
+        consensus_create_empty_blocks: bool = True,
         home: Optional[str] = None,
     ):
         """
@@ -401,9 +453,10 @@ class TendermintNode:
         :param logger: the logger.
         """
         self.params = params
-        self.logger = logger or logging.getLogger()
-
         self._process: Optional[subprocess.Popen] = None
+        self._monitoring: Optional[StoppableThread] = None
+        self.logger = logger or logging.getLogger()
+        self.log_file = os.environ.get("LOG_FILE", DEFAULT_TENDERMINT_LOG_FILE)
 
     def _build_init_command(self) -> List[str]:
         """Build the 'init' command."""
@@ -417,13 +470,14 @@ class TendermintNode:
 
     def _build_node_command(self) -> List[str]:
         """Build the 'node' command."""
+        p2p_seeds = ",".join(self.params.p2p_seeds) if self.params.p2p_seeds else ""
         cmd = [
             "tendermint",
             "node",
             f"--proxy_app={self.params.proxy_app}",
             f"--rpc.laddr={self.params.rpc_laddr}",
             f"--p2p.laddr={self.params.p2p_laddr}",
-            f"--p2p.seeds={','.join(self.params.p2p_seeds)}",
+            f"--p2p.seeds={p2p_seeds}",
             f"--consensus.create_empty_blocks={str(self.params.consensus_create_empty_blocks).lower()}",
         ]
         if self.params.home is not None:  # pragma: nocover
@@ -435,26 +489,124 @@ class TendermintNode:
         cmd = self._build_init_command()
         subprocess.call(cmd)  # nosec
 
-    def start(self) -> None:
+    def start(self, start_monitoring: bool = False) -> None:
+        """Start a Tendermint node process."""
+        self._start_tm_process()
+        if start_monitoring:
+            self._start_monitoring_thread()
+
+    def _start_tm_process(self) -> None:
         """Start a Tendermint node process."""
         if self._process is not None:  # pragma: nocover
             return
         cmd = self._build_node_command()
-        self._process = subprocess.Popen(  # nosec # pylint: disable=consider-using-with
-            cmd
-        )
+
+        if platform.system() == "Windows":  # pragma: nocover
+            self._process = (
+                subprocess.Popen(  # nosec # pylint: disable=consider-using-with,W1509
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    bufsize=1,
+                    universal_newlines=True,
+                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,  # type: ignore
+                )
+            )
+        else:
+            self._process = (
+                subprocess.Popen(  # nosec # pylint: disable=consider-using-with,W1509
+                    cmd,
+                    preexec_fn=os.setsid,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    bufsize=1,
+                    universal_newlines=True,
+                )
+            )
+        self.write_line("Tendermint process started\n")
+
+    def _start_monitoring_thread(self) -> None:
+        """Start a monitoring thread."""
+        self._monitoring = StoppableThread(target=self.check_server_status)
+        self._monitoring.start()
+
+    def _stop_tm_process(self) -> None:
+        """Stop a Tendermint node process."""
+        if self._process is None:
+            return
+
+        if platform.system() == "Windows":
+            os.kill(self._process.pid, signal.CTRL_C_EVENT)  # type: ignore  # pylint: disable=no-member
+            try:
+                self._process.wait(timeout=5)
+            except subprocess.TimeoutExpired:  # nosec
+                os.kill(self._process.pid, signal.CTRL_BREAK_EVENT)  # type: ignore  # pylint: disable=no-member
+        else:
+            self._process.send_signal(signal.SIGTERM)
+            self._process.wait(timeout=5)
+            poll = self._process.poll()
+            if poll is None:  # pragma: nocover
+                self._process.terminate()
+                self._process.wait(3)
+
+        self._process = None
+        self.write_line("Tendermint process stopped\n")
+
+    def _stop_monitoring_thread(self) -> None:
+        """Stop a monitoring process."""
+        if self._monitoring is not None:
+            self._monitoring.stop()  # set stop event
+            self._monitoring.join()
 
     def stop(self) -> None:
         """Stop a Tendermint node process."""
-        if self._process is None:  # pragma: nocover
-            return
-        self._process.send_signal(signal.SIGTERM)
-        self._process.wait(timeout=30)
-        poll = self._process.poll()
-        if poll is None:  # pragma: nocover
-            self._process.terminate()
-            self._process.wait(2)
-        self._process = None
+        self._stop_monitoring_thread()
+        self._stop_tm_process()
+
+    def prune_blocks(self) -> int:
+        """Prune blocks from the Tendermint state"""
+        return subprocess.call(  # nosec:
+            ["tendermint", "--home", str(self.params.home), "unsafe-reset-all"]
+        )
+
+    def write_line(self, line: str) -> None:
+        """Open and write a line to the log file."""
+        with open(self.log_file, "a", encoding=ENCODING) as file:
+            file.write(line)
+
+    def check_server_status(
+        self,
+    ) -> None:
+        """Check server status."""
+        self.write_line("Monitoring thread started\n")
+        while True:
+            try:
+                if self._monitoring.stopped():  # type: ignore
+                    break  # break from the loop immediately.
+                line = self._process.stdout.readline()  # type: ignore
+                self.write_line(line)
+                for trigger in [
+                    "RPC HTTP server stopped",  # this occurs when we lose connection from the tm side
+                    "Stopping abci.socketClient for error: read message: EOF module=abci-client connection=",  # this occurs when we lose connection from the AEA side.
+                ]:
+                    if line.find(trigger) >= 0:
+                        self._stop_tm_process()
+                        self._start_tm_process()
+                        self.write_line(
+                            f"Restarted the HTTP RPC server, as a connection was dropped with message:\n\t\t {line}\n"
+                        )
+            except Exception as e:  # pylint: disable=broad-except
+                self.write_line(f"Error!: {str(e)}")
+        self.write_line("Monitoring thread terminated\n")
+
+    def reset_genesis_file(self, genesis_time: str, initial_height: str) -> None:
+        """Reset genesis file."""
+
+        genesis_file = Path(str(self.params.home), "config", "genesis.json")
+        genesis_config = json.loads(genesis_file.read_text(encoding=ENCODING))
+        genesis_config["genesis_time"] = genesis_time
+        genesis_config["initial_height"] = initial_height
+        genesis_file.write_text(json.dumps(genesis_config, indent=2), encoding=ENCODING)
 
 
 class ABCIServerConnection(Connection):  # pylint: disable=too-many-instance-attributes
@@ -539,6 +691,13 @@ class ABCIServerConnection(Connection):  # pylint: disable=too-many-instance-att
         )
         self.logger.debug(f"Tendermint parameters: {self.params}")
         self.node = TendermintNode(self.params, self.logger)
+
+    def _ensure_connected(self) -> None:
+        """Ensure that the connection and the channel are ready."""
+        super()._ensure_connected()
+
+        if self.channel.is_stopped:
+            raise ConnectionError("The channel is stopped.")
 
     async def connect(self) -> None:
         """
