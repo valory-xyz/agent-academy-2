@@ -41,9 +41,8 @@ CHECK_STRINGS = (
 
 
 @pytest.mark.e2e
-class TestKeep3rABCISingleAgent(
-    BaseTestEnd2EndExecution,
-):
+@pytest.mark.parametrize("nb_nodes", (1,))
+class TestKeep3rABCISingleAgent(BaseTestEnd2EndExecution):
     """Test that the ABCI keep3r_abci skill with only one agent."""
 
     NB_AGENTS = 1
@@ -54,9 +53,8 @@ class TestKeep3rABCISingleAgent(
 
 
 @pytest.mark.e2e
-class TestKeep3rABCITwoAgents(
-    BaseTestEnd2EndExecution,
-):
+@pytest.mark.parametrize("nb_nodes", (2,))
+class TestKeep3rABCITwoAgents(BaseTestEnd2EndExecution):
     """Test that the ABCI keep3r_abci skill with two agents."""
 
     NB_AGENTS = 2
@@ -67,9 +65,8 @@ class TestKeep3rABCITwoAgents(
 
 
 @pytest.mark.e2e
-class TestKeep3rABCIFourAgents(
-    BaseTestEnd2EndExecution,
-):
+@pytest.mark.parametrize("nb_nodes", (4,))
+class TestKeep3rABCIFourAgents(BaseTestEnd2EndExecution):
     """Test that the ABCI keep3r_abci skill with four agents."""
 
     NB_AGENTS = 4
