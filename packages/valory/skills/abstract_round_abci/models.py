@@ -25,15 +25,15 @@ from time import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, cast
 
 from aea.exceptions import enforce
-from aea.skills.base import Model
+from aea.skills.base import Model, SkillContext
 
 from packages.valory.protocols.http.message import HttpMessage
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
-    BasePeriodState,
+    AbciAppDB,
+    BaseSynchronizedData,
     ConsensusParams,
-    Period,
-    StateDB,
+    RoundSequence,
 )
 
 
@@ -42,6 +42,7 @@ _DEFAULT_REQUEST_TIMEOUT = 10.0
 _DEFAULT_REQUEST_RETRY_DELAY = 1.0
 _DEFAULT_TX_TIMEOUT = 10.0
 _DEFAULT_TX_MAX_ATTEMPTS = 10
+_DEFAULT_CLEANUP_HISTORY_DEPTH_CURRENT = None
 
 
 class BaseParams(Model):  # pylint: disable=too-many-instance-attributes
@@ -67,18 +68,26 @@ class BaseParams(Model):  # pylint: disable=too-many-instance-attributes
         self.reset_tendermint_after = self._ensure("reset_tendermint_after", kwargs)
         self.consensus_params = ConsensusParams.from_json(kwargs.pop("consensus", {}))
         self.cleanup_history_depth = self._ensure("cleanup_history_depth", kwargs)
+        self.cleanup_history_depth_current = kwargs.pop(
+            "cleanup_history_depth_current", _DEFAULT_CLEANUP_HISTORY_DEPTH_CURRENT
+        )
         self.request_timeout = kwargs.pop("request_timeout", _DEFAULT_REQUEST_TIMEOUT)
         self.request_retry_delay = kwargs.pop(
             "request_retry_delay", _DEFAULT_REQUEST_RETRY_DELAY
         )
         self.tx_timeout = kwargs.pop("tx_timeout", _DEFAULT_TX_TIMEOUT)
         self.max_attempts = kwargs.pop("max_attempts", _DEFAULT_TX_MAX_ATTEMPTS)
-        period_setup_params = kwargs.pop("period_setup", {})
+        self.service_registry_address = kwargs.pop("service_registry_address", None)
+        self.on_chain_service_id = kwargs.pop("on_chain_service_id", None)
+        self.share_tm_config_on_startup = kwargs.pop(
+            "share_tm_config_on_startup", False
+        )
+        setup_params = kwargs.pop("setup", {})
         # we sanitize for null values as these are just kept for schema definitions
-        period_setup_params = {
-            key: val for key, val in period_setup_params.items() if val is not None
+        setup_params = {
+            key: val for key, val in setup_params.items() if val is not None
         }
-        self.period_setup_params = period_setup_params
+        self.setup_params = setup_params
         super().__init__(*args, **kwargs)
 
     @classmethod
@@ -92,22 +101,30 @@ class BaseParams(Model):  # pylint: disable=too-many-instance-attributes
 class SharedState(Model):
     """Keep the current shared state of the skill."""
 
-    def __init__(self, *args: Any, abci_app_cls: Type[AbciApp], **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        abci_app_cls: Type[AbciApp],
+        skill_context: SkillContext,
+        **kwargs: Any,
+    ) -> None:
         """Initialize the state."""
         self.abci_app_cls = self._process_abci_app_cls(abci_app_cls)
-        self._period: Optional[Period] = None
-        super().__init__(*args, **kwargs)
+        self.abci_app_cls._is_abstract = (
+            skill_context._skill.configuration.is_abstract_component  # pylint: disable=protected-access
+        )
+        self._round_sequence: Optional[RoundSequence] = None
+        super().__init__(*args, skill_context=skill_context, **kwargs)
 
     def setup(self) -> None:
         """Set up the model."""
-        self._period = Period(self.abci_app_cls)
+        self._round_sequence = RoundSequence(self.abci_app_cls)
         consensus_params = cast(BaseParams, self.context.params).consensus_params
-        period_setup_params = cast(BaseParams, self.context.params).period_setup_params
-        self.period.setup(
-            BasePeriodState(
-                StateDB(
-                    initial_period=0,
-                    initial_data=period_setup_params,
+        setup_params = cast(BaseParams, self.context.params).setup_params
+        self.round_sequence.setup(
+            BaseSynchronizedData(
+                AbciAppDB(
+                    setup_data=setup_params,
                     cross_period_persisted_keys=self.abci_app_cls.cross_period_persisted_keys,
                 )
             ),
@@ -116,16 +133,16 @@ class SharedState(Model):
         )
 
     @property
-    def period(self) -> Period:
-        """Get the period."""
-        if self._period is None:
-            raise ValueError("period not available")
-        return self._period
+    def round_sequence(self) -> RoundSequence:
+        """Get the round_sequence."""
+        if self._round_sequence is None:
+            raise ValueError("round sequence not available")
+        return self._round_sequence
 
     @property
-    def period_state(self) -> BasePeriodState:
-        """Get the period state if available."""
-        return self.period.latest_state
+    def synchronized_data(self) -> BaseSynchronizedData:
+        """Get the latest synchronized_data if available."""
+        return self.round_sequence.latest_synchronized_data
 
     @classmethod
     def _process_abci_app_cls(cls, abci_app_cls: Type[AbciApp]) -> Type[AbciApp]:
@@ -165,7 +182,7 @@ class ApiSpecs(Model):  # pylint: disable=too-many-instance-attributes
 
     _retries_attempted: int
     _retries: int
-    _response_types: Dict[str, Any] = {
+    _response_types: Dict[str, Type] = {
         "int": int,
         "float": float,
         "dict": dict,
@@ -182,7 +199,7 @@ class ApiSpecs(Model):  # pylint: disable=too-many-instance-attributes
         self.headers = kwargs.pop("headers", [])
         self.parameters = kwargs.pop("parameters", [])
         self.response_key = kwargs.pop("response_key", None)
-        self.response_type = kwargs.pop("response_type", str)
+        self.response_type = kwargs.pop("response_type", "str")
 
         self._retries_attempted = 0
         self._retries = kwargs.pop("retries", NUMBER_OF_RETRIES)
@@ -212,17 +229,23 @@ class ApiSpecs(Model):  # pylint: disable=too-many-instance-attributes
 
     def process_response(self, response: HttpMessage) -> Any:
         """Process response from api."""
+        return self._get_response_data(response, self.response_key, self.response_type)
+
+    def _get_response_data(
+        self, response: HttpMessage, response_key: Optional[str], response_type: str
+    ) -> Any:
+        """Get response data from api, based on the given response key"""
         try:
             response_data = json.loads(response.body.decode())
-            if self.response_key is None:
+            if response_key is None:
                 return response_data
 
-            first_key, *keys = self.response_key.split(":")
+            first_key, *keys = response_key.split(":")
             value = response_data[first_key]
             for key in keys:
                 value = value[key]
 
-            return self._response_types.get(self.response_type)(value)  # type: ignore
+            return self._response_types.get(response_type)(value)  # type: ignore
 
         except (json.JSONDecodeError, KeyError):
             return None

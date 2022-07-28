@@ -6,29 +6,32 @@ description: ABCI application for safe deployments.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: QmSdHvedQdaQvWBPjhoDqqZioSFgr43sdTaJqbraDqDFFY
-  __init__.py: QmbdzASxkeaGpU5FLXVJnBfyRgTYEo2CDz1BNebhepCCsA
-  behaviours.py: QmdZDqteDnkcfoEVL9raJugwNpE5bEfu7yEsQYg4xiTfMD
-  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmZR2tTuXqSCQX9xa1RwycwFWQMqSyekt2p8wFnpaufmmo
-  handlers.py: QmUS4UE6hYLsHs1RW9KxaTNhrq5pmg9Vy3w7nPgc4wV5kg
-  models.py: QmeNMN5CE91cdGPnbpBMsCiueQedzFsr65SDYdZatKgcpu
-  payloads.py: QmNxFKPXvTpGc6ZbmboLB7J8nJGdFzEnFiaSy5bkccqG7d
-  rounds.py: QmYSp4H8UGCNDt5vzps5YPBccgPjys72JQZew7BJjk9Tgk
+  README.md: bafybeib7wipqo3cwbdtdkbdfsb7qcpsrrmc2qjhge74stytcbalk4xpkmm
+  __init__.py: bafybeigftdgpuynk4j6pqy4i4nrdthomrol5ufzgvuulszjuubpngyl7we
+  behaviours.py: bafybeih7sosfr55b4ygsgijg3omz2thhdtwgahkudbbyhsjkoglniwexa4
+  dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
+  fsm_specification.yaml: bafybeihsy6wstmqszex4rvonjgd67qyrqzqbkhhpdltpmzyijxcgip4ctq
+  handlers.py: bafybeifwwfsblxmkh7lru4ukupmj3ujn67ciaqszpwpjvglspm4xmyi7oi
+  models.py: bafybeicqi64hrfqfloiopfmnkabbahggseu2pt47dcenfqvorxipv6egbi
+  payloads.py: bafybeiajdz24osjwh7qvioa4vjssa73nqssnsgpwhowevmxnwqj4usrn5q
+  rounds.py: bafybeie23qyyxsniohhcbz6mc4rgrswtk5d257genhxn6waocy3fe47ucm
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0
-- valory/gnosis_safe_proxy_factory:0.1.0
+- valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
 protocols:
-- valory/contract_api:1.0.0
+- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
 skills:
-- valory/abstract_round_abci:0.1.0
+- valory/abstract_round_abci:0.1.0:bafybeig5ixtcaemurqwfy6pzzyiwc34azrxtowuh3k35hsate4u5jesc7a
 behaviours:
   main:
     args: {}
     class_name: SafeDeploymentRoundBehaviour
 handlers:
+  abci:
+    args: {}
+    class_name: ABCIHandler
   contract_api:
     args: {}
     class_name: ContractApiHandler
@@ -41,6 +44,9 @@ handlers:
   signing:
     args: {}
     class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
 models:
   abci_dialogues:
     args: {}
@@ -61,22 +67,26 @@ models:
   params:
     args:
       cleanup_history_depth: 1
+      cleanup_history_depth_current: null
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
+      on_chain_service_id: null
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3
       round_timeout_seconds: 30.0
       service_id: registration
+      service_registry_address: null
       sleep_time: 1
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
       tendermint_url: http://localhost:26657
+      validate_timeout: 1205
     class_name: Params
   randomness_api:
     args:

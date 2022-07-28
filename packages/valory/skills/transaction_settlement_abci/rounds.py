@@ -25,12 +25,12 @@ from enum import Enum
 from typing import Deque, Dict, List, Mapping, Optional, Set, Tuple, Type, cast
 
 from packages.valory.skills.abstract_round_abci.base import (
-    ABCIAppInternalError,
     AbciApp,
+    AbciAppDB,
     AbciAppTransitionFunction,
     AbstractRound,
     AppState,
-    BasePeriodState,
+    BaseSynchronizedData,
     CollectDifferentUntilThresholdRound,
     CollectNonEmptyUntilThresholdRound,
     CollectSameUntilThresholdRound,
@@ -79,11 +79,13 @@ class Event(Enum):
     INCORRECT_SERIALIZATION = "incorrect_serialization"
 
 
-class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attributes
+class SynchronizedData(
+    BaseSynchronizedData
+):  # pylint: disable=too-many-instance-attributes
     """
-    Class to represent a period state.
+    Class to represent the synchronized data.
 
-    This state is replicated by the tendermint application.
+    This data is replicated by the tendermint application.
     """
 
     @property
@@ -152,16 +154,13 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
         due to the way we are inserting the hashes in the array.
         We keep the hashes sorted by the time of their finalization.
         If this property is accessed before the finalization succeeds,
-        then it is incorrectly used and raises an internal error.
+        then it is incorrectly used and raises an error.
 
         :return: the tx hash which is ready for validation.
         """
-        if len(self.tx_hashes_history) > 0:
-            return self.tx_hashes_history[-1]
-        raise ABCIAppInternalError(  # pragma: no cover
-            "An Error occurred while trying to get the tx hash for validation: "
-            "There are no transaction hashes recorded!"
-        )
+        if not self.tx_hashes_history:
+            raise ValueError("FSM design error: tx hash should exist")
+        return self.tx_hashes_history[-1]
 
     @property
     def final_tx_hash(self) -> str:
@@ -194,20 +193,9 @@ class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attribu
     @property
     def late_arriving_tx_hashes(self) -> List[str]:
         """Get the late_arriving_tx_hashes."""
-        late_arriving_tx_hashes_unparsed = cast(
-            List[str], self.db.get_strict("late_arriving_tx_hashes")
-        )
-        late_arriving_tx_hashes_parsed = []
-        for unparsed_hash in late_arriving_tx_hashes_unparsed:
-            if len(unparsed_hash) % TX_HASH_LENGTH != 0:
-                # if we cannot parse the hashes, then the developer has serialized them incorrectly.
-                raise ABCIAppInternalError(
-                    f"Cannot parse late arriving hashes: {unparsed_hash}!"
-                )
-            parsed_hashes = textwrap.wrap(unparsed_hash, TX_HASH_LENGTH)
-            late_arriving_tx_hashes_parsed.extend(parsed_hashes)
-
-        return late_arriving_tx_hashes_parsed
+        late_arrivals = cast(List[str], self.db.get_strict("late_arriving_tx_hashes"))
+        parsed_hashes = map(lambda h: textwrap.wrap(h, TX_HASH_LENGTH), late_arrivals)
+        return [h for hashes in parsed_hashes for h in hashes]
 
 
 class FailedRound(DegenerateRound, ABC):
@@ -222,7 +210,7 @@ class CollectSignatureRound(CollectDifferentUntilThresholdRound):
     round_id = "collect_signature"
     allowed_tx_type = SignaturePayload.transaction_type
     payload_attribute = "signature"
-    period_state_class = PeriodState
+    synchronized_data_class = SynchronizedData
     done_event = Event.DONE
     no_majority_event = Event.NO_MAJORITY
     selection_key = "participant"
@@ -239,20 +227,20 @@ class FinalizationRound(OnlyKeeperSendsRound):
     def end_block(
         self,
     ) -> Optional[
-        Tuple[BasePeriodState, Enum]
+        Tuple[BaseSynchronizedData, Enum]
     ]:  # pylint: disable=too-many-return-statements
         """Process the end of the block."""
         if not self.has_keeper_sent_payload:
             return None
 
         if self.keeper_payload is None:  # pragma: no cover
-            return self.period_state, Event.FINALIZATION_FAILED
+            return self.synchronized_data, Event.FINALIZATION_FAILED
 
         verification_status = VerificationStatus(self.keeper_payload["status_value"])
-        state = cast(
-            PeriodState,
-            self.period_state.update(
-                period_state_class=PeriodState,
+        synchronized_data = cast(
+            SynchronizedData,
+            self.synchronized_data.update(
+                synchronized_data_class=SynchronizedData,
                 tx_hashes_history=self.keeper_payload["tx_hashes_history"],
                 final_verification_status=verification_status,
                 keepers=self.keeper_payload["serialized_keepers"],
@@ -266,25 +254,25 @@ class FinalizationRound(OnlyKeeperSendsRound):
         # 2. Requesting transaction signature.
         # 3. Requesting transaction digest.
         if self.keeper_payload["received_hash"]:
-            return state, Event.DONE
+            return synchronized_data, Event.DONE
         # If keeper has been blacklisted, return an `INSUFFICIENT_FUNDS` event.
         if verification_status == VerificationStatus.INSUFFICIENT_FUNDS:
-            return state, Event.INSUFFICIENT_FUNDS
+            return synchronized_data, Event.INSUFFICIENT_FUNDS
         # This means that getting raw safe transaction succeeded,
         # but either requesting tx signature or requesting tx digest failed.
         if verification_status not in (
             VerificationStatus.ERROR,
             VerificationStatus.VERIFIED,
         ):
-            return state, Event.FINALIZATION_FAILED
+            return synchronized_data, Event.FINALIZATION_FAILED
         # if there is a tx hash history, then check it for validated txs.
-        if state.tx_hashes_history:
-            return state, Event.CHECK_HISTORY
+        if synchronized_data.tx_hashes_history:
+            return synchronized_data, Event.CHECK_HISTORY
         # if there could be any late messages, check if any has arrived.
-        if state.should_check_late_messages:
-            return state, Event.CHECK_LATE_ARRIVING_MESSAGE
+        if synchronized_data.should_check_late_messages:
+            return synchronized_data, Event.CHECK_LATE_ARRIVING_MESSAGE
         # otherwise fail.
-        return state, Event.FINALIZATION_FAILED
+        return synchronized_data, Event.FINALIZATION_FAILED
 
 
 class RandomnessTransactionSubmissionRound(CollectSameUntilThresholdRound):
@@ -293,7 +281,7 @@ class RandomnessTransactionSubmissionRound(CollectSameUntilThresholdRound):
     round_id = "randomness_transaction_submission"
     allowed_tx_type = RandomnessPayload.transaction_type
     payload_attribute = "randomness"
-    period_state_class = PeriodState
+    synchronized_data_class = SynchronizedData
     done_event = Event.DONE
     no_majority_event = Event.NO_MAJORITY
     collection_key = "participant_to_randomness"
@@ -306,13 +294,13 @@ class SelectKeeperTransactionSubmissionRoundA(CollectSameUntilThresholdRound):
     round_id = "select_keeper_transaction_submission_a"
     allowed_tx_type = SelectKeeperPayload.transaction_type
     payload_attribute = "keepers"
-    period_state_class = PeriodState
+    synchronized_data_class = SynchronizedData
     done_event = Event.DONE
     no_majority_event = Event.NO_MAJORITY
     collection_key = "participant_to_selection"
     selection_key = "keepers"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Enum]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
         """Process the end of the block."""
 
         if self.threshold_reached and self.most_voted_payload is not None:
@@ -321,7 +309,7 @@ class SelectKeeperTransactionSubmissionRoundA(CollectSameUntilThresholdRound):
                 or (len(self.most_voted_payload) - RETRIES_LENGTH) % ADDRESS_LENGTH != 0
             ):
                 # if we cannot parse the keepers' payload, then the developer has serialized it incorrectly.
-                return self.period_state, Event.INCORRECT_SERIALIZATION
+                return self.synchronized_data, Event.INCORRECT_SERIALIZATION
 
         return super().end_block()
 
@@ -339,22 +327,24 @@ class SelectKeeperTransactionSubmissionRoundBAfterTimeout(
 
     round_id = "select_keeper_transaction_submission_b_after_timeout"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Enum]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            state = cast(
-                PeriodState,
-                self.period_state.update(
-                    missed_messages=cast(PeriodState, self.period_state).missed_messages
+            synchronized_data = cast(
+                SynchronizedData,
+                self.synchronized_data.update(
+                    missed_messages=cast(
+                        SynchronizedData, self.synchronized_data
+                    ).missed_messages
                     + 1
                 ),
             )
-            if state.keepers_threshold_exceeded:
+            if synchronized_data.keepers_threshold_exceeded:
                 # we only stop re-selection if there are any previous transaction hashes or any missed messages.
-                if len(state.tx_hashes_history) > 0:
-                    return state, Event.CHECK_HISTORY
-                if state.should_check_late_messages:
-                    return state, Event.CHECK_LATE_ARRIVING_MESSAGE
+                if len(synchronized_data.tx_hashes_history) > 0:
+                    return synchronized_data, Event.CHECK_HISTORY
+                if synchronized_data.should_check_late_messages:
+                    return synchronized_data, Event.CHECK_LATE_ARRIVING_MESSAGE
         return super().end_block()
 
 
@@ -364,37 +354,44 @@ class ValidateTransactionRound(VotingRound):
     round_id = "validate_transaction"
     allowed_tx_type = ValidatePayload.transaction_type
     payload_attribute = "vote"
-    period_state_class = PeriodState
+    synchronized_data_class = SynchronizedData
     done_event = Event.DONE
     negative_event = Event.NEGATIVE
     none_event = Event.NONE
     no_majority_event = Event.NO_MAJORITY
     collection_key = "participant_to_votes"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Enum]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
         """Process the end of the block."""
         # if reached participant threshold, set the result
+
         if self.positive_vote_threshold_reached:
+            # We obtain the latest tx hash from the `tx_hashes_history`.
+            # We keep the hashes sorted by their finalization time.
+            # If this property is accessed before the finalization succeeds,
+            # then it is incorrectly used.
+            final_tx_hash = cast(
+                SynchronizedData, self.synchronized_data
+            ).to_be_validated_tx_hash
+
             # We only set the final tx hash if we are about to exit from the transaction settlement skill.
             # Then, the skills which use the transaction settlement can check the tx hash
             # and if it is None, then it means that the transaction has failed.
-            state = self.period_state.update(
-                period_state_class=self.period_state_class,
+            synchronized_data = self.synchronized_data.update(
+                synchronized_data_class=self.synchronized_data_class,
                 participant_to_votes=self.collection,
                 final_verification_status=VerificationStatus.VERIFIED,
-                final_tx_hash=cast(
-                    PeriodState, self.period_state
-                ).to_be_validated_tx_hash,
+                final_tx_hash=final_tx_hash,
             )  # type: ignore
-            return state, self.done_event
+            return synchronized_data, self.done_event
         if self.negative_vote_threshold_reached:
-            return self.period_state, self.negative_event
+            return self.synchronized_data, self.negative_event
         if self.none_vote_threshold_reached:
-            return self.period_state, self.none_event
+            return self.synchronized_data, self.none_event
         if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
+            self.collection, self.synchronized_data.nb_participants
         ):
-            return self.period_state, self.no_majority_event
+            return self.synchronized_data, self.no_majority_event
         return None
 
 
@@ -404,10 +401,10 @@ class CheckTransactionHistoryRound(CollectSameUntilThresholdRound):
     round_id = "check_transaction_history"
     allowed_tx_type = CheckTransactionHistoryPayload.transaction_type
     payload_attribute = "verified_res"
-    period_state_class = PeriodState
+    synchronized_data_class = SynchronizedData
     selection_key = "most_voted_check_result"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Enum]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
         """Process the end of the block."""
         if self.threshold_reached:
             return_status, return_tx_hash = tx_hist_hex_to_payload(
@@ -415,35 +412,37 @@ class CheckTransactionHistoryRound(CollectSameUntilThresholdRound):
             )
 
             if return_status == VerificationStatus.NOT_VERIFIED:
-                # We don't update the state as we need to repeat all checks again later
-                state = self.period_state
+                # We don't update the synchronized_data as we need to repeat all checks again later
+                synchronized_data = self.synchronized_data
             else:
                 # We only set the final tx hash if we are about to exit from the transaction settlement skill.
                 # Then, the skills which use the transaction settlement can check the tx hash
                 # and if it is None, then it means that the transaction has failed.
-                state = self.period_state.update(
-                    period_state_class=self.period_state_class,
+                synchronized_data = self.synchronized_data.update(
+                    synchronized_data_class=self.synchronized_data_class,
                     participant_to_check=self.collection,
                     final_verification_status=return_status,
                     final_tx_hash=return_tx_hash,
                 )
 
             if return_status == VerificationStatus.VERIFIED:
-                return state, Event.DONE
+                return synchronized_data, Event.DONE
             if (
                 return_status == VerificationStatus.NOT_VERIFIED
-                and cast(PeriodState, self.period_state).should_check_late_messages
+                and cast(
+                    SynchronizedData, self.synchronized_data
+                ).should_check_late_messages
             ):
-                return state, Event.CHECK_LATE_ARRIVING_MESSAGE
+                return synchronized_data, Event.CHECK_LATE_ARRIVING_MESSAGE
             if return_status == VerificationStatus.NOT_VERIFIED:
-                return state, Event.NEGATIVE
+                return synchronized_data, Event.NEGATIVE
 
-            return state, Event.NONE
+            return synchronized_data, Event.NONE
 
         if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
+            self.collection, self.synchronized_data.nb_participants
         ):
-            return self.period_state, Event.NO_MAJORITY
+            return self.synchronized_data, Event.NO_MAJORITY
         return None
 
 
@@ -459,30 +458,30 @@ class SynchronizeLateMessagesRound(CollectNonEmptyUntilThresholdRound):
     round_id = "synchronize_late_messages"
     allowed_tx_type = SynchronizeLateMessagesPayload.transaction_type
     payload_attribute = "tx_hashes"
-    period_state_class = PeriodState
+    synchronized_data_class = SynchronizedData
     done_event = Event.DONE
     no_majority_event = Event.NO_MAJORITY
     none_event = Event.NONE
     selection_key = "participant"
     collection_key = "late_arriving_tx_hashes"
+    _hash_length = TX_HASH_LENGTH
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        state_event = super().end_block()
-        if state_event is None:
+        result = super().end_block()
+        if result is None:
             return None
 
-        state, event = cast(Tuple[BasePeriodState, Event], state_event)
+        synchronized_data, event = cast(Tuple[BaseSynchronizedData, Event], result)
 
-        period_state = cast(PeriodState, self.period_state)
-        n_late_arriving_tx_hashes = len(period_state.late_arriving_tx_hashes)
-        if n_late_arriving_tx_hashes > period_state.missed_messages:
-            return state, Event.MISSED_AND_LATE_MESSAGES_MISMATCH
+        synchronized_data = cast(SynchronizedData, self.synchronized_data)
+        n_late_arriving_tx_hashes = len(synchronized_data.late_arriving_tx_hashes)
+        if n_late_arriving_tx_hashes > synchronized_data.missed_messages:
+            return synchronized_data, Event.MISSED_AND_LATE_MESSAGES_MISMATCH
 
-        state = state.update(
-            missed_messages=period_state.missed_messages - n_late_arriving_tx_hashes
-        )
-        return state, event
+        still_missing = synchronized_data.missed_messages - n_late_arriving_tx_hashes
+        synchronized_data = synchronized_data.update(missed_messages=still_missing)
+        return synchronized_data, event
 
 
 class FinishedTransactionSubmissionRound(DegenerateRound, ABC):
@@ -498,19 +497,19 @@ class ResetRound(CollectSameUntilThresholdRound):
     allowed_tx_type = ResetPayload.transaction_type
     payload_attribute = "period_count"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            state_data = self.period_state.db.get_all()
-            state = self.period_state.update(
-                period_count=self.most_voted_payload,
-                **state_data,
+            latest_data = self.synchronized_data.db.get_latest()
+            synchronized_data = self.synchronized_data.create(
+                synchronized_data_class=self.synchronized_data_class,
+                **AbciAppDB.data_to_lists(latest_data),
             )
-            return state, Event.DONE
+            return synchronized_data, Event.DONE
         if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
+            self.collection, self.synchronized_data.nb_participants
         ):
-            return self.period_state, Event.NO_MAJORITY
+            return self.synchronized_data, Event.NO_MAJORITY
         return None
 
 

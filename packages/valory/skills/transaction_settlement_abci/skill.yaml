@@ -6,30 +6,33 @@ description: ABCI application for transaction settlement.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: Qmes4T968eLYkfRc1o3oXMa3irSMo6CY95kaAGvM3LfzAF
-  __init__.py: QmUJJPrwqyWYnqeYpGypjgsQoXiGFpjHogSrrDmAedpdzV
-  behaviours.py: QmV46siL4QrT4xn2iw2AWLMZwWAZ2jKjp7oXkSLnPWJzVD
-  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmPZuCw7qesAcrqebg3ktHkTtkzDzJfUFL9cUEnpA1vxtD
-  handlers.py: QmXEZTJVJHNhpHJMjhPRHdhmYMmVpu6LfNyYDE2k4mjLVA
-  models.py: Qmb8Euw1JFPaM6LVuAbENYje4TyTGQdGnC29i7UNRodvGD
-  payload_tools.py: QmeC21j7moiYR75xQo9f9bBzdvW3FQDmecAogG5gbZevfZ
-  payloads.py: QmRYqBh9fDEXP4GxwjbNtGwHqaYmDUx5zBsWZxW6fhWwQp
-  rounds.py: QmPacDvAEHimaoBqWwyhc5wKavvGhF7kZWtsHwkqVCLpvM
+  README.md: bafybeihvqvbj2tiiyimz3e27gqhb7ku5rut7hycfahi4qle732kvj5fs7q
+  __init__.py: bafybeicyrp6x2efg43gfdekxuofrlidc3w6aubzmyioqwnryropp6u7sby
+  behaviours.py: bafybeigvjdeoox7lfkmbec63d7okltysgwwpi237z42bx4snkcbkboezye
+  dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
+  fsm_specification.yaml: bafybeiasicqrq2jggl5yo6yipyldcphpyvao5cm2zixnyis3eklqk47qpy
+  handlers.py: bafybeihsb2323pqablu3pgf42s4urueivg3yo5wp2ihr6tonj2yyaogtxu
+  models.py: bafybeiclvaw54njhcnfkldwxefdfdnbsvy7aclgmx6jvl4vbj5xv7axswy
+  payload_tools.py: bafybeifhzehz7lfpeuy7g72wtpvx4xgeaijgbasua43mu7kawno5i6bfeq
+  payloads.py: bafybeibpwhqbjvqi7um2cu4calbdhhzukpi6tn6y3qp4qb4nwx2bzjbmqu
+  rounds.py: bafybeicy5il65kkenbd26uxky2qavygsappvmwqliiydwqxdqthfh7rqo4
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0
-- valory/gnosis_safe_proxy_factory:0.1.0
+- valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
 protocols:
-- valory/contract_api:1.0.0
+- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
 skills:
-- valory/abstract_round_abci:0.1.0
+- valory/abstract_round_abci:0.1.0:bafybeig5ixtcaemurqwfy6pzzyiwc34azrxtowuh3k35hsate4u5jesc7a
 behaviours:
   main:
     args: {}
     class_name: TransactionSettlementRoundBehaviour
 handlers:
+  abci:
+    args: {}
+    class_name: ABCIHandler
   contract_api:
     args: {}
     class_name: ContractApiHandler
@@ -42,6 +45,9 @@ handlers:
   signing:
     args: {}
     class_name: SigningHandler
+  tendermint:
+    args: {}
+    class_name: TendermintHandler
 models:
   abci_dialogues:
     args: {}
@@ -62,23 +68,29 @@ models:
   params:
     args:
       cleanup_history_depth: 1
+      cleanup_history_depth_current: null
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      finalize_timeout: 60.0
+      history_check_timeout: 1205
       keeper_allowed_retries: 3
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
+      on_chain_service_id: null
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3
       round_timeout_seconds: 30.0
       service_id: registration
+      service_registry_address: null
       sleep_time: 1
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
       tendermint_url: http://localhost:26657
+      validate_timeout: 1205
     class_name: TransactionParams
   randomness_api:
     args:
