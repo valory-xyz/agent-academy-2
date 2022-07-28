@@ -20,21 +20,27 @@
 """Conftest module for Pytest."""
 import logging
 from pathlib import Path
-from typing import Any, Generator, List, Tuple
+from typing import Any, Generator, List, Tuple, cast
 
 import docker
 import pytest
 
 from tests.helpers.constants import GANACHE_KEY_PAIRS, KEY_PAIRS
 from tests.helpers.constants import ROOT_DIR as _ROOT_DIR
-from tests.helpers.docker.base import launch_image
+from tests.helpers.docker.base import launch_image, launch_many_containers
 from tests.helpers.docker.ganache import DEFAULT_GANACHE_ADDR, DEFAULT_GANACHE_PORT
 from tests.helpers.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_ADDR,
     DEFAULT_HARDHAT_PORT,
     GnosisSafeNetDockerImage,
 )
-
+from tests.helpers.docker.tendermint import (
+    DEFAULT_ABCI_HOST,
+    DEFAULT_ABCI_PORT,
+    DEFAULT_TENDERMINT_PORT,
+    FlaskTendermintDockerImage,
+    TendermintDockerImage,
+)
 
 def get_key(key_path: Path) -> str:
     """Returns key value from file.""" ""
@@ -62,6 +68,54 @@ GANACHE_CONFIGURATION = dict(
         (get_key(ETHEREUM_KEY_PATH_4), DEFAULT_AMOUNT),
     ],
 )
+
+
+@pytest.fixture(scope="session")
+def tendermint_port() -> int:
+    """Get the Tendermint port"""
+    return DEFAULT_TENDERMINT_PORT
+
+
+@pytest.fixture(scope="class")
+def tendermint(
+    tendermint_port: Any,
+    abci_host: str = DEFAULT_ABCI_HOST,
+    abci_port: int = DEFAULT_ABCI_PORT,
+    timeout: float = 2.0,
+    max_attempts: int = 10,
+) -> Generator:
+    """Launch the Ganache image."""
+    client = docker.from_env()
+    logging.info(f"Launching Tendermint at port {tendermint_port}")
+    image = TendermintDockerImage(client, abci_host, abci_port, tendermint_port)
+    yield from launch_image(image, timeout=timeout, max_attempts=max_attempts)
+
+
+@pytest.fixture
+def nb_nodes(request: Any) -> int:
+    """Get a parametrized number of nodes."""
+    return request.param
+
+
+@pytest.fixture
+def flask_tendermint(
+    tendermint_port: Any,
+    nb_nodes: int,
+    abci_host: str = DEFAULT_ABCI_HOST,
+    abci_port: int = DEFAULT_ABCI_PORT,
+    timeout: float = 2.0,
+    max_attempts: int = 10,
+) -> Generator[FlaskTendermintDockerImage, None, None]:
+    """Launch the Flask server with Tendermint container."""
+    client = docker.from_env()
+    logging.info(
+        f"Launching Tendermint nodes at ports {[tendermint_port + i * 10 for i in range(nb_nodes)]}"
+    )
+    image = FlaskTendermintDockerImage(client, abci_host, abci_port, tendermint_port)
+    yield from cast(
+        Generator[FlaskTendermintDockerImage, None, None],
+        launch_many_containers(image, nb_nodes, timeout, max_attempts),
+    )
 
 
 @pytest.fixture()
