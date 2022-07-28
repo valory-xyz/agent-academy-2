@@ -60,39 +60,3 @@ class TestSimpleABCITwoAgents(BaseSimpleABCITest):
 class TestSimpleABCIFourAgents(BaseSimpleABCITest):
     """Test the ABCI simple_abci skill with four agents."""
 
-
-# catchup test
-class BaseSimpleABCITestCatchup(BaseSimpleABCITest):
-    """Test the ABCI simple_abci skill with catch up behaviour."""
-
-    stop_string = "register"
-    restart_after = 10
-    n_terminal = 1
-
-
-# four behaviours and different stages of termination and restart
-@pytest.mark.parametrize("nb_nodes", (4,))
-class TestSimpleABCIFourAgentsCatchupOnRegister(BaseSimpleABCITestCatchup):
-    """Test simple_abci skill with four agents; one restarting on `register`."""
-
-
-@pytest.mark.parametrize("nb_nodes", (4,))
-class TestSimpleABCIFourAgentsCatchupRetrieveRandomness(BaseSimpleABCITestCatchup):
-    """Test simple_abci skill with four agents; one restarting on `retrieve_randomness_at_startup`."""
-
-    stop_string = "retrieve_randomness_at_startup"
-
-
-@pytest.mark.parametrize("nb_nodes", (4,))
-class TestSimpleABCIFourAgentsCatchupSelectKeeper(BaseSimpleABCITestCatchup):
-    """Test simple_abci skill with four agents; one restarting on `select_keeper_at_startup`."""
-
-    stop_string = "select_keeper_at_startup"
-
-
-# multiple agents terminating and restarting
-@pytest.mark.parametrize("nb_nodes", (4,))
-class TestSimpleABCIFourAgentsTwoAgentRestarting(BaseSimpleABCITestCatchup):
-    """Test the ABCI simple_abci skill with four agents and two restarting."""
-
-    n_terminal = 2
