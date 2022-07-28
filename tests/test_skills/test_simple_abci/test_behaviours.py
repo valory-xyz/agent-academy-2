@@ -21,9 +21,10 @@
 import json
 import time
 from copy import copy
+from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, Type, cast
+from typing import Any, Dict, Optional, Type, cast
 from unittest import mock
 
 from aea.helpers.transaction.base import SignedMessage
@@ -90,6 +91,7 @@ class SimpleAbciFSMBehaviourBaseCase(BaseSkillTestCase):
     old_tx_type_to_payload_cls: Dict[str, Type[BaseTxPayload]]
     synchronized_data: SynchronizedData
     benchmark_dir: TemporaryDirectory
+    done_event: Enum = Event.DONE
 
     @classmethod
     def setup(cls, **kwargs: Any) -> None:
@@ -360,6 +362,7 @@ class SimpleAbciFSMBehaviourBaseCase(BaseSkillTestCase):
 
     def end_round(
         self,
+        event: Optional[Enum] = None,
     ) -> None:
         """Ends round early to cover `wait_for_end` generator."""
         current_behaviour = cast(
@@ -373,7 +376,9 @@ class SimpleAbciFSMBehaviourBaseCase(BaseSkillTestCase):
         abci_app._last_round = old_round
         abci_app._current_round = abci_app.transition_function[
             current_behaviour.matching_round
-        ][Event.DONE](abci_app.synchronized_data, abci_app.consensus_params)
+        ][event if event else self.done_event](
+            abci_app.synchronized_data, abci_app.consensus_params
+        )
         abci_app._previous_rounds.append(old_round)
         abci_app._current_round_height += 1
         self.simple_abci_behaviour._process_current_round()

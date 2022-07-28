@@ -30,6 +30,7 @@ cp -r ../open-autonomy/scripts/__init__.py scripts/
 cp -r ../open-autonomy/scripts/check_copyright.py scripts/
 cp -r ../open-autonomy/scripts/check_packages.py scripts/
 cp -r ../open-autonomy/tests/data tests
+cp -r ../open-autonomy/tests/fixture_helpers.py tests
 cp -r ../open-autonomy/tests/helpers/docker tests/helpers
 cp -r ../open-autonomy/tests/helpers/__init__.py tests/helpers
 cp -r ../open-autonomy/tests/helpers/async_utils.py tests/helpers
@@ -42,6 +43,6 @@ cp -r ../open-autonomy/tests/test_agents/base.py tests/test_agents
 cp -r ../open-autonomy/tests/test_agents/test_simple_abci.py tests/test_agents
 cp -r ../open-autonomy/tests/test_contracts/base.py tests/test_contracts
 cp -r ../open-autonomy/tests/test_skills/__init__.py tests/test_skills
-#cp -r ../open-autonomy/tests/test_skills/test_simple_abci tests/test_skills
+cp -r ../open-autonomy/tests/test_skills/test_simple_abci tests/test_skills
 cp -r ../agent-academy-1/tox.ini .
-echo "Manually sync: tests/helpers/constants.py, tests/test_skills/test_simple_abci"
+echo "Manually sync: tests/helpers/constants.py"

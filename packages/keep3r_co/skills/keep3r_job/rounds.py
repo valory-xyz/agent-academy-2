@@ -34,7 +34,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
     AbciAppTransitionFunction,
     AbstractRound,
-    BasePeriodState,
+    BaseSynchronizedData,
     CollectSameUntilThresholdRound,
     DegenerateRound,
 )
@@ -52,9 +52,11 @@ class Event(Enum):
     NOT_PROFITABLE = "not_profitable"
 
 
-class PeriodState(BasePeriodState):  # pylint: disable=too-many-instance-attributes
+class SynchronizedData(
+    BaseSynchronizedData
+):  # pylint: disable=too-many-instance-attributes
     """
-    Class to represent a period state.
+    Class to represent synchronization data.
 
     This state is replicated by the tendermint application.
     """
@@ -88,11 +90,11 @@ class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
     """Abstract round for the simple abci skill."""
 
     @property
-    def period_state(self) -> BasePeriodState:
+    def period_state(self) -> BaseSynchronizedData:
         """Return the period state."""
-        return cast(BasePeriodState, self._state)
+        return cast(BaseSynchronizedData, self.synchronized_data)
 
-    def _return_no_majority_event(self) -> Tuple[BasePeriodState, Event]:
+    def _return_no_majority_event(self) -> Tuple[BaseSynchronizedData, Event]:
         """
         Trigger the NO_MAJORITY event.
 
@@ -108,7 +110,7 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     allowed_tx_type = IsWorkablePayload.transaction_type
     payload_attribute = "is_workable"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
             state = self.period_state.update(
@@ -132,7 +134,7 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     allowed_tx_type = JobSelectionPayload.transaction_type
     payload_attribute = "job_selection"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
             job_selection = self.most_voted_payload
@@ -154,7 +156,7 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     allowed_tx_type = TXHashPayload.transaction_type
     payload_attribute = "tx_hash"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
             state = self.period_state.update(
@@ -175,7 +177,7 @@ class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     allowed_tx_type = IsProfitablePayload.transaction_type
     payload_attribute = "is_profitable"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
             state = self.period_state.update(is_profitable=self.most_voted_payload)
@@ -215,7 +217,7 @@ class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractR
     allowed_tx_type = SafeExistencePayload.transaction_type
     payload_attribute = "safe_exists"
 
-    def end_block(self) -> Optional[Tuple[BasePeriodState, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
             state = self.period_state.update(

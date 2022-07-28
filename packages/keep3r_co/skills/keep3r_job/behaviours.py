@@ -37,27 +37,27 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     IsWorkableRound,
     JobSelectionRound,
     Keep3rJobAbciApp,
-    PeriodState,
     PrepareTxRound,
+    SynchronizedData,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
-    BaseState,
+    BaseBehaviour,
 )
 
 
-class CheckSafeExistenceBehaviour(BaseState):
+class CheckSafeExistenceBehaviour(BaseBehaviour):
     """Check Safe contract existence."""
 
     state_id = "check_safe_existence"
     matching_round = CheckSafeExistenceRound
 
     @property
-    def period_state(self) -> PeriodState:
-        """Return the period state."""
-        return cast(PeriodState, super().period_state)
+    def synchronized_data(self) -> SynchronizedData:
+        """Return the synchronized data."""
+        return cast(SynchronizedData, super().synchronized_data)
 
     def async_act(self) -> Generator:
         """
@@ -82,20 +82,20 @@ class CheckSafeExistenceBehaviour(BaseState):
     def safe_contract_exists(self) -> bool:
         """Check Contract deployment verification."""
 
-        if self.period_state.safe_contract_address is None:  # pragma: nocover
+        if self.synchronized_data.safe_contract_address is None:  # pragma: nocover
             self.context.logger.warning("Safe contract has not been deployed!")
             return False
 
         return True
 
 
-class Keep3rJobAbciBaseState(BaseState, ABC):
+class Keep3rJobAbciBaseBehaviour(BaseBehaviour, ABC):
     """Base state behaviour for the simple abci skill."""
 
     @property
-    def period_state(self) -> PeriodState:
-        """Return the period state."""
-        return cast(PeriodState, super().period_state)
+    def synchronized_data(self) -> SynchronizedData:
+        """Return the synchronized data."""
+        return cast(SynchronizedData, super().synchronized_data)
 
     @property
     def params(self) -> Params:
@@ -108,11 +108,11 @@ class Keep3rJobAbciBaseState(BaseState, ABC):
         if not self.context.params.job_contract_addresses:
             return None
         addresses = self.context.params.job_contract_addresses
-        job_ix = self.period_state.period_count % len(addresses)
+        job_ix = self.synchronized_data.period_count % len(addresses)
         return self.context.params.job_contract_addresses[job_ix]
 
 
-class JobSelectionBehaviour(Keep3rJobAbciBaseState):
+class JobSelectionBehaviour(Keep3rJobAbciBaseBehaviour):
     """Check whether the job contract is selected."""
 
     state_id = "job_selection"
@@ -136,7 +136,7 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseState):
         self.set_done()
 
 
-class IsWorkableBehaviour(Keep3rJobAbciBaseState):
+class IsWorkableBehaviour(Keep3rJobAbciBaseBehaviour):
     """Check whether the job contract is workable."""
 
     state_id = "is_workable"
@@ -178,7 +178,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseState):
         return is_workable
 
 
-class PrepareTxBehaviour(Keep3rJobAbciBaseState):
+class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
     """Deploy Safe."""
 
     state_id = "prepare_tx"
@@ -248,7 +248,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseState):
         return tx_hash
 
 
-class IsProfitableBehaviour(Keep3rJobAbciBaseState):
+class IsProfitableBehaviour(Keep3rJobAbciBaseBehaviour):
     """Checks if job is profitable."""
 
     state_id = "get_is_profitable"
@@ -307,7 +307,7 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
 
     initial_state_cls = CheckSafeExistenceBehaviour  # type: ignore
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
-    behaviour_states: Set[Type[Keep3rJobAbciBaseState]] = {  # type: ignore
+    behaviour_states: Set[Type[Keep3rJobAbciBaseBehaviour]] = {  # type: ignore
         CheckSafeExistenceBehaviour,  # type: ignore
         JobSelectionBehaviour,  # type: ignore
         IsWorkableBehaviour,  # type: ignore
