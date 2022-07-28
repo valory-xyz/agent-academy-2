@@ -18,7 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the price estimation ABCI application."""
-from packages.keep3r_co.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job.rounds import (
     CheckSafeExistenceRound,
     FailedRound,
     FinishedPrepareTxRound,

@@ -21,8 +21,8 @@
 
 from typing import Set, Type
 
-from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
-from packages.keep3r_co.skills.keep3r_job.behaviours import Keep3rJobRoundBehaviour
+from packages.valory.skills.keep3r_abci.composition import Keep3rAbciApp
+from packages.valory.skills.keep3r_job.behaviours import Keep3rJobRoundBehaviour
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseBehaviour,
@@ -40,7 +40,7 @@ from packages.valory.skills.safe_deployment_abci.behaviours import (
 
 
 class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
-    """This behaviour manages the consensus stages for the keepr abci app."""
+    """This behaviour manages the consensus stages for the keep3r abci app."""
 
     initial_behaviour_cls = RegistrationStartupBehaviour
     abci_app_cls = Keep3rAbciApp  # type: ignore

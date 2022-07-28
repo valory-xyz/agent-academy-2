@@ -14,7 +14,7 @@ alphabet_in:
 - VALIDATE_TIMEOUT
 default_start_state: RegistrationStartupRound
 final_states: []
-label: packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp
+label: packages.valory.skills.keep3r_abci.composition.Keep3rAbciApp
 start_states:
 - RegistrationStartupRound
 states:

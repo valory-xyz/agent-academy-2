@@ -19,7 +19,7 @@
 
 """Test the payloads.py module of the skill."""
 
-from packages.keep3r_co.skills.keep3r_job.payloads import (
+from packages.valory.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     TXHashPayload,
     TransactionType,

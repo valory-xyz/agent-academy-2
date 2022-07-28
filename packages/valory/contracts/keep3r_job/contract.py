@@ -29,7 +29,7 @@ from aea_ledger_ethereum import EthereumApi
 from web3.types import Nonce, TxParams, Wei
 
 
-PUBLIC_ID = PublicId.from_str("gabrielfu/keep3r_job:0.1.0")
+PUBLIC_ID = PublicId.from_str("valory/keep3r_job:0.1.0")
 
 _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"

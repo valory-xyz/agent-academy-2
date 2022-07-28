@@ -17,13 +17,12 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the shared state for the price estimation app ABCI application."""
+"""This module contains the shared state for the 'keep3r_job' application."""
 
 from typing import Any
 
-from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
-from packages.keep3r_co.skills.keep3r_job.models import Params as Keep3rJobParams
-from packages.keep3r_co.skills.keep3r_job.rounds import Event as Keep3rJobEvent
+from packages.valory.skills.keep3r_job.rounds import Event, Keep3rJobAbciApp
+from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
 )
@@ -31,17 +30,13 @@ from packages.valory.skills.abstract_round_abci.models import Requests as BaseRe
 from packages.valory.skills.abstract_round_abci.models import (
     SharedState as BaseSharedState,
 )
-from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
-from packages.valory.skills.safe_deployment_abci.rounds import Event as SafeEvent
-from packages.valory.skills.transaction_settlement_abci.rounds import Event as TSEvent
 
 
 MARGIN = 5
-MULTIPLIER = 2
+
 
 Requests = BaseRequests
 BenchmarkTool = BaseBenchmarkTool
-Params = Keep3rJobParams
 
 
 class SharedState(BaseSharedState):
@@ -49,29 +44,27 @@ class SharedState(BaseSharedState):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the state."""
-        super().__init__(*args, abci_app_cls=Keep3rAbciApp, **kwargs)
+        super().__init__(*args, abci_app_cls=Keep3rJobAbciApp, **kwargs)
 
     def setup(self) -> None:
         """Set up."""
         super().setup()
-        Keep3rAbciApp.event_to_timeout[
-            Keep3rJobEvent.ROUND_TIMEOUT
+        Keep3rJobAbciApp.event_to_timeout[
+            Event.ROUND_TIMEOUT
         ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            SafeEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            Keep3rJobEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            TSEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            ResetPauseEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[TSEvent.RESET_TIMEOUT] = (
-            self.context.params.round_timeout_seconds * MULTIPLIER
-        )
-        Keep3rAbciApp.event_to_timeout[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = (
+        Keep3rJobAbciApp.event_to_timeout[Event.RESET_TIMEOUT] = (
             self.context.params.observation_interval + MARGIN
         )
+
+
+class Params(BaseParams):
+    """Parameters."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize the parameters object."""
+        self.job_contract_addresses = self._ensure("job_contract_addresses", kwargs)
+        super().__init__(*args, **kwargs)
+
+
+class RandomnessApi(ApiSpecs):
+    """A model that wraps ApiSpecs for randomness api specifications."""

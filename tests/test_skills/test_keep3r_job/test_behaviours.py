@@ -26,21 +26,21 @@ from typing import Dict, Type, cast
 import pytest
 from aea.helpers.transaction.base import RawTransaction
 
-from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
-from packages.keep3r_co.skills.keep3r_job.behaviours import (
+from packages.valory.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
+from packages.valory.skills.keep3r_job.behaviours import (
     IsProfitableBehaviour,
     IsWorkableBehaviour,
     JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
     PrepareTxBehaviour,
 )
-from packages.keep3r_co.skills.keep3r_job.handlers import (
+from packages.valory.skills.keep3r_job.handlers import (
     ContractApiHandler,
     HttpHandler,
     LedgerApiHandler,
     SigningHandler,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job.rounds import (
     Event,
     FinishedPrepareTxRound,
     IsProfitableRound,
@@ -81,7 +81,7 @@ class DummyRoundId:
 class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     """Base test case."""
 
-    path_to_skill = Path(ROOT_DIR, "packages", "keep3r_co", "skills", "keep3r_job")
+    path_to_skill = Path(ROOT_DIR, "packages", "valory", "skills", "keep3r_job")
 
     abci_behaviour: Keep3rJobRoundBehaviour
     ledger_handler: LedgerApiHandler

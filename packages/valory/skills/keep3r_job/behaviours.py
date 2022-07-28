@@ -22,16 +22,16 @@
 from abc import ABC
 from typing import Generator, Optional, Set, Type, cast
 
-from packages.gabrielfu.contracts.keep3r_job.contract import Keep3rJobContract
-from packages.keep3r_co.skills.keep3r_job.models import Params
-from packages.keep3r_co.skills.keep3r_job.payloads import (
+from packages.valory.contracts.keep3r_job.contract import Keep3rJobContract
+from packages.valory.skills.keep3r_job.models import Params
+from packages.valory.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
     SafeExistencePayload,
     TXHashPayload,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job.rounds import (
     CheckSafeExistenceRound,
     IsProfitableRound,
     IsWorkableRound,

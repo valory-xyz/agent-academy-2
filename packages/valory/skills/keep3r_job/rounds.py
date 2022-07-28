@@ -22,7 +22,7 @@ from abc import ABC
 from enum import Enum
 from typing import Dict, Optional, Tuple, Type, cast
 
-from packages.keep3r_co.skills.keep3r_job.payloads import (
+from packages.valory.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,

@@ -18,19 +18,20 @@
 # ------------------------------------------------------------------------------
 
 """Test the base.py module of the skill."""
+
 import logging  # noqa: F401
 from types import MappingProxyType
 from typing import FrozenSet, cast
 from unittest import mock
 
-from packages.keep3r_co.skills.keep3r_job.payloads import (
+from packages.valory.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
     SafeExistencePayload,
     TXHashPayload,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job.rounds import (
     CheckSafeExistenceRound,
     Event,
     IsProfitableRound,
