@@ -89,7 +89,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     contract_handler: ContractApiHandler
     signing_handler: SigningHandler
     old_tx_type_to_payload_cls: Dict[str, Type[BaseTxPayload]]
-    period_state: SynchronizedData
+    synchronized_data: SynchronizedData
     benchmark_dir: TemporaryDirectory
     done_event = Event.DONE
 
@@ -192,7 +192,7 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.fast_forward_to_behaviour(
             self.abci_behaviour,
             JobSelectionBehaviour.behaviour_id,
-            self.period_state,
+            self.synchronized_data,
         )
         assert self.current_behaviour.behaviour_id == JobSelectionBehaviour.behaviour_id
 
@@ -216,7 +216,7 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.fast_forward_to_behaviour(
             self.abci_behaviour,
             JobSelectionBehaviour.behaviour_id,
-            self.period_state,
+            self.synchronized_data,
         )
         assert self.current_behaviour.behaviour_id == JobSelectionBehaviour.behaviour_id
 
