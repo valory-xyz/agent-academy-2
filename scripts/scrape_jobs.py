@@ -129,5 +129,24 @@ def get_keeper_contract_data():
     print("Scraping contract ABIs completed")
 
 
+def test_workable():
+
+    # job_board = get_jobs_from_keep3r_live()
+    job_board = pd.read_csv(path / "jobs.csv")
+    contract_dir = path / "contracts"
+    for _, job in job_board.iterrows():
+        checksum_address = Web3.toChecksumAddress(job.address)
+        filepath = Path(contract_dir / checksum_address / "abi.json")
+        abi = json.loads(filepath.read_text())
+        contract = w3.eth.contract(address=checksum_address, abi=abi)
+        try:
+            result = contract.functions.workable().call()
+            print(f"workable: {job.job_name}: {result}")
+        except Exception as e:
+            print(f"cannot work: {job.job_name}: {e}")
+            pass
+
+
 if __name__ == "__main__":
     get_keeper_contract_data()
+    test_workable()
