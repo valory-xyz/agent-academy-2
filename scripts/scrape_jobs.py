@@ -87,7 +87,7 @@ def get_readme_info(job):
         return documentation
     except Exception as e:
         prefix = "Could not obtain documentation for"
-        message = f"{prefix} {job.address}"
+        message = f"{prefix} {job.address}: {str(e)}"
         print(message)
 
 
@@ -96,7 +96,7 @@ def write_contract_data_to_local(contract_dir, job):
 
     def write_abi():
         filepath = job_dir / "abi.json"
-        abi = get_contract_abi(checksum_address)
+        abi = get_contract_abi(job.address)
         filepath.write_text(json.dumps(abi, indent=4))
         print(f"ABI written: {filepath}")
 
@@ -108,12 +108,18 @@ def write_contract_data_to_local(contract_dir, job):
         filepath.write_text(md)
         print(f"documentation written: {filepath}")
 
+    def write_details():
+        filepath = job_dir / "contract_details.json"
+        filepath.write_text(json.dumps(job.to_dict(), indent=4))
+        print(f"details written: {filepath}")
+
     print(f"Scraping: {job.job_name}")
-    checksum_address = Web3.toChecksumAddress(job.address)
-    job_dir = contract_dir / f"{checksum_address}"
+    job.address = Web3.toChecksumAddress(job.address)
+    job_dir = contract_dir / f"{job.address}"
     job_dir.mkdir(exist_ok=True)
     write_abi()
     write_info()
+    write_details()
 
 
 def get_keeper_contract_data():
@@ -131,7 +137,6 @@ def get_keeper_contract_data():
 
 def test_workable():
 
-    # job_board = get_jobs_from_keep3r_live()
     job_board = pd.read_csv(path / "jobs.csv")
     contract_dir = path / "contracts"
     for _, job in job_board.iterrows():
