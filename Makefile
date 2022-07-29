@@ -55,7 +55,7 @@ formatters:
 # darglint: docstring linter
 .PHONY: code-checks
 code-checks:
-	tox -p -e black-check -e isort-check -e flake8 -e mypy -e pylint -e vulture -e darglint
+	tox -p -e black-check -e isort-check -e flake8 -e mypy -e pylint -e darglint
 
 .PHONY: lint
 lint:

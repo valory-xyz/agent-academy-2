@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-open-aea = {version = "==1.13.0", extras = ["all"]}
 open-aea-ledger-ethereum = "==1.13.0"
 open-aea-ledger-cosmos = "==1.13.0"
 open-aea-cli-ipfs = "==1.13.0"
@@ -45,7 +44,6 @@ pytest-randomly = "==3.11.0"
 tox = "==3.24.4"
 types-protobuf = "==3.19.20"
 types-requests = "==2.27.25"
-vulture = "==2.3"
 
 [requires]
 python_version = "3.10"
