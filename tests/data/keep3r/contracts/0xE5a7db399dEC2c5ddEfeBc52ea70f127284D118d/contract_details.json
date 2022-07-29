@@ -1,0 +1,11 @@
+{
+    "id": 41,
+    "job_name": "HarvestV2QueueKeep3rJob",
+    "address": "0xE5a7db399dEC2c5ddEfeBc52ea70f127284D118d",
+    "docs": "https://github.com/yearn/keep3r-jobs/blob/master/doc/HarvestV2QueueKeep3rJob.md",
+    "ipfs": "",
+    "added": "2021-04-24 02:45:08",
+    "created_at": "2021-04-24 02:46:07",
+    "updated_at": "2021-04-24 02:46:07",
+    "raw_timestamp": 1619232308
+}
