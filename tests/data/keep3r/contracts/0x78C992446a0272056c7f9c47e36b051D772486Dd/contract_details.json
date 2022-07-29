@@ -1,0 +1,11 @@
+{
+    "id": 2,
+    "job_name": "AaveLiquidations",
+    "address": "0x78C992446a0272056c7f9c47e36b051D772486Dd",
+    "docs": "https://github.com/keep3r-network/keep3r.network/blob/master/contracts/jobs/AaveLiquidateKeep3r.sol#L453",
+    "ipfs": "https://github.com/keep3r-network/keep3r.network/blob/master/contracts/jobs/AaveLiquidateKeep3r.sol#L453",
+    "added": "2020-10-29 16:24:53",
+    "created_at": "2020-11-08 14:14:03",
+    "updated_at": "2020-11-08 14:14:03",
+    "raw_timestamp": 1603988693
+}
