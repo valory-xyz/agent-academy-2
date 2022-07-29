@@ -6,10 +6,10 @@ description: Keep3r job contract
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: QmPoiCaZKzkApXa6ZKZ436KgedV1C6n23wKEqfnzLK5sy3
-  __init__.py: QmNQkrYx3JTPSTDz991Z2pVToZYaCSFUU7PbqkDq3RRNgr
-  build/Keep3rJob.json: QmZ7JMdVYjTgmgmyATCicNie2pCFs4mVsKybEKeRfogVHW
-  contract.py: QmRcpcaxbpmt7AyLACHSBxf8g5fMH4WactTGBZ898qSX3A
+  README.md: bafybeiavzjioe4yitbfo2vozub3qlcdycu54czhe6ocui76e6opfxjltdi
+  __init__.py: bafybeiabbvc2pxlrwjxv3qpj6gphfmqhurnb5ctrdmanwy4y5axrp2ecpm
+  build/Keep3rJob.json: bafybeifaat7a5enr56xntjgdkwqmujnxpesn2mefh2u23rqy3wscarke4u
+  contract.py: bafybeibqw6gzvoapbwksg3rfribmrjhn6wl6iqemej65bqcpjhkoupi6pu
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rJobContract

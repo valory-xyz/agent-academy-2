@@ -7,29 +7,29 @@ description: ABCI application for cryptocurrency price estimation aggregating ob
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: QmT7TN1DvhK4LtLzv2gSQphVJCsy49b11hRU8ixiiYtHrf
-  __init__.py: QmNMXn9ZQfgadg7KvXu2nCQsWuwoca5WmDXoMBkBGDNGbV
-  behaviours.py: QmWvaH9qpiGm6aLScfU48NJo4svN4c2S1trZDdGAAWte4L
-  composition.py: Qme6h3zstouHhWoqUsxtUWcC5YVajJgTrJYsbz8LhpzNVm
-  dialogues.py: QmfDThV4WCRzK88XDpW2hKDYCuEH4RxoHCoAkWpkBRGRPv
-  fsm_specification.yaml: QmXpoFeSzXZTvArXkRj246L3NMKgHTnXxtdWccnsmcv73u
-  handlers.py: QmfKibZHU7Lwrw1vF9UGC6NzzqjaoqWjWNSj8HKecv2s6E
-  models.py: QmbxipCZadt2WZWi9oo9eNLMyWsT6KSY1DxSC2aEdSAawg
-  payloads.py: QmaUoHrEBzhAzam6uyN3GGLYTJEBVbW9kCPkcTYVrepR1F
-  rounds.py: QmUCgs2XUZbtUC3t1xkLs2Q3EqEWfqwDbH6ogbgxvMCU8j
+  README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
+  __init__.py: bafybeiaahg7kgkjgmlxj6yy6etmqcbfln5so7z7pv4aeccw3d54shhrpkq
+  behaviours.py: bafybeiaw25t3pjodzga3fak4p3bbyji7n6jr5qtbdqdoywkblmaogwpptu
+  composition.py: bafybeihke6bdtxcl36unpofl6wqfze5mkb4yts5jaria5wpwwstf3xyrsa
+  dialogues.py: bafybeih2x4uyoj2c5j46jjn6jiddxcvx6vbsb3pf6b45fzf657mtqu2t5e
+  fsm_specification.yaml: bafybeiem54nqchbpx3nqv2vabekgfh5mtd6hb4pw47iq7xcoxmirka7apa
+  handlers.py: bafybeih4lf67rr27fe2xq5g2wna6agtiaex5xcbo4dedk27qb4xrl5g7z4
+  models.py: bafybeigkmv5rijhm7w2bu6oo6rqnax262kmamo4vjkmitf4sjb7txudbh4
+  payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
+  rounds.py: bafybeicxdpuq7pmz7aszaax4oxpk7olavo4pbb56ng63ieuxnd7vl53m4q
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0
-- valory/gnosis_safe_proxy_factory:0.1.0
+- valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
 protocols:
-- valory/contract_api:1.0.0
+- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
 skills:
-- keep3r_co/keep3r_job:0.1.0
-- valory/registration_abci:0.1.0
-- valory/reset_pause_abci:0.1.0
-- valory/safe_deployment_abci:0.1.0
-- valory/transaction_settlement_abci:0.1.0
+- keep3r_co/keep3r_job:0.1.0:bafybeigtjecw2gzxoytslmtecpdrdhdjkgwqshdpscrqpoekywd5np5tuq
+- valory/registration_abci:0.1.0:bafybeiextiecxab2drlwqmifd33yzxrsoi3q2nq5rufg2ga42x3errj5wm
+- valory/reset_pause_abci:0.1.0:bafybeifuu43bgmeilzyfrf2k6lenbq3g5anypecxvewz5ogtpafmoon7vq
+- valory/safe_deployment_abci:0.1.0:bafybeihfykgpnergo6mke33oxhyyd2772xy73vuad3iomx5h2vixsv75cy
+- valory/transaction_settlement_abci:0.1.0:bafybeiezkvmlo6eox2kzu6pk24rtlvrh55kohtd7nsi3werflcbaprzzw4
 behaviours:
   main:
     args: {}

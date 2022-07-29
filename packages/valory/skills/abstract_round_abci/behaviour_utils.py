@@ -21,7 +21,9 @@
 import datetime
 import inspect
 import json
+import math
 import pprint
+import re
 from abc import ABC, abstractmethod
 from enum import Enum
 from functools import partial, wraps
@@ -38,6 +40,7 @@ from typing import (
     cast,
 )
 
+import pytz  # type: ignore  # pylint: disable=import-error
 from aea.exceptions import enforce
 from aea.protocols.base import Message
 from aea.protocols.dialogue.base import Dialogue
@@ -57,7 +60,7 @@ from packages.valory.protocols.http import HttpMessage
 from packages.valory.protocols.ledger_api import LedgerApiMessage
 from packages.valory.skills.abstract_round_abci.base import (
     AbstractRound,
-    BasePeriodState,
+    BaseSynchronizedData,
     BaseTxPayload,
     LEDGER_API_ADDRESS,
     OK_CODE,
@@ -87,6 +90,16 @@ from packages.valory.skills.abstract_round_abci.models import (
     Requests,
     SharedState,
 )
+
+
+MIN_HEIGHT_OFFSET = 10
+HEIGHT_OFFSET_MULTIPLIER = 1
+NON_200_RETURN_CODE_DURING_RESET_THRESHOLD = 3
+GENESIS_TIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+ROOT_HASH = "726F6F743A3"
+RESET_HASH = "72657365743A3"
+APP_HASH_RE = fr"{ROOT_HASH}\d+{RESET_HASH}(\d+)"
+INITIAL_APP_HASH = ""
 
 
 class SendException(Exception):
@@ -174,7 +187,15 @@ class AsyncBehaviour(ABC):
     def wait_for_condition(
         cls, condition: Callable[[], bool], timeout: Optional[float] = None
     ) -> Generator[None, None, None]:
-        """Wait for a condition to happen."""
+        """Wait for a condition to happen.
+
+        This is a local method that does not depend on the global clock,
+        so the usage of datetime.now() is acceptable here.
+
+        :param condition: the condition to wait for
+        :param timeout: the maximum amount of time to wait
+        :yield: None
+        """
         if timeout is not None:
             deadline = datetime.datetime.now() + datetime.timedelta(0, timeout)
         else:
@@ -190,6 +211,8 @@ class AsyncBehaviour(ABC):
         Delay execution for a given number of seconds.
 
         The argument may be a floating point number for subsecond precision.
+        This is a local method that does not depend on the global clock, so the
+        usage of datetime.now() is acceptable here.
 
         :param seconds: the seconds
         :yield: None
@@ -211,6 +234,8 @@ class AsyncBehaviour(ABC):
 
         Care must be taken. This method does not handle concurrent requests.
         Use directly after a request is being sent.
+        This is a local method that does not depend on the global clock,
+        so the usage of datetime.now() is acceptable here.
 
         :param condition: a callable
         :param timeout: max time to wait (in seconds)
@@ -393,7 +418,7 @@ class CleanUpBehaviour(SimpleBehaviour, ABC):
     """Class for clean-up related functionality of behaviours."""
 
     def __init__(self, **kwargs: Any):  # pylint: disable=super-init-not-called
-        """Initialize a base state behaviour."""
+        """Initialize a base behaviour."""
         SimpleBehaviour.__init__(self, **kwargs)
 
     def clean_up(self) -> None:
@@ -403,18 +428,19 @@ class CleanUpBehaviour(SimpleBehaviour, ABC):
         It can be optionally implemented by the concrete classes.
         """
 
-    def handle_late_messages(self, message: Message) -> None:
+    def handle_late_messages(self, behaviour_id: str, message: Message) -> None:
         """
         Handle late arriving messages.
 
         Runs from another behaviour, even if the behaviour implementing the method has been exited.
         It can be optionally implemented by the concrete classes.
 
+        :param behaviour_id: the id of the behaviour in which the message belongs to.
         :param message: the late arriving message to handle.
         """
         request_nonce = message.dialogue_reference[0]
         self.context.logger.warning(
-            f"No callback defined for request with nonce: {request_nonce}"
+            f"No callback defined for request with nonce: {request_nonce}, arriving for behaviour: {behaviour_id}"
         )
 
 
@@ -428,16 +454,16 @@ class RPCResponseStatus(Enum):
     UNCLASSIFIED_ERROR = 5
 
 
-class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
-    """Base class for FSM states."""
+class BaseBehaviour(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
+    """Base class for FSM behaviours."""
 
     is_programmatically_defined = True
-    state_id = ""
+    behaviour_id = ""
     matching_round: Type[AbstractRound]
     is_degenerate: bool = False
 
     def __init__(self, **kwargs: Any):  # pylint: disable=super-init-not-called
-        """Initialize a base state behaviour."""
+        """Initialize a base behaviour."""
         AsyncBehaviour.__init__(self)
         IPFSBehaviour.__init__(self, **kwargs)
         CleanUpBehaviour.__init__(self, **kwargs)
@@ -446,7 +472,8 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         self._check_started: Optional[datetime.datetime] = None
         self._timeout: float = 0
         self._is_healthy: bool = False
-        enforce(self.state_id != "", "State id not set.")
+        self._non_200_return_code_count: int = 0
+        enforce(self.behaviour_id != "", "State id not set.")
 
     @property
     def params(self) -> BaseParams:
@@ -454,17 +481,33 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         return cast(BaseParams, self.context.params)
 
     @property
-    def period_state(self) -> BasePeriodState:
-        """Return the period state."""
-        return cast(BasePeriodState, cast(SharedState, self.context.state).period_state)
+    def synchronized_data(self) -> BaseSynchronizedData:
+        """Return the synchronized data."""
+        return cast(
+            BaseSynchronizedData,
+            cast(SharedState, self.context.state).synchronized_data,
+        )
+
+    @property
+    def tm_communication_unhealthy(self) -> bool:
+        """Return if the Tendermint communication is not healthy anymore."""
+        return cast(
+            SharedState, self.context.state
+        ).round_sequence.block_stall_deadline_expired
 
     def check_in_round(self, round_id: str) -> bool:
         """Check that we entered a specific round."""
-        return cast(SharedState, self.context.state).period.current_round_id == round_id
+        return (
+            cast(SharedState, self.context.state).round_sequence.current_round_id
+            == round_id
+        )
 
     def check_in_last_round(self, round_id: str) -> bool:
         """Check that we entered a specific round."""
-        return cast(SharedState, self.context.state).period.last_round_id == round_id
+        return (
+            cast(SharedState, self.context.state).round_sequence.last_round_id
+            == round_id
+        )
 
     def check_not_in_round(self, round_id: str) -> bool:
         """Check that we are not in a specific round."""
@@ -481,7 +524,7 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
     def check_round_height_has_changed(self, round_height: int) -> bool:
         """Check that the round height has changed."""
         return (
-            cast(SharedState, self.context.state).period.current_round_height
+            cast(SharedState, self.context.state).round_sequence.current_round_height
             != round_height
         )
 
@@ -499,10 +542,12 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         :yield: None
         """
         round_id = self.matching_round.round_id
-        round_height = cast(SharedState, self.context.state).period.current_round_height
+        round_height = cast(
+            SharedState, self.context.state
+        ).round_sequence.current_round_height
         if self.check_not_in_round(round_id) and self.check_not_in_last_round(round_id):
             raise ValueError(
-                f"Should be in matching round ({round_id}) or last round ({self.context.state.period.last_round_id}), actual round {self.context.state.period.current_round_id}!"
+                f"Should be in matching round ({round_id}) or last round ({self.context.state.round_sequence.last_round_id}), actual round {self.context.state.round_sequence.current_round_id}!"
             )
         yield from self.wait_for_condition(
             partial(self.check_round_height_has_changed, round_height), timeout=timeout
@@ -513,13 +558,17 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         Delay execution for a given number of seconds from the last timestamp.
 
         The argument may be a floating point number for subsecond precision.
+        This is a local method that does not depend on the global clock,
+        so the usage of datetime.now() is acceptable here.
 
         :param seconds: the seconds
         :yield: None
         """
+        if seconds < 0:
+            raise ValueError("Can only wait for a positive amount of time")
         deadline = cast(
             SharedState, self.context.state
-        ).period.abci_app.last_timestamp + datetime.timedelta(0, seconds)
+        ).round_sequence.abci_app.last_timestamp + datetime.timedelta(seconds=seconds)
 
         def _wait_until() -> bool:
             return datetime.datetime.now() > deadline
@@ -527,28 +576,43 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         yield from self.wait_for_condition(_wait_until)
 
     def is_done(self) -> bool:
-        """Check whether the state is done."""
+        """Check whether the behaviour is done."""
         return self._is_done
 
     def set_done(self) -> None:
         """Set the behaviour to done."""
         self._is_done = True
 
-    def send_a2a_transaction(self, payload: BaseTxPayload) -> Generator:
+    def send_a2a_transaction(
+        self, payload: BaseTxPayload, resetting: bool = False
+    ) -> Generator:
         """
         Send transaction and wait for the response, and repeat until not successful.
 
         :param: payload: the payload to send
+        :param: resetting: flag indicating if we are resetting Tendermint nodes in this round.
         :yield: the responses
         """
         stop_condition = self.is_round_ended(self.matching_round.round_id)
         payload.round_count = cast(
             SharedState, self.context.state
-        ).period_state.round_count
+        ).synchronized_data.round_count
         yield from self._send_transaction(
             payload,
+            resetting,
             stop_condition=stop_condition,
         )
+
+    def __check_tm_communication(self) -> Generator[None, None, bool]:
+        """Check if the Tendermint communication is considered healthy and if not restart the node."""
+        if self.tm_communication_unhealthy:
+            self.context.logger.warning(
+                "The local deadline for the next `begin_block` request from the Tendermint node has expired! "
+                "Trying to reset local Tendermint node as there could be something wrong with the communication."
+            )
+            reset_successfully = yield from self.reset_tendermint_with_wait()
+            return reset_successfully
+        return True
 
     def async_act_wrapper(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
@@ -557,7 +621,12 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
             self._is_started = True
 
         try:
-            if self.context.state.period.syncing_up:
+            communication_is_healthy = yield from self.__check_tm_communication()
+            if not communication_is_healthy:
+                # if we end up looping here forever,
+                # then there is probably something serious going on with the communication
+                return
+            if self.context.state.round_sequence.syncing_up:
                 yield from self._check_sync()
             else:
                 yield from self.async_act()
@@ -570,45 +639,91 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         if self._is_done:
             self._log_end()
 
+    def _sync_state(self, app_hash: str) -> None:
+        """
+        Sync the app's state using the given `app_hash`.
+
+        This method is intended for use after syncing local with remote.
+        The fact that we sync up with the blockchain does not mean that we also have the correct application state.
+        The application state is defined by the abci app's developer and also determines the generation of the app hash.
+        When we sync with the blockchain, it means that we no longer lag behind the other agents.
+        However, the application's state should also be updated, which is what this method takes care for.
+        We have chosen a simple application state for the time being,
+        which is a combination of the round count and the times we have reset so far.
+        The round count will be automatically updated by the framework while replaying the missed rounds,
+        however, the reset index needs to be manually updated.
+
+        Tendermint's block sync and state sync are not to be confused with our application's state;
+        they are different methods to sync faster with the blockchain.
+
+        :param app_hash: the app hash from which the state will be updated.
+        """
+        if app_hash == INITIAL_APP_HASH:
+            reset_index = 0
+        else:
+            match = re.match(APP_HASH_RE, app_hash)
+            if match is None:
+                raise ValueError(
+                    "Expected an app hash of the form: `726F6F743A3{ROUND_COUNT}72657365743A3{RESET_INDEX}`,"
+                    "which is derived from `root:{ROUND_COUNT}reset:{RESET_INDEX}`. "
+                    "For example, `root:90reset:4` would be `726F6F743A39072657365743A34`. "
+                    f"However, the app hash received is: `{app_hash}`."
+                )
+            reset_index = int(match.group(1))
+
+        self.context.state.round_sequence.abci_app.reset_index = reset_index
+
     def _check_sync(
         self,
     ) -> Generator[None, None, None]:
         """Check if agent has completed sync."""
         self.context.logger.info("Checking sync...")
         for _ in range(self.context.params.tendermint_max_retries):
-            self.context.logger.info("Checking status")
+            self.context.logger.info(
+                "Checking status @ " + self.context.params.tendermint_url + "/status",
+            )
             status = yield from self._get_status()
             try:
                 json_body = json.loads(status.body.decode())
                 remote_height = int(
                     json_body["result"]["sync_info"]["latest_block_height"]
                 )
-                local_height = int(self.context.state.period.height)
+                local_height = int(self.context.state.round_sequence.height)
                 _is_sync_complete = local_height == remote_height
                 if _is_sync_complete:
-                    self.context.logger.info("local height == remote; Sync complete...")
-                    self.context.state.period.end_sync()
+                    self.context.logger.info(
+                        f"local height == remote == {local_height}; Sync complete..."
+                    )
+                    remote_app_hash = str(
+                        json_body["result"]["sync_info"]["latest_app_hash"]
+                    )
+                    self._sync_state(remote_app_hash)
+                    self.context.state.round_sequence.end_sync()
                     return
                 yield from self.sleep(self.context.params.tendermint_check_sleep_delay)
             except (json.JSONDecodeError, KeyError):  # pragma: nocover
+                self.context.logger.error(
+                    "Tendermint not accepting transactions yet, trying again!"
+                )
                 yield from self.sleep(self.context.params.tendermint_check_sleep_delay)
 
     def _log_start(self) -> None:
-        """Log the entering in the behaviour state."""
-        self.context.logger.info(f"Entered in the '{self.name}' behaviour state")
+        """Log the entering in the behaviour."""
+        self.context.logger.info(f"Entered in the '{self.name}' behaviour")
 
     def _log_end(self) -> None:
-        """Log the exiting from the behaviour state."""
-        self.context.logger.info(f"'{self.name}' behaviour state is done")
+        """Log the exiting from the behaviour."""
+        self.context.logger.info(f"'{self.name}' behaviour is done")
 
     @classmethod
     def _get_request_nonce_from_dialogue(cls, dialogue: Dialogue) -> str:
         """Get the request nonce for the request, from the protocol's dialogue."""
         return dialogue.dialogue_label.dialogue_reference[0]
 
-    def _send_transaction(  # pylint: disable=too-many-arguments
+    def _send_transaction(  # pylint: disable=too-many-arguments,too-many-locals,too-many-statements
         self,
         payload: BaseTxPayload,
+        resetting: bool = False,
         stop_condition: Callable[[], bool] = lambda: False,
         request_timeout: Optional[float] = None,
         request_retry_delay: Optional[float] = None,
@@ -638,6 +753,7 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
             Http client connection -> (HttpMessage | RESPONSE) -> AbstractRoundAbci skill
 
         :param: payload: the payload to send
+        :param: resetting: flag indicating if we are resetting Tendermint nodes in this round.
         :param: stop_condition: the condition to be checked to interrupt the
                 waiting loop.
         :param: request_timeout: the timeout for the requests
@@ -681,10 +797,19 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
                 yield from self.sleep(request_retry_delay)
                 continue
             response = cast(HttpMessage, response)
-            if not self._check_http_return_code_200(response):
+            non_200_code = not self._check_http_return_code_200(response)
+            if non_200_code and (
+                self._non_200_return_code_count
+                > NON_200_RETURN_CODE_DURING_RESET_THRESHOLD
+                or not resetting
+            ):
                 self.context.logger.info(
-                    f"Received return code != 200 with response {response} with body {str(response.body)}. Retrying in {request_retry_delay} seconds..."
+                    f"Received return code != 200 with response {response} with body {str(response.body)}. "
+                    f"Retrying in {request_retry_delay} seconds..."
                 )
+            elif non_200_code and resetting:
+                self._non_200_return_code_count += 1
+            if non_200_code:
                 payload = payload.with_new_id()
                 yield from self.sleep(request_retry_delay)
                 continue
@@ -727,7 +852,10 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
                 )
                 break
             # otherwise, repeat until done, or until stop condition is true
-            self.context.logger.info(f"Tx sent but not delivered. Response = {res}")
+            if isinstance(res, HttpMessage) and self._tx_not_found(tx_hash, res):
+                self.context.logger.info(f"Tx {tx_hash} not found! Response = {res}")
+            else:
+                self.context.logger.info(f"Tx sent but not delivered. Response = {res}")
             payload = payload.with_new_id()
         self.context.logger.info(
             "Stop condition is true, no more attempts to send the transaction."
@@ -741,6 +869,25 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
             body_ = json.loads(res.body)
             return any(
                 [error_code in body_["tx_result"]["info"] for error_code in error_codes]
+            )
+        except Exception:  # pylint: disable=broad-except  # pragma: nocover
+            return False
+
+    @staticmethod
+    def _tx_not_found(tx_hash: str, res: HttpMessage) -> bool:
+        """Check if the transaction could not be found."""
+        try:
+            error = json.loads(res.body)["error"]
+            not_found_field_to_text = {
+                "code": -32603,
+                "message": "Internal error",
+                "data": f"tx ({tx_hash}) not found",
+            }
+            return all(
+                [
+                    text == error[field]
+                    for field, text in not_found_field_to_text.items()
+                ]
             )
         except Exception:  # pylint: disable=broad-except  # pragma: nocover
             return False
@@ -953,20 +1100,22 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         result = yield from self._do_request(request_message, http_dialogue)
         return result
 
-    def get_callback_request(self) -> Callable[[Message, "BaseState"], None]:
+    def get_callback_request(self) -> Callable[[Message, "BaseBehaviour"], None]:
         """Wrapper for callback request which depends on whether the message has not been handled on time.
 
         :return: the request callback.
         """
 
-        def callback_request(message: Message, current_state: BaseState) -> None:
+        def callback_request(
+            message: Message, current_behaviour: BaseBehaviour
+        ) -> None:
             """The callback request."""
             if self.is_stopped:
                 self.context.logger.debug(
                     "dropping message as behaviour has stopped: %s", message
                 )
-            elif self != current_state:
-                self.handle_late_messages(message)
+            elif self != current_behaviour:
+                self.handle_late_messages(self.behaviour_id, message)
             elif self.state == AsyncBehaviour.AsyncState.WAITING_MESSAGE:
                 self.try_send(message)
             else:
@@ -1109,6 +1258,9 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
             AbstractRoundAbci skill -> (HttpMessage | REQUEST) -> Http client connection
             Http client connection -> (HttpMessage | RESPONSE) -> AbstractRoundAbci skill
 
+        This is a local method that does not depend on the global clock,
+        so the usage of datetime.now() is acceptable here.
+
         :param tx_hash: the transaction hash to check.
         :param timeout: timeout
         :param: request_retry_delay: the delay to wait after failed requests
@@ -1129,6 +1281,7 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
             self.params.max_attempts if max_attempts is None else max_attempts
         )
 
+        response = None
         for _ in range(max_attempts):
             request_timeout = (
                 (deadline - datetime.datetime.now()).total_seconds()
@@ -1152,7 +1305,7 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
             tx_result = json_body["result"]["tx_result"]
             return tx_result["code"] == OK_CODE, response
 
-        return False, None
+        return False, response
 
     @classmethod
     def _check_http_return_code_200(cls, response: HttpMessage) -> bool:
@@ -1403,7 +1556,13 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         return RPCResponseStatus.UNCLASSIFIED_ERROR
 
     def _start_reset(self) -> Generator:
-        """Start tendermint reset."""
+        """Start tendermint reset.
+
+        This is a local method that does not depend on the global clock,
+        so the usage of datetime.now() is acceptable here.
+
+        :yield: None
+        """
         if self._check_started is None and not self._is_healthy:
             # we do the reset in the middle of the pause as there are no immediate transactions on either side of the reset
             yield from self.wait_from_last_timestamp(
@@ -1417,21 +1576,62 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
     def _end_reset(
         self,
     ) -> None:
-        """End tendermint reset."""
+        """End tendermint reset.
+
+        This is a local method that does not depend on the global clock,
+        so the usage of datetime.now() is acceptable here.
+        """
         self._check_started = None
         self._timeout = -1.0
         self._is_healthy = True
 
     def _is_timeout_expired(self) -> bool:
-        """Check if the timeout expired."""
+        """Check if the timeout expired.
+
+        This is a local method that does not depend on the global clock,
+        so the usage of datetime.now() is acceptable here.
+
+        :return: bool
+        """
         if self._check_started is None or self._is_healthy:
             return False
         return datetime.datetime.now() > self._check_started + datetime.timedelta(
             0, self._timeout
         )
 
+    def _get_reset_params(self, default: bool) -> Optional[List[Tuple[str, str]]]:
+        """Get the parameters for a hard reset request to Tendermint."""
+        if default:
+            return None
+
+        last_round_transition_timestamp = (
+            self.context.state.round_sequence.last_round_transition_timestamp
+        )
+        genesis_time = last_round_transition_timestamp.astimezone(pytz.UTC).strftime(
+            GENESIS_TIME_FMT
+        )
+        # Initial height needs to account for the asynchrony among agents.
+        # For that reason, we are using an offset in the initial block's height.
+        # The bigger the observation interval, the larger the lag among the agents might be.
+        # Also, if the observation interval is too tiny, we do not want the offset to be too small.
+        # Therefore, we choose between a minimum value and the interval multiplied by a constant.
+        # The larger the `HEIGHT_OFFSET_MULTIPLIER` constant's value, the larger the margin of error.
+        initial_height = str(
+            self.context.state.round_sequence.last_round_transition_tm_height
+            + max(
+                MIN_HEIGHT_OFFSET,
+                math.ceil(self.params.observation_interval * HEIGHT_OFFSET_MULTIPLIER),
+            )
+        )
+
+        return [
+            ("genesis_time", genesis_time),
+            ("initial_height", initial_height),
+        ]
+
     def reset_tendermint_with_wait(
         self,
+        on_startup: bool = False,
     ) -> Generator[None, None, bool]:
         """Resets the tendermint node."""
         yield from self._start_reset()
@@ -1441,11 +1641,13 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
 
         if not self._is_healthy:
             self.context.logger.info(
-                f"Resetting tendermint node at end of period={self.period_state.period_count}."
+                f"Resetting tendermint node at end of period={self.synchronized_data.period_count}."
             )
+
             request_message, http_dialogue = self._build_http_request_message(
                 "GET",
                 self.params.tendermint_com_url + "/hard_reset",
+                parameters=self._get_reset_params(on_startup),
             )
             result = yield from self._do_request(request_message, http_dialogue)
             try:
@@ -1455,12 +1657,18 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
                     self.context.logger.info(
                         "Resetting tendermint node successful! Resetting local blockchain."
                     )
-                    self.context.state.period.reset_blockchain(
+                    self.context.state.round_sequence.reset_blockchain(
                         response.get("is_replay", False)
                     )
-                    self.context.state.period.abci_app.cleanup(
-                        self.params.cleanup_history_depth
+                    self.context.state.round_sequence.abci_app.cleanup(
+                        self.params.cleanup_history_depth,
+                        self.params.cleanup_history_depth_current,
                     )
+
+                    for handler_name in self.context.handlers.__dict__.keys():
+                        dialogues = getattr(self.context, f"{handler_name}_dialogues")
+                        dialogues.cleanup()
+
                     self._end_reset()
                 else:
                     msg = response.get("message")
@@ -1485,7 +1693,7 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
             return False
 
         remote_height = int(json_body["result"]["sync_info"]["latest_block_height"])
-        local_height = self.context.state.period.height
+        local_height = self.context.state.round_sequence.height
         self.context.logger.info(
             "local-height = %s, remote-height=%s", local_height, remote_height
         )
@@ -1501,7 +1709,7 @@ class BaseState(AsyncBehaviour, IPFSBehaviour, CleanUpBehaviour, ABC):
         return True
 
 
-class DegenerateState(BaseState, ABC):
+class DegenerateBehaviour(BaseBehaviour, ABC):
     """An abstract matching behaviour for final and degenerate rounds."""
 
     matching_round: Type[AbstractRound]
@@ -1510,21 +1718,21 @@ class DegenerateState(BaseState, ABC):
     def async_act(self) -> Generator:
         """Raise a RuntimeError."""
         raise RuntimeError(
-            "The execution reached a degenerate behaviour state. "
+            "The execution reached a degenerate behaviour. "
             "This means a degenerate round has been reached during "
             "the execution of the ABCI application. Please check the "
             "functioning of the ABCI app."
         )
 
 
-def make_degenerate_state(round_id: str) -> Type[DegenerateState]:
-    """Make a degenerate state class."""
+def make_degenerate_behaviour(round_id: str) -> Type[DegenerateBehaviour]:
+    """Make a degenerate behaviour class."""
 
-    class NewDegenerateState(DegenerateState):
-        """A newly defined degenerate state class."""
+    class NewDegenerateBehaviour(DegenerateBehaviour):
+        """A newly defined degenerate behaviour class."""
 
-        state_id = f"degenerate_{round_id}"
+        behaviour_id = f"degenerate_{round_id}"
 
-    new_state_cls = NewDegenerateState
-    new_state_cls.__name__ = f"DegenerateState_{round_id}"  # type: ignore # pylint: disable=attribute-defined-outside-init
-    return new_state_cls  # type: ignore
+    new_behaviour_cls = NewDegenerateBehaviour
+    new_behaviour_cls.__name__ = f"DegenerateBehaviour_{round_id}"  # type: ignore # pylint: disable=attribute-defined-outside-init
+    return new_behaviour_cls  # type: ignore

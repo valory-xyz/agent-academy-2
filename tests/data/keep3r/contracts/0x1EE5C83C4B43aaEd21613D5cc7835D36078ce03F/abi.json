@@ -1,0 +1,68 @@
+[
+    {
+        "outputs": [],
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "name": "workable",
+        "outputs": [
+            {
+                "type": "bool",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": 4117
+    },
+    {
+        "name": "work",
+        "outputs": [],
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": 50465
+    },
+    {
+        "name": "keeper",
+        "outputs": [
+            {
+                "type": "address",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": 1151
+    },
+    {
+        "name": "lido",
+        "outputs": [
+            {
+                "type": "address",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": 1181
+    },
+    {
+        "name": "paused_until",
+        "outputs": [
+            {
+                "type": "uint256",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": 1211
+    }
+]

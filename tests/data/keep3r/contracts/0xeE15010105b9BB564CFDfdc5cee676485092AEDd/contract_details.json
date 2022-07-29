@@ -1,0 +1,11 @@
+{
+    "id": 42,
+    "job_name": "CrvStrategyKeep3rJob2",
+    "address": "0xeE15010105b9BB564CFDfdc5cee676485092AEDd",
+    "docs": "https://github.com/yearn/keep3r-jobs/blob/master/doc/CrvStrategyKeep3rJob2.md",
+    "ipfs": "",
+    "added": "2021-05-05 14:50:01",
+    "created_at": "2021-05-05 14:52:07",
+    "updated_at": "2021-05-05 14:52:07",
+    "raw_timestamp": 1620226201
+}

@@ -27,6 +27,7 @@ from eth_account import Account
 
 from tests.conftest import GANACHE_CONFIGURATION
 from tests.helpers.constants import KEY_PAIRS, LOCALHOST
+from tests.helpers.docker.acn_node import ACNNodeDockerImage, DEFAULT_ACN_CONFIG
 from tests.helpers.docker.amm_net import AMMNetDockerImage
 from tests.helpers.docker.base import DockerBaseTest, DockerImage
 from tests.helpers.docker.ganache import (
@@ -39,39 +40,30 @@ from tests.helpers.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_PORT,
     GnosisSafeNetDockerImage,
 )
+from tests.helpers.docker.tendermint import (
+    FlaskTendermintDockerImage,
+    TendermintDockerImage,
+)
 
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.mark.integration
-class UseGanacheFork:
-    """Inherit from this class to use HardHat local net with Gnosis-Safe deployed."""
-
-    key_pairs: List[Tuple[str, str]] = []
-
-    @classmethod
-    @pytest.fixture(autouse=True)
-    def _start_ganache_fork(
-        cls,
-        ganache_fork_engine_warmer_function: Any,
-        ganache_fork_scope_function: Any,
-        ganache_port: Any,
-        ganache_key_pairs: Any,
-    ) -> None:
-        """Start a Ganache Fork instance."""
-        cls.key_pairs = ganache_key_pairs
-
-
-@pytest.mark.integration
 class UseTendermint:
     """Inherit from this class to use Tendermint."""
 
-    @pytest.fixture(autouse=True)
-    def _start_tendermint(self, tendermint: Any, tendermint_port: Any) -> None:
+    _tendermint_image: TendermintDockerImage
+    tendermint_port: int
+
+    @pytest.fixture(autouse=True, scope="class")
+    def _start_tendermint(
+        self, tendermint: TendermintDockerImage, tendermint_port: Any
+    ) -> None:
         """Start a Tendermint image."""
-        self._tendermint_image = tendermint
-        self.tendermint_port = tendermint_port
+        cls = type(self)
+        cls._tendermint_image = tendermint
+        cls.tendermint_port = tendermint_port
 
     @property
     def abci_host(self) -> str:
@@ -87,6 +79,48 @@ class UseTendermint:
     def node_address(self) -> str:
         """Get the node address."""
         return f"http://{LOCALHOST}:{self.tendermint_port}"
+
+
+@pytest.mark.integration
+class UseFlaskTendermintNode:
+    """Inherit from this class to use flask server with Tendermint."""
+
+    @pytest.fixture(autouse=True)
+    def _start_tendermint(
+        self, flask_tendermint: FlaskTendermintDockerImage, tendermint_port: Any
+    ) -> None:
+        """Start a Tendermint image."""
+        self._tendermint_image = flask_tendermint
+        self.tendermint_port = tendermint_port
+
+    @property
+    def p2p_seeds(self) -> List[str]:
+        """Get the p2p seeds."""
+        return self._tendermint_image.p2p_seeds
+
+    def get_node_name(self, i: int) -> str:
+        """Get the node's name."""
+        return self._tendermint_image.get_node_name(i)
+
+    def get_abci_port(self, i: int) -> int:
+        """Get the ith rpc port."""
+        return self._tendermint_image.get_abci_port(i)
+
+    def get_port(self, i: int) -> int:
+        """Get the ith port."""
+        return self._tendermint_image.get_port(i)
+
+    def get_com_port(self, i: int) -> int:
+        """Get the ith com port."""
+        return self._tendermint_image.get_com_port(i)
+
+    def get_laddr(self, i: int, p2p: bool = False) -> str:
+        """Get the ith rpc port."""
+        return self._tendermint_image.get_addr("tcp://", i, p2p)
+
+    def health_check(self, **kwargs: Any) -> None:
+        """Perform a health check."""
+        self._tendermint_image.health_check(**kwargs)
 
 
 @pytest.mark.integration
@@ -121,6 +155,46 @@ class UseGanache:
                 for key, _ in ganache_configuration.get("accounts_balances", [])
             ],
         )
+
+
+@pytest.mark.integration
+class UseACNNode:
+    """Inherit from this class to use an ACNNode for a client connection"""
+
+    configuration: Dict = DEFAULT_ACN_CONFIG
+    _acn_node_image: ACNNodeDockerImage
+
+    @classmethod
+    @pytest.fixture(autouse=True)
+    def _start_acn(cls, acn_node: Any, acn_config: Any = None) -> None:
+        """Start an ACN instance."""
+        cls._acn_node_image = acn_node
+        cls.configuration = acn_config or cls.configuration
+
+
+class ACNNodeBaseTest(DockerBaseTest):
+    """Base pytest class for Ganache."""
+
+    configuration: Dict = DEFAULT_ACN_CONFIG
+
+    @classmethod
+    def setup_class_kwargs(cls) -> Dict[str, Any]:
+        """Get kwargs for _setup_class call."""
+        setup_class_kwargs = {
+            "config": cls.configuration,
+        }
+        return setup_class_kwargs
+
+    @classmethod
+    def _build_image(cls) -> DockerImage:
+        """Build the image."""
+        client = docker.from_env()
+        return ACNNodeDockerImage(client, config=cls.configuration)
+
+    @classmethod
+    def url(cls) -> str:
+        """Get the url under which the image is reachable."""
+        return str(cls.configuration.get("AEA_P2P_URI_PUBLIC"))
 
 
 class GanacheBaseTest(DockerBaseTest):

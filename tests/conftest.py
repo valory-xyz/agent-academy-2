@@ -41,6 +41,8 @@ def get_key(key_path: Path) -> str:
     return key_path.read_bytes().strip().decode()
 
 
+ANY_ADDRESS = "0.0.0.0"  # nosec
+
 ROOT_DIR = _ROOT_DIR
 
 DATA_PATH = _ROOT_DIR / "tests" / "data"

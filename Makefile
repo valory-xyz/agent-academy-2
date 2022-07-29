@@ -39,12 +39,30 @@ clean-test:
 	find . -name 'log.txt' -exec rm -fr {} +
 	find . -name 'log.*.txt' -exec rm -fr {} +
 
+# isort: fix import orders
+# black: format files according to the pep standards
+.PHONY: formatters
+formatters:
+	tox -e isort
+	tox -e black
+
+# black-check: check code style
+# isort-check: check for import order
+# flake8: wrapper around various code checks, https://flake8.pycqa.org/en/latest/user/error-codes.html
+# mypy: static type checker
+# pylint: code analysis for code smells and refactoring suggestions
+# vulture: finds dead code
+# darglint: docstring linter
+.PHONY: code-checks
+code-checks:
+	tox -p -e black-check -e isort-check -e flake8 -e mypy -e pylint -e darglint
+
 .PHONY: lint
 lint:
-	black packages tests scripts
-	isort packages tests scripts
-	flake8 packages tests scripts
-	darglint packages tests
+	black packages scripts tests
+	isort packages scripts tests
+	flake8 packages scripts tests
+	darglint packages scripts tests
 
 .PHONY: pylint
 pylint:
@@ -52,11 +70,11 @@ pylint:
 
 .PHONY: hashes
 hashes:
-	python scripts/generate_ipfs_hashes.py
+	autonomy hash all
 
 .PHONY: static
 static:
-	mypy packages tests --disallow-untyped-defs
+	mypy packages tests scripts --disallow-untyped-defs
 
 .PHONY: test
 test:
@@ -67,27 +85,23 @@ v := $(shell pip -V | grep virtualenvs)
 
 .PHONY: new_env
 new_env: clean
-	which svn;\
-	if [ $$? -ne 0 ];\
+	if [ ! -z "$(which svn)" ];\
 	then\
 		echo "The development setup requires SVN, exit";\
 		exit 1;\
 	fi;\
+
 	if [ -z "$v" ];\
 	then\
 		pipenv --rm;\
-		pipenv --python 3.8;\
-		pipenv install --dev --skip-lock --clear;\
+		pipenv --clear;\
+		pipenv --python 3.10;\
+		pipenv install --dev --skip-lock;\
+		pipenv run pip install -e .[all];\
 		echo "Enter virtual environment with all development dependencies now: 'pipenv shell'.";\
 	else\
 		echo "In a virtual environment! Exit first: 'exit'.";\
 	fi
-	which pipenv;\
-	if [ $$? -ne 0 ];\
-	then\
-		echo "The development setup requires Pipenv, exit";\
-		exit 1;\
-	fi;\
 
 .PHONY: run-mainnet-fork
 run-mainnet-fork:
@@ -121,13 +135,9 @@ run-mainnet-fork-docker:
 copyright:
 	tox -e check-copyright
 
-
-
 .PHONY: check_abci_specs
 check_abci_specs:
-	cp scripts/generate_abciapp_spec.py generate_abciapp_spec.py
-	python generate_abciapp_spec.py -c packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp > packages/keep3r_co/skills/keep3r_job/fsm_specification.yaml || (echo "Failed to check job abci consistency" && exit 1)
-	python generate_abciapp_spec.py -c packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp > packages/keep3r_co/skills/keep3r_abci/fsm_specification.yaml || (echo "Failed to check chained abci cosistency" && exit 1)
-	rm generate_abciapp_spec.py
+	autonomy analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp packages/keep3r_co/skills/keep3r_job/fsm_specification.yaml || (echo "Failed to check job abci consistency" && exit 1)
+	autonomy analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp packages/keep3r_co/skills/keep3r_abci/fsm_specification.yaml || (echo "Failed to check chained abci cosistency" && exit 1)
 	echo "Successfully validated abcis!"
 
