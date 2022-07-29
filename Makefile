@@ -57,6 +57,13 @@ formatters:
 code-checks:
 	tox -p -e black-check -e isort-check -e flake8 -e mypy -e pylint -e vulture -e darglint
 
+.PHONY: lint
+lint:
+	black packages scripts tests
+	isort packages scripts tests
+	flake8 packages scripts tests
+	darglint packages scripts tests
+
 .PHONY: pylint
 pylint:
 	pylint -j4 packages
