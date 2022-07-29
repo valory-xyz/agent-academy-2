@@ -39,12 +39,23 @@ clean-test:
 	find . -name 'log.txt' -exec rm -fr {} +
 	find . -name 'log.*.txt' -exec rm -fr {} +
 
-.PHONY: lint
-lint:
-	black packages tests scripts
-	isort packages tests scripts
-	flake8 packages tests scripts
-	darglint packages tests
+# isort: fix import orders
+# black: format files according to the pep standards
+.PHONY: formatters
+formatters:
+	tox -e isort
+	tox -e black
+
+# black-check: check code style
+# isort-check: check for import order
+# flake8: wrapper around various code checks, https://flake8.pycqa.org/en/latest/user/error-codes.html
+# mypy: static type checker
+# pylint: code analysis for code smells and refactoring suggestions
+# vulture: finds dead code
+# darglint: docstring linter
+.PHONY: code-checks
+code-checks:
+	tox -p -e black-check -e isort-check -e flake8 -e mypy -e pylint -e vulture -e darglint
 
 .PHONY: pylint
 pylint:
@@ -56,7 +67,7 @@ hashes:
 
 .PHONY: static
 static:
-	mypy packages tests --disallow-untyped-defs
+	mypy packages tests scripts --disallow-untyped-defs
 
 .PHONY: test
 test:
@@ -67,27 +78,23 @@ v := $(shell pip -V | grep virtualenvs)
 
 .PHONY: new_env
 new_env: clean
-	which svn;\
-	if [ $$? -ne 0 ];\
+	if [ ! -z "$(which svn)" ];\
 	then\
 		echo "The development setup requires SVN, exit";\
 		exit 1;\
 	fi;\
+
 	if [ -z "$v" ];\
 	then\
 		pipenv --rm;\
-		pipenv --python 3.8;\
-		pipenv install --dev --skip-lock --clear;\
+		pipenv --clear;\
+		pipenv --python 3.10;\
+		pipenv install --dev --skip-lock;\
+		pipenv run pip install -e .[all];\
 		echo "Enter virtual environment with all development dependencies now: 'pipenv shell'.";\
 	else\
 		echo "In a virtual environment! Exit first: 'exit'.";\
 	fi
-	which pipenv;\
-	if [ $$? -ne 0 ];\
-	then\
-		echo "The development setup requires Pipenv, exit";\
-		exit 1;\
-	fi;\
 
 .PHONY: run-mainnet-fork
 run-mainnet-fork:
@@ -120,8 +127,6 @@ run-mainnet-fork-docker:
 .PHONY: copyright
 copyright:
 	tox -e check-copyright
-
-
 
 .PHONY: check_abci_specs
 check_abci_specs:
