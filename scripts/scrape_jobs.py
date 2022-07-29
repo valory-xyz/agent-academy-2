@@ -24,6 +24,7 @@ import json
 import os
 import time
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 import pandas as pd
@@ -55,7 +56,7 @@ w3 = Web3(Web3.HTTPProvider(INFURA_TEMPLATE.format(api_key=infura_api_key)))
 assert w3.isConnected(), "Not connected"
 
 
-def get_contract_abi(address):
+def get_contract_abi(address: str) -> List[Dict[str, Any]]:
     """Get contract ABI from ethereum mainnet"""
 
     url = TEMPLATE_ABI_ENDPOINT.format(address=address, api_key=etherscan_api_key)
@@ -66,7 +67,7 @@ def get_contract_abi(address):
     return abi
 
 
-def get_jobs_from_keep3r_live():
+def get_jobs_from_keep3r_live() -> pd.DataFrame:
     """Get jobs from keep3r.live"""
 
     response = requests.get(KEEPER_API_URL + "jobs")
@@ -76,7 +77,7 @@ def get_jobs_from_keep3r_live():
     return job_board
 
 
-def get_readme_info(job):
+def get_readme_info(job: pd.Series) -> Optional[str]:
     """Get job documentation"""
 
     path = str(urlparse(job.docs).path)
@@ -91,18 +92,19 @@ def get_readme_info(job):
         prefix = "Could not obtain documentation for"
         message = f"{prefix} {job.address}: {str(e)}"
         print(message)
+    return None
 
 
-def write_contract_data_to_local(contract_dir, job):
+def write_contract_data_to_local(contract_dir: Path, job: pd.Series) -> None:
     """Write contract data: ABI and README.md"""
 
-    def write_abi():
+    def write_abi() -> None:
         filepath = job_dir / "abi.json"
         abi = get_contract_abi(job.address)
         filepath.write_text(json.dumps(abi, indent=4))
         print(f"ABI written: {filepath}")
 
-    def write_info():
+    def write_info() -> None:
         filepath = job_dir / "README.md"
         md = get_readme_info(job)
         if md is None:
@@ -110,7 +112,7 @@ def write_contract_data_to_local(contract_dir, job):
         filepath.write_text(md)
         print(f"documentation written: {filepath}")
 
-    def write_details():
+    def write_details() -> None:
         filepath = job_dir / "contract_details.json"
         filepath.write_text(json.dumps(job.to_dict(), indent=4))
         print(f"details written: {filepath}")
@@ -124,7 +126,7 @@ def write_contract_data_to_local(contract_dir, job):
     write_details()
 
 
-def get_keeper_contract_data():
+def get_keeper_contract_data() -> None:
     """Get keep3r job contract data"""
 
     job_board = get_jobs_from_keep3r_live()
@@ -137,7 +139,8 @@ def get_keeper_contract_data():
     print("Scraping contract ABIs completed")
 
 
-def test_workable():
+def test_workable() -> None:
+    """Test workable"""
 
     job_board = pd.read_csv(path / "jobs.csv")
     contract_dir = path / "contracts"
