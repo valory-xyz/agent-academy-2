@@ -16,7 +16,3 @@ Pipfile.lock
 coverage.txt
 coverage.xml
 htmlcov
-
-# other
-generate_abciapp_spec.py
-pre_push_hook.sh
