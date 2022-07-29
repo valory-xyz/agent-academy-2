@@ -42,6 +42,7 @@ from tests.helpers.docker.tendermint import (
     TendermintDockerImage,
 )
 
+
 def get_key(key_path: Path) -> str:
     """Returns key value from file.""" ""
     return key_path.read_bytes().strip().decode()
