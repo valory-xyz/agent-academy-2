@@ -2,7 +2,7 @@ name: keep3r_job
 author: keep3r_co
 version: 0.1.0
 type: skill
-description: ABCI application for demonstation.
+description: ABCI application for keep3r jobs
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
@@ -68,7 +68,9 @@ models:
     class_name: LedgerApiDialogues
   params:
     args:
+      broadcast_to_server: false
       cleanup_history_depth: 1
+      cleanup_history_depth_current: null
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
@@ -77,6 +79,7 @@ models:
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
+      on_chain_service_id: null
       period_setup:
         safe_contract_address: stub
       profitability_threshold: 500
@@ -85,6 +88,10 @@ models:
       retry_timeout: 3
       round_timeout_seconds: 30.0
       service_id: keep3r_job
+      service_registry_address: null
+      setup:
+        safe_contract_address: []
+      share_tm_config_on_startup: false
       sleep_time: 1
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
