@@ -20,14 +20,16 @@
 
 """Scraping jobs from keep3r.live"""
 
-import time
-import os
-import requests
-import pandas as pd
 import json
-from urllib.parse import urlparse
-from web3 import Web3
+import os
+import time
 from pathlib import Path
+from urllib.parse import urlparse
+
+import pandas as pd
+import requests
+from web3 import Web3
+
 
 # read API keys from environment
 infura_api_key = os.environ.get("INFURA_API_KEY")
@@ -60,14 +62,14 @@ def get_contract_abi(address):
     response = requests.get(url)
     assert response.status_code == 200
     response_json = response.json()
-    abi = json.loads(response_json['result'])
+    abi = json.loads(response_json["result"])
     return abi
 
 
 def get_jobs_from_keep3r_live():
     """Get jobs from keep3r.live"""
 
-    response = requests.get(KEEPER_API_URL + 'jobs')
+    response = requests.get(KEEPER_API_URL + "jobs")
     assert response.status_code == 200
     job_list = response.json()
     job_board = pd.DataFrame(job_list)
