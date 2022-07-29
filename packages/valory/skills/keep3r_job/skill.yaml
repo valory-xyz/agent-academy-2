@@ -82,8 +82,6 @@ models:
       max_healthcheck: 120
       observation_interval: 10
       on_chain_service_id: null
-      period_setup:
-        safe_contract_address: stub
       profitability_threshold: 500
       reset_tendermint_after: 2
       retry_attempts: 400
@@ -91,7 +89,8 @@ models:
       round_timeout_seconds: 30.0
       service_id: keep3r_job
       service_registry_address: null
-      setup: {}
+      setup:
+        safe_contract_address: []
       share_tm_config_on_startup: false
       sleep_time: 1
       tendermint_check_sleep_delay: 3
