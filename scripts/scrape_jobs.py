@@ -48,8 +48,8 @@ TEMPLATE_ABI_ENDPOINT = "https://api.etherscan.io/api?module=contract&action=get
 GITHUB_RAW_TEMPLATE = "https://raw.githubusercontent.com{suffix}"
 
 # store data
-path = (Path("tests").absolute() / "data" / "keep3r").absolute()
-path.mkdir(parents=True, exist_ok=True)
+PATH = (Path("tests").absolute() / "data" / "keep3r").absolute()
+PATH.mkdir(parents=True, exist_ok=True)
 
 
 w3 = Web3(Web3.HTTPProvider(INFURA_TEMPLATE.format(api_key=infura_api_key)))
@@ -88,7 +88,7 @@ def get_readme_info(job: pd.Series) -> Optional[str]:
         assert response.status_code == 200
         documentation = response.content.decode(encoding=ENCODING)
         return documentation
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         prefix = "Could not obtain documentation for"
         message = f"{prefix} {job.address}: {str(e)}"
         print(message)
@@ -130,8 +130,8 @@ def get_keeper_contract_data() -> None:
     """Get keep3r job contract data"""
 
     job_board = get_jobs_from_keep3r_live()
-    job_board.to_csv(path / "jobs.csv", index=False)
-    contract_dir = path / "contracts"
+    job_board.to_csv(PATH / "jobs.csv", index=False)
+    contract_dir = PATH / "contracts"
     contract_dir.mkdir(exist_ok=True)
     for _, job in job_board.iterrows():  # job_name is not unique
         write_contract_data_to_local(contract_dir, job)
@@ -142,19 +142,18 @@ def get_keeper_contract_data() -> None:
 def test_workable() -> None:
     """Test workable"""
 
-    job_board = pd.read_csv(path / "jobs.csv")
-    contract_dir = path / "contracts"
+    job_board = pd.read_csv(PATH / "jobs.csv")
+    contract_dir = PATH / "contracts"
     for _, job in job_board.iterrows():
         checksum_address = Web3.toChecksumAddress(job.address)
         filepath = Path(contract_dir / checksum_address / "abi.json")
-        abi = json.loads(filepath.read_text())
+        abi = json.loads(filepath.read_text(encoding=ENCODING))
         contract = w3.eth.contract(address=checksum_address, abi=abi)
         try:
             result = contract.functions.workable().call()
             print(f"workable: {job.job_name}: {result}")
-        except Exception as e:
-            print(f"cannot work: {job.job_name}: {e}")
-            pass
+        except Exception as e:  # pylint: disable=broad-except
+            print(f"cannot work: {job.job_name}: {str(e)}")
 
 
 if __name__ == "__main__":
