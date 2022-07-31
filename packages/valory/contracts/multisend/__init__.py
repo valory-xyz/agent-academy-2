@@ -17,10 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Test the dialogues.py module of the skill."""
-
-import packages.valory.skills.simple_abci.dialogues  # noqa
-
-
-def test_import() -> None:
-    """Test that the 'dialogues.py' Python module can be imported."""
+"""This module contains the support resources for the multisend (MultiSend) contract."""
