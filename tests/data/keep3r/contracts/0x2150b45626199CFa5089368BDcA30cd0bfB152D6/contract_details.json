@@ -1,0 +1,11 @@
+{
+    "id": 44,
+    "job_name": "HarvestV2Keep3rStealthJob",
+    "address": "0x2150b45626199CFa5089368BDcA30cd0bfB152D6",
+    "docs": "https://github.com/yearn/keep3r-jobs/blob/master/doc/HarvestV2Keep3rStealthJob.md",
+    "ipfs": "",
+    "added": "2021-07-09 16:42:18",
+    "created_at": "2021-07-09 16:44:10",
+    "updated_at": "2021-07-09 16:44:10",
+    "raw_timestamp": 1625848938
+}
