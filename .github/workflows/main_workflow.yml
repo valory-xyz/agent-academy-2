@@ -190,7 +190,7 @@ jobs:
       - name: Checkout submodules
         uses: srt32/git-actions@v0.0.3
         with:
-          args: git config --global --add safe.directory /github/workspace/third_party/contracts-elcol/third-party/safe-contracts && git config --global --add safe.directory /github/workspace/third_party/safe-contracts && git config --global --add safe.directory /github/workspace && git submodule update --init --recursive
+          args: git config --global --add safe.directory /github/workspace/third_party/safe-contracts && git config --global --add safe.directory /github/workspace && git submodule update --init --recursive
       - uses: actions/setup-python@v3
         with:
           submodules: recursive
@@ -224,8 +224,7 @@ jobs:
           # pull node image needed for the integration tests
           docker pull node:16.7.0
 
-          # build the hardhat node in third_party/contracts-elcol
-          cd third_party/contracts-elcol && yarn
+          cd third_party/safe-contracts && yarn
 
       - name: e2e tests
         run: |
