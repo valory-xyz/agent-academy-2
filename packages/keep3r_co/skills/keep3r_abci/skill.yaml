@@ -20,16 +20,16 @@ fingerprint:
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeie6mp5postj743s4d6qurg5ngfy7xxewreqfoqfxg37jtv72dtslu
+- valory/gnosis_safe:0.1.0:bafybeiexiper376ji5h4wm5erzospvyikqmvw7pi5tpgrwanj5okznemqu
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
 protocols:
 - valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeigtjecw2gzxoytslmtecpdrdhdjkgwqshdpscrqpoekywd5np5tuq
-- valory/registration_abci:0.1.0:bafybeiextiecxab2drlwqmifd33yzxrsoi3q2nq5rufg2ga42x3errj5wm
-- valory/reset_pause_abci:0.1.0:bafybeifuu43bgmeilzyfrf2k6lenbq3g5anypecxvewz5ogtpafmoon7vq
-- valory/safe_deployment_abci:0.1.0:bafybeihfykgpnergo6mke33oxhyyd2772xy73vuad3iomx5h2vixsv75cy
-- valory/transaction_settlement_abci:0.1.0:bafybeiezkvmlo6eox2kzu6pk24rtlvrh55kohtd7nsi3werflcbaprzzw4
+- keep3r_co/keep3r_job:0.1.0:bafybeihttsfle77m4kxzy23xrhijou3cqvusfb2e5maclwa6za2bl2lm6m
+- valory/registration_abci:0.1.0:bafybeiamr2gckrgxujl6xskhtjg46fmdwsklq5fnqvndnwsiyld6sy5z4y
+- valory/reset_pause_abci:0.1.0:bafybeibhqdl3263vcokyjxeciiktbk2ej6gdbeexviy5exvnc37a5hdmhq
+- valory/safe_deployment_abci:0.1.0:bafybeiaqnl5az4fdkv7yyjg6s4rouhpldkgpplmohqdt34wwawfkj5jeva
+- valory/transaction_settlement_abci:0.1.0:bafybeic6khhxyes6kdigczfuxqhr6tcujuj2ukwhlgb3pt3kr4cpmnygaq
 behaviours:
   main:
     args: {}
