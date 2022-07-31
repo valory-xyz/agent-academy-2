@@ -18,4 +18,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the support resources for the scaffold contract."""
+"""This module contains the support resources for the goerli keep3r job contract."""

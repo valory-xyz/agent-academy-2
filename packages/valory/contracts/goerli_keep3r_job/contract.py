@@ -28,11 +28,10 @@ from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea.crypto.base import LedgerApi
 from aea_ledger_ethereum import EthereumApi
-
 from web3.types import Nonce, TxParams, Wei
 
 
-PUBLIC_ID = PublicId.from_str("valory/goerli_keeper_job:0.1.0")
+PUBLIC_ID = PublicId.from_str("valory/goerli_keep3r_job:0.1.0")
 
 _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"
@@ -42,7 +41,7 @@ NULL_ADDRESS: str = "0x" + "0" * 40
 CONTRACT_ADDRESS = "0xd50345ca88e0B2cF9a6f5eD29C1F1f9d76A16C3c"
 
 
-class GoerliKeep3rTestjob(Contract):
+class GoerliKeep3rTestJob(Contract):
     """The scaffold contract class for a smart contract."""
 
     contract_id = PUBLIC_ID
