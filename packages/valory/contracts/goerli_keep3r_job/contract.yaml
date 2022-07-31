@@ -6,9 +6,9 @@ description: Goerli keep3r testnet job
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeibdtxxjcmp37tnkmliyw3ay6e2gyyjkrzbw57q4tw7hrywry3cl5u
+  __init__.py: bafybeiazjoi7auemghmspazot46y5nn6isqhin5z2eymnabbnm7am2xufu
   build/abi.json: bafybeigf3v3rfeczynndu44yvcz55dur4qmwtlkrsmzr7wnhkeosp4alvi
-  contract.py: bafybeihul6micdxhmft7gxs6thqlas2m4agi5as4bugwmpwqbngetem2cu
+  contract.py: bafybeibe4fequdc4hubpyg3j5iskp274q2yujovp264zafe7rjk5iy4bcq
 fingerprint_ignore_patterns: []
 class_name: GoerliKeep3rTestjob
 contract_interface_paths: {}
