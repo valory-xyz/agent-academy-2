@@ -223,8 +223,11 @@ jobs:
 
           # pull node image needed for the integration tests
           docker pull node:16.7.0
-
-          cd third_party/safe-contracts && yarn
+          docker pull trufflesuite/ganache:beta
+          # build hardhat node in third_party/safe-contracts
+          cd third_party/safe-contracts &&\
+            sudo chown -R $(whoami) .husky &&\
+            yarn
 
       - name: e2e tests
         run: |
