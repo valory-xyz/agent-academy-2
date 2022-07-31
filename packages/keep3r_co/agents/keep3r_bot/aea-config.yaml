@@ -71,6 +71,8 @@ models:
     args:
       tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
       tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
+      consensus:
+        max_participants: ${MAX_PARTICIPANTS:int:4}
 ---
 public_id: valory/abci:0.1.0
 type: connection
