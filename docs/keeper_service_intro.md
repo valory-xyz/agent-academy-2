@@ -12,23 +12,35 @@ We suggest new developers to read this documentation to get started.
 The Keeper network is a decentralized DevOps platform where job posters and those willing to perform these jobs can 
 exchange goods for services. 
 Keepers are agents that execute the tasks required to complete specific types of job.
+These jobs can range widely in terms of complexity; ranging from the automation of simple smart contract calls, such
+as yield harvesting, to jobs that involve multi-party computation for increased cryptographic security or complex
+machine learning tasks that cannot be performed on-chain.  
 
 
 ## Why use a Keepers network?
 
-Providing an end-to-end guarantee on how the application functions requires computation that smart contracts cannot do but that must be decentralized and highly reliable.
+Currently, the need for human intervention - or alternatively automation using centralized operators - poses a 
+limitation in the development of fully decentralized applications. 
+Providing an end-to-end guarantee on how applications functions requires computation that smart contracts 
+cannot perform. 
+The keeper network offers a solution by integrating decentralized off-chain computation, allowing for 
+process automation that is highly reliable and cryptographically secured.
 
 Q: Why does trust minimized off-chain computation matter?
-A: The system and services need to be reliable under all circumstances. That is to say, regardless of network congestion and gas prices, regardless of server failures and regardless of adverserial DDOS attacks or malicious actors attempting to exploit the system in any way.
+A: The system and services need to be reliable under all circumstances. That is to say, regardless of network 
+congestion and gas prices, regardless of server failures and regardless of adverserial DDOS attacks or 
+malicious actors attempting to exploit the system in any way.
 
 Reasons: 
 - automation
-- smart contract cannot do it
+- smart contracts cannot do it
 - too expensive to do on-chain
 - privacy reasons
+- integration of dynamic off-chain input signal
 
 Examples:
-monitoring, limit order execution, staking and fee distributions, yield farming, smart contract DevOps requests, liquidations, dynamic NFTs
+monitoring, limit order execution, staking and fee distributions, yield farming, smart contract DevOps requests, 
+liquidations, dynamic NFTs
 
 
 
@@ -51,5 +63,8 @@ This effectively prevents perverse economic incentives that lead to gas wars.
 
 ## How does the Keeper network function?
 
-It can execute, at minimal cost, code that was deployed on-chain and whose computation can therefor be verified by anyone. A keeper network is contract specific; it is committed to only compute code for a specific contract which provides cryptographic assurances and transparency
+It can execute, at minimal cost, code that was deployed on-chain and whose computation can therefor be verified by 
+anyone. 
+A keeper network is contract specific; it is committed to only compute code for a specific contract which provides
+cryptographic assurances and transparency
 

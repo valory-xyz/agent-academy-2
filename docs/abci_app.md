@@ -2,7 +2,7 @@
 
 ## The keeper service as an ABCI Application
 
-At a high-level, the ABCI application can be divided into three parts.
+At a high-level, the ABCI application can be divided into five parts.
 
 ### The `AgentRegistrationAbciApp`
 Implements the registration of agents to partake in the behaviour scheduled in subsequent rounds.
@@ -52,7 +52,7 @@ New periods are automatically created when the application traverses the `ResetA
 The application allocates a new slot for the `SynchronizedData` to store new values for the variables stored within it.
 
 ### Implementation of the `Keep3rAbciApp`
-In the final implementation the PriceEstimationAbciApp is then assembled from its constituent parts.
+In the final implementation the Keep3rAbciApp is then assembled from its constituent parts.
 In order to combine the individual ABCI applications listed above, we defined a transition mapping 
 that connect their states.
 
