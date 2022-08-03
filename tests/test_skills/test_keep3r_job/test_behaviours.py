@@ -26,7 +26,6 @@ from typing import Any, Dict, Type, cast
 import pytest
 from aea.helpers.transaction.base import RawTransaction
 
-from packages.gabrielfu.contracts.keep3r_job.contract import PUBLIC_ID as CONTRACT_ID
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     IsProfitableBehaviour,
     IsWorkableBehaviour,
@@ -50,6 +49,9 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
 )
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
+)
+from packages.valory.contracts.goerli_keep3r_job.contract import (
+    PUBLIC_ID as CONTRACT_ID,
 )
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbciAppDB, BaseTxPayload

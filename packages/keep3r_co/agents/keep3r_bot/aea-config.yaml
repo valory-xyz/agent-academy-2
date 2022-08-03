@@ -24,8 +24,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
 - valory/tendermint:0.1.0:bafybeigrenadbkdzpkxbjmpkubxzmihk45v6jbwosngciqdccth4lvp7cm
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeihcpjjj6otqf5eg5hfuc6f7mvogyxvda6rhvfitqxqxhx2eklxnra
-- keep3r_co/keep3r_job:0.1.0:bafybeidn6rbdfoaevbwkw754ssnmwmv6rf4xyqq7ioylyckkf7songnj5i
+- keep3r_co/keep3r_abci:0.1.0:bafybeidynl3hixdtgqqxwbfxfswz3juyfeonqd3znb5wujn5rnm6ilcs4a
+- keep3r_co/keep3r_job:0.1.0:bafybeih26hlgt5qhx6kbhvkp2vbvdywd4s6vxbapjxz2okwdaux4xagqhi
 - valory/abstract_abci:0.1.0:bafybeie2cs5y7xu625birt7i6vlrhakhody2k4txf7soef3lqwhexpfgqy
 - valory/abstract_round_abci:0.1.0:bafybeihz4pkaqwufq2szqr3ji3kjsbjodsg5yultbit3xdcfjdwi4ebgoa
 - valory/registration_abci:0.1.0:bafybeiamr2gckrgxujl6xskhtjg46fmdwsklq5fnqvndnwsiyld6sy5z4y
@@ -65,20 +65,7 @@ dependencies:
   open-aea-ledger-ethereum: {}
 default_connection: null
 ---
-public_id: keep3r_co/keep3r_abci:0.1.0
-type: skill
-models:
-  params:
-    args:
-      tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
-      tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
-      consensus:
-        max_participants: ${MAX_PARTICIPANTS:int:4}
----
 public_id: valory/abci:0.1.0
 type: connection
 config:
   target_skill_id: keep3r_co/keep3r_abci:0.1.0
-  host: ${ABCI_HOST:str:localhost}
-  port: ${ABCI_PORT:int:26658}
-  use_tendermint: ${ABCI_USE_TENDERMINT:bool:false}
