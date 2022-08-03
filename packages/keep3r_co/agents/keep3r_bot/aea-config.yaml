@@ -14,6 +14,7 @@ connections:
 - valory/p2p_libp2p_client:0.1.0:bafybeihw7zmzu4k3s56wnzhs6f3onxdqfewp46dhnnv6lgnzfneuvo5bcm
 contracts:
 - gabrielfu/keep3r_job:0.1.0:bafybeihgz7flasaijeachrkmpgyqdqmeawknh2nfoie2page57ejy5l4ai
+- valory/goerli_keep3r_job:0.1.0:bafybeiaakgk5wedatav42rmnnpkrn75h7cqufazfrcrk7wvdllpktrk2oi
 protocols:
 - open_aea/signing:1.0.0:bafybeieirkuq6azgis33bmukr5u2gx4chp5kswiw3wd5hbjsaukgwzmp5a
 - valory/abci:0.1.0:bafybeicbj36urbjkn6y7hrhm57dspyuuvpcnxhr3r6y2cwxammpom633g4
@@ -23,7 +24,7 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeifaozy766hngsqc5a5kpebseusq4cc3woh4ayycdoa7r3mjkvhzr4
 - valory/tendermint:0.1.0:bafybeigrenadbkdzpkxbjmpkubxzmihk45v6jbwosngciqdccth4lvp7cm
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeigoqls465tbqmzo5y6va3np3li3nwhvhxwelvwwsp2f67ia4pkp2a
+- keep3r_co/keep3r_abci:0.1.0:bafybeihcpjjj6otqf5eg5hfuc6f7mvogyxvda6rhvfitqxqxhx2eklxnra
 - keep3r_co/keep3r_job:0.1.0:bafybeidn6rbdfoaevbwkw754ssnmwmv6rf4xyqq7ioylyckkf7songnj5i
 - valory/abstract_abci:0.1.0:bafybeie2cs5y7xu625birt7i6vlrhakhody2k4txf7soef3lqwhexpfgqy
 - valory/abstract_round_abci:0.1.0:bafybeihz4pkaqwufq2szqr3ji3kjsbjodsg5yultbit3xdcfjdwi4ebgoa
