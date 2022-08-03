@@ -37,10 +37,13 @@ from packages.valory.skills.reset_pause_abci.behaviours import (
 from packages.valory.skills.safe_deployment_abci.behaviours import (
     SafeDeploymentRoundBehaviour,
 )
+from packages.valory.skills.transaction_settlement_abci.behaviours import (
+    TransactionSettlementRoundBehaviour,
+)
 
 
 class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
-    """This behaviour manages the consensus stages for the keepr abci app."""
+    """This behaviour manages the consensus stages for the keep3r abci app."""
 
     initial_behaviour_cls = RegistrationStartupBehaviour
     abci_app_cls = Keep3rAbciApp  # type: ignore
@@ -48,5 +51,6 @@ class Keep3rAbciAppConsensusBehaviour(AbstractRoundBehaviour):
         *AgentRegistrationRoundBehaviour.behaviours,
         *SafeDeploymentRoundBehaviour.behaviours,
         *Keep3rJobRoundBehaviour.behaviours,
+        *TransactionSettlementRoundBehaviour.behaviours,
         *ResetPauseABCIConsensusBehaviour.behaviours,
     }

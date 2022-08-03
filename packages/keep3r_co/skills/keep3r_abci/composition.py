@@ -48,6 +48,11 @@ from packages.valory.skills.safe_deployment_abci.rounds import (
     RandomnessSafeRound,
     SafeDeploymentAbciApp,
 )
+from packages.valory.skills.transaction_settlement_abci.rounds import (
+    FinishedTransactionSubmissionRound,
+    RandomnessTransactionSubmissionRound,
+    TransactionSubmissionAbciApp,
+)
 
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
@@ -55,7 +60,8 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
     SafeNotDeployedRound: RandomnessSafeRound,
     FinishedSafeRound: CheckSafeExistenceRound,
     FinishedRegistrationFFWRound: CheckSafeExistenceRound,
-    FinishedPrepareTxRound: ResetAndPauseRound,
+    FinishedPrepareTxRound: RandomnessTransactionSubmissionRound,
+    FinishedTransactionSubmissionRound: ResetAndPauseRound,
     FailedRound: ResetAndPauseRound,
     NothingToDoRound: ResetAndPauseRound,
     FinishedResetAndPauseRound: RegistrationRound,
@@ -67,6 +73,7 @@ Keep3rAbciApp = chain(
         AgentRegistrationAbciApp,
         SafeDeploymentAbciApp,
         Keep3rJobAbciApp,
+        TransactionSubmissionAbciApp,
         ResetPauseABCIApp,
     ),
     abci_app_transition_mapping,
