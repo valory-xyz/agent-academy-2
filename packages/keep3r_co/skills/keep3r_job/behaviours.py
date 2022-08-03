@@ -22,7 +22,6 @@
 from abc import ABC
 from typing import Generator, Optional, Set, Type, cast
 
-from packages.valory.contracts.goerli_keep3r_job.contract import GoerliKeep3rTestJob
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
@@ -41,6 +40,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     SynchronizedData,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.valory.contracts.goerli_keep3r_job.contract import GoerliKeep3rTestJob
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
