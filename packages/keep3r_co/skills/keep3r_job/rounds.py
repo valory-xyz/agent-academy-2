@@ -64,35 +64,26 @@ class SynchronizedData(
     @property
     def safe_contract_address(self) -> str:
         """Get the safe_contract_address."""
-        return cast(
-            str,
-            self.db.get_strict("safe_contract_address"),
-        )
+        return cast(str, self.db.get_strict("safe_contract_address"))
 
     @property
     def most_voted_tx_hash(self) -> str:
         """Get the most_voted_tx_hash."""
-        return cast(
-            str,
-            self.db.get_strict("most_voted_tx_hash"),
-        )
+        return cast(str, self.db.get_strict("most_voted_tx_hash"))
 
     @property
     def job_selection(self) -> str:
         """Get the job_selection."""
-        return cast(
-            str,
-            self.db.get_strict("job_selection"),
-        )
+        return cast(str, self.db.get_strict("job_selection"))
 
 
 class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
     """Abstract round for the simple abci skill."""
 
     @property
-    def period_state(self) -> BaseSynchronizedData:
+    def synchronized_data(self) -> BaseSynchronizedData:
         """Return the period state."""
-        return cast(BaseSynchronizedData, self.synchronized_data)
+        return cast(BaseSynchronizedData, super().synchronized_data)
 
     def _return_no_majority_event(self) -> Tuple[BaseSynchronizedData, Event]:
         """
@@ -100,7 +91,7 @@ class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
 
         :return: a new period state and a NO_MAJORITY event
         """
-        return self.period_state, Event.NO_MAJORITY
+        return self.synchronized_data, Event.NO_MAJORITY
 
 
 class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
@@ -113,7 +104,7 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            state = self.period_state.update(
+            state = self.synchronized_data.update(
                 is_workable=self.most_voted_payload,
             )
             is_workable = self.most_voted_payload
@@ -121,7 +112,7 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
                 return state, Event.DONE
             return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
+            self.collection, self.synchronized_data.nb_participants
         ):
             return self._return_no_majority_event()
         return None
@@ -138,12 +129,12 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         """Process the end of the block."""
         if self.threshold_reached:
             job_selection = self.most_voted_payload
-            state = self.period_state.update(job_selection=job_selection)
+            state = self.synchronized_data.update(job_selection=job_selection)
             if job_selection:
                 return state, Event.DONE
             return state, Event.NOT_WORKABLE  # NO_JOBS ?
         if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
+            self.collection, self.synchronized_data.nb_participants
         ):
             return self._return_no_majority_event()
         return None
@@ -159,12 +150,12 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            state = self.period_state.update(
+            state = self.synchronized_data.update(
                 most_voted_tx_hash=self.most_voted_payload,
             )
             return state, Event.DONE
         if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
+            self.collection, self.synchronized_data.nb_participants
         ):
             return self._return_no_majority_event()
         return None
@@ -180,13 +171,13 @@ class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            state = self.period_state.update(is_profitable=self.most_voted_payload)
+            state = self.synchronized_data.update(is_profitable=self.most_voted_payload)
             is_profitable = self.most_voted_payload
             if is_profitable:
                 return state, Event.DONE
             return state, Event.NOT_PROFITABLE
         if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
+            self.collection, self.synchronized_data.nb_participants
         ):
             return self._return_no_majority_event()
         return None
@@ -220,7 +211,7 @@ class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractR
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            state = self.period_state.update(
+            state = self.synchronized_data.update(
                 safe_exists=self.most_voted_payload,
             )
             safe_exists = self.most_voted_payload
@@ -228,7 +219,7 @@ class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractR
                 return state, Event.DONE
             return state, Event.NEGATIVE
         if not self.is_majority_possible(
-            self.collection, self.period_state.nb_participants
+            self.collection, self.synchronized_data.nb_participants
         ):
             return self._return_no_majority_event()
         return None
