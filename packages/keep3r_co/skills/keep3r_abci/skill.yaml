@@ -25,7 +25,7 @@ contracts:
 protocols:
 - valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeih26hlgt5qhx6kbhvkp2vbvdywd4s6vxbapjxz2okwdaux4xagqhi
+- keep3r_co/keep3r_job:0.1.0:bafybeicprmhluu5bx7wq4ycdybzrifm4dsylc7ooroa3xklblymigab4cm
 - valory/registration_abci:0.1.0:bafybeiamr2gckrgxujl6xskhtjg46fmdwsklq5fnqvndnwsiyld6sy5z4y
 - valory/reset_pause_abci:0.1.0:bafybeibhqdl3263vcokyjxeciiktbk2ej6gdbeexviy5exvnc37a5hdmhq
 - valory/safe_deployment_abci:0.1.0:bafybeiaqnl5az4fdkv7yyjg6s4rouhpldkgpplmohqdt34wwawfkj5jeva
