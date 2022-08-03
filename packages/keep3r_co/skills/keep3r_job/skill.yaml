@@ -86,8 +86,6 @@ models:
       max_healthcheck: 120
       observation_interval: 10
       on_chain_service_id: null
-      period_setup:
-        safe_contract_address: stub
       profitability_threshold: 500
       reset_tendermint_after: 2
       retry_attempts: 400
