@@ -28,7 +28,6 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     JobSelectionPayload,
     SafeExistencePayload,
     TXHashPayload,
-    TransactionType,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -77,7 +76,7 @@ class SynchronizedData(
         return cast(str, self.db.get_strict("job_selection"))
 
 
-class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
+class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
     """Abstract round for the simple abci skill."""
 
     synchronized_data_class = SynchronizedData
@@ -96,7 +95,7 @@ class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
         return self.synchronized_data, Event.NO_MAJORITY
 
 
-class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+class IsWorkableRound(Keep3rJobAbstractRound):
     """Check whether the keep3r job contract is workable."""
 
     round_id = "is_workable"
@@ -120,7 +119,7 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
-class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+class JobSelectionRound(Keep3rJobAbstractRound):
     """Handle the keep3r job selection."""
 
     round_id = "job_selection"
@@ -142,7 +141,7 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
-class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+class PrepareTxRound(Keep3rJobAbstractRound):
     """A round in a which transaction hash is prepared"""
 
     round_id = "prepare_tx"
@@ -163,7 +162,7 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
-class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+class IsProfitableRound(Keep3rJobAbstractRound):
     """The round in which profitability of a job is estimated"""
 
     round_id = "get_is_profitable"
@@ -203,7 +202,7 @@ class NothingToDoRound(DegenerateRound, ABC):
     round_id = "nothing_to_do"
 
 
-class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+class CheckSafeExistenceRound(Keep3rJobAbstractRound):
     """A round in a which existence of the safe address is validated"""
 
     round_id = "check_safe_existence"
