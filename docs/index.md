@@ -25,7 +25,7 @@ are decentralized from end-to-end.
 
 A solution to this problem is offered by the keeper system, a network of agents that together form a decentralized 
 system that can perform the execution of smart contract functionality in a reliable, trustless and cost-efficient way. 
-The [open-autonomy framework](https://docs.autonolas.network/) provides developers with the necessary tools to
+The [Open Autonomy framework](https://docs.autonolas.network/) provides developers with the necessary tools to
 design and build an agent service that implements this functionality using finite state machines.
 The keeper system implemented here with the use of this framework is operated by 
 [Autonomous Economic Agents](https://valory-xyz.github.io/open-aea/) (AEAs), which possess the full range of 

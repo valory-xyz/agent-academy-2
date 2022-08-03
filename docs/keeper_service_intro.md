@@ -52,7 +52,7 @@ leading to a winner-takes-all scenario.
 This centralization led to loss of fault tolerance in the system; inevitably the winning bot would fall over and 
 nothing would happen.
 
-The open-autonomy framework offers a solution to this problem: 
+The Open Autonomy framework offers a solution to this problem: 
 an off-chain keeper system with an off-chain auctioning mechanism.
 Because the autonomous economic agents must achieve consensus in order for the system to progress, 
 this necessitates cooperation within the application. 
