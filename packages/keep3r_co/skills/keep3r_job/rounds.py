@@ -64,26 +64,17 @@ class SynchronizedData(
     @property
     def safe_contract_address(self) -> str:
         """Get the safe_contract_address."""
-        return cast(
-            str,
-            self.db.get_strict("safe_contract_address"),
-        )
+        return cast(str, self.db.get_strict("safe_contract_address"))
 
     @property
     def most_voted_tx_hash(self) -> str:
         """Get the most_voted_tx_hash."""
-        return cast(
-            str,
-            self.db.get_strict("most_voted_tx_hash"),
-        )
+        return cast(str, self.db.get_strict("most_voted_tx_hash"))
 
     @property
     def job_selection(self) -> str:
         """Get the job_selection."""
-        return cast(
-            str,
-            self.db.get_strict("job_selection"),
-        )
+        return cast(str, self.db.get_strict("job_selection"))
 
 
 class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
