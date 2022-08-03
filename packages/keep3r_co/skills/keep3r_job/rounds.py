@@ -63,7 +63,7 @@ class SynchronizedData(
 
     @property
     def safe_contract_address(self) -> str:
-        """Get the safe_contract_address."""
+        """Get the safe contract address."""
         return cast(str, self.db.get_strict("safe_contract_address"))
 
     @property
@@ -79,6 +79,8 @@ class SynchronizedData(
 
 class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
     """Abstract round for the simple abci skill."""
+
+    synchronized_data_class = SynchronizedData
 
     @property
     def synchronized_data(self) -> BaseSynchronizedData:
@@ -299,3 +301,4 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         Event.ROUND_TIMEOUT: 30.0,
         Event.RESET_TIMEOUT: 30.0,
     }
+    cross_period_persisted_keys = ["safe_contract_address"]
