@@ -28,7 +28,6 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     JobSelectionPayload,
     SafeExistencePayload,
     TXHashPayload,
-    TransactionType,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -63,7 +62,7 @@ class SynchronizedData(
 
     @property
     def safe_contract_address(self) -> str:
-        """Get the safe_contract_address."""
+        """Get the safe contract address."""
         return cast(str, self.db.get_strict("safe_contract_address"))
 
     @property
@@ -77,24 +76,26 @@ class SynchronizedData(
         return cast(str, self.db.get_strict("job_selection"))
 
 
-class Keep3rJobAbstractRound(AbstractRound[Event, TransactionType], ABC):
+class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
     """Abstract round for the simple abci skill."""
+
+    synchronized_data_class = SynchronizedData
 
     @property
     def synchronized_data(self) -> BaseSynchronizedData:
-        """Return the period state."""
+        """Return the synchronized data."""
         return cast(BaseSynchronizedData, super().synchronized_data)
 
     def _return_no_majority_event(self) -> Tuple[BaseSynchronizedData, Event]:
         """
         Trigger the NO_MAJORITY event.
 
-        :return: a new period state and a NO_MAJORITY event
+        :return: a new synchronized data and a NO_MAJORITY event
         """
         return self.synchronized_data, Event.NO_MAJORITY
 
 
-class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+class IsWorkableRound(Keep3rJobAbstractRound):
     """Check whether the keep3r job contract is workable."""
 
     round_id = "is_workable"
@@ -118,7 +119,7 @@ class IsWorkableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
-class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
+class JobSelectionRound(Keep3rJobAbstractRound):
     """Handle the keep3r job selection."""
 
     round_id = "job_selection"
@@ -140,8 +141,8 @@ class JobSelectionRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
-class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
-    """A round in a which tx hash is prepared is selected"""
+class PrepareTxRound(Keep3rJobAbstractRound):
+    """A round in a which transaction hash is prepared"""
 
     round_id = "prepare_tx"
     allowed_tx_type = TXHashPayload.transaction_type
@@ -161,8 +162,8 @@ class PrepareTxRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
         return None
 
 
-class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
-    """The round in which the profitability of the job is estimated"""
+class IsProfitableRound(Keep3rJobAbstractRound):
+    """The round in which profitability of a job is estimated"""
 
     round_id = "get_is_profitable"
     allowed_tx_type = IsProfitablePayload.transaction_type
@@ -184,25 +185,25 @@ class IsProfitableRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
 
 
 class FinishedPrepareTxRound(DegenerateRound, ABC):
-    """A round that represents the transition to the RandomnessTransactionSubmissionRound"""
+    """A round that represents transaction hash preparation has finalized"""
 
     round_id = "finished_prepare_tx_round"
 
 
 class FailedRound(DegenerateRound, ABC):
-    """A round that represents that the period failed"""
+    """A round that represents failure of the round sequence"""
 
     round_id = "failed_round"
 
 
 class NothingToDoRound(DegenerateRound, ABC):
-    """A round that represents that the period failed"""
+    """A round that represents that there is no worthwhile work"""
 
     round_id = "nothing_to_do"
 
 
-class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractRound):
-    """A round in a which the safe address is validated"""
+class CheckSafeExistenceRound(Keep3rJobAbstractRound):
+    """A round in a which existence of the safe address is validated"""
 
     round_id = "check_safe_existence"
     allowed_tx_type = SafeExistencePayload.transaction_type
@@ -226,7 +227,7 @@ class CheckSafeExistenceRound(CollectSameUntilThresholdRound, Keep3rJobAbstractR
 
 
 class SafeNotDeployedRound(DegenerateRound, ABC):
-    """A round that represents that the period failed"""
+    """A round that represents that the safe is not deployed"""
 
     round_id = "safe_not_deployed_round"
 
@@ -299,3 +300,4 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         Event.ROUND_TIMEOUT: 30.0,
         Event.RESET_TIMEOUT: 30.0,
     }
+    cross_period_persisted_keys = ["safe_contract_address"]
