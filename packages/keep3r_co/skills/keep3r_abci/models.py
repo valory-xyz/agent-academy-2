@@ -55,24 +55,25 @@ class SharedState(BaseSharedState):
     def setup(self) -> None:
         """Set up."""
         super().setup()
-        Keep3rAbciApp.event_to_timeout[
-            RegistrationEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            Keep3rJobEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            SafeEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            TSEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            ResetPauseEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
+
+        timeout_seconds = self.context.params.round_timeout_seconds
+
+        # ROUND_TIMEOUT
+        for event in (
+            RegistrationEvent.ROUND_TIMEOUT,
+            SafeEvent.ROUND_TIMEOUT,
+            Keep3rJobEvent.ROUND_TIMEOUT,
+            TSEvent.ROUND_TIMEOUT,
+            ResetPauseEvent.ROUND_TIMEOUT,
+        ):
+            Keep3rAbciApp.event_to_timeout[event] = timeout_seconds
+
+        # RESET_TIMEOUTS
         Keep3rAbciApp.event_to_timeout[TSEvent.RESET_TIMEOUT] = (
-            self.context.params.round_timeout_seconds * MULTIPLIER
+            timeout_seconds * MULTIPLIER
         )
+
+        # RESET_AND_PAUSE_TIMEOUT
         Keep3rAbciApp.event_to_timeout[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = (
             self.context.params.observation_interval + MARGIN
         )
