@@ -18,8 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the shared state for the price estimation app ABCI application."""
-import logging
-import time
+
 from typing import Any
 
 from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
