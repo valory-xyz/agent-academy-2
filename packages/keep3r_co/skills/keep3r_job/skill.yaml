@@ -12,7 +12,7 @@ fingerprint:
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
   fsm_specification.yaml: bafybeibtq5txusplitfevezbziar2kxbqgcttrr4zo3ftpqdbea2jjtvba
   handlers.py: bafybeie6ntjlqfb5glkciuo56pisvgobi2tuqhcjlzm7h5uvhgi2ipxrzq
-  models.py: bafybeianjqgdcuivv4b2562wnnwmgtc7aklmllzotno3rpqifmjpvh5bne
+  models.py: bafybeig4dydnnt2z7773ub5opf25ex6ws6itpmqxdtj6ilvbtn2gudskym
   payloads.py: bafybeiasxrgd6o4bupl2yucxr3yod5wtvuv7vcwrkcex3xq5bcmfljhwpu
   rounds.py: bafybeibtlcrhpb4xris2m2xvj4tioozyjzvyqakdesuz637agwwy7eslra
 fingerprint_ignore_patterns: []
@@ -80,6 +80,7 @@ models:
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
+      finalize_timeout: 60.0
       job_contract_addresses:
       - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       keeper_timeout: 30.0
@@ -101,6 +102,7 @@ models:
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
       tendermint_url: http://localhost:26657
+      validate_timeout: 1205
     class_name: Params
   randomness_api:
     args:

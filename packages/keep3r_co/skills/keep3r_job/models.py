@@ -62,6 +62,8 @@ class Params(BaseParams):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
+        self.validate_timeout = self._ensure("validate_timeout", kwargs)
+        self.finalize_timeout = self._ensure("finalize_timeout", kwargs)
         self.job_contract_addresses = self._ensure("job_contract_addresses", kwargs)
         super().__init__(*args, **kwargs)
 
