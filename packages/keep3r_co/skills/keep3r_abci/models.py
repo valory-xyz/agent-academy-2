@@ -61,9 +61,6 @@ class SharedState(BaseSharedState):
             SafeEvent.ROUND_TIMEOUT
         ] = self.context.params.round_timeout_seconds
         Keep3rAbciApp.event_to_timeout[
-            Keep3rJobEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
             TSEvent.ROUND_TIMEOUT
         ] = self.context.params.round_timeout_seconds
         Keep3rAbciApp.event_to_timeout[
