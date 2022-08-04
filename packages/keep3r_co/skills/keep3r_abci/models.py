@@ -18,7 +18,8 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the shared state for the price estimation app ABCI application."""
-
+import logging
+import time
 from typing import Any
 
 from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
@@ -56,7 +57,14 @@ class SharedState(BaseSharedState):
         """Set up."""
         super().setup()
 
-        timeout_seconds = self.context.params.round_timeout_seconds
+        timeouts = Keep3rAbciApp.event_to_timeout
+
+        round_timeout_seconds = self.context.params.round_timeout_seconds
+        validate_timeout = self.context.params.validate_timeout
+        finalize_timeout = self.context.params.finalize_timeout
+        deploy_timeout = self.context.params.keeper_timeout + MARGIN
+        reset_timeout = round_timeout_seconds * MULTIPLIER
+        reset_and_pause_timeout = self.context.params.observation_interval + MARGIN
 
         # ROUND_TIMEOUT
         for event in (
@@ -66,16 +74,21 @@ class SharedState(BaseSharedState):
             TSEvent.ROUND_TIMEOUT,
             ResetPauseEvent.ROUND_TIMEOUT,
         ):
-            Keep3rAbciApp.event_to_timeout[event] = timeout_seconds
+            timeouts[event] = round_timeout_seconds
 
         # RESET_TIMEOUTS
-        for event in (
-            Keep3rJobEvent.RESET_TIMEOUT,
-            TSEvent.RESET_TIMEOUT,
-        ):
-            Keep3rAbciApp.event_to_timeout[event] = timeout_seconds * MULTIPLIER
+        for event in (Keep3rJobEvent.RESET_TIMEOUT, TSEvent.RESET_TIMEOUT):
+            timeouts[event] = reset_timeout
+
+        # FINALIZE_TIMEOUT
+        timeouts[TSEvent.FINALIZE_TIMEOUT] = finalize_timeout
+
+        # VALIDATE_TIMEOUT
+        for event in (SafeEvent.VALIDATE_TIMEOUT, TSEvent.VALIDATE_TIMEOUT):
+            timeouts[event] = validate_timeout
+
+        # DEPLOY_TIMEOUT
+        timeouts[SafeEvent.DEPLOY_TIMEOUT] = deploy_timeout
 
         # RESET_AND_PAUSE_TIMEOUT
-        Keep3rAbciApp.event_to_timeout[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = (
-            self.context.params.observation_interval + MARGIN
-        )
+        timeouts[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = reset_and_pause_timeout
