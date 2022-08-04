@@ -31,6 +31,7 @@ from packages.valory.skills.abstract_round_abci.models import Requests as BaseRe
 from packages.valory.skills.abstract_round_abci.models import (
     SharedState as BaseSharedState,
 )
+from packages.valory.skills.registration_abci.rounds import Event as RegistrationEvent
 from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
 from packages.valory.skills.safe_deployment_abci.rounds import Event as SafeEvent
 from packages.valory.skills.transaction_settlement_abci.rounds import Event as TSEvent
@@ -54,6 +55,9 @@ class SharedState(BaseSharedState):
     def setup(self) -> None:
         """Set up."""
         super().setup()
+        Keep3rAbciApp.event_to_timeout[
+            RegistrationEvent.ROUND_TIMEOUT
+        ] = self.context.params.round_timeout_seconds
         Keep3rAbciApp.event_to_timeout[
             Keep3rJobEvent.ROUND_TIMEOUT
         ] = self.context.params.round_timeout_seconds
