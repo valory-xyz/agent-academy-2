@@ -69,9 +69,11 @@ class SharedState(BaseSharedState):
             Keep3rAbciApp.event_to_timeout[event] = timeout_seconds
 
         # RESET_TIMEOUTS
-        Keep3rAbciApp.event_to_timeout[TSEvent.RESET_TIMEOUT] = (
-            timeout_seconds * MULTIPLIER
-        )
+        for event in (
+            Keep3rJobEvent.RESET_TIMEOUT,
+            TSEvent.RESET_TIMEOUT,
+        ):
+            Keep3rAbciApp.event_to_timeout[event] = timeout_seconds * MULTIPLIER
 
         # RESET_AND_PAUSE_TIMEOUT
         Keep3rAbciApp.event_to_timeout[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = (
