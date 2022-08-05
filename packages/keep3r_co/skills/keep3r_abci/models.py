@@ -31,6 +31,7 @@ from packages.valory.skills.abstract_round_abci.models import Requests as BaseRe
 from packages.valory.skills.abstract_round_abci.models import (
     SharedState as BaseSharedState,
 )
+from packages.valory.skills.registration_abci.rounds import Event as RegistrationEvent
 from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
 from packages.valory.skills.safe_deployment_abci.rounds import Event as SafeEvent
 from packages.valory.skills.transaction_settlement_abci.rounds import Event as TSEvent
@@ -54,24 +55,39 @@ class SharedState(BaseSharedState):
     def setup(self) -> None:
         """Set up."""
         super().setup()
-        Keep3rAbciApp.event_to_timeout[
-            Keep3rJobEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            SafeEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            Keep3rJobEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            TSEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[
-            ResetPauseEvent.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rAbciApp.event_to_timeout[TSEvent.RESET_TIMEOUT] = (
-            self.context.params.round_timeout_seconds * MULTIPLIER
-        )
-        Keep3rAbciApp.event_to_timeout[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = (
-            self.context.params.observation_interval + MARGIN
-        )
+
+        timeouts = Keep3rAbciApp.event_to_timeout
+
+        round_timeout_seconds = self.context.params.round_timeout_seconds
+        validate_timeout = self.context.params.validate_timeout
+        finalize_timeout = self.context.params.finalize_timeout
+        deploy_timeout = self.context.params.keeper_timeout + MARGIN
+        reset_timeout = round_timeout_seconds * MULTIPLIER
+        reset_and_pause_timeout = self.context.params.observation_interval + MARGIN
+
+        # ROUND_TIMEOUT
+        for event in (
+            RegistrationEvent.ROUND_TIMEOUT,
+            SafeEvent.ROUND_TIMEOUT,
+            Keep3rJobEvent.ROUND_TIMEOUT,
+            TSEvent.ROUND_TIMEOUT,
+            ResetPauseEvent.ROUND_TIMEOUT,
+        ):
+            timeouts[event] = round_timeout_seconds
+
+        # RESET_TIMEOUTS
+        for event in (Keep3rJobEvent.RESET_TIMEOUT, TSEvent.RESET_TIMEOUT):
+            timeouts[event] = reset_timeout
+
+        # FINALIZE_TIMEOUT
+        timeouts[TSEvent.FINALIZE_TIMEOUT] = finalize_timeout
+
+        # VALIDATE_TIMEOUT
+        for event in (SafeEvent.VALIDATE_TIMEOUT, TSEvent.VALIDATE_TIMEOUT):
+            timeouts[event] = validate_timeout
+
+        # DEPLOY_TIMEOUT
+        timeouts[SafeEvent.DEPLOY_TIMEOUT] = deploy_timeout
+
+        # RESET_AND_PAUSE_TIMEOUT
+        timeouts[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = reset_and_pause_timeout
