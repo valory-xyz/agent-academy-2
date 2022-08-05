@@ -233,21 +233,43 @@ class SafeNotDeployedRound(DegenerateRound, ABC):
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):
-    """PrepareTxAbciApp
+    """Keep3rJobAbciApp
 
-    Initial round: PrepareTxRound
+    Initial round: CheckSafeExistenceRound
 
-    Initial states: {PrepareTxRound}
+    Initial states: {CheckSafeExistenceRound}
 
     Transition states:
-        0. PrepareTxRound
+        0. CheckSafeExistenceRound
             - done: 1.
+            - negative: 5.
+            - reset timeout: 8.
+            - no majority: 0.
+        1. JobSelectionRound
+            - done: 2.
+            - not workable: 8.
+            - reset timeout: 8.
+            - no majority: 8.
+        2. IsWorkableRound
+            - done: 3.
+            - not workable: 8.
             - reset timeout: 2.
             - no majority: 2.
-        1. FinishedTransactionSubmissionRound
-        2. FailedRound
+        3. IsProfitableRound
+            - done: 4.
+            - not profitable: 8.
+            - no majority: 7.
+            - reset timeout: 3.
+        4. PrepareTxRound
+            - done: 6.
+            - reset timeout: 7.
+            - no majority: 7.
+        5. SafeNotDeployedRound
+        6. FinishedPrepareTxRound
+        7. FailedRound
+        8. NothingToDoRound
 
-    Final states: {}
+    Final states: {FailedRound, FinishedPrepareTxRound, NothingToDoRound, SafeNotDeployedRound}
 
     Timeouts:
         round timeout: 30.0
