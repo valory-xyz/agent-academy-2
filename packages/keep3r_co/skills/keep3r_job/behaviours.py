@@ -100,7 +100,7 @@ class CheckSafeExistenceBehaviour(Keep3rJobAbciBaseBehaviour):
     def safe_contract_exists(self) -> bool:
         """Check Contract deployment verification."""
 
-        if self.context.params.safe_contract_address is None:  # pragma: nocover
+        if self.synchronized_data.safe_contract_address is None:  # pragma: nocover
             self.context.logger.warning("Safe contract has not been deployed!")
             return False
 
