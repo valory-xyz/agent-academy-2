@@ -48,16 +48,34 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
 )
 
 
-class CheckSafeExistenceBehaviour(BaseBehaviour):
-    """Check Safe contract existence."""
-
-    behaviour_id = "check_safe_existence"
-    matching_round = CheckSafeExistenceRound
+class Keep3rJobAbciBaseBehaviour(BaseBehaviour, ABC):
+    """Base state behaviour for the simple abci skill."""
 
     @property
     def synchronized_data(self) -> SynchronizedData:
         """Return the synchronized data."""
         return cast(SynchronizedData, super().synchronized_data)
+
+    @property
+    def params(self) -> Params:
+        """Return the params."""
+        return cast(Params, self.context.params)
+
+    @property
+    def current_job_contract(self) -> Optional[str]:
+        """Get current job contract address"""
+        if not self.context.params.job_contract_addresses:
+            return None
+        addresses = self.context.params.job_contract_addresses
+        job_ix = self.synchronized_data.period_count % len(addresses)
+        return self.context.params.job_contract_addresses[job_ix]
+
+
+class CheckSafeExistenceBehaviour(Keep3rJobAbciBaseBehaviour):
+    """Check Safe contract existence."""
+
+    behaviour_id = "check_safe_existence"
+    matching_round = CheckSafeExistenceRound
 
     def async_act(self) -> Generator:
         """
@@ -82,34 +100,11 @@ class CheckSafeExistenceBehaviour(BaseBehaviour):
     def safe_contract_exists(self) -> bool:
         """Check Contract deployment verification."""
 
-        if self.synchronized_data.safe_contract_address is None:  # pragma: nocover
+        if self.context.params.safe_contract_address is None:  # pragma: nocover
             self.context.logger.warning("Safe contract has not been deployed!")
             return False
 
         return True
-
-
-class Keep3rJobAbciBaseBehaviour(BaseBehaviour, ABC):
-    """Base state behaviour for the simple abci skill."""
-
-    @property
-    def synchronized_data(self) -> SynchronizedData:
-        """Return the synchronized data."""
-        return cast(SynchronizedData, super().synchronized_data)
-
-    @property
-    def params(self) -> Params:
-        """Return the params."""
-        return cast(Params, self.context.params)
-
-    @property
-    def current_job_contract(self) -> Optional[str]:
-        """Get current job contract address"""
-        if not self.context.params.job_contract_addresses:
-            return None
-        addresses = self.context.params.job_contract_addresses
-        job_ix = self.synchronized_data.period_count % len(addresses)
-        return self.context.params.job_contract_addresses[job_ix]
 
 
 class JobSelectionBehaviour(Keep3rJobAbciBaseBehaviour):
