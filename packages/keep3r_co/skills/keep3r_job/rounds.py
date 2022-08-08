@@ -242,27 +242,27 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         0. CheckSafeExistenceRound
             - done: 1.
             - negative: 5.
-            - reset timeout: 8.
+            - round timeout: 0.
             - no majority: 0.
         1. JobSelectionRound
             - done: 2.
             - not workable: 8.
-            - reset timeout: 8.
-            - no majority: 8.
+            - round timeout: 1.
+            - no majority: 1.
         2. IsWorkableRound
             - done: 3.
             - not workable: 8.
-            - reset timeout: 2.
+            - round timeout: 2.
             - no majority: 2.
         3. IsProfitableRound
             - done: 4.
             - not profitable: 8.
-            - no majority: 7.
-            - reset timeout: 3.
+            - no majority: 3.
+            - round timeout: 3.
         4. PrepareTxRound
             - done: 6.
-            - reset timeout: 7.
-            - no majority: 7.
+            - round timeout: 7.
+            - no majority: 4.
         5. SafeNotDeployedRound
         6. FinishedPrepareTxRound
         7. FailedRound
@@ -272,7 +272,6 @@ class Keep3rJobAbciApp(AbciApp[Event]):
 
     Timeouts:
         round timeout: 30.0
-        reset timeout: 30.0
     """
 
     initial_round_cls: Type[AbstractRound] = CheckSafeExistenceRound
