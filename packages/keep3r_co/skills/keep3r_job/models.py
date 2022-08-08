@@ -52,7 +52,7 @@ class SharedState(BaseSharedState):
         Keep3rJobAbciApp.event_to_timeout[
             Event.ROUND_TIMEOUT
         ] = self.context.params.round_timeout_seconds
-        Keep3rJobAbciApp.event_to_timeout[Event.RESET_TIMEOUT] = (
+        Keep3rJobAbciApp.event_to_timeout[Event.ROUND_TIMEOUT] = (
             self.context.params.observation_interval + MARGIN
         )
 
