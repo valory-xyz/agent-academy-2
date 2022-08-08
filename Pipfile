@@ -4,9 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-open-aea-ledger-ethereum = "==1.14.0"
-open-aea-ledger-cosmos = "==1.14.0"
-open-aea-cli-ipfs = "==1.14.0"
+open-aea = {version = "==1.13.0", extras = ["all"]}
+open-aea-ledger-ethereum = "==1.13.0"
+open-aea-ledger-cosmos = "==1.13.0"
+open-aea-cli-ipfs = "==1.13.0"
 tox = "==3.24.4"
 
 [dev-packages]
@@ -50,7 +51,7 @@ types-requests = "==2.27.25"
 python_version = "3.10"
 
 [packages.open-autonomy]
-version = "==0.1.5"
+version = "==0.1.4"
 extras = [ "all",]
 
 [dev-packages.mkdocs-mermaid-plugin]
