@@ -258,13 +258,13 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         CheckSafeExistenceRound: {
             Event.DONE: JobSelectionRound,  # To the last round of safe deployment abci
             Event.NEGATIVE: SafeNotDeployedRound,  # To the 1st round of safe deployment abci
-            Event.ROUND_TIMEOUT: NothingToDoRound,
+            Event.ROUND_TIMEOUT: CheckSafeExistenceRound,
             Event.NO_MAJORITY: CheckSafeExistenceRound,
         },
         JobSelectionRound: {
             Event.DONE: IsWorkableRound,
             Event.NOT_WORKABLE: NothingToDoRound,
-            Event.ROUND_TIMEOUT: NothingToDoRound,
+            Event.ROUND_TIMEOUT: JobSelectionRound,
             Event.NO_MAJORITY: JobSelectionRound,
         },
         IsWorkableRound: {
