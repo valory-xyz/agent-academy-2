@@ -4,7 +4,7 @@ alphabet_in:
 - NOT_PROFITABLE
 - NOT_WORKABLE
 - NO_MAJORITY
-- RESET_TIMEOUT
+- ROUND_TIMEOUT
 default_start_state: CheckSafeExistenceRound
 final_states:
 - FailedRound
@@ -27,18 +27,20 @@ states:
 transition_func:
     (CheckSafeExistenceRound, DONE): JobSelectionRound
     (CheckSafeExistenceRound, NEGATIVE): SafeNotDeployedRound
+    (CheckSafeExistenceRound, NO_MAJORITY): CheckSafeExistenceRound
+    (CheckSafeExistenceRound, ROUND_TIMEOUT): CheckSafeExistenceRound
     (IsProfitableRound, DONE): PrepareTxRound
     (IsProfitableRound, NOT_PROFITABLE): NothingToDoRound
-    (IsProfitableRound, NO_MAJORITY): FailedRound
-    (IsProfitableRound, RESET_TIMEOUT): IsProfitableRound
+    (IsProfitableRound, NO_MAJORITY): IsProfitableRound
+    (IsProfitableRound, ROUND_TIMEOUT): IsProfitableRound
     (IsWorkableRound, DONE): IsProfitableRound
     (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
-    (IsWorkableRound, RESET_TIMEOUT): IsWorkableRound
+    (IsWorkableRound, ROUND_TIMEOUT): IsWorkableRound
     (JobSelectionRound, DONE): IsWorkableRound
     (JobSelectionRound, NOT_WORKABLE): NothingToDoRound
-    (JobSelectionRound, NO_MAJORITY): NothingToDoRound
-    (JobSelectionRound, RESET_TIMEOUT): NothingToDoRound
+    (JobSelectionRound, NO_MAJORITY): JobSelectionRound
+    (JobSelectionRound, ROUND_TIMEOUT): JobSelectionRound
     (PrepareTxRound, DONE): FinishedPrepareTxRound
-    (PrepareTxRound, NO_MAJORITY): FailedRound
-    (PrepareTxRound, RESET_TIMEOUT): FailedRound
+    (PrepareTxRound, NO_MAJORITY): PrepareTxRound
+    (PrepareTxRound, ROUND_TIMEOUT): FailedRound
