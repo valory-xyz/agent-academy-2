@@ -47,7 +47,6 @@ class Event(Enum):
     NOT_WORKABLE = "not_workable"
     ROUND_TIMEOUT = "round_timeout"
     NO_MAJORITY = "no_majority"
-    RESET_TIMEOUT = "reset_timeout"
     NOT_PROFITABLE = "not_profitable"
 
 
@@ -259,31 +258,31 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         CheckSafeExistenceRound: {
             Event.DONE: JobSelectionRound,  # To the last round of safe deployment abci
             Event.NEGATIVE: SafeNotDeployedRound,  # To the 1st round of safe deployment abci
-            Event.RESET_TIMEOUT: NothingToDoRound,
+            Event.ROUND_TIMEOUT: NothingToDoRound,
             Event.NO_MAJORITY: CheckSafeExistenceRound,
         },
         JobSelectionRound: {
             Event.DONE: IsWorkableRound,
             Event.NOT_WORKABLE: NothingToDoRound,
-            Event.RESET_TIMEOUT: NothingToDoRound,
-            Event.NO_MAJORITY: NothingToDoRound,
+            Event.ROUND_TIMEOUT: NothingToDoRound,
+            Event.NO_MAJORITY: JobSelectionRound,
         },
         IsWorkableRound: {
             Event.DONE: IsProfitableRound,
             Event.NOT_WORKABLE: NothingToDoRound,
-            Event.RESET_TIMEOUT: IsWorkableRound,
+            Event.ROUND_TIMEOUT: IsWorkableRound,
             Event.NO_MAJORITY: IsWorkableRound,
         },
         IsProfitableRound: {
             Event.DONE: PrepareTxRound,
             Event.NOT_PROFITABLE: NothingToDoRound,
-            Event.NO_MAJORITY: FailedRound,
-            Event.RESET_TIMEOUT: IsProfitableRound,
+            Event.NO_MAJORITY: IsProfitableRound,
+            Event.ROUND_TIMEOUT: IsProfitableRound,
         },
         PrepareTxRound: {
             Event.DONE: FinishedPrepareTxRound,
-            Event.RESET_TIMEOUT: FailedRound,
-            Event.NO_MAJORITY: FailedRound,
+            Event.ROUND_TIMEOUT: FailedRound,
+            Event.NO_MAJORITY: PrepareTxRound,
         },
         SafeNotDeployedRound: {},
         FinishedPrepareTxRound: {},
@@ -298,6 +297,5 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     }
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
-        Event.RESET_TIMEOUT: 30.0,
     }
     cross_period_persisted_keys = ["safe_contract_address"]
