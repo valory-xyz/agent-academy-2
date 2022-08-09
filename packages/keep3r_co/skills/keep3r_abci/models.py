@@ -80,8 +80,7 @@ class SharedState(BaseSharedState):
             timeouts[event] = round_timeout_seconds
 
         # RESET_TIMEOUTS
-        for event in (Keep3rJobEvent.RESET_TIMEOUT, TSEvent.RESET_TIMEOUT):
-            timeouts[event] = reset_timeout
+        timeouts[TSEvent.RESET_TIMEOUT] = reset_timeout
 
         # FINALIZE_TIMEOUT
         timeouts[TSEvent.FINALIZE_TIMEOUT] = finalize_timeout
