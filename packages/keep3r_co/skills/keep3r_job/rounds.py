@@ -80,19 +80,6 @@ class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
 
     synchronized_data_class = SynchronizedData
 
-    @property
-    def synchronized_data(self) -> BaseSynchronizedData:
-        """Return the synchronized data."""
-        return cast(BaseSynchronizedData, super().synchronized_data)
-
-    def _return_no_majority_event(self) -> Tuple[BaseSynchronizedData, Event]:
-        """
-        Trigger the NO_MAJORITY event.
-
-        :return: a new synchronized data and a NO_MAJORITY event
-        """
-        return self.synchronized_data, Event.NO_MAJORITY
-
 
 class IsWorkableRound(Keep3rJobAbstractRound):
     """Check whether the keep3r job contract is workable."""
@@ -114,7 +101,7 @@ class IsWorkableRound(Keep3rJobAbstractRound):
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
-            return self._return_no_majority_event()
+            return self.synchronized_data, Event.NO_MAJORITY
         return None
 
 
@@ -136,7 +123,7 @@ class JobSelectionRound(Keep3rJobAbstractRound):
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
-            return self._return_no_majority_event()
+            return self.synchronized_data, Event.NO_MAJORITY
         return None
 
 
@@ -157,7 +144,7 @@ class PrepareTxRound(Keep3rJobAbstractRound):
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
-            return self._return_no_majority_event()
+            return self.synchronized_data, Event.NO_MAJORITY
         return None
 
 
@@ -179,7 +166,7 @@ class IsProfitableRound(Keep3rJobAbstractRound):
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
-            return self._return_no_majority_event()
+            return self.synchronized_data, Event.NO_MAJORITY
         return None
 
 
@@ -221,7 +208,7 @@ class CheckSafeExistenceRound(Keep3rJobAbstractRound):
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
-            return self._return_no_majority_event()
+            return self.synchronized_data, Event.NO_MAJORITY
         return None
 
 
