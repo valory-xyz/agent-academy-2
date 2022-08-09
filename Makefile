@@ -97,7 +97,6 @@ new_env: clean
 		pipenv --clear;\
 		pipenv --python 3.10;\
 		pipenv install --dev --skip-lock;\
-		pipenv run pip install -e .[all];\
 		echo "Enter virtual environment with all development dependencies now: 'pipenv shell'.";\
 	else\
 		echo "In a virtual environment! Exit first: 'exit'.";\
