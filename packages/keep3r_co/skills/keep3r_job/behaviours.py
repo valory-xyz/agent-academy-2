@@ -100,7 +100,9 @@ class CheckSafeExistenceBehaviour(Keep3rJobAbciBaseBehaviour):
     def safe_contract_exists(self) -> bool:
         """Check whether the safe contract has been deployed."""
 
-        address_exists = bool(self.synchronized_data.db.get("safe_contract_address", None))
+        address_exists = bool(
+            self.synchronized_data.db.get("safe_contract_address", None)
+        )
         self.context.logger.warning(f"Safe contract deployed: {address_exists}")
         return address_exists
 
