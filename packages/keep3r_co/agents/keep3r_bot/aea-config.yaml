@@ -13,7 +13,8 @@ connections:
 - valory/ledger:0.1.0:bafybeifxxshi4u3xyyllip5e3yafawywcwpvqxgnybchi5kj74zm4b4n2e
 - valory/p2p_libp2p_client:0.1.0:bafybeihw7zmzu4k3s56wnzhs6f3onxdqfewp46dhnnv6lgnzfneuvo5bcm
 contracts:
-- gabrielfu/keep3r_job:0.1.0:bafybeihgz7flasaijeachrkmpgyqdqmeawknh2nfoie2page57ejy5l4ai
+- valory/gnosis_safe:0.1.0:bafybeiexiper376ji5h4wm5erzospvyikqmvw7pi5tpgrwanj5okznemqu
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiexiper376ji5h4wm5erzospvyikqmvw7pi5tpgrwanj5okznemqu
 - valory/goerli_keep3r_job:0.1.0:bafybeiaakgk5wedatav42rmnnpkrn75h7cqufazfrcrk7wvdllpktrk2oi
 protocols:
 - open_aea/signing:1.0.0:bafybeieirkuq6azgis33bmukr5u2gx4chp5kswiw3wd5hbjsaukgwzmp5a

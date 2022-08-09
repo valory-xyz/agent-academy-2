@@ -17,13 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""
-This module contains the ABCI simple skill for an AEA.
-
-It implements an ABCI application for a simple demonstration.
-"""
-
-from aea.configurations.base import PublicId
-
-
-PUBLIC_ID = PublicId.from_str("valory/simple_abci:0.1.0")
+"""Tests package for abstract_round_abci derived skills."""

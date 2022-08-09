@@ -18,13 +18,10 @@ fingerprint:
   rounds.py: bafybeicxdpuq7pmz7aszaax4oxpk7olavo4pbb56ng63ieuxnd7vl53m4q
 fingerprint_ignore_patterns: []
 connections: []
-contracts:
-- valory/gnosis_safe:0.1.0:bafybeiexiper376ji5h4wm5erzospvyikqmvw7pi5tpgrwanj5okznemqu
-- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
-- valory/goerli_keep3r_job:0.1.0:bafybeiaakgk5wedatav42rmnnpkrn75h7cqufazfrcrk7wvdllpktrk2oi
-protocols:
-- valory/contract_api:1.0.0:bafybeie5gbzc4v4n6p6ea66kmc5ejwvbjzhd7vhcjg7mikbyx47lypcd5m
+contracts: []
+protocols: []
 skills:
+- valory/abstract_round_abci:0.1.0:bafybeiamr2gckrgxujl6xskhtjg46fmdwsklq5fnqvndnwsiyld6sy5z4y
 - keep3r_co/keep3r_job:0.1.0:bafybeifdow2renttmfeuvusvokdtjuayntcowqfp3p37odirfibxxvf6oi
 - valory/registration_abci:0.1.0:bafybeiamr2gckrgxujl6xskhtjg46fmdwsklq5fnqvndnwsiyld6sy5z4y
 - valory/reset_pause_abci:0.1.0:bafybeibhqdl3263vcokyjxeciiktbk2ej6gdbeexviy5exvnc37a5hdmhq
