@@ -32,3 +32,4 @@ cp -r ../agent-academy-1/scripts/hash_patch.py scripts/
 cp -r ../open-autonomy/tests/test_agents/__init__.py tests/test_agents
 cp -r ../open-autonomy/tests/test_skills/__init__.py tests/test_skills
 cp -r ../agent-academy-1/tox.ini .
+cp -r ../agent-academy-1/wrap.py .
