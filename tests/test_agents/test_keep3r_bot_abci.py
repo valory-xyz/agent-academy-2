@@ -17,10 +17,11 @@
 #
 # ------------------------------------------------------------------------------
 
-"""End2end tests for the keep3r_co/keep3r_abci skill."""
+"""End-to-end tests for the keep3r_co/keep3r_abci skill."""
 
 import pytest
 from autonomy.test_tools.base_test_classes.agents import BaseTestEnd2EndExecution
+from autonomy.test_tools.fixture_helpers import UseGnosisSafeHardHatNet
 
 
 # check log messages of the happy path
@@ -39,7 +40,7 @@ CHECK_STRINGS = (
 )
 
 
-class BaseKeep3rABCITest(BaseTestEnd2EndExecution):
+class BaseKeep3rABCITest(BaseTestEnd2EndExecution, UseGnosisSafeHardHatNet):
     """BaseKeep3rABCITest"""
 
     agent_package = "keep3r_co/keep3r_bot:0.1.0"
