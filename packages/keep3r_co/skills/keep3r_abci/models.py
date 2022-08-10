@@ -23,6 +23,9 @@ from typing import Any
 
 from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
 from packages.keep3r_co.skills.keep3r_job.models import Params as Keep3rJobParams
+from packages.keep3r_co.skills.keep3r_job.models import (
+    RandomnessApi as BaseRandomnessApi,
+)
 from packages.keep3r_co.skills.keep3r_job.rounds import Event as Keep3rJobEvent
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
@@ -43,6 +46,7 @@ MULTIPLIER = 2
 Requests = BaseRequests
 BenchmarkTool = BaseBenchmarkTool
 Params = Keep3rJobParams
+RandomnessApi = BaseRandomnessApi
 
 
 class SharedState(BaseSharedState):
