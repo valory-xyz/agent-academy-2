@@ -26,7 +26,12 @@ from typing import Any, Generator, cast
 
 import docker
 import pytest
-from autonomy.test_tools.docker.base import launch_many_containers
+from autonomy.test_tools.docker.base import launch_image, launch_many_containers
+from autonomy.test_tools.docker.gnosis_safe_net import (
+    DEFAULT_HARDHAT_ADDR,
+    DEFAULT_HARDHAT_PORT,
+    GnosisSafeNetDockerImage,
+)
 from autonomy.test_tools.docker.tendermint import (
     DEFAULT_ABCI_HOST,
     DEFAULT_ABCI_PORT,
@@ -74,3 +79,30 @@ def flask_tendermint(
         Generator[FlaskTendermintDockerImage, None, None],
         launch_many_containers(image, nb_nodes, timeout, max_attempts),
     )
+
+
+@pytest.fixture()
+def hardhat_addr() -> str:
+    """Get the hardhat addr"""
+    return DEFAULT_HARDHAT_ADDR
+
+
+@pytest.fixture()
+def hardhat_port() -> int:
+    """Get the hardhat port"""
+    return DEFAULT_HARDHAT_PORT
+
+
+@pytest.fixture(scope="function")
+def gnosis_safe_hardhat_scope_function(
+    hardhat_addr: Any,
+    hardhat_port: Any,
+    timeout: float = 3.0,
+    max_attempts: int = 40,
+) -> Generator:
+    """Launch the HardHat node with Gnosis Safe contracts deployed. This fixture is scoped to a function which means it will destroyed at the end of the test."""
+    client = docker.from_env()
+    logging.info(f"Launching Hardhat at port {hardhat_port}")
+    image = GnosisSafeNetDockerImage(client, hardhat_addr, hardhat_port)
+    yield from launch_image(image, timeout=timeout, max_attempts=max_attempts)
+
