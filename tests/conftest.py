@@ -98,11 +98,10 @@ def gnosis_safe_hardhat_scope_function(
     hardhat_addr: Any,
     hardhat_port: Any,
     timeout: float = 3.0,
-    max_attempts: int = 40,
+    max_attempts: int = 10,
 ) -> Generator:
     """Launch the HardHat node with Gnosis Safe contracts deployed. This fixture is scoped to a function which means it will destroyed at the end of the test."""
     client = docker.from_env()
     logging.info(f"Launching Hardhat at port {hardhat_port}")
     image = GnosisSafeNetDockerImage(client, hardhat_addr, hardhat_port)
     yield from launch_image(image, timeout=timeout, max_attempts=max_attempts)
-
