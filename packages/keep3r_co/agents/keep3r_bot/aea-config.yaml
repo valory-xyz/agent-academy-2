@@ -25,8 +25,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeif2c3jt4tim3zbfq5c2lds7bs6qj5gvj2obk3pzdk3uy6zk2ivo3e
 - valory/tendermint:0.1.0:bafybeihcnjhovvyyfbkuw5sjyfx2lfd4soeocfqzxz54g67333m6nk5gxq
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeig74mbwpruge5b4ysiyibf5wv5oz7qpn6hg7qdqutxojwpppezele
-- keep3r_co/keep3r_job:0.1.0:bafybeidybiqxmuydnlcj3uqdpuw44uyvu5zfh7gxazxj2vkvi4uelndfwu
+- keep3r_co/keep3r_abci:0.1.0:bafybeiaqtjdoz2lv5qe7eqki4lq367pslfjku4fast3h5pgdoey3t2r2re
+- keep3r_co/keep3r_job:0.1.0:bafybeibqiimc3wlh43be3umqimvuwvy5sqpcos4zdyygqcwiqgobl4cfsy
 - valory/abstract_abci:0.1.0:bafybeih62tn62c33bcffjrlxvvokvorli2ow4v6myij352bl3im5dhvloa
 - valory/abstract_round_abci:0.1.0:bafybeihcarapqbgd7czlfyygkdjvb3zxhfkxvud7hd5owajkcwqsxa63gy
 - valory/registration_abci:0.1.0:bafybeib54vcjymnqejppq6xnjvwvrcrs6ugq64prsgjo65qs6qvdn6u42a
@@ -72,3 +72,17 @@ public_id: valory/abci:0.1.0
 type: connection
 config:
   target_skill_id: keep3r_co/keep3r_abci:0.1.0
+---
+public_id: valory/ledger:0.1.0
+type: connection
+config:
+  ledger_apis:
+    ethereum:
+      address: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_ADDRESS:str:http://localhost:8545}
+      chain_id: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_CHAIN_ID:int:31337}
+      poa_chain: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_POA_CHAIN:bool:false}
+      default_gas_price_strategy: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_DEFAULT_GAS_PRICE_STRATEGY:str:eip1559}
+---
+public_id: valory/p2p_libp2p_client:0.1.0
+type: connection
+is_abstract: true
