@@ -219,25 +219,46 @@ class SafeNotDeployedRound(DegenerateRound, ABC):
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):
-    """PrepareTxAbciApp
+    """Keep3rJobAbciApp
 
-    Initial round: PrepareTxRound
+    Initial round: CheckSafeExistenceRound
 
-    Initial states: {PrepareTxRound}
+    Initial states: {CheckSafeExistenceRound}
 
     Transition states:
-        0. PrepareTxRound
+        0. CheckSafeExistenceRound
             - done: 1.
-            - reset timeout: 2.
+            - negative: 5.
+            - round timeout: 0.
+            - no majority: 0.
+        1. JobSelectionRound
+            - done: 2.
+            - not workable: 8.
+            - round timeout: 1.
+            - no majority: 1.
+        2. IsWorkableRound
+            - done: 3.
+            - not workable: 8.
+            - round timeout: 2.
             - no majority: 2.
-        1. FinishedTransactionSubmissionRound
-        2. FailedRound
+        3. IsProfitableRound
+            - done: 4.
+            - not profitable: 8.
+            - no majority: 3.
+            - round timeout: 3.
+        4. PrepareTxRound
+            - done: 6.
+            - round timeout: 7.
+            - no majority: 4.
+        5. SafeNotDeployedRound
+        6. FinishedPrepareTxRound
+        7. FailedRound
+        8. NothingToDoRound
 
-    Final states: {}
+    Final states: {FailedRound, FinishedPrepareTxRound, NothingToDoRound, SafeNotDeployedRound}
 
     Timeouts:
         round timeout: 30.0
-        reset timeout: 30.0
     """
 
     initial_round_cls: Type[AbstractRound] = CheckSafeExistenceRound
