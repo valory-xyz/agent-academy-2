@@ -144,33 +144,24 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseBehaviour):
         is workable payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            self.context.logger.info(
-                f"Interacting with Job contract at {self.current_job_contract}"
+            message = "Interacting with Job contract at %s"
+            self.context.logger.info(message % self.current_job_contract)
+            contract_api_response = yield from self.get_contract_api_response(
+                performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+                contract_address=self.current_job_contract,
+                contract_id=str(GoerliKeep3rTestJob.contract_id),
+                contract_callable="get_workable",
             )
-            is_workable = yield from self._get_workable()
-            if is_workable is None:
-                is_workable = False
+            is_workable = contract_api_response.state.body.get("is_workable", False)
+            message = "Job contract is workable {%s}: {%s}"
+            self.context.logger.info(message % (self.current_job_contract, is_workable))
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            self.context.logger.info(
-                f"Job contract is workable {self.current_job_contract}: {is_workable}"
-            )
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
         self.set_done()
-
-    def _get_workable(self) -> Generator:
-        """Get workable jobs from contract"""
-        contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.current_job_contract,
-            contract_id=str(GoerliKeep3rTestJob.contract_id),
-            contract_callable="get_workable",
-        )
-        is_workable = contract_api_response.state.body.get("data")
-        return is_workable
 
 
 class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
@@ -218,7 +209,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
             return None
 
         tx_params = job_contract_api_response.raw_transaction.body
-        safe_contract_address = self.synchronized_data.safe_contract_address
+        safe_contract_address = self.synchronized_data.db.get("safe_contract_address", None)
 
         safe_contract_api_msg = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
@@ -257,11 +248,13 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseBehaviour):
         """
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            reward_multiplier = yield from self.rewardMultiplier()
+
+            # TODO: yield from self.rewardMultiplier()
+            #  & compute a more meaningful profitability measure
+            reward_multiplier = self.context.params.profitability_threshold + 1
             if reward_multiplier is None:
                 raise RuntimeError("Contract call has failed")
 
-            # TODO: compute a more meaningful profitability measure
             if reward_multiplier > self.context.params.profitability_threshold:
                 payload = IsProfitablePayload(self.context.agent_address, True)
             else:
@@ -276,6 +269,7 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseBehaviour):
 
     def rewardMultiplier(self) -> Generator:
         """Calls the contract to get the reward multiplier for the job."""
+
 
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,

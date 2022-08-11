@@ -106,12 +106,12 @@ class GoerliKeep3rTestJob(Contract):
     @classmethod
     def get_workable(
         cls, ledger_api: LedgerApi, contract_address: str
-    ) -> Optional[bool]:
+    ) -> Dict[str, Optional[bool]]:
         """Get the workable flag from the contract."""
         ethereum_api = cast(EthereumApi, ledger_api)
         contract = cls.get_instance(ethereum_api, contract_address)
         workable = contract.functions.workable().call()
-        return workable
+        return dict(is_workable=workable)
 
     @classmethod
     def work(  # pylint: disable=too-many-arguments,too-many-locals
