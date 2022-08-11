@@ -19,11 +19,17 @@
 # ------------------------------------------------------------------------------
 
 """This is a temporary script to write the missing data files on the autonomy framework installation"""
+import pathlib
+import shutil
+from pathlib import Path
 
+import third_party
 from autonomy.data import DATA_DIR
 
 
 INSTALLATION_PATH = DATA_DIR.parent / "test_tools" / "data"
+THIRD_PARTY_PATH = Path(third_party.__package__).absolute()
+
 
 FILES = (
     (
@@ -77,6 +83,18 @@ def main() -> None:
     for file, data in FILES:
         with open(INSTALLATION_PATH / file, "w+", newline="", encoding="utf-8") as fp:
             fp.write(data)
+
+    # run `cd third_party/safe_contracts/ && yarn install && ../..` prior
+    # as well as `make new_env`
+    def is_empty(d: pathlib.PosixPath):
+        return all(p.is_dir() or not p.stat().st_size for p in d.glob("**/*"))
+
+    destination = DATA_DIR.parent.parent / "third_party"
+    assert is_empty(destination), f"not empty: {destination}"
+
+    print(f"copying from {THIRD_PARTY_PATH} into {destination}")
+    shutil.rmtree(str(destination))
+    shutil.copytree(str(THIRD_PARTY_PATH), destination)
 
 
 if __name__ == "__main__":
