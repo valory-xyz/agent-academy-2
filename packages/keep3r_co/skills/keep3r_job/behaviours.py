@@ -152,7 +152,9 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseBehaviour):
                 contract_id=str(GoerliKeep3rTestJob.contract_id),
                 contract_callable="get_workable",
             )
-            is_workable = contract_api_response.state.body.get("is_workable", False)
+            is_workable = cast(
+                bool, contract_api_response.state.body.get("is_workable", False)
+            )
             message = "Job contract is workable {%s}: {%s}"
             self.context.logger.info(message % (self.current_job_contract, is_workable))
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
@@ -191,7 +193,9 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
 
         self.set_done()
 
-    def _get_raw_work_transaction_hash(self) -> Generator[None, None, Optional[str]]:
+    def _get_raw_work_transaction_hash(
+        self,
+    ) -> Generator[None, None, Optional[str]]:
 
         job_contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
@@ -209,7 +213,9 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
             return None
 
         tx_params = job_contract_api_response.raw_transaction.body
-        safe_contract_address = self.synchronized_data.db.get("safe_contract_address", None)
+        safe_contract_address = self.synchronized_data.db.get(
+            "safe_contract_address", None
+        )
 
         safe_contract_api_msg = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
@@ -269,7 +275,6 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseBehaviour):
 
     def rewardMultiplier(self) -> Generator:
         """Calls the contract to get the reward multiplier for the job."""
-
 
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,

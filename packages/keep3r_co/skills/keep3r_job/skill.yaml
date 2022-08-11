@@ -8,18 +8,18 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeicv2xersc4c3a3nhoeyhohedsj4tacujocwr3syxlz2e5qgumck3a
+  behaviours.py: bafybeiggrlgiwngcxd54xkfdp64qek3fj4hhyzepgnrq7ziga36cptn33u
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
   fsm_specification.yaml: bafybeica3mmxqmlrnmm7bpgpzsggk3r3wmge7wlsvri7llyubr3pwgnhfy
   handlers.py: bafybeie6ntjlqfb5glkciuo56pisvgobi2tuqhcjlzm7h5uvhgi2ipxrzq
-  models.py: bafybeiglu6axuwo3nxuwe7njb674ngyvmdr33xefasqse5exjrcdz2cfri
+  models.py: bafybeihq4uffniob66pyy7j6uicanhhkwnawbt3luibhovfytz4lo4ismi
   payloads.py: bafybeiasxrgd6o4bupl2yucxr3yod5wtvuv7vcwrkcex3xq5bcmfljhwpu
   rounds.py: bafybeibtqwejfkm4lk7af46qyu7hsrddpuskoyx4u32ktton4wnebg72ae
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeiexiper376ji5h4wm5erzospvyikqmvw7pi5tpgrwanj5okznemqu
-- valory/goerli_keep3r_job:0.1.0:bafybeialgkdhruzi7uipzdgsjky4reqpfb6btiiwnk3bfi5zlubzeynfka
+- valory/goerli_keep3r_job:0.1.0:bafybeibca5behcai5vsqi63ofqxfx2ryuyfgtrbwqz3hgkm3uucfzefk4u
 protocols:
 - valory/contract_api:1.0.0:bafybeigkedpmqhm7lrqusnkyfcapyx3dlkz2djfq74hou5pwtrskxgvuxu
 skills:

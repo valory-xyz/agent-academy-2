@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeiazjoi7auemghmspazot46y5nn6isqhin5z2eymnabbnm7am2xufu
   build/GoerliTestJob.json: bafybeid2jbxe2rfsfvjysvv6bv6cgj6doysl3qswhdljzkevazvuih3jki
-  contract.py: bafybeibe4fequdc4hubpyg3j5iskp274q2yujovp264zafe7rjk5iy4bcq
+  contract.py: bafybeien6auikghjpuxprsuqcclxt4dbf5rprcsgnmhfqlw3e44mhvzlmm
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: GoerliKeep3rTestJob
