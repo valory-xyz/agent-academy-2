@@ -18,11 +18,12 @@
 # ------------------------------------------------------------------------------
 
 """Conftest module for Pytest."""
+
 import inspect
 import logging
 import os
 from pathlib import Path
-from typing import Any, Generator, cast
+from typing import List, Tuple, Any, Generator, cast
 
 import docker
 import pytest
@@ -38,6 +39,7 @@ from autonomy.test_tools.docker.tendermint import (
     DEFAULT_TENDERMINT_PORT,
     FlaskTendermintDockerImage,
 )
+from tests.helpers.constants import KEY_PAIRS
 
 
 def get_key(key_path: Path) -> str:
@@ -52,6 +54,12 @@ ROOT_DIR = Path(CUR_PATH, "..").resolve().absolute()
 
 DATA_PATH = ROOT_DIR / "tests" / "data"
 DEFAULT_AMOUNT = 1000000000000000000000
+
+
+@pytest.fixture()
+def key_pairs() -> List[Tuple[str, str]]:
+    """Get the default key paris for hardhat."""
+    return KEY_PAIRS
 
 
 @pytest.fixture(scope="session")
@@ -98,7 +106,7 @@ def gnosis_safe_hardhat_scope_function(
     hardhat_addr: Any,
     hardhat_port: Any,
     timeout: float = 3.0,
-    max_attempts: int = 10,
+    max_attempts: int = 20,
 ) -> Generator:
     """Launch the HardHat node with Gnosis Safe contracts deployed. This fixture is scoped to a function which means it will destroyed at the end of the test."""
     client = docker.from_env()
