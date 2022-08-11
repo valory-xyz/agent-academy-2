@@ -74,7 +74,7 @@ models:
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
       finalize_timeout: 60.0
       job_contract_addresses:
-      - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      - '0xd50345ca88e0B2cF9a6f5eD29C1F1f9d76A16C3c'
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
