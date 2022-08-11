@@ -85,34 +85,6 @@ def main() -> None:
         with open(INSTALLATION_PATH / file, "w+", newline="", encoding="utf-8") as fp:
             fp.write(data)
 
-    # run `cd third_party/safe_contracts/ && yarn install && ../..` prior
-    # as well as `make new_env`
-
-    # cp -r third_party/ .venv/lib/python3.10/site-packages/
-    # chmod -R 777 .venv/lib/python3.10/site-packages/third_party/
-    # pytest -s --disable-warnings tests/test_agents/test_keep3r_bot_abci.py::TestKeep3rABCISingleAgent
-    def is_empty(path: pathlib.PosixPath):
-        return all(p.is_dir() or not p.stat().st_size for p in path.glob("**/*"))
-
-    def set_permissions(path: pathlib.PosixPath, mode: int):
-        os.chmod(str(path), mode)
-        for root, dirs, files in os.walk(str(path)):
-            for d in dirs:
-                os.chmod(os.path.join(root, d), mode)
-            for f in files:
-                os.chmod(os.path.join(root, f), mode)
-
-    destination = DATA_DIR.parent.parent / "third_party"
-    if destination.exists():
-        assert is_empty(destination), f"not empty: {destination}"
-        shutil.rmtree(str(destination), )
-
-    print(f"copying from {THIRD_PARTY_PATH} into {destination}")
-    # cp -r third_party/ .venv/lib/python3.10/site-packages/
-    shutil.copytree(str(THIRD_PARTY_PATH), destination)
-    # chmod -R 777 .venv/lib/python3.10/site-packages/third_party/
-    set_permissions(destination, 0o777)
-
 
 if __name__ == "__main__":
     main()

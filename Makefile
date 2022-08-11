@@ -98,11 +98,20 @@ new_env: clean
 		pipenv --clear;\
 		pipenv --python 3.10;\
 		pipenv install --dev --skip-lock;\
-		pipenv run python scripts/write_data_files.py;\
+        make monkey_patch;\
 		echo "Enter virtual environment with all development dependencies now: 'pipenv shell'.";\
 	else\
 		echo "In a virtual environment! Exit first: 'exit'.";\
 	fi
+
+.PHONY: monkey_patch
+monkey_patch:
+	pipenv run python scripts/write_data_files.py;\
+	cp -r third_party/ .venv/lib/python3.10/site-packages;\
+	pipenv run python
+	python3 -c "import os; os.chmod()"
+	sudo chmod -R 766 .venv/lib/python3.10/site-packages/third_party;\
+	echo ">>>>>>> Monkey patched data files and safe contract <<<<<<";\
 
 .PHONY: run-mainnet-fork
 run-mainnet-fork:
