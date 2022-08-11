@@ -23,7 +23,7 @@ import inspect
 import logging
 import os
 from pathlib import Path
-from typing import List, Tuple, Any, Generator, cast
+from typing import Any, Generator, List, Tuple, cast
 
 import docker
 import pytest
@@ -39,6 +39,7 @@ from autonomy.test_tools.docker.tendermint import (
     DEFAULT_TENDERMINT_PORT,
     FlaskTendermintDockerImage,
 )
+
 from tests.helpers.constants import KEY_PAIRS
 
 

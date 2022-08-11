@@ -108,8 +108,6 @@ new_env: clean
 monkey_patch:
 	pipenv run python scripts/write_data_files.py;\
 	cp -r third_party/ .venv/lib/python3.10/site-packages;\
-	pipenv run python
-	python3 -c "import os; os.chmod()"
 	sudo chmod -R 766 .venv/lib/python3.10/site-packages/third_party;\
 	echo ">>>>>>> Monkey patched data files and safe contract <<<<<<";\
 

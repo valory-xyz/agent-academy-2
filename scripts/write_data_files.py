@@ -20,9 +20,6 @@
 
 """This is a temporary script to write the missing data files on the autonomy framework installation"""
 
-import os
-import pathlib
-import shutil
 from pathlib import Path
 
 from autonomy.data import DATA_DIR
