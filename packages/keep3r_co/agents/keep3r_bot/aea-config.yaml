@@ -91,7 +91,7 @@ models:
       consensus:
         max_participants: ${MAX_PARTICIPANTS:int:1}
       setup:
-        safe_contract_address: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_SETUP_SAFE_CONTRACT_ADDRESS:list:[]}
+        safe_contract_address: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_SETUP_SAFE_CONTRACT_ADDRESS:list:["0xb3c1Cf4eeF9e3C2d165C75891DD24a494C54883c"]}
       round_timeout_seconds: ${KEEP3R_PARAMS_ROUND_TIMEOUT_SECONDS:float:20.0}
       tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
       tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
