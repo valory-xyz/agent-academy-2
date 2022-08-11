@@ -74,7 +74,7 @@ config:
   target_skill_id: keep3r_co/keep3r_abci:0.1.0
   host: ${ABCI_HOST:str:localhost}
   port: ${ABCI_PORT:int:26658}
-  use_tendermint: ${ABCI_USE_TENDERMINT:bool:false}
+  use_tendermint: ${ABCI_USE_TENDERMINT:bool:true}
 ---
 public_id: keep3r_co/keep3r_abci:0.1.0
 type: skill
