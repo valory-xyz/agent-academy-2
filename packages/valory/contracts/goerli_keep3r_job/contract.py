@@ -117,7 +117,7 @@ class GoerliKeep3rTestJob(Contract):
     def work(  # pylint: disable=too-many-arguments,too-many-locals
         cls,
         ledger_api: EthereumApi,
-        job_contract_address: str,
+        contract_address: str,
         sender_address: str,
         gas: Optional[int] = None,
         gas_price: Optional[int] = None,
@@ -129,7 +129,7 @@ class GoerliKeep3rTestJob(Contract):
         Get the raw work transaction
 
         :param ledger_api: the ledger API object
-        :param job_contract_address: the job contract address
+        :param contract_address: the job contract address
         :param sender_address: the address of the sender
         :param gas: Gas
         :param gas_price: gas price
@@ -141,7 +141,7 @@ class GoerliKeep3rTestJob(Contract):
         """
 
         ledger_api = cast(EthereumApi, ledger_api)
-        job_contract = cls.get_instance(ledger_api, job_contract_address)
+        job_contract = cls.get_instance(ledger_api, contract_address)
 
         tx_parameters = TxParams({"from": sender_address})
 
