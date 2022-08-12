@@ -18,11 +18,12 @@
 # ------------------------------------------------------------------------------
 
 """Conftest module for Pytest."""
+
 import inspect
 import logging
 import os
 from pathlib import Path
-from typing import Any, Generator, cast
+from typing import Any, Generator, List, Tuple, cast
 
 import docker
 import pytest
@@ -39,6 +40,9 @@ from autonomy.test_tools.docker.tendermint import (
     FlaskTendermintDockerImage,
 )
 
+from tests.helpers.constants import KEY_PAIRS
+from tests.helpers.docker.keep3r_net import Keep3rNetDockerImage
+
 
 def get_key(key_path: Path) -> str:
     """Returns key value from file.""" ""
@@ -51,7 +55,13 @@ CUR_PATH = os.path.dirname(inspect.getfile(inspect.currentframe()))  # type: ign
 ROOT_DIR = Path(CUR_PATH, "..").resolve().absolute()
 
 DATA_PATH = ROOT_DIR / "tests" / "data"
-DEFAULT_AMOUNT = 1000000000000000000000
+DEFAULT_AMOUNT = 1e21
+
+
+@pytest.fixture()
+def key_pairs() -> List[Tuple[str, str]]:
+    """Get the default key paris for hardhat."""
+    return KEY_PAIRS
 
 
 @pytest.fixture(scope="session")
@@ -98,10 +108,43 @@ def gnosis_safe_hardhat_scope_function(
     hardhat_addr: Any,
     hardhat_port: Any,
     timeout: float = 3.0,
-    max_attempts: int = 10,
+    max_attempts: int = 20,
 ) -> Generator:
-    """Launch the HardHat node with Gnosis Safe contracts deployed. This fixture is scoped to a function which means it will destroyed at the end of the test."""
+    """Launch the HardHat node with Gnosis Safe contracts deployed."""
     client = docker.from_env()
     logging.info(f"Launching Hardhat at port {hardhat_port}")
     image = GnosisSafeNetDockerImage(client, hardhat_addr, hardhat_port)
+    yield from launch_image(image, timeout=timeout, max_attempts=max_attempts)
+
+
+@pytest.fixture()
+def hardhat_keep3r_addr() -> str:
+    """Get the keep3r addr"""
+    return DEFAULT_HARDHAT_ADDR
+
+
+@pytest.fixture()
+def hardhat_keep3r_port() -> int:
+    """Get the keep3r port"""
+    return DEFAULT_HARDHAT_PORT
+
+
+@pytest.fixture()
+def hardhat_keep3r_key_pairs() -> List[Tuple[str, str]]:
+    """Get the default key paris for ganache."""
+    return KEY_PAIRS
+
+
+@pytest.fixture(scope="function")
+def hardhat_keep3r_scope_function(
+    hardhat_keep3r_addr: Any,
+    hardhat_keep3r_port: Any,
+    timeout: float = 3.0,
+    max_attempts: int = 200,
+) -> Generator:
+    """Launch the Keep3r Test Network."""
+    client = docker.from_env()
+    end_point = f"{hardhat_keep3r_addr}:{hardhat_keep3r_port}"
+    logging.info(f"Launching the Keep3r Network at {end_point}")
+    image = Keep3rNetDockerImage(client, hardhat_keep3r_addr, hardhat_keep3r_port)
     yield from launch_image(image, timeout=timeout, max_attempts=max_attempts)
