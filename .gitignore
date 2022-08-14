@@ -3,6 +3,8 @@
 .*
 !/.github
 !/.gitignore
+!/.gitmodules
+!/.pylintrc
 
 # python
 __pycache__
