@@ -20,16 +20,12 @@
 """This module contains the scaffold contract definition."""
 
 import logging
-import json
-from pathlib import Path
-from typing import List, Optional, Any
+from typing import Any, Optional
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea.crypto.base import LedgerApi
-from aea_ledger_ethereum import EthereumApi
-from web3.types import Nonce, TxParams, Wei
 
 
 ENCODING = "utf-8"
@@ -58,4 +54,3 @@ class Keep3rV1LibraryContract(Contract):
         :return: an optional JSON-like object.
         """
         return super().get_deploy_transaction(ledger_api, deployer_address, **kwargs)
-
