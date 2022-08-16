@@ -17,30 +17,31 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Helpers for contract tests."""
+"""Helpers for contract tests."""  # TODO: move to open-aea
 
-from pathlib import Path
-
-path: Path
+from typing import Dict, List
 
 
-def link_bytecode(bytecode: str, links, address):  # TODO: move to open-aea
+ENCODING = "utf-8"
+Link = Dict[str, int]
+
+
+def _link_code(code: str, links: List[Link], address: str):
     """Link bytecode"""
 
     # cannot convert to bytes first because of links.
     a = address[address.startswith("0x") * 2:]
-    b = bytecode[bytecode.startswith("0x") * 2:]
+    b = code[code.startswith("0x") * 2:]
     for link in sorted(links, key=lambda l: l["start"], reverse=True):
         start, length = link["start"] * 2, link["length"] * 2
-        print(b[start: start + length])
         b = b[:start] + a + b[start + length:]
 
-    # we place back "0x" prefix only if it was there in the first place
-    return "0x" * (b != bytecode) + b
+    # place back "0x" prefix if it was present
+    return "0x" * (b != code) + b
 
 
-def test_link_bytecode():
-    """Test link_bytecode"""
+def test_link_code():
+    """Test _link_code"""
 
     target = "__$18e433f0bcd2ae741810d81e687e800be8$__"
     library_address = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
@@ -60,7 +61,7 @@ def test_link_bytecode():
         (bytecode, bytecode_links),
         (deployed_bytecode, deployed_bytecode_links)
     ]:
-        result = link_bytecode(bytecode, bytecode_links, library_address)
+        result = _link_code(code, links, library_address)
         expected = code.replace(target, library_address[2:])
         assert result == expected
         assert int(result, 16)
