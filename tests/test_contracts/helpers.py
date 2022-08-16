@@ -19,7 +19,10 @@
 
 """Helpers for contract tests."""  # TODO: move to open-aea
 
+import json
+import filecmp
 from typing import Dict, List
+from pathlib import Path
 
 
 ENCODING = "utf-8"
@@ -38,6 +41,44 @@ def _link_code(code: str, links: List[Link], address: str):
 
     # place back "0x" prefix if it was present
     return "0x" * (b != code) + b
+
+
+def find_contract_json(name: str) -> Path:
+    """Find Contract.json file recursively"""
+
+    def all_files_equal(file_paths: List[Path]) -> bool:
+        pairs = zip(file_paths, file_paths[1:])
+        return all(filecmp.cmp(*pair, shallow=False) for pair in pairs)
+
+    paths = list(Path(".").glob(f"**/{name}.json"))  # TODO: repo root
+    if not paths:
+        raise FileNotFoundError(f"contract interface {name}.json")
+    if not all_files_equal(paths):
+        raise ValueError(f"multiple files, which are not equal: {paths}")
+
+    return paths.pop()
+
+
+def link_bytecode(contract_path: Path, address: str):
+    """Link bytecode"""
+
+    data = json.loads(contract_path.read_text(encoding=ENCODING))
+
+    for code_key, link_key in [
+        ("bytecode", "linkReferences"),
+        ("deployedBytecode", "deployedLinkReferences"),
+    ]:
+        code = data.get(code_key, "")
+        links = data.get(link_key, {})
+        for source, targets in links.items():
+            if source not in str(contract_path):
+                raise ReferenceError(f"{source} not in {contract_path}")
+            for library, links in targets.items():
+                # find address contract here?
+                # library_path = find_contract_json(library)  # recurse
+                data[code_key] = _link_code(code, links, address)
+
+    return data
 
 
 def test_link_code():
@@ -65,3 +106,14 @@ def test_link_code():
         expected = code.replace(target, library_address[2:])
         assert result == expected
         assert int(result, 16)
+
+
+def test_link_bytecode():
+    """Test link bytecode"""
+
+    # TODO: somehow need to link address to interface. Start with contract?
+    library_address = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    path = find_contract_json("Keep3rV1")
+    json_data = link_bytecode(path, address=library_address)
+    assert int(json_data['bytecode'], 16)
+    assert int(json_data['deployedBytecode'], 16)
