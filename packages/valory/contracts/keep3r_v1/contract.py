@@ -26,6 +26,7 @@ from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
 from web3.contract import ChecksumAddress
+from web3.types import Nonce, TxParams, Wei
 
 
 ENCODING = "utf-8"
@@ -57,6 +58,21 @@ class Keep3rV1Contract(Contract):
     """
 
     contract_id: PublicId = PUBLIC_ID
+
+    @staticmethod
+    def get_tx_parameters(ledger_api: EthereumApi, address: str) -> TxParams:
+        """Get transaction parameters."""
+
+        tx_parameters = TxParams()
+        nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
+        tx_parameters["from"] = ledger_api.api.toChecksumAddress(address)
+        tx_parameters["nonce"] = nonce
+        tx_parameters["gasPrice"] = Wei(int(ledger_api.api.eth.gas_price))
+        tx_parameters["gas"] = ledger_api.api.eth.estimate_gas(tx_parameters)
+        tx_parameters.update(ledger_api.try_get_gas_pricing())
+        _logger.info(f"tx_parameters: {tx_parameters}")
+
+        return tx_parameters
 
     @classmethod
     def get_jobs(
