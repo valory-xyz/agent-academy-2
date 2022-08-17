@@ -28,10 +28,11 @@ from autonomy.test_tools.base_test_classes.contracts import (
 )
 from autonomy.test_tools.docker.base import skip_docker_tests
 from web3 import Web3
+
 from packages.valory.contracts.keep3r_v1.contract import (
+    GOERLI_CONTRACT_ADDRESS,
     Keep3rV1Contract,
     PUBLIC_ID,
-    GOERLI_CONTRACT_ADDRESS,
 )
 from packages.valory.contracts.keep3r_v1_library.contract import (
     PUBLIC_ID as LIBRARY_PUBLIC_ID,
