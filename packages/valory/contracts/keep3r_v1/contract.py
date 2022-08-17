@@ -27,7 +27,6 @@ from typing import List
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
-
 from web3 import Web3
 from web3.contract import ChecksumAddress
 
@@ -78,10 +77,7 @@ class Keep3rV1Contract(Contract):
 
     @classmethod
     def is_keeper(
-        cls,
-        ledger_api: EthereumApi,
-        contract_address: str,
-        address: str
+        cls, ledger_api: EthereumApi, contract_address: str, address: str
     ) -> bool:
         """Check if address is a registered keeper."""
 
