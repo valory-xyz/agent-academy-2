@@ -20,7 +20,7 @@
 """This module contains the scaffold contract definition."""
 
 import logging
-from typing import Dict, Union, Optional
+from typing import Dict, Optional, Union
 
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
@@ -70,8 +70,9 @@ class Keep3rTestJobContract(Contract):
         contract = cls.get_instance(ledger_api, contract_address)
 
         tx_parameters = TxParams()
+        nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
         tx_parameters["from"] = address
-        tx_parameters["nonce"] = Nonce(ledger_api.api.eth.get_transaction_count(address))
+        tx_parameters["nonce"] = nonce
         tx_parameters["gasPrice"] = Wei(int(ledger_api.api.eth.gas_price))
         tx_parameters["gas"] = ledger_api.api.eth.estimate_gas(tx_parameters)
         tx_parameters.update(ledger_api.try_get_gas_pricing())
