@@ -38,7 +38,7 @@ from tests.conftest import ROOT_DIR
 from tests.test_contracts.constants import DEFAULT_GAS
 
 
-DEPLOYER = Web3.toChecksumAddress("0x1fdf6a150ffc90dcc61c05d9b641a242fcc37823")
+DEPLOYER = Web3.toChecksumAddress("0x3364BF0a8DcB15E463E6659175c90A57ee3d4288")
 BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
 
 
@@ -84,3 +84,13 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
         """Test contract is successfully deployed"""
 
         assert self.contract
+
+    def test_get_jobs(self) -> None:
+        """Test get_jobs"""
+
+        assert self.contract.get_jobs(self.ledger_api, self.contract_address) == []
+
+    def test_is_keeper(self) -> None:
+        """Test get_jobs"""
+
+        assert self.contract.get_jobs(self.ledger_api, self.contract_address) == []

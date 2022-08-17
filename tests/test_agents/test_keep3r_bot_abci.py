@@ -24,9 +24,6 @@ from autonomy.test_tools.base_test_classes.agents import BaseTestEnd2EndExecutio
 from autonomy.test_tools.fixture_helpers import UseGnosisSafeHardHatNet
 
 
-pytest.skip(allow_module_level=True)
-
-
 # check log messages of the happy path
 CHECK_STRINGS = (
     "Entered in the 'registration_startup' round for period 0",
