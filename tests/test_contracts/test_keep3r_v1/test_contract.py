@@ -24,6 +24,7 @@ from typing import Any, Dict, cast
 
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
 from web3 import Web3
+from web3.types import Wei
 
 from autonomy.test_tools.base_test_classes.contracts import (
     BaseGanacheContractWithDependencyTest,
@@ -73,7 +74,18 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     @property
     def contract(self) -> Keep3rV1Contract:  # type: ignore
         """Get the contract."""
+
         return cast(Keep3rV1Contract, super().contract)
+
+    @property
+    def _base_kw(self):
+        """Keywords used in every transaction."""
+
+        return dict(ledger_api=self.ledger_api, contract_address=self.contract_address)
+
+    @property
+    def funded_address(self) -> str:
+        return self.key_pairs()[0][0]
 
 
 @skip_docker_tests
@@ -89,3 +101,44 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
         """Test contract is successfully deployed"""
 
         assert self.contract
+
+    def test_get_jobs(self) -> None:
+        """Test get_jobs"""
+
+        assert self.contract.get_jobs(**self._base_kw) == []
+
+    def test_is_keeper(self) -> None:
+        """Test is_keeper"""
+
+        address = self.funded_address
+        assert not self.contract.is_keeper(**self._base_kw, address=address)
+
+    def test_build_approve_tx(self) -> None:
+        """Test build_approve_tx"""
+
+        kw = dict(address=self.funded_address, amount=Wei(0))
+        assert self.contract.build_approve_tx(**self._base_kw, **kw)
+
+    def test_build_bond_tx(self) -> None:
+        """Test build_bond_tx"""
+
+        kw = dict(address=self.funded_address, amount=Wei(0))
+        assert self.contract.build_bond_tx(**self._base_kw, **kw)
+
+    def test_build_activate_tx(self) -> None:
+        """Test build_activate_tx"""
+
+        address = self.funded_address
+        assert self.contract.build_activate_tx(**self._base_kw, address=address)
+
+    def test_build_unbond_tx(self) -> None:
+        """Test build_unbond_tx"""
+
+        kw = dict(address=self.funded_address, amount=Wei(0))
+        assert self.contract.build_unbond_tx(**self._base_kw, **kw)
+
+    def test_build_withdraw_tx(self) -> None:
+        """Test build_withdraw_tx"""
+
+        address = self.funded_address
+        assert self.contract.build_withdraw_tx(**self._base_kw, address=address)
