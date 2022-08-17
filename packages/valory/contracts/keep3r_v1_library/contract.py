@@ -40,17 +40,3 @@ class Keep3rV1LibraryContract(Contract):
     """Keep3r V1 Library contract interface."""
 
     contract_id: PublicId = PUBLIC_ID
-
-    @classmethod
-    def get_deploy_transaction(
-        cls, ledger_api: LedgerApi, deployer_address: str, **kwargs: Any
-    ) -> Optional[JSONLike]:
-        """
-        Get deploy transaction.
-
-        :param ledger_api: ledger API object.
-        :param deployer_address: the deployer address.
-        :param kwargs: the keyword arguments.
-        :return: an optional JSON-like object.
-        """
-        return super().get_deploy_transaction(ledger_api, deployer_address, **kwargs)
