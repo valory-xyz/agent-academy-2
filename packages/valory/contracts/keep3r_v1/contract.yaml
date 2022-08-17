@@ -7,11 +7,11 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeife7pjewbl5fi6b2v4hw6jflxi2jbav77odmllecr6n7e5qg7go6q
-  build/Keep3rV1.json: bafybeidiv5j75wcfi5wtadpouaaqj7mzivqd7xorczle5a3i4r4ln4ygta
-  contract.py: bafybeiejdz42fb24ct33ydcq7driwhro4pxauww3sj4vwcrdehwql2mqm4
+  build/Keep3rV1.json: bafybeiaogvk56d5mpnizla2klyg67clcp7wf2haqbqs4avf5lopavxhkya
+  contract.py: bafybeiel4v6tvdesmgi23ptarzvtopgpdypshmr56wp2n4dzl6nqwybuf4
 fingerprint_ignore_patterns: []
 contracts: []
-class_name: Keep3rV1
+class_name: Keep3rV1Contract
 contract_interface_paths:
   ethereum: build/Keep3rV1.json
 dependencies: {}
