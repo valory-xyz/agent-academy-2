@@ -28,8 +28,11 @@ from autonomy.test_tools.base_test_classes.contracts import (
 )
 from autonomy.test_tools.docker.base import skip_docker_tests
 from web3 import Web3
-
-from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract, PUBLIC_ID
+from packages.valory.contracts.keep3r_v1.contract import (
+    Keep3rV1Contract,
+    PUBLIC_ID,
+    GOERLI_CONTRACT_ADDRESS,
+)
 from packages.valory.contracts.keep3r_v1_library.contract import (
     PUBLIC_ID as LIBRARY_PUBLIC_ID,
 )
@@ -38,14 +41,14 @@ from tests.conftest import ROOT_DIR
 from tests.test_contracts.constants import DEFAULT_GAS
 
 
-DEPLOYER = Web3.toChecksumAddress("0x3364BF0a8DcB15E463E6659175c90A57ee3d4288")
+KEEPER_V1_HELPER = Web3.toChecksumAddress("0x2720535578096f1dE6C8c9B5255F1Bda40e8067A")
 BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
 
 
 class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     """Base class for the Keep3rV1 contract tests"""
 
-    contract_address = Keep3rV1Contract.address
+    contract_address = GOERLI_CONTRACT_ADDRESS
     contract_directory = BASE_CONTRACT_PATH / PUBLIC_ID.name
 
     ledger_api: EthereumApi
@@ -63,7 +66,7 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     def deployment_kwargs(cls) -> Dict[str, Any]:
         """Get deployment kwargs."""
 
-        return dict(gas=DEFAULT_GAS, _kph=DEPLOYER)
+        return dict(gas=DEFAULT_GAS, _kph=KEEPER_V1_HELPER)
 
     @property
     def contract(self) -> Keep3rV1Contract:  # type: ignore
@@ -84,13 +87,3 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
         """Test contract is successfully deployed"""
 
         assert self.contract
-
-    def test_get_jobs(self) -> None:
-        """Test get_jobs"""
-
-        assert self.contract.get_jobs(self.ledger_api, self.contract_address) == []
-
-    def test_is_keeper(self) -> None:
-        """Test get_jobs"""
-
-        assert self.contract.get_jobs(self.ledger_api, self.contract_address) == []
