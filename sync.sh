@@ -32,14 +32,7 @@ cp -r ../open-autonomy/scripts/check_packages.py scripts/
 cp -r ../open-autonomy/tests/fixture_helpers.py tests
 cp -r ../open-autonomy/tests/helpers/docker tests/helpers
 cp -r ../open-autonomy/tests/helpers/__init__.py tests/helpers
-cp -r ../open-autonomy/tests/helpers/async_utils.py tests/helpers
 cp -r ../open-autonomy/tests/helpers/base.py tests/helpers
 cp -r ../open-autonomy/tests/helpers/contracts.py tests/helpers
-cp -r ../open-autonomy/tests/helpers/tendermint_utils.py tests/helpers
-cp -r ../open-autonomy/tests/test_agents/__init__.py tests/test_agents
-cp -r ../open-autonomy/tests/test_agents/base.py tests/test_agents
-cp -r ../open-autonomy/tests/test_contracts/base.py tests/test_contracts
-cp -r ../open-autonomy/tests/test_skills/__init__.py tests/test_skills
-cp -r ../open-autonomy/tests/test_skills/base.py tests/test_skills
 cp -r ../agent-academy-1/tox.ini .
 cp -r ../agent-academy-1/wrap.py .
