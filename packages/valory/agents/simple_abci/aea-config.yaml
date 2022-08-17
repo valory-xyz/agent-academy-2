@@ -4,8 +4,7 @@ version: 0.1.0
 license: Apache-2.0
 description: Simple ABCI example.
 aea_version: '>=1.0.0, <2.0.0'
-fingerprint:
-  README.md: bafybeiaj6b3suwbl3lcdm2bixo6puuwp7nzrjbtguvygt4xoboeasxs6lq
+fingerprint: {}
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeibfdzfevrtiywolqeepk6yfzyvl4bbu6mghhnebkptcbhsh5fxkbu
@@ -22,7 +21,7 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeih62tn62c33bcffjrlxvvokvorli2ow4v6myij352bl3im5dhvloa
 - valory/abstract_round_abci:0.1.0:bafybeihcarapqbgd7czlfyygkdjvb3zxhfkxvud7hd5owajkcwqsxa63gy
-- valory/simple_abci:0.1.0:bafybeia57aqkoaccn5aoasads63o5rwrxcwttozzkxxyixnczc46fjabde
+- valory/simple_abci:0.1.0:bafybeid7zqecykqwpsl3fyh6mkxp3yjbycukwupl34ztsucetjg2gweaqe
 default_ledger: ethereum
 required_ledgers:
 - ethereum
