@@ -29,6 +29,8 @@ Alternatively, you can fetch this docker image with the relevant requirements sa
 
       cd third_party/safe-contracts && yarn install
       cd ../..
+      cd third_party/keep3r-v1-deploy && yarn install
+      cd ../..
 
 ## Running the Keep3r
 
