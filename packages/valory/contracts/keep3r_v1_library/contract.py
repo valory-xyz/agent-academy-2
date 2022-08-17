@@ -20,12 +20,9 @@
 """This module contains the scaffold contract definition."""
 
 import logging
-from typing import Any, Optional
 
-from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
-from aea.crypto.base import LedgerApi
 
 
 ENCODING = "utf-8"
@@ -34,6 +31,8 @@ PUBLIC_ID = PublicId.from_str("valory/keep3r_v1_library:0.1.0")
 _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"
 )
+
+MAINNET_CONTRACT_ADDRESS = "0xfc38B6eBA9d47CBFc8C7B4FFfFd142B78996B6f1"
 
 
 class Keep3rV1LibraryContract(Contract):
