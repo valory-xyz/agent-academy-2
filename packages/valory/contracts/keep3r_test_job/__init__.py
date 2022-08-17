@@ -17,4 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the support resources for the goerli keep3r job contract."""
+"""This module contains the support resources for the Keep3r test job contract."""
