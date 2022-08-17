@@ -25,7 +25,7 @@ from typing import Dict, Optional, Union
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
-from web3.types import Nonce, TxParams, Wei
+from web3.types import Nonce, TxParams
 
 
 PUBLIC_ID = PublicId.from_str("valory/keep3r_test_job:0.1.0")
@@ -73,7 +73,6 @@ class Keep3rTestJobContract(Contract):
         nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
         tx_parameters["from"] = address
         tx_parameters["nonce"] = nonce
-        tx_parameters["gasPrice"] = Wei(int(ledger_api.api.eth.gas_price))
         tx_parameters["gas"] = ledger_api.api.eth.estimate_gas(tx_parameters)
         tx_parameters.update(ledger_api.try_get_gas_pricing())
         _logger.info(f"tx_parameters: {tx_parameters}")

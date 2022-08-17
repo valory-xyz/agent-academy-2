@@ -69,7 +69,6 @@ class Keep3rV1Contract(Contract):
         nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
         tx_parameters["from"] = ledger_api.api.toChecksumAddress(address)
         tx_parameters["nonce"] = nonce
-        tx_parameters["gasPrice"] = Wei(int(ledger_api.api.eth.gas_price))
         tx_parameters["gas"] = ledger_api.api.eth.estimate_gas(tx_parameters)
         tx_parameters.update(ledger_api.try_get_gas_pricing())
         _logger.info(f"tx_parameters: {tx_parameters}")
