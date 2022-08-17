@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2022 valory
+#   Copyright 2021-2022 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -17,14 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""
-This module contains the support resources for the http protocol.
-
-It was created with protocol buffer compiler version `libprotoc 3.19.4` and aea protocol generator version `1.0.0`.
-"""
-
-from packages.valory.protocols.http.message import HttpMessage
-from packages.valory.protocols.http.serialization import HttpSerializer
-
-
-HttpMessage.serializer = HttpSerializer
+"""Tests package for abstract_round_abci derived skills."""

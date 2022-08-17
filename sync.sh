@@ -42,3 +42,4 @@ cp -r ../open-autonomy/tests/test_contracts/base.py tests/test_contracts
 cp -r ../open-autonomy/tests/test_skills/__init__.py tests/test_skills
 cp -r ../open-autonomy/tests/test_skills/base.py tests/test_skills
 cp -r ../agent-academy-1/tox.ini .
+cp -r ../agent-academy-1/wrap.py .
