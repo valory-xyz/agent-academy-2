@@ -15,7 +15,7 @@ connections:
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeiexiper376ji5h4wm5erzospvyikqmvw7pi5tpgrwanj5okznemqu
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeiej772sh3uuju2zsd62fz73ofg7p7ixaju6e3ahnzlbktcxoeoggy
-- valory/goerli_keep3r_job:0.1.0:bafybeialgkdhruzi7uipzdgsjky4reqpfb6btiiwnk3bfi5zlubzeynfka
+- valory/keep3r_test_job:0.1.0:bafybeialgkdhruzi7uipzdgsjky4reqpfb6btiiwnk3bfi5zlubzeynfka
 protocols:
 - open_aea/signing:1.0.0:bafybeid6f5ceool4evgaxdegs5pkjoivqjk3mo3ehctalswngb5m5c32wm
 - valory/abci:0.1.0:bafybeianfguceeckwhelenmythqmbtqswll6vcaz5wwsdr7hin7ov3rvje

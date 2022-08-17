@@ -40,7 +40,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     SynchronizedData,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
-from packages.valory.contracts.goerli_keep3r_job.contract import GoerliKeep3rTestJob
+from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
@@ -166,7 +166,7 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseBehaviour):
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
             contract_address=self.current_job_contract,
-            contract_id=str(GoerliKeep3rTestJob.contract_id),
+            contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="get_workable",
         )
         is_workable = contract_api_response.state.body.get("data")
@@ -204,7 +204,7 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
 
         job_contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_id=str(GoerliKeep3rTestJob.contract_id),
+            contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="work",
             contract_address=self.current_job_contract,
             sender_address=self.context.agent_address,
@@ -280,7 +280,7 @@ class IsProfitableBehaviour(Keep3rJobAbciBaseBehaviour):
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
             contract_address=self.current_job_contract,
-            contract_id=str(GoerliKeep3rTestJob.contract_id),
+            contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="rewardMultiplier",
         )
         if (
