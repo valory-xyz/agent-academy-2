@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-<<<<<<< HEAD
 #   Copyright 2021-2022 Valory AG
-=======
-#   Copyright 2022 Valory AG
->>>>>>> main
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -22,11 +18,14 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This is a temporary wrapper of the autonomy CLI."""
+"""This is a temporary script to patch the autonomy framework"""
+import argparse
+import sys
+from pathlib import Path
 
 import autonomy
+from autonomy.cli.hash import check_hashes, load_configuration, update_hashes
 from autonomy.data import DATA_DIR
-from autonomy.cli.core import cli
 
 
 CONFIG_PATH = DATA_DIR.parent / "configurations" / "schemas" / "service_schema.json"
@@ -100,10 +99,31 @@ ETHEREUM = {
     "LEDGER_CHAIN_ID": 1,
 }
 
-if __name__ == "__main__":  # pragma: nocover
+
+def main(check: bool = False) -> None:
+    """Main function."""
+    print(f"Config path: {CONFIG_PATH}")
     with open(CONFIG_PATH, "w+", newline="", encoding="utf-8") as fp:
         fp.write(CONFIG_FILE)
 
     autonomy.deploy.constants.NETWORKS["docker-compose"]["ethereum"] = ETHEREUM
     autonomy.deploy.constants.NETWORKS["kubernetes"]["ethereum"] = ETHEREUM
-    cli(prog_name="autonomy")  # type: ignore # pylint: disable = unexpected-keyword-arg, no-value-for-parameter
+    packages_dir = Path("packages/").absolute()
+    no_wrap = False
+    vendor = None
+    if check:  # pragma: nocover
+        return_code = check_hashes(
+            packages_dir, no_wrap, vendor=vendor, config_loader=load_configuration
+        )
+    else:
+        return_code = update_hashes(
+            packages_dir, no_wrap, vendor=vendor, config_loader=load_configuration
+        )
+    sys.exit(return_code)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--check", action="store_true")
+    args = parser.parse_args()
+    main(check=args.check)

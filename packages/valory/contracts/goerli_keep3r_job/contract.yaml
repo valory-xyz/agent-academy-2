@@ -10,8 +10,8 @@ fingerprint:
   build/GoerliTestJob.json: bafybeid2jbxe2rfsfvjysvv6bv6cgj6doysl3qswhdljzkevazvuih3jki
   contract.py: bafybeibe4fequdc4hubpyg3j5iskp274q2yujovp264zafe7rjk5iy4bcq
 fingerprint_ignore_patterns: []
+contracts: []
 class_name: GoerliKeep3rTestJob
 contract_interface_paths:
   ethereum: build/GoerliTestJob.json
 dependencies: {}
-contracts: []

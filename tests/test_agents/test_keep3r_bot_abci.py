@@ -17,11 +17,11 @@
 #
 # ------------------------------------------------------------------------------
 
-"""End2end tests for the keep3r_co/keep3r_abci skill."""
+"""End-to-end tests for the keep3r_co/keep3r_abci skill."""
 
 import pytest
-
-from tests.test_agents.base import BaseTestEnd2EndExecution
+from autonomy.test_tools.base_test_classes.agents import BaseTestEnd2EndExecution
+from autonomy.test_tools.fixture_helpers import UseGnosisSafeHardHatNet
 
 
 # check log messages of the happy path
@@ -40,28 +40,29 @@ CHECK_STRINGS = (
 )
 
 
-class BaseKeep3rABCITest(BaseTestEnd2EndExecution):
+class BaseKeep3rABCITest(BaseTestEnd2EndExecution, UseGnosisSafeHardHatNet):
     """BaseKeep3rABCITest"""
 
     agent_package = "keep3r_co/keep3r_bot:0.1.0"
     skill_package = "keep3r_co/keep3r_abci:0.1.0"
     wait_to_finish = 80
-    check_strings = CHECK_STRINGS
+    strict_check_strings = CHECK_STRINGS
+    use_benchmarks = True
 
 
-@pytest.mark.e2e
+@pytest.mark.skip
 @pytest.mark.parametrize("nb_nodes", (1,))
 class TestKeep3rABCISingleAgent(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with only one agent."""
 
 
-@pytest.mark.e2e
+@pytest.mark.skip
 @pytest.mark.parametrize("nb_nodes", (2,))
 class TestKeep3rABCITwoAgents(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with two agents."""
 
 
-@pytest.mark.e2e
+@pytest.mark.skip
 @pytest.mark.parametrize("nb_nodes", (4,))
 class TestKeep3rABCIFourAgents(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with four agents."""

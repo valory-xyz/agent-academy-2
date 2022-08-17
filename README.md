@@ -16,11 +16,11 @@ Valory's Agent Academy 2 - participant repo
 - Python `>=3.7`
 - Yarn `>=1.22.xx`
 - Node `>=v12.xx`
-- [Tendermint](https://docs.tendermint.com/master/introduction/install.html) `==0.34.11`
+- [Tendermint](https://docs.tendermint.com/master/introduction/install.html) `==0.34.19`
 - [IPFS node](https://docs.ipfs.io/install/command-line/#official-distributions) `==0.6.0`
 - [Pipenv](https://pipenv.pypa.io/en/latest/install/) `>=2021.x.xx`
 
-Alternatively, you can fetch this docker image with the relevant requirments satisfied:
+Alternatively, you can fetch this docker image with the relevant requirements satisfied:
 
         docker pull valory/dev-template:latest
         docker container run -it valory/dev-template:latest
@@ -29,8 +29,10 @@ Alternatively, you can fetch this docker image with the relevant requirments sat
 
       cd third_party/safe-contracts && yarn install
       cd ../..
+      cd third_party/keep3r-v1-deploy && yarn install
+      cd ../..
 
-## Simple ABCI example
+## Running the Keep3r
 
 Create a virtual environment with all development dependencies:
 
@@ -44,23 +46,16 @@ Enter virtual environment:
 pipenv shell
 ```
 
-To run the test:
+To run the end-to-end tests:
 
 ``` bash
-pytest tests/test_agents/test_simple_abci.py::TestSimpleABCISingleAgent
+pytest tests/test_agents/test_keep3r_bot_abci.py
 ```
 
-or
-
-``` bash
-pytest tests/test_agents/test_simple_abci.py::TestSimpleABCITwoAgents
-```
-
-or even
-
-``` bash
-pytest tests/test_agents/test_simple_abci.py::TestSimpleABCIFourAgents
-```
+which will run:
+- `TestKeep3rABCISingleAgent`
+- `TestKeep3rABCITwoAgents`
+- `TestKeep3rABCIFourAgents`
 
 ## Useful commands:
 
