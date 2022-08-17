@@ -23,11 +23,12 @@ from pathlib import Path
 from typing import Any, Dict, cast
 
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
+from web3 import Web3
+
 from autonomy.test_tools.base_test_classes.contracts import (
     BaseGanacheContractWithDependencyTest,
 )
 from autonomy.test_tools.docker.base import skip_docker_tests
-from web3 import Web3
 
 from packages.valory.contracts.keep3r_v1.contract import (
     GOERLI_CONTRACT_ADDRESS,

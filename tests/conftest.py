@@ -26,6 +26,7 @@ from typing import Any, Generator, cast
 
 import docker
 import pytest
+
 from autonomy.test_tools.docker.base import launch_image, launch_many_containers
 from autonomy.test_tools.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_ADDR,
