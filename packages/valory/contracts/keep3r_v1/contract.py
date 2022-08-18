@@ -20,12 +20,13 @@
 """This module contains the Keep3rV1 contract definition."""
 
 import logging
-from typing import List
+from typing import Dict, List, Union
 
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
 from web3.contract import ChecksumAddress
+from web3.types import Nonce, TxParams, Wei
 
 
 ENCODING = "utf-8"
@@ -40,6 +41,8 @@ NULL_ADDRESS: str = "0x" + "0" * 40
 
 GOERLI_CONTRACT_ADDRESS = "0x3364BF0a8DcB15E463E6659175c90A57ee3d4288"
 MAINNET_CONTRACT_ADDRESS = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
+
+RawTransaction = Dict[str, Union[int, str]]
 
 
 class Keep3rV1Contract(Contract):
@@ -57,6 +60,20 @@ class Keep3rV1Contract(Contract):
     """
 
     contract_id: PublicId = PUBLIC_ID
+
+    @staticmethod
+    def get_tx_parameters(ledger_api: EthereumApi, address: str) -> TxParams:
+        """Get transaction parameters."""
+
+        tx_parameters = TxParams()
+        nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
+        tx_parameters["from"] = ledger_api.api.toChecksumAddress(address)
+        tx_parameters["nonce"] = nonce
+        tx_parameters["gas"] = ledger_api.api.eth.estimate_gas(tx_parameters)
+        tx_parameters.update(ledger_api.try_get_gas_pricing())
+        _logger.info(f"tx_parameters: {tx_parameters}")
+
+        return tx_parameters
 
     @classmethod
     def get_jobs(
@@ -80,3 +97,71 @@ class Keep3rV1Contract(Contract):
 
         contract = cls.get_instance(ledger_api, contract_address)
         return contract.functions.isKeeper(keeper=address).call()
+
+    @classmethod
+    def build_approve_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+        amount: Wei,
+    ) -> RawTransaction:
+        """Allows a keeper to activate/register themselves after bonding."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        function = contract.functions.approve(spender=contract.address, amount=amount)
+        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+
+    @classmethod
+    def build_bond_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+        amount: Wei,
+    ) -> RawTransaction:
+        """Begin the bonding process for a new keeper. Default bonding period takes 3 days."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        function = contract.functions.bond(bonding=contract.address, amount=amount)
+        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+
+    @classmethod
+    def build_activate_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+    ) -> RawTransaction:
+        """Allows a keeper to activate/register themselves after bonding."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        function = contract.functions.activate(bonding=contract.address)
+        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+
+    @classmethod
+    def build_unbond_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+        amount: Wei,
+    ) -> RawTransaction:
+        """Begin the unbonding process to stop being a keeper. Default unbonding period is 14 days."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        function = contract.functions.unbond(bonding=contract.address, amount=amount)
+        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+
+    @classmethod
+    def build_withdraw_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+    ) -> RawTransaction:
+        """Withdraw funds after unbonding has finished."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        function = contract.functions.withdraw(bonding=contract.address)
+        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
