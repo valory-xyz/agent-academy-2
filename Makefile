@@ -70,8 +70,7 @@ pylint:
 
 .PHONY: hashes
 hashes:
-	./scripts/hash_patch.py
-	# autonomy hash all
+	autonomy hash all
 
 .PHONY: static
 static:
