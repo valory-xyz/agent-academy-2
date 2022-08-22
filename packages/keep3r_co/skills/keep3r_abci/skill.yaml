@@ -15,7 +15,6 @@ fingerprint:
   handlers.py: bafybeieo3w3bahresulnoyo7mecda5b2ddpj4d3qv4pc7vfnfvvttcqnyi
   models.py: bafybeid7q4e63htcofhfgjnpg625jtoykbzvdpwckjohzgloiplbofwwea
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
-  rounds.py: bafybeicxdpuq7pmz7aszaax4oxpk7olavo4pbb56ng63ieuxnd7vl53m4q
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
