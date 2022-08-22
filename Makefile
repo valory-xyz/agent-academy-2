@@ -74,8 +74,8 @@ security:
 .PHONY: generators
 generators:
 	tox -e abci-docstrings
-	autonomy hash all
 	tox -e fix-copyright
+	autonomy hash all
 
 .PHONY: common-checks-1
 common-checks-1:
