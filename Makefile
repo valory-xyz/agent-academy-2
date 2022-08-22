@@ -5,7 +5,7 @@ ROPSTEN_DOCKER_PORT ?= 8545
 MAINNET_DOCKER_PORT ?= 8546
 
 .PHONY: clean
-clean: clean-build clean-pyc clean-test
+clean: clean-test clean-build clean-pyc clean-docs
 
 .PHONY: clean-build
 clean-build:
@@ -15,7 +15,12 @@ clean-build:
 	rm -fr pip-wheel-metadata
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -fr {} +
+	find . -type d -name __pycache__ -exec rm -rv {} +
 	rm -fr Pipfile.lock
+
+.PHONY: clean-docs
+clean-docs:
+	rm -fr site/
 
 .PHONY: clean-pyc
 clean-pyc:
@@ -55,26 +60,26 @@ formatters:
 # darglint: docstring linter
 .PHONY: code-checks
 code-checks:
-	tox -p -e black-check -e isort-check -e flake8 -e mypy -e pylint -e darglint
+	tox -p -e black-check -e isort-check -e flake8 -e mypy -e pylint -e vulture -e darglint
 
-.PHONY: lint
-lint:
-	black packages scripts tests
-	isort packages scripts tests
-	flake8 packages scripts tests
-	darglint packages scripts tests
+# safety: checks dependencies for known security vulnerabilities
+# bandit: security linter
+.PHONY: security
+security:
+	tox -p -e safety -e bandit
 
-.PHONY: pylint
-pylint:
-	pylint -j4 packages
-
-.PHONY: hashes
-hashes:
+# generate latest abci docstrings
+# generate latest hashes for updated packages
+# update copyright headers
+.PHONY: generators
+generators:
+	tox -e abci-docstrings
 	autonomy hash all
+	tox -e fix-copyright
 
-.PHONY: static
-static:
-	mypy packages tests scripts --disallow-untyped-defs
+.PHONY: common-checks-1
+common-checks-1:
+	tox -p -e check-copyright -e check-hash -e check-packages
 
 .PHONY: test
 test:
@@ -101,6 +106,12 @@ new_env: clean
 	else\
 		echo "In a virtual environment! Exit first: 'exit'.";\
 	fi
+
+.PHONY: fix-abci-app-specs
+fix-abci-app-specs:
+	autonomy analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp packages/keep3r_co/skills/keep3r_job/fsm_specification.yaml || (echo "Failed to check job abci consistency" && exit 1)
+	autonomy analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp packages/keep3r_co/skills/keep3r_abci/fsm_specification.yaml || (echo "Failed to check chained abci cosistency" && exit 1)
+	echo "Successfully validated abcis!"
 
 .PHONY: run-mainnet-fork
 run-mainnet-fork:
@@ -129,14 +140,3 @@ run-ropsten-fork-docker:
 run-mainnet-fork-docker:
 	@echo Running mainnet fork as a docker container;\
 	docker run -d -e KEY=$(MAINNET_KEY) --name mainnet-fork -e NETWORK=mainnet -e BLOCK_NUMBER=$(BLOCK_NUMBER) -p $(MAINNET_DOCKER_PORT):8545 hardhat:latest
-
-.PHONY: copyright
-copyright:
-	tox -e check-copyright
-
-.PHONY: check_abci_specs
-check_abci_specs:
-	autonomy analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp packages/keep3r_co/skills/keep3r_job/fsm_specification.yaml || (echo "Failed to check job abci consistency" && exit 1)
-	autonomy analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp packages/keep3r_co/skills/keep3r_abci/fsm_specification.yaml || (echo "Failed to check chained abci cosistency" && exit 1)
-	echo "Successfully validated abcis!"
-
