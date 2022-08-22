@@ -28,6 +28,10 @@ from aea_ledger_ethereum import EthereumApi
 from web3.contract import ChecksumAddress
 from web3.types import Nonce, TxParams, Wei
 
+from packages.valory.contracts.keep3r_v1_library.contract import (  # type: ignore # noqa: F401
+    PUBLIC_ID as LIB_PUBLIC_ID,
+)
+
 
 ENCODING = "utf-8"
 PUBLIC_ID = PublicId.from_str("valory/keep3r_v1:0.1.0")

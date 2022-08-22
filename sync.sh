@@ -1,5 +1,4 @@
 cp -r ../open-autonomy/packages/open_aea/protocols packages/open_aea
-cp -r ../open-autonomy/packages/valory/agents/__init__.py packages/valory/agents
 cp -r ../open-autonomy/packages/valory/connections/__init__.py packages/valory/connections
 cp -r ../open-autonomy/packages/valory/connections/abci packages/valory/connections
 cp -r ../open-autonomy/packages/valory/connections/http_client packages/valory/connections
@@ -27,9 +26,11 @@ cp -r ../open-autonomy/packages/valory/skills/transaction_settlement_abci packag
 cp -r ../open-autonomy/scripts/__init__.py scripts/
 cp -r ../open-autonomy/scripts/check_copyright.py scripts/
 cp -r ../open-autonomy/scripts/check_packages.py scripts/
-cp -r ../agent-academy-1/scripts/write_data_files.py scripts/
-cp -r ../agent-academy-1/scripts/hash_patch.py scripts/
 cp -r ../open-autonomy/tests/test_agents/__init__.py tests/test_agents
 cp -r ../open-autonomy/tests/test_skills/__init__.py tests/test_skills
+cp -r ../agent-academy-1/.pylintrc .
+cp -r ../agent-academy-1/Makefile .
+cp -r ../agent-academy-1/pytest.ini .
+cp -r ../agent-academy-1/setup.cfg .
 cp -r ../agent-academy-1/tox.ini .
-cp -r ../agent-academy-1/wrap.py .
+
