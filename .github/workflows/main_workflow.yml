@@ -104,6 +104,8 @@ jobs:
           tox -e safety
       - name: Check packages
         run: tox -e check-packages
+      - name: Check FSM Spec
+        run: tox -e check-abciapp-specs
       - name: Check hash
         run: tox -e check-hash
       - name: Code style check
