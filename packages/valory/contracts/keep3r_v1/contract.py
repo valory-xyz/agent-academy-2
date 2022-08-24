@@ -127,6 +127,13 @@ class Keep3rV1Contract(Contract):
         condition is to first reduce the spender's allowance to 0 and set the
         desired value afterwards:
         https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+
+        :param ledger_api: the ledger api
+        :param contract_address: the Keep3rV1 contract address
+        :param address: the address with which to sign the raw transaction
+        :param amount: the amount of allowance
+
+        :return: the raw transaction to be signed by the agents
         """
 
         contract = cls.get_instance(ledger_api, contract_address)
@@ -143,7 +150,8 @@ class Keep3rV1Contract(Contract):
         """Get the number of tokens `spender` is approved to spend on behalf of `account`."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        return contract.functions.allowance(spender=contract.address, account=account).call()
+        tx_kwargs = dict(spender=contract.address, account=account)
+        return contract.functions.allowance(**tx_kwargs).call()
 
     @classmethod
     def build_bond_tx(
