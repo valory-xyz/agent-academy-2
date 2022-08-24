@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeicv2xersc4c3a3nhoeyhohedsj4tacujocwr3syxlz2e5qgumck3a
+  behaviours.py: bafybeige7skv7pnipdcyrupyuxgs3vyu3x44xgz4lmzbetusyxbivemj4a
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
   fsm_specification.yaml: bafybeica3mmxqmlrnmm7bpgpzsggk3r3wmge7wlsvri7llyubr3pwgnhfy
   handlers.py: bafybeie6ntjlqfb5glkciuo56pisvgobi2tuqhcjlzm7h5uvhgi2ipxrzq
@@ -18,12 +18,12 @@ fingerprint:
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeiexiper376ji5h4wm5erzospvyikqmvw7pi5tpgrwanj5okznemqu
-- valory/goerli_keep3r_job:0.1.0:bafybeialgkdhruzi7uipzdgsjky4reqpfb6btiiwnk3bfi5zlubzeynfka
+- valory/gnosis_safe:0.1.0:bafybeif5ump4p7p5bygqyxeznwdvtdhtwihxnjnvjajbcnt7rmcyzyjafy
+- valory/keep3r_test_job:0.1.0:bafybeiek74ljtnqxvfalwxmmsvmnqo6b577viqqiezdtutvulgzlvbgxuq
 protocols:
 - valory/contract_api:1.0.0:bafybeigkedpmqhm7lrqusnkyfcapyx3dlkz2djfq74hou5pwtrskxgvuxu
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeihcarapqbgd7czlfyygkdjvb3zxhfkxvud7hd5owajkcwqsxa63gy
+- valory/abstract_round_abci:0.1.0:bafybeify5cyzxqczuoap2winsssau5wjiv4nhvla7ktmamhadsq5x2p6si
 behaviours:
   main:
     args: {}

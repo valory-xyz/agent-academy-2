@@ -20,6 +20,7 @@
 """End-to-end tests for the keep3r_co/keep3r_abci skill."""
 
 import pytest
+
 from autonomy.test_tools.base_test_classes.agents import BaseTestEnd2EndExecution
 from autonomy.test_tools.fixture_helpers import UseGnosisSafeHardHatNet
 
@@ -50,16 +51,19 @@ class BaseKeep3rABCITest(BaseTestEnd2EndExecution, UseGnosisSafeHardHatNet):
     use_benchmarks = True
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize("nb_nodes", (1,))
 class TestKeep3rABCISingleAgent(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with only one agent."""
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize("nb_nodes", (2,))
 class TestKeep3rABCITwoAgents(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with two agents."""
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize("nb_nodes", (4,))
 class TestKeep3rABCIFourAgents(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with four agents."""

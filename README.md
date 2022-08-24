@@ -29,6 +29,8 @@ Alternatively, you can fetch this docker image with the relevant requirements sa
 
       cd third_party/safe-contracts && yarn install
       cd ../..
+      cd third_party/keep3r-v1-deploy && yarn install
+      cd ../..
 
 ## Running the Keep3r
 
@@ -57,5 +59,5 @@ which will run:
 
 ## Useful commands:
 
-Check out the `Makefile` for useful commands, e.g. `make lint`, `make static` and `make pylint`, as well
-as `make hashes`. To run all tests use `make test`.
+Check out the `Makefile` for useful commands, e.g. `make formatters`, `make generators`, `make code-checks`, as well
+as `make common-checks-1`. To run all tests use `make test`.

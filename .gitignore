@@ -3,6 +3,8 @@
 .*
 !/.github
 !/.gitignore
+!/.gitmodules
+!/.pylintrc
 
 # python
 __pycache__
@@ -16,3 +18,4 @@ Pipfile.lock
 coverage.txt
 coverage.xml
 htmlcov
+!.gitleaksignore
