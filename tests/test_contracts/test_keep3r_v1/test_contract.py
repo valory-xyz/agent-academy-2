@@ -21,7 +21,7 @@
 
 from pathlib import Path
 from typing import Any, Dict, cast
-
+from web3.types import Wei
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
 
 from autonomy.test_tools.base_test_classes.contracts import (
@@ -35,7 +35,7 @@ from packages.valory.contracts.keep3r_v1_library.contract import (
 )
 
 from tests.conftest import KEEP3R_HELPER_FOR_TEST, KEEP3R_V1_FOR_TEST, ROOT_DIR
-from tests.test_contracts.constants import DEFAULT_GAS
+from tests.test_contracts.constants import DEFAULT_GAS, ONE_ETH
 
 
 BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
@@ -69,6 +69,14 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
         """Get the contract."""
         return cast(Keep3rV1Contract, super().contract)
 
+    @property
+    def alice_address(self):  # funded with 1000 ETH on ganache
+        return self.key_pairs()[0][0]
+
+    @property
+    def bob_address(self):  # empty wallet
+        return "0x1B621c19C3E868A4DF2E1858b08cedA8633927EA"
+
 
 @skip_docker_tests
 class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
@@ -83,3 +91,53 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
         """Test contract is successfully deployed"""
 
         assert self.contract
+
+    def test_get_jobs(self) -> None:
+        """Test get_jobs"""
+
+        assert self.contract.get_jobs(self.ledger_api, self.contract_address) == []
+
+    def test_is_keeper(self) -> None:
+        """Test is_keeper"""
+
+        kw = dict(address=self.alice_address)
+        assert self.contract.is_keeper(self.ledger_api, self.contract_address, **kw) is False
+
+    def test_build_approve_tx(self) -> None:
+        """Test get_jobs"""
+
+        kw = dict(address=self.alice_address, spender=self.bob_address, amount=ONE_ETH)
+        raw_tx = self.contract.build_approve_tx(self.ledger_api, self.contract_address, **kw)
+        assert raw_tx["data"] == "0x095ea7b30000000000000000000000001b621c19c3e868a4df2e1858b08ceda8633927ea0000000000000000000000000000000000000000000000000de0b6b3a7640000"
+
+    def test_allowance(self) -> None:
+        """Test allowance"""
+
+        kw = dict(account=self.alice_address, spender=self.bob_address)
+        assert self.contract.allowance(self.ledger_api, self.contract_address, **kw) == 0
+
+    def test_build_bond_tx(self) -> None:
+        """Test build_bond_tx"""
+
+        kw = dict(address=self.bob_address, amount=ONE_ETH)
+        raw_tx = self.contract.build_bond_tx(self.ledger_api, self.contract_address, **kw)
+        assert raw_tx["data"] == "0xa515366a000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f05120000000000000000000000000000000000000000000000000de0b6b3a7640000"
+
+    def test_build_activate_tx(self) -> None:
+        """Test build_activate_tx"""
+
+        raw_tx = self.contract.build_activate_tx(self.ledger_api, self.contract_address, self.alice_address)
+        assert raw_tx["data"] == "0x1c5a9d9c000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f0512"
+
+    def test_build_unbond_tx(self) -> None:
+        """Test build_unbond_tx"""
+
+        kw = dict(address=self.bob_address, amount=ONE_ETH)
+        raw_tx = self.contract.build_unbond_tx(self.ledger_api, self.contract_address, **kw)
+        assert raw_tx["data"] == "0xa5d059ca000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f05120000000000000000000000000000000000000000000000000de0b6b3a7640000"
+
+    def test_build_withdraw_tx(self) -> None:
+        """Test build_withdraw_tx"""
+
+        raw_tx = self.contract.build_withdraw_tx(self.ledger_api, self.contract_address, self.alice_address)
+        assert raw_tx["data"] == "0x51cff8d9000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f0512"
