@@ -40,11 +40,6 @@ _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"
 )
 
-GAS_MULTIPLIER = 1.1
-NULL_ADDRESS: str = "0x" + "0" * 40
-
-GOERLI_CONTRACT_ADDRESS = "0x3364BF0a8DcB15E463E6659175c90A57ee3d4288"
-MAINNET_CONTRACT_ADDRESS = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
 
 RawTransaction = Dict[str, Union[int, str]]
 
@@ -108,13 +103,48 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
+        spender: str,
         amount: Wei,
     ) -> RawTransaction:
-        """Allows a keeper to activate/register themselves after bonding."""
+        """Allows a keeper to activate/register themselves after bonding.
+
+        Sets `amount` as the allowance of `spender` over the caller's tokens.
+        After transaction submission, a boolean value indicating whether the operation
+        succeeded is returned. Here we only build the raw transaction.
+
+        IMPORTANT: Beware that changing an allowance with this method brings the risk
+        that someone may use both the old and the new allowance by unfortunate
+        transaction ordering. One possible solution to mitigate this race
+        condition is to first reduce the spender's allowance to 0 and set the
+        desired value afterwards:
+        https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+
+        :param ledger_api: the ledger api
+        :param contract_address: the Keep3rV1 contract address
+        :param address: the address with which to sign the raw transaction
+        :param spender: The address of the account which may transfer tokens
+        :param amount: The number of tokens that are approved (2^256-1 means infinite)
+
+        :return: the raw transaction to be signed by the agents
+        """
 
         contract = cls.get_instance(ledger_api, contract_address)
-        function = contract.functions.approve(spender=contract.address, amount=amount)
+        function = contract.functions.approve(spender=spender, amount=amount)
         return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+
+    @classmethod
+    def allowance(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        account: str,
+        spender: str,
+    ) -> int:
+        """Get the number of tokens `spender` is approved to spend on behalf of `account`."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        tx_kwargs = dict(spender=spender, account=account)
+        return contract.functions.allowance(**tx_kwargs).call()
 
     @classmethod
     def build_bond_tx(

@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeib7xeo6okif3owetawtzcr4nc6ag5gjudbxtm6nioiszwdoepgrqa
   build/Keep3rV1Library.json: bafybeid4fe2niicabyugmaqmowm7nuua4wptomr6k6xhvdxchf577qkqla
-  contract.py: bafybeibduc6zhf2elyndvd53up23a6unqkug2xbjmszgsvvbmu7jns2b4q
+  contract.py: bafybeidntrgzbneiabdtygmaovetlrczipj4zeew7c52uwlotc3wnscefy
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rV1LibraryContract

@@ -27,15 +27,11 @@ from aea_ledger_ethereum import EthereumApi, EthereumCrypto
 from autonomy.test_tools.base_test_classes.contracts import BaseGanacheContractTest
 
 from packages.valory.contracts.keep3r_test_job.contract import (
-    GOERLI_CONTRACT_ADDRESS,
     Keep3rTestJobContract,
     PUBLIC_ID,
 )
-from packages.valory.contracts.keep3r_v1.contract import (
-    GOERLI_CONTRACT_ADDRESS as KEEP3R,
-)
 
-from tests.conftest import ROOT_DIR
+from tests.conftest import KEEP3R_TEST_JOB, KEEP3R_V1_FOR_TEST, ROOT_DIR
 from tests.test_contracts.constants import DEFAULT_GAS
 
 
@@ -45,7 +41,7 @@ BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
 class BaseKeep3rTestJobContractTest(BaseGanacheContractTest):
     """Base Keep3r test job contract test"""
 
-    contract_address = GOERLI_CONTRACT_ADDRESS
+    contract_address = KEEP3R_TEST_JOB
     contract_directory = BASE_CONTRACT_PATH / PUBLIC_ID.name
 
     ledger_api: EthereumApi
@@ -55,7 +51,7 @@ class BaseKeep3rTestJobContractTest(BaseGanacheContractTest):
     def deployment_kwargs(cls) -> Dict[str, Any]:
         """Get deployment kwargs."""
 
-        return dict(gas=DEFAULT_GAS, _keep3r=KEEP3R)
+        return dict(gas=DEFAULT_GAS, _keep3r=KEEP3R_V1_FOR_TEST)
 
     @property
     def contract(self) -> Keep3rTestJobContract:  # type: ignore

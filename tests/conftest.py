@@ -65,6 +65,19 @@ def key_pairs() -> List[Tuple[str, str]]:
     return KEY_PAIRS
 
 
+NULL_ADDRESS: str = "0x" + "0" * 40
+
+# Keep3rV1ForTest - Goerli
+KEEP3R_V1_FOR_TEST = "0x3364BF0a8DcB15E463E6659175c90A57ee3d4288"
+KEEP3R_HELPER_FOR_TEST = "0x2720535578096f1dE6C8c9B5255F1Bda40e8067A"
+KEEP3R_TEST_JOB = "0xd50345ca88e0B2cF9a6f5eD29C1F1f9d76A16C3c"
+
+# Keep3rV1 - mainnet
+KEEP3R_V1 = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
+KEEP3R_HELPER = "0xb41772890c8b1564c5015a12c0dc6f18b0af955e"
+KEEP3R_V1_LIBRARY = "0xfc38B6eBA9d47CBFc8C7B4FFfFd142B78996B6f1"
+
+
 @pytest.fixture(scope="session")
 def tendermint_port() -> int:
     """Get the Tendermint port"""
