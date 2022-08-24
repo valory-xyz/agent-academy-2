@@ -138,11 +138,12 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         account: str,
+        spender: str,
     ) -> int:
         """Get the number of tokens `spender` is approved to spend on behalf of `account`."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        tx_kwargs = dict(spender=contract.address, account=account)
+        tx_kwargs = dict(spender=spender, account=account)
         return contract.functions.allowance(**tx_kwargs).call()
 
     @classmethod
