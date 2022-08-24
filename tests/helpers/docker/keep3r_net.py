@@ -26,13 +26,13 @@ from typing import List
 import docker
 import requests
 from autonomy.test_tools.docker.base import DockerImage
-from docker.models.containers import Container
-
-from tests.helpers.constants import (
+from autonomy.test_tools.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_ADDR,
     DEFAULT_HARDHAT_PORT,
-    THIRD_PARTY_DIR,
 )
+from docker.models.containers import Container
+
+from tests.helpers.constants import THIRD_PARTY_DIR
 
 
 KEEP3R_V1_CONTRACT_DIR = THIRD_PARTY_DIR / "keep3r-v1-deploy"

@@ -27,6 +27,7 @@ from typing import Any, Generator, List, Tuple, cast
 
 import docker
 import pytest
+from autonomy.test_tools.configurations import KEY_PAIRS
 from autonomy.test_tools.docker.base import launch_image, launch_many_containers
 from autonomy.test_tools.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_ADDR,
@@ -40,7 +41,6 @@ from autonomy.test_tools.docker.tendermint import (
     FlaskTendermintDockerImage,
 )
 
-from tests.helpers.constants import KEY_PAIRS
 from tests.helpers.docker.keep3r_net import Keep3rNetDockerImage
 
 
