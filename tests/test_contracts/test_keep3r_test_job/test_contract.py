@@ -31,9 +31,7 @@ from packages.valory.contracts.keep3r_test_job.contract import (
     Keep3rTestJobContract,
     PUBLIC_ID,
 )
-from packages.valory.contracts.keep3r_v1.contract import (
-    GOERLI_CONTRACT_ADDRESS as KEEP3R,
-)
+from packages.valory.contracts.keep3r_v1.contract import KEEP3R_V1_FOR_TEST
 
 from tests.conftest import ROOT_DIR
 from tests.test_contracts.constants import DEFAULT_GAS
@@ -55,7 +53,7 @@ class BaseKeep3rTestJobContractTest(BaseGanacheContractTest):
     def deployment_kwargs(cls) -> Dict[str, Any]:
         """Get deployment kwargs."""
 
-        return dict(gas=DEFAULT_GAS, _keep3r=KEEP3R)
+        return dict(gas=DEFAULT_GAS, _keep3r=KEEP3R_V1_FOR_TEST)
 
     @property
     def contract(self) -> Keep3rTestJobContract:  # type: ignore
