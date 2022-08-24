@@ -25,12 +25,13 @@ from typing import List
 
 import docker
 import requests
+from docker.models.containers import Container
+
 from autonomy.test_tools.docker.base import DockerImage
 from autonomy.test_tools.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_ADDR,
     DEFAULT_HARDHAT_PORT,
 )
-from docker.models.containers import Container
 
 from tests.helpers.constants import THIRD_PARTY_DIR
 

@@ -23,7 +23,7 @@ from typing import Any, List, Tuple
 
 import pytest
 
-from tests.helpers.constants import KEY_PAIRS
+from autonomy.test_tools.configurations import KEY_PAIRS
 
 
 @pytest.mark.integration
