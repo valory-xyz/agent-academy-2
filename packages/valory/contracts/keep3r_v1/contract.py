@@ -130,6 +130,18 @@ class Keep3rV1Contract(Contract):
         return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
 
     @classmethod
+    def allowance(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        account: str,
+    ) -> int:
+        """Get the number of tokens `spender` is approved to spend on behalf of `account`."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        return contract.functions.allowance(spender=contract.address, account=account).call()
+
+    @classmethod
     def build_bond_tx(
         cls,
         ledger_api: EthereumApi,
