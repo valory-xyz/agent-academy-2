@@ -8,10 +8,10 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeife7pjewbl5fi6b2v4hw6jflxi2jbav77odmllecr6n7e5qg7go6q
   build/Keep3rV1.json: bafybeiaogvk56d5mpnizla2klyg67clcp7wf2haqbqs4avf5lopavxhkya
-  contract.py: bafybeib6alloejapcw3kxgma2y7lty2mhwenkk43sivgxzyqtju4fivoae
+  contract.py: bafybeifsckwy7foyyh4mojcijbmcqpctysijfkpzvaot4q5sghxxyedo3u
 fingerprint_ignore_patterns: []
 contracts:
-- valory/keep3r_v1_library:0.1.0:bafybeie6rvo5bqbwq5dzicsux4pev3gsrv5epaglhp4cm57yrcetr2sgae
+- valory/keep3r_v1_library:0.1.0:bafybeid2h244yjm6iledd5vxmq37y33cczkzvkdfo3nxkucf6sfopf22fa
 class_name: Keep3rV1Contract
 contract_interface_paths:
   ethereum: build/Keep3rV1.json

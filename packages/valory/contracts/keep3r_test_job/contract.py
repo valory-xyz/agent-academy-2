@@ -34,9 +34,6 @@ _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"
 )
 
-NULL_ADDRESS: str = "0x" + "0" * 40
-GOERLI_CONTRACT_ADDRESS = "0xd50345ca88e0B2cF9a6f5eD29C1F1f9d76A16C3c"
-
 
 class Keep3rTestJobContract(Contract):
     """The scaffold contract class for a smart contract."""

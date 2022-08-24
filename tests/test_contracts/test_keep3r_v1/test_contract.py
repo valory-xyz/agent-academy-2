@@ -29,17 +29,12 @@ from autonomy.test_tools.base_test_classes.contracts import (
 )
 from autonomy.test_tools.docker.base import skip_docker_tests
 
-from packages.valory.contracts.keep3r_v1.contract import (
-    KEEP3R_HELPER_FOR_TEST,
-    KEEP3R_V1_FOR_TEST,
-    Keep3rV1Contract,
-    PUBLIC_ID,
-)
+from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract, PUBLIC_ID
 from packages.valory.contracts.keep3r_v1_library.contract import (
     PUBLIC_ID as LIBRARY_PUBLIC_ID,
 )
 
-from tests.conftest import ROOT_DIR
+from tests.conftest import KEEP3R_HELPER_FOR_TEST, KEEP3R_V1_FOR_TEST, ROOT_DIR
 from tests.test_contracts.constants import DEFAULT_GAS
 
 
