@@ -32,7 +32,7 @@ _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"
 )
 
-MAINNET_CONTRACT_ADDRESS = "0xfc38B6eBA9d47CBFc8C7B4FFfFd142B78996B6f1"
+KEEP3R_V1_LIBRARY = "0xfc38B6eBA9d47CBFc8C7B4FFfFd142B78996B6f1"
 
 
 class Keep3rV1LibraryContract(Contract):
