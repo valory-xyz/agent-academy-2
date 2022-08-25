@@ -104,7 +104,7 @@ class Keep3rV1Contract(Contract):
         contract_address: str,
         address: str,
         spender: str,
-        amount: Wei,
+        amount: Union[Wei, int],
     ) -> RawTransaction:
         """Allows a keeper to activate/register themselves after bonding.
 
@@ -152,7 +152,7 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
-        amount: Wei,
+        amount: Union[Wei, int],
     ) -> RawTransaction:
         """Begin the bonding process for a new keeper. Default bonding period takes 3 days."""
 
@@ -179,7 +179,7 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
-        amount: Wei,
+        amount: Union[Wei, int],
     ) -> RawTransaction:
         """Begin the unbonding process to stop being a keeper. Default unbonding period is 14 days."""
 
