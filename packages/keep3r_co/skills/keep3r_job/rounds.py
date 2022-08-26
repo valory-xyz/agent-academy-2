@@ -20,7 +20,7 @@
 """This module contains the data classes for the simple ABCI application."""
 from abc import ABC
 from enum import Enum
-from typing import Dict, Optional, Tuple, Type, cast
+from typing import Dict, Optional, Tuple, Type, cast, Set
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
@@ -31,23 +31,34 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
+    AppState,
     AbciAppTransitionFunction,
     AbstractRound,
     BaseSynchronizedData,
     CollectSameUntilThresholdRound,
     DegenerateRound,
+    TransactionType,
+    BaseTxPayload,
 )
 
 
 class Event(Enum):
-    """Event enumeration for the simple abci demo."""
 
-    NEGATIVE = "negative"
-    DONE = "done"
-    NOT_WORKABLE = "not_workable"
-    ROUND_TIMEOUT = "round_timeout"
+    POOR = "poor"
+    ACTIVATE_TX = "activate_tx"
+    CRIMINAL = "criminal"
+    NO_JOBS = "no_jobs"
+    BOND_TX = "bond_tx"
+    HEALTHY = "healthy"
+    UNKNOWN = "unknown"
     NO_MAJORITY = "no_majority"
-    NOT_PROFITABLE = "not_profitable"
+    ROUND_TIMEOUT = "round_timeout"
+    AWAITING_BONDING = "awaiting_bonding"
+    TRUEE = "truee"
+    FALSEE = "falsee"
+    WORK_TX = "work_tx"
+    TOPUP = "topup"
+    DONE = "done"
 
 
 class SynchronizedData(
@@ -81,28 +92,104 @@ class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
     synchronized_data_class = SynchronizedData
 
 
-class IsWorkableRound(Keep3rJobAbstractRound):
-    """Check whether the keep3r job contract is workable."""
+class BondingRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
 
-    round_id = "is_workable"
-    allowed_tx_type = IsWorkablePayload.transaction_type
-    payload_attribute = "is_workable"
-
-    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
         """Process the end of the block."""
-        if self.threshold_reached:
-            state = self.synchronized_data.update(
-                is_workable=self.most_voted_payload,
-            )
-            is_workable = self.most_voted_payload
-            if is_workable:
-                return state, Event.DONE
-            return state, Event.NOT_WORKABLE
-        if not self.is_majority_possible(
-            self.collection, self.synchronized_data.nb_participants
-        ):
-            return self.synchronized_data, Event.NO_MAJORITY
-        return None
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
+
+
+class WaitRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
+
+
+class ActivateRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
+
+
+class HealthCheckRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
+
+
+class GetJobsRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
 
 
 class JobSelectionRound(Keep3rJobAbstractRound):
@@ -127,20 +214,23 @@ class JobSelectionRound(Keep3rJobAbstractRound):
         return None
 
 
-class PrepareTxRound(Keep3rJobAbstractRound):
-    """A round in a which transaction hash is prepared"""
+class IsWorkableRound(Keep3rJobAbstractRound):
+    """Check whether the keep3r job contract is workable."""
 
-    round_id = "prepare_tx"
-    allowed_tx_type = TXHashPayload.transaction_type
-    payload_attribute = "tx_hash"
+    round_id = "is_workable"
+    allowed_tx_type = IsWorkablePayload.transaction_type
+    payload_attribute = "is_workable"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
             state = self.synchronized_data.update(
-                most_voted_tx_hash=self.most_voted_payload,
+                is_workable=self.most_voted_payload,
             )
-            return state, Event.DONE
+            is_workable = self.most_voted_payload
+            if is_workable:
+                return state, Event.DONE
+            return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
@@ -170,139 +260,150 @@ class IsProfitableRound(Keep3rJobAbstractRound):
         return None
 
 
-class FinishedPrepareTxRound(DegenerateRound, ABC):
-    """A round that represents transaction hash preparation has finalized"""
+class PerformWorkRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
 
-    round_id = "finished_prepare_tx_round"
-
-
-class FailedRound(DegenerateRound, ABC):
-    """A round that represents failure of the round sequence"""
-
-    round_id = "failed_round"
-
-
-class NothingToDoRound(DegenerateRound, ABC):
-    """A round that represents that there is no worthwhile work"""
-
-    round_id = "nothing_to_do"
-
-
-class CheckSafeExistenceRound(Keep3rJobAbstractRound):
-    """A round in a which existence of the safe address is validated"""
-
-    round_id = "check_safe_existence"
-    allowed_tx_type = SafeExistencePayload.transaction_type
-    payload_attribute = "safe_exists"
-
-    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
         """Process the end of the block."""
-        if self.threshold_reached:
-            state = self.synchronized_data.update(
-                safe_exists=self.most_voted_payload,
-            )
-            safe_exists = self.most_voted_payload
-            if safe_exists:
-                return state, Event.DONE
-            return state, Event.NEGATIVE
-        if not self.is_majority_possible(
-            self.collection, self.synchronized_data.nb_participants
-        ):
-            return self.synchronized_data, Event.NO_MAJORITY
-        return None
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
 
 
-class SafeNotDeployedRound(DegenerateRound, ABC):
-    """A round that represents that the safe is not deployed"""
+class AwaitTopUpRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
 
-    round_id = "safe_not_deployed_round"
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
+
+
+class BlacklistedRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
+
+
+class DegenerateRound(DegenerateRound):
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):
-    """Keep3rJobAbciApp
+    """Keep3rJobAbciApp"""
 
-    Initial round: CheckSafeExistenceRound
-
-    Initial states: {CheckSafeExistenceRound}
-
-    Transition states:
-        0. CheckSafeExistenceRound
-            - done: 1.
-            - negative: 5.
-            - round timeout: 0.
-            - no majority: 0.
-        1. JobSelectionRound
-            - done: 2.
-            - not workable: 8.
-            - round timeout: 1.
-            - no majority: 1.
-        2. IsWorkableRound
-            - done: 3.
-            - not workable: 8.
-            - round timeout: 2.
-            - no majority: 2.
-        3. IsProfitableRound
-            - done: 4.
-            - not profitable: 8.
-            - no majority: 3.
-            - round timeout: 3.
-        4. PrepareTxRound
-            - done: 6.
-            - round timeout: 7.
-            - no majority: 4.
-        5. SafeNotDeployedRound
-        6. FinishedPrepareTxRound
-        7. FailedRound
-        8. NothingToDoRound
-
-    Final states: {FailedRound, FinishedPrepareTxRound, NothingToDoRound, SafeNotDeployedRound}
-
-    Timeouts:
-        round timeout: 30.0
-    """
-
-    initial_round_cls: Type[AbstractRound] = CheckSafeExistenceRound
+    initial_round_cls: Type[AbstractRound] = BondingRound
+    initial_states: Set[AppState] = {BondingRound}
     transition_function: AbciAppTransitionFunction = {
-        CheckSafeExistenceRound: {
-            Event.DONE: JobSelectionRound,  # To the last round of safe deployment abci
-            Event.NEGATIVE: SafeNotDeployedRound,  # To the 1st round of safe deployment abci
-            Event.ROUND_TIMEOUT: CheckSafeExistenceRound,
-            Event.NO_MAJORITY: CheckSafeExistenceRound,
+        BondingRound: {
+            Event.BOND_TX: HealthCheckRound,
+            Event.NO_MAJORITY: BondingRound,
+            Event.ROUND_TIMEOUT: BondingRound,
+        },
+        WaitRound: {
+            Event.DONE: ActivateRound,
+            Event.NO_MAJORITY: WaitRound,
+            Event.ROUND_TIMEOUT: WaitRound,
+        },
+        ActivateRound: {
+            Event.ACTIVATE_TX: HealthCheckRound,
+            Event.AWAITING_BONDING: WaitRound,
+            Event.NO_MAJORITY: ActivateRound,
+            Event.ROUND_TIMEOUT: ActivateRound,
+        },
+        GetJobsRound: {
+            Event.DONE: JobSelectionRound,
+            Event.NO_MAJORITY: GetJobsRound,
+            Event.ROUND_TIMEOUT: GetJobsRound,
         },
         JobSelectionRound: {
             Event.DONE: IsWorkableRound,
-            Event.NOT_WORKABLE: NothingToDoRound,
-            Event.ROUND_TIMEOUT: JobSelectionRound,
+            Event.NO_JOBS: HealthCheckRound,
             Event.NO_MAJORITY: JobSelectionRound,
+            Event.ROUND_TIMEOUT: JobSelectionRound,
         },
         IsWorkableRound: {
-            Event.DONE: IsProfitableRound,
-            Event.NOT_WORKABLE: NothingToDoRound,
-            Event.ROUND_TIMEOUT: IsWorkableRound,
+            Event.TRUEE: IsProfitableRound,
+            Event.FALSEE: JobSelectionRound,
             Event.NO_MAJORITY: IsWorkableRound,
+            Event.ROUND_TIMEOUT: IsWorkableRound,
         },
         IsProfitableRound: {
-            Event.DONE: PrepareTxRound,
-            Event.NOT_PROFITABLE: NothingToDoRound,
+            Event.TRUEE: PerformWorkRound,
+            Event.FALSEE: JobSelectionRound,
             Event.NO_MAJORITY: IsProfitableRound,
             Event.ROUND_TIMEOUT: IsProfitableRound,
         },
-        PrepareTxRound: {
-            Event.DONE: FinishedPrepareTxRound,
-            Event.ROUND_TIMEOUT: FailedRound,
-            Event.NO_MAJORITY: PrepareTxRound,
+        PerformWorkRound: {
+            Event.WORK_TX: HealthCheckRound,
+            Event.POOR: HealthCheckRound,
+            Event.NO_MAJORITY: PerformWorkRound,
+            Event.ROUND_TIMEOUT: PerformWorkRound,
         },
-        SafeNotDeployedRound: {},
-        FinishedPrepareTxRound: {},
-        FailedRound: {},
-        NothingToDoRound: {},
+        HealthCheckRound: {
+            Event.HEALTHY: GetJobsRound,
+            Event.POOR: AwaitTopUpRound,
+            Event.CRIMINAL: BlacklistedRound,
+            Event.UNKNOWN: DegenerateRound,
+        },
+        AwaitTopUpRound: {
+            Event.TOPUP: HealthCheckRound,
+            Event.ROUND_TIMEOUT: ActivateRound,
+        },
+        BlacklistedRound: {},
+        DegenerateRound: {},
     }
-    final_states = {
-        FinishedPrepareTxRound,
-        FailedRound,
-        NothingToDoRound,
-        SafeNotDeployedRound,
-    }
+    final_states: Set[AppState] = {DegenerateRound, BlacklistedRound}
     event_to_timeout: Dict[Event, float] = {
         Event.ROUND_TIMEOUT: 30.0,
     }
