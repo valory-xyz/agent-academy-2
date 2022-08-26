@@ -19,8 +19,10 @@
 
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Generator, Optional, Set, Type, cast
+
+from packages.valory.skills.abstract_round_abci.base import AbstractRound
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
@@ -31,12 +33,18 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
-    CheckSafeExistenceRound,
-    IsProfitableRound,
-    IsWorkableRound,
+    BondingRound,
+    WaitRound,
+    ActivateRound,
+    GetJobsRound,
     JobSelectionRound,
+    IsWorkableRound,
+    IsProfitableRound,
+    PerformWorkRound,
+    HealthCheckRound,
+    AwaitTopUpRound,
+    BlacklistedRound,
     Keep3rJobAbciApp,
-    PrepareTxRound,
     SynchronizedData,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
@@ -48,7 +56,7 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
 )
 
 
-class Keep3rJobAbciBaseBehaviour(BaseBehaviour, ABC):
+class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     """Base state behaviour for the simple abci skill."""
 
     @property
@@ -71,47 +79,66 @@ class Keep3rJobAbciBaseBehaviour(BaseBehaviour, ABC):
         return self.context.params.job_contract_addresses[job_ix]
 
 
-class CheckSafeExistenceBehaviour(Keep3rJobAbciBaseBehaviour):
-    """Check Safe contract existence."""
+class BondingBehaviour(Keep3rJobBaseBehaviour):
+    # TODO: set the following class attributes
+    state_id: str
+    behaviour_id: str
+    matching_round: Type[AbstractRound] = BondingRound
 
-    behaviour_id = "check_safe_existence"
-    matching_round = CheckSafeExistenceRound
-
+    @abstractmethod
     def async_act(self) -> Generator:
-        """
-        Do the action.
-
-        Steps:
-        - Check if any safe contract is deployed already
-        - Wait until ABCI application transitions to the next round.
-        - Go to the next behaviour state (set done event).
-        """
-
-        with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            exists = self.safe_contract_exists()
-            payload = SafeExistencePayload(self.context.agent_address, exists)
-
-        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            yield from self.send_a2a_transaction(payload)
-            yield from self.wait_until_round_end()
-
-        self.set_done()
-
-    def safe_contract_exists(self) -> bool:
-        """Check whether the safe contract has been deployed."""
-
-        address_exists = bool(
-            self.synchronized_data.db.get("safe_contract_address", None)
-        )
-        self.context.logger.warning(f"Safe contract deployed: {address_exists}")
-        return address_exists
+        """Do the act, supporting asynchronous execution."""
 
 
-class JobSelectionBehaviour(Keep3rJobAbciBaseBehaviour):
+class WaitBehaviour(Keep3rJobBaseBehaviour):
+    # TODO: set the following class attributes
+    state_id: str
+    behaviour_id: str
+    matching_round: Type[AbstractRound] = WaitRound
+
+    @abstractmethod
+    def async_act(self) -> Generator:
+        """Do the act, supporting asynchronous execution."""
+
+
+class ActivateBehaviour(Keep3rJobBaseBehaviour):
+    # TODO: set the following class attributes
+    state_id: str
+    behaviour_id: str
+    matching_round: Type[AbstractRound] = ActivateRound
+
+    @abstractmethod
+    def async_act(self) -> Generator:
+        """Do the act, supporting asynchronous execution."""
+
+
+class HealthCheckBehaviour(Keep3rJobBaseBehaviour):
+    # TODO: set the following class attributes
+    state_id: str
+    behaviour_id: str
+    matching_round: Type[AbstractRound] = HealthCheckRound
+
+    @abstractmethod
+    def async_act(self) -> Generator:
+        """Do the act, supporting asynchronous execution."""
+
+
+class GetJobsBehaviour(Keep3rJobBaseBehaviour):
+    # TODO: set the following class attributes
+    state_id: str
+    behaviour_id: str
+    matching_round: Type[AbstractRound] = GetJobsRound
+
+    @abstractmethod
+    def async_act(self) -> Generator:
+        """Do the act, supporting asynchronous execution."""
+
+
+class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
     """Check whether the job contract is selected."""
 
     behaviour_id = "job_selection"
-    matching_round = JobSelectionRound
+    matching_round: Type[AbstractRound] = JobSelectionRound
 
     def async_act(self) -> Generator:
         """
@@ -131,7 +158,7 @@ class JobSelectionBehaviour(Keep3rJobAbciBaseBehaviour):
         self.set_done()
 
 
-class IsWorkableBehaviour(Keep3rJobAbciBaseBehaviour):
+class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
     """Check whether the job contract is workable."""
 
     behaviour_id = "is_workable"
@@ -173,11 +200,65 @@ class IsWorkableBehaviour(Keep3rJobAbciBaseBehaviour):
         return is_workable
 
 
-class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
-    """Deploy Safe."""
+class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
+    """Checks if job is profitable."""
+
+    behaviour_id = "get_is_profitable"
+    matching_round = IsProfitableRound
+
+    def async_act(self) -> Generator:
+        """Do the action
+
+        Steps:
+        - Call the contract to get the rewardMultiplier
+        - Check if the job is profitable given the current rewardMultiplier
+        - Set Payload accordingly and send transaction, then end the round.
+        """
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            reward_multiplier = yield from self.rewardMultiplier()
+            if reward_multiplier is None:
+                raise RuntimeError("Contract call has failed")
+
+            # TODO: compute a more meaningful profitability measure
+            if reward_multiplier > self.context.params.profitability_threshold:
+                payload = IsProfitablePayload(self.context.agent_address, True)
+            else:
+                payload = IsProfitablePayload(self.context.agent_address, False)
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            self.context.logger.info(f"Safe transaction hash: {reward_multiplier}")
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def rewardMultiplier(self) -> Generator:
+        """Calls the contract to get the reward multiplier for the job."""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=self.current_job_contract,
+            contract_id=str(Keep3rTestJobContract.contract_id),
+            contract_callable="rewardMultiplier",
+        )
+        if (
+            contract_api_response.performative != ContractApiMessage.Performative.STATE
+        ):  # pragma: nocover
+            self.context.logger.warning("Get reward multiplier unsuccessful!")
+            return None
+
+        reward_multiplier = cast(
+            int, contract_api_response.state.body.pop("rewardMultiplier")
+        )
+        return reward_multiplier
+
+
+class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
+    """Perform work"""
 
     behaviour_id = "prepare_tx"
-    matching_round = PrepareTxRound
+    matching_round = PerformWorkRound
 
     def async_act(self) -> Generator:
         """
@@ -241,69 +322,43 @@ class PrepareTxBehaviour(Keep3rJobAbciBaseBehaviour):
         return tx_hash
 
 
-class IsProfitableBehaviour(Keep3rJobAbciBaseBehaviour):
-    """Checks if job is profitable."""
+class BlacklistedBehaviour(Keep3rJobBaseBehaviour):
+    # TODO: set the following class attributes
+    state_id: str
+    behaviour_id: str
+    matching_round: Type[AbstractRound]
 
-    behaviour_id = "get_is_profitable"
-    matching_round = IsProfitableRound
-
+    @abstractmethod
     def async_act(self) -> Generator:
-        """Do the action
+        """Do the act, supporting asynchronous execution."""
 
-        Steps:
-        - Call the contract to get the rewardMultiplier
-        - Check if the job is profitable given the current rewardMultiplier
-        - Set Payload accordingly and send transaction, then end the round.
-        """
 
-        with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            reward_multiplier = yield from self.rewardMultiplier()
-            if reward_multiplier is None:
-                raise RuntimeError("Contract call has failed")
+class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
+    # TODO: set the following class attributes
+    state_id: str
+    behaviour_id: str
+    matching_round: Type[AbstractRound]
 
-            # TODO: compute a more meaningful profitability measure
-            if reward_multiplier > self.context.params.profitability_threshold:
-                payload = IsProfitablePayload(self.context.agent_address, True)
-            else:
-                payload = IsProfitablePayload(self.context.agent_address, False)
-
-        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            self.context.logger.info(f"Safe transaction hash: {reward_multiplier}")
-            yield from self.send_a2a_transaction(payload)
-            yield from self.wait_until_round_end()
-
-        self.set_done()
-
-    def rewardMultiplier(self) -> Generator:
-        """Calls the contract to get the reward multiplier for the job."""
-
-        contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_STATE,
-            contract_address=self.current_job_contract,
-            contract_id=str(Keep3rTestJobContract.contract_id),
-            contract_callable="rewardMultiplier",
-        )
-        if (
-            contract_api_response.performative != ContractApiMessage.Performative.STATE
-        ):  # pragma: nocover
-            self.context.logger.warning("Get reward multiplier unsuccessful!")
-            return None
-
-        reward_multiplier = cast(
-            int, contract_api_response.state.body.pop("rewardMultiplier")
-        )
-        return reward_multiplier
+    @abstractmethod
+    def async_act(self) -> Generator:
+        """Do the act, supporting asynchronous execution."""
 
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     """This behaviour manages the consensus stages for the Keep3rJobAbciApp."""
 
-    initial_behaviour_cls = CheckSafeExistenceBehaviour  # type: ignore
+    initial_behaviour_cls = BondingBehaviour
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
-    behaviours: Set[Type[Keep3rJobAbciBaseBehaviour]] = {  # type: ignore
-        CheckSafeExistenceBehaviour,  # type: ignore
-        JobSelectionBehaviour,  # type: ignore
-        IsWorkableBehaviour,  # type: ignore
-        IsProfitableBehaviour,  # type: ignore
-        PrepareTxBehaviour,  # type: ignore
+    behaviours: Set[Type[BaseBehaviour]] = {
+        BondingBehaviour,
+        WaitBehaviour,
+        ActivateBehaviour,
+        GetJobsBehaviour,
+        JobSelectionBehaviour,
+        IsWorkableBehaviour,
+        IsProfitableBehaviour,
+        PerformWorkBehaviour,
+        HealthCheckBehaviour,
+        BlacklistedBehaviour,
+        AwaitTopUpBehaviour,
     }
