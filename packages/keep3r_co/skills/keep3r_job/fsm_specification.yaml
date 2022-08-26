@@ -5,8 +5,8 @@ alphabet_in:
 - NOT_WORKABLE
 - PROFITABLE
 - NOT_PROFITABLE
-- BOND_TX
-- ACTIVATE_TX
+- BONDING_TX
+- ACTIVATION_TX
 - WORK_TX
 - HEALTHY
 - NOT_REGISTERED
@@ -26,8 +26,8 @@ start_states:
 - HealthCheckRound
 states:
 - BondingRound
-- WaitRound
-- ActivateRound
+- WaitingRound
+- ActivationRound
 - GetJobsRound
 - JobSelectionRound
 - IsWorkableRound
@@ -38,16 +38,16 @@ states:
 - BlacklistedRound
 - DegenerateRound
 transition_func:
-    (BondingRound, BOND_TX): HealthCheckRound
+    (BondingRound, BONDING_TX): WaitingRound
     (BondingRound, NO_MAJORITY): BondingRound
     (BondingRound, ROUND_TIMEOUT): BondingRound
-    (WaitRound, DONE): ActivateRound
-    (WaitRound, NO_MAJORITY): WaitRound
-    (WaitRound, ROUND_TIMEOUT): WaitRound
-    (ActivateRound, ACTIVATE_TX): HealthCheckRound
-    (ActivateRound, AWAITING_BONDING): WaitRound
-    (ActivateRound, NO_MAJORITY): ActivateRound
-    (ActivateRound, ROUND_TIMEOUT): ActivateRound
+    (WaitingRound, DONE): ActivationRound
+    (WaitingRound, NO_MAJORITY): WaitingRound
+    (WaitingRound, ROUND_TIMEOUT): WaitingRound
+    (ActivationRound, ACTIVATION_TX): HealthCheckRound
+    (ActivationRound, AWAITING_BONDING): WaitingRound
+    (ActivationRound, NO_MAJORITY): ActivationRound
+    (ActivationRound, ROUND_TIMEOUT): ActivationRound
     (GetJobsRound, DONE): JobSelectionRound
     (GetJobsRound, NO_MAJORITY): GetJobsRound
     (GetJobsRound, ROUND_TIMEOUT): GetJobsRound
@@ -73,4 +73,4 @@ transition_func:
     (HealthCheckRound, BLACKLISTED): BlacklistedRound
     (HealthCheckRound, UNKNOWN_HEALTH_ISSUE): DegenerateRound
     (AwaitTopUpRound, TOP_UP): HealthCheckRound
-    (AwaitTopUpRound, ROUND_TIMEOUT): ActivateRound
+    (AwaitTopUpRound, ROUND_TIMEOUT): AwaitTopUpRound
