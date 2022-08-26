@@ -22,34 +22,32 @@
 from abc import ABC, abstractmethod
 from typing import Generator, Optional, Set, Type, cast
 
-from packages.valory.skills.abstract_round_abci.base import AbstractRound
-
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
-    SafeExistencePayload,
     TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
-    BondingRound,
-    WaitRound,
-    ActivateRound,
-    GetJobsRound,
-    JobSelectionRound,
-    IsWorkableRound,
-    IsProfitableRound,
-    PerformWorkRound,
-    HealthCheckRound,
+    ActivationRound,
     AwaitTopUpRound,
     BlacklistedRound,
+    BondingRound,
+    GetJobsRound,
+    HealthCheckRound,
+    IsProfitableRound,
+    IsWorkableRound,
+    JobSelectionRound,
     Keep3rJobAbciApp,
+    PerformWorkRound,
     SynchronizedData,
+    WaitingRound,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
+from packages.valory.skills.abstract_round_abci.base import AbstractRound
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseBehaviour,
@@ -80,9 +78,9 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
 
 
 class BondingBehaviour(Keep3rJobBaseBehaviour):
-    # TODO: set the following class attributes
-    state_id: str
-    behaviour_id: str
+    """BondingBehaviour"""
+
+    behaviour_id: str = "bonding"
     matching_round: Type[AbstractRound] = BondingRound
 
     @abstractmethod
@@ -90,22 +88,22 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
 
-class WaitBehaviour(Keep3rJobBaseBehaviour):
-    # TODO: set the following class attributes
-    state_id: str
-    behaviour_id: str
-    matching_round: Type[AbstractRound] = WaitRound
+class WaitingBehaviour(Keep3rJobBaseBehaviour):
+    """WaitingBehaviour"""
+
+    behaviour_id: str = "waiting"
+    matching_round: Type[AbstractRound] = WaitingRound
 
     @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
 
-class ActivateBehaviour(Keep3rJobBaseBehaviour):
-    # TODO: set the following class attributes
-    state_id: str
-    behaviour_id: str
-    matching_round: Type[AbstractRound] = ActivateRound
+class ActivationBehaviour(Keep3rJobBaseBehaviour):
+    """ActivationBehaviour"""
+
+    behaviour_id: str = "activation"
+    matching_round: Type[AbstractRound] = ActivationRound
 
     @abstractmethod
     def async_act(self) -> Generator:
@@ -113,9 +111,9 @@ class ActivateBehaviour(Keep3rJobBaseBehaviour):
 
 
 class HealthCheckBehaviour(Keep3rJobBaseBehaviour):
-    # TODO: set the following class attributes
-    state_id: str
-    behaviour_id: str
+    """HealthCheckBehaviour"""
+
+    behaviour_id: str = "health_check"
     matching_round: Type[AbstractRound] = HealthCheckRound
 
     @abstractmethod
@@ -124,9 +122,9 @@ class HealthCheckBehaviour(Keep3rJobBaseBehaviour):
 
 
 class GetJobsBehaviour(Keep3rJobBaseBehaviour):
-    # TODO: set the following class attributes
-    state_id: str
-    behaviour_id: str
+    """GetJobsBehaviour"""
+
+    behaviour_id: str = "get_jobs"
     matching_round: Type[AbstractRound] = GetJobsRound
 
     @abstractmethod
@@ -135,9 +133,9 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
 
 
 class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
-    """Check whether the job contract is selected."""
+    """JobSelectionBehaviour"""
 
-    behaviour_id = "job_selection"
+    behaviour_id: str = "job_selection"
     matching_round: Type[AbstractRound] = JobSelectionRound
 
     def async_act(self) -> Generator:
@@ -159,10 +157,10 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
 
 
 class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
-    """Check whether the job contract is workable."""
+    """IsWorkableBehaviour"""
 
-    behaviour_id = "is_workable"
-    matching_round = IsWorkableRound
+    behaviour_id: str = "is_workable"
+    matching_round: Type[AbstractRound] = IsWorkableRound
 
     def async_act(self) -> Generator:
         """
@@ -201,10 +199,10 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
 
 
 class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
-    """Checks if job is profitable."""
+    """IsProfitableBehaviour"""
 
-    behaviour_id = "get_is_profitable"
-    matching_round = IsProfitableRound
+    behaviour_id: str = "is_profitable"
+    matching_round: Type[AbstractRound] = IsProfitableRound
 
     def async_act(self) -> Generator:
         """Do the action
@@ -255,10 +253,10 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
 
 
 class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
-    """Perform work"""
+    """PerformWorkBehaviour"""
 
-    behaviour_id = "prepare_tx"
-    matching_round = PerformWorkRound
+    behaviour_id: str = "perform_work"
+    matching_round: Type[AbstractRound] = PerformWorkRound
 
     def async_act(self) -> Generator:
         """
@@ -323,10 +321,10 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
 
 
 class BlacklistedBehaviour(Keep3rJobBaseBehaviour):
-    # TODO: set the following class attributes
-    state_id: str
-    behaviour_id: str
-    matching_round: Type[AbstractRound]
+    """BlacklistedBehaviour"""
+
+    behaviour_id: str = "blacklisted"
+    matching_round: Type[AbstractRound] = BlacklistedRound
 
     @abstractmethod
     def async_act(self) -> Generator:
@@ -334,10 +332,10 @@ class BlacklistedBehaviour(Keep3rJobBaseBehaviour):
 
 
 class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
-    # TODO: set the following class attributes
-    state_id: str
-    behaviour_id: str
-    matching_round: Type[AbstractRound]
+    """AwaitTopUpBehaviour"""
+
+    behaviour_id: str = "await_top_up"
+    matching_round: Type[AbstractRound] = AwaitTopUpRound
 
     @abstractmethod
     def async_act(self) -> Generator:
@@ -351,8 +349,8 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviours: Set[Type[BaseBehaviour]] = {
         BondingBehaviour,
-        WaitBehaviour,
-        ActivateBehaviour,
+        WaitingBehaviour,
+        ActivationBehaviour,
         GetJobsBehaviour,
         JobSelectionBehaviour,
         IsWorkableBehaviour,
