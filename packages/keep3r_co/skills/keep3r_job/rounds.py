@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the simple ABCI application."""
+
 from abc import ABC
 from enum import Enum
 from typing import Dict, Optional, Tuple, Type, cast, Set
@@ -42,13 +43,14 @@ from packages.valory.skills.abstract_round_abci.base import (
 
 class Event(Enum):
 
-    POOR = "poor"
+    NOT_REGISTERED = "not_registered"
+    INSUFFICIENT_FUNDS = "insufficient_funds"
     ACTIVATE_TX = "activate_tx"
-    CRIMINAL = "criminal"
+    BLACKLISTED = "blacklisted"
     NO_JOBS = "no_jobs"
     BOND_TX = "bond_tx"
     HEALTHY = "healthy"
-    UNKNOWN = "unknown"
+    UNKNOWN_HEALTH_ISSUE = "unknown_health_issue"
     NO_MAJORITY = "no_majority"
     ROUND_TIMEOUT = "round_timeout"
     AWAITING_BONDING = "awaiting_bonding"
@@ -57,7 +59,7 @@ class Event(Enum):
     PROFITABLE = "profitable"
     NOT_PROFITABLE = "not_profitable"
     WORK_TX = "work_tx"
-    TOPUP = "topup"
+    TOP_UP = "top_up"
     DONE = "done"
 
 
@@ -90,6 +92,26 @@ class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
     """Abstract round for the simple abci skill."""
 
     synchronized_data_class = SynchronizedData
+
+
+class HealthCheckRound(AbstractRound):
+    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
+    # TODO: set the following class attributes
+    round_id: str
+    allowed_tx_type: Optional[TransactionType]
+    payload_attribute: str
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+        """Process the end of the block."""
+        raise NotImplementedError
+
+    def check_payload(self, payload: BaseTxPayload) -> None:
+        """Check payload."""
+        raise NotImplementedError
+
+    def process_payload(self, payload: BaseTxPayload) -> None:
+        """Process payload."""
+        raise NotImplementedError
 
 
 class BondingRound(AbstractRound):
@@ -133,26 +155,6 @@ class WaitRound(AbstractRound):
 
 
 class ActivateRound(AbstractRound):
-    # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
-    # TODO: set the following class attributes
-    round_id: str
-    allowed_tx_type: Optional[TransactionType]
-    payload_attribute: str
-
-    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
-        """Process the end of the block."""
-        raise NotImplementedError
-
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
-
-
-class HealthCheckRound(AbstractRound):
     # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
     # TODO: set the following class attributes
     round_id: str
@@ -386,18 +388,19 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         },
         PerformWorkRound: {
             Event.WORK_TX: HealthCheckRound,
-            Event.POOR: HealthCheckRound,
+            Event.INSUFFICIENT_FUNDS: HealthCheckRound,
             Event.NO_MAJORITY: PerformWorkRound,
             Event.ROUND_TIMEOUT: PerformWorkRound,
         },
         HealthCheckRound: {
+            Event.NOT_REGISTERED: BondingRound,
             Event.HEALTHY: GetJobsRound,
-            Event.POOR: AwaitTopUpRound,
-            Event.CRIMINAL: BlacklistedRound,
-            Event.UNKNOWN: DegenerateRound,
+            Event.INSUFFICIENT_FUNDS: AwaitTopUpRound,
+            Event.BLACKLISTED: BlacklistedRound,
+            Event.UNKNOWN_HEALTH_ISSUE: DegenerateRound,
         },
         AwaitTopUpRound: {
-            Event.TOPUP: HealthCheckRound,
+            Event.TOP_UP: HealthCheckRound,
             Event.ROUND_TIMEOUT: ActivateRound,
         },
         BlacklistedRound: {},

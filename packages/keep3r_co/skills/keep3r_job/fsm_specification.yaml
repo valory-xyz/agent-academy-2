@@ -9,20 +9,21 @@ alphabet_in:
 - ACTIVATE_TX
 - WORK_TX
 - HEALTHY
-- POOR
-- CRIMINAL
-- UNKNOWN
-- TOPUP
+- NOT_REGISTERED
+- INSUFFICIENT_FUNDS
+- BLACKLISTED
+- UNKNOWN_HEALTH_ISSUE
+- TOP_UP
 - NO_JOBS
 - NO_MAJORITY
 - ROUND_TIMEOUT
-default_start_state: BondingRound
+default_start_state: HealthCheckRound
 final_states:
 - DegenerateRound
 - BlacklistedRound
 label: packages.valory.skills.keep3r_bot_abci.rounds.Keep3rJobAbciApp
 start_states:
-- BondingRound
+- HealthCheckRound
 states:
 - BondingRound
 - WaitRound
@@ -63,12 +64,13 @@ transition_func:
     (IsProfitableRound, NO_MAJORITY): IsProfitableRound
     (IsProfitableRound, ROUND_TIMEOUT): IsProfitableRound
     (PerformWorkRound, WORK_TX): HealthCheckRound
-    (PerformWorkRound, POOR): HealthCheckRound
+    (PerformWorkRound, INSUFFICIENT_FUNDS): HealthCheckRound
     (PerformWorkRound, NO_MAJORITY): PerformWorkRound
     (PerformWorkRound, ROUND_TIMEOUT): PerformWorkRound
+    (HealthCheckRound, NOT_REGISTERED): BondingRound
     (HealthCheckRound, HEALTHY): GetJobsRound
-    (HealthCheckRound, POOR): AwaitTopUpRound
-    (HealthCheckRound, CRIMINAL): BlacklistedRound
-    (HealthCheckRound, UNKNOWN): DegenerateRound
-    (AwaitTopUpRound, TOPUP): HealthCheckRound
+    (HealthCheckRound, INSUFFICIENT_FUNDS): AwaitTopUpRound
+    (HealthCheckRound, BLACKLISTED): BlacklistedRound
+    (HealthCheckRound, UNKNOWN_HEALTH_ISSUE): DegenerateRound
+    (AwaitTopUpRound, TOP_UP): HealthCheckRound
     (AwaitTopUpRound, ROUND_TIMEOUT): ActivateRound
