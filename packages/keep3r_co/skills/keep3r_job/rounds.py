@@ -26,8 +26,6 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
-    SafeExistencePayload,
-    TXHashPayload,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -54,8 +52,10 @@ class Event(Enum):
     NO_MAJORITY = "no_majority"
     ROUND_TIMEOUT = "round_timeout"
     AWAITING_BONDING = "awaiting_bonding"
-    TRUEE = "truee"
-    FALSEE = "falsee"
+    WORKABLE = "workable"
+    NOT_WORKABLE = "not_workable"
+    PROFITABLE = "profitable"
+    NOT_PROFITABLE = "not_profitable"
     WORK_TX = "work_tx"
     TOPUP = "topup"
     DONE = "done"
@@ -300,7 +300,7 @@ class AwaitTopUpRound(AbstractRound):
         raise NotImplementedError
 
 
-class BlacklistedRound(AbstractRound):
+class BlacklistedRound(DegenerateRound):
     # TODO: replace AbstractRound with one of CollectDifferentUntilAllRound, CollectSameUntilAllRound, CollectSameUntilThresholdRound, CollectDifferentUntilThresholdRound, OnlyKeeperSendsRound, VotingRound
     # TODO: set the following class attributes
     round_id: str
@@ -373,14 +373,14 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.ROUND_TIMEOUT: JobSelectionRound,
         },
         IsWorkableRound: {
-            Event.TRUEE: IsProfitableRound,
-            Event.FALSEE: JobSelectionRound,
+            Event.WORKABLE: IsProfitableRound,
+            Event.NOT_WORKABLE: JobSelectionRound,
             Event.NO_MAJORITY: IsWorkableRound,
             Event.ROUND_TIMEOUT: IsWorkableRound,
         },
         IsProfitableRound: {
-            Event.TRUEE: PerformWorkRound,
-            Event.FALSEE: JobSelectionRound,
+            Event.PROFITABLE: PerformWorkRound,
+            Event.NOT_PROFITABLE: JobSelectionRound,
             Event.NO_MAJORITY: IsProfitableRound,
             Event.ROUND_TIMEOUT: IsProfitableRound,
         },
