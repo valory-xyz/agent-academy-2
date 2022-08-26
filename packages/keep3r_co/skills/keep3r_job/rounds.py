@@ -337,7 +337,67 @@ class DegenerateRound(DegenerateRound):
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):
-    """Keep3rJobAbciApp"""
+    """Keep3rJobAbciApp
+
+    Initial round: HealthCheckRound
+
+    Initial states: {HealthCheckRound}
+
+    Transition states:
+        0. HealthCheckRound
+            - not registered: 1.
+            - healthy: 4.
+            - insufficient funds: 9.
+            - blacklisted: 10.
+            - unknown health issue: 11.
+        1. BondingRound
+            - bonding tx: 2.
+            - no majority: 1.
+            - round timeout: 1.
+        2. WaitingRound
+            - done: 3.
+            - no majority: 2.
+            - round timeout: 2.
+        3. ActivationRound
+            - activation tx: 0.
+            - awaiting bonding: 2.
+            - no majority: 3.
+            - round timeout: 3.
+        4. GetJobsRound
+            - done: 5.
+            - no majority: 4.
+            - round timeout: 4.
+        5. JobSelectionRound
+            - done: 6.
+            - no jobs: 0.
+            - no majority: 5.
+            - round timeout: 5.
+        6. IsWorkableRound
+            - workable: 7.
+            - not workable: 5.
+            - no majority: 6.
+            - round timeout: 6.
+        7. IsProfitableRound
+            - profitable: 8.
+            - not profitable: 5.
+            - no majority: 7.
+            - round timeout: 7.
+        8. PerformWorkRound
+            - work tx: 0.
+            - insufficient funds: 0.
+            - no majority: 8.
+            - round timeout: 8.
+        9. AwaitTopUpRound
+            - top up: 0.
+            - round timeout: 9.
+        10. BlacklistedRound
+        11. DegenerateRound
+
+    Final states: {BlacklistedRound, DegenerateRound}
+
+    Timeouts:
+        round timeout: 30.0
+    """
 
     initial_round_cls: Type[AbstractRound] = HealthCheckRound
     initial_states: Set[AppState] = {HealthCheckRound}
@@ -350,7 +410,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.UNKNOWN_HEALTH_ISSUE: DegenerateRound,
         },
         BondingRound: {
-            Event.BONDING_TX: HealthCheckRound,
+            Event.BONDING_TX: WaitingRound,
             Event.NO_MAJORITY: BondingRound,
             Event.ROUND_TIMEOUT: BondingRound,
         },
