@@ -47,21 +47,33 @@ and proceed to its execution.
 <figure markdown>
 <div class="mermaid">
 stateDiagram-v2
-    CheckSafeExistenceRound --> JobSelectionRound: <center>DONE</center>
-    CheckSafeExistenceRound --> SafeNotDeployedRound: <center>NEGATIVE</center>
-    CheckSafeExistenceRound --> CheckSafeExistenceRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    IsProfitableRound --> PrepareTxRound: <center>DONE</center>
-    IsProfitableRound --> NothingToDoRound: <center>NOT_PROFITABLE</center>
+    HealthCheckRound --> BlacklistedRound: <center>BLACKLISTED</center>
+    HealthCheckRound --> GetJobsRound: <center>HEALTHY</center>
+    HealthCheckRound --> AwaitTopUpRound: <center>INSUFFICIENT_FUNDS</center>
+    HealthCheckRound --> BondingRound: <center>NOT_REGISTERED</center>
+    HealthCheckRound --> DegenerateRound: <center>UNKNOWN_HEALTH_ISSUE</center>
+    ActivationRound --> HealthCheckRound: <center>ACTIVATION_TX</center>
+    ActivationRound --> WaitingRound: <center>AWAITING_BONDING</center>
+    ActivationRound --> ActivationRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    AwaitTopUpRound --> AwaitTopUpRound: <center>ROUND_TIMEOUT</center>
+    AwaitTopUpRound --> HealthCheckRound: <center>TOP_UP</center>
+    BondingRound --> WaitingRound: <center>BONDING_TX</center>
+    BondingRound --> BondingRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    GetJobsRound --> JobSelectionRound: <center>DONE</center>
+    GetJobsRound --> GetJobsRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    IsProfitableRound --> JobSelectionRound: <center>NOT_PROFITABLE</center>
     IsProfitableRound --> IsProfitableRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    IsWorkableRound --> IsProfitableRound: <center>DONE</center>
-    IsWorkableRound --> NothingToDoRound: <center>NOT_WORKABLE</center>
+    IsProfitableRound --> PerformWorkRound: <center>PROFITABLE</center>
+    IsWorkableRound --> JobSelectionRound: <center>NOT_WORKABLE</center>
     IsWorkableRound --> IsWorkableRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    IsWorkableRound --> IsProfitableRound: <center>WORKABLE</center>
     JobSelectionRound --> IsWorkableRound: <center>DONE</center>
-    JobSelectionRound --> NothingToDoRound: <center>NOT_WORKABLE</center>
+    JobSelectionRound --> HealthCheckRound: <center>NO_JOBS</center>
     JobSelectionRound --> JobSelectionRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    PrepareTxRound --> FinishedPrepareTxRound: <center>DONE</center>
-    PrepareTxRound --> PrepareTxRound: <center>NO_MAJORITY</center>
-    PrepareTxRound --> FailedRound: <center>ROUND_TIMEOUT</center>
+    PerformWorkRound --> HealthCheckRound: <center>INSUFFICIENT_FUNDS<br />WORK_TX</center>
+    PerformWorkRound --> PerformWorkRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    WaitingRound --> ActivationRound: <center>DONE</center>
+    WaitingRound --> WaitingRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
 </div>
 <figcaption>Keep3rJobAbciApp FSM</figcaption>
 </figure>
