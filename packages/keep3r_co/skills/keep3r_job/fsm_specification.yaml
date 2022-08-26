@@ -1,46 +1,74 @@
 alphabet_in:
 - DONE
-- NEGATIVE
-- NOT_PROFITABLE
+- AWAITING_BONDING
+- WORKABLE
 - NOT_WORKABLE
+- PROFITABLE
+- NOT_PROFITABLE
+- BOND_TX
+- ACTIVATE_TX
+- WORK_TX
+- HEALTHY
+- POOR
+- CRIMINAL
+- UNKNOWN
+- TOPUP
+- NO_JOBS
 - NO_MAJORITY
 - ROUND_TIMEOUT
-default_start_state: CheckSafeExistenceRound
+default_start_state: BondingRound
 final_states:
-- FailedRound
-- FinishedPrepareTxRound
-- NothingToDoRound
-- SafeNotDeployedRound
-label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
+- DegenerateRound
+- BlacklistedRound
+label: packages.valory.skills.keep3r_bot_abci.rounds.Keep3rJobAbciApp
 start_states:
-- CheckSafeExistenceRound
+- BondingRound
 states:
-- CheckSafeExistenceRound
-- FailedRound
-- FinishedPrepareTxRound
-- IsProfitableRound
-- IsWorkableRound
+- BondingRound
+- WaitRound
+- ActivateRound
+- GetJobsRound
 - JobSelectionRound
-- NothingToDoRound
-- PrepareTxRound
-- SafeNotDeployedRound
+- IsWorkableRound
+- IsProfitableRound
+- PerformWorkRound
+- HealthCheckRound
+- AwaitTopUpRound
+- BlacklistedRound
+- DegenerateRound
 transition_func:
-    (CheckSafeExistenceRound, DONE): JobSelectionRound
-    (CheckSafeExistenceRound, NEGATIVE): SafeNotDeployedRound
-    (CheckSafeExistenceRound, NO_MAJORITY): CheckSafeExistenceRound
-    (CheckSafeExistenceRound, ROUND_TIMEOUT): CheckSafeExistenceRound
-    (IsProfitableRound, DONE): PrepareTxRound
-    (IsProfitableRound, NOT_PROFITABLE): NothingToDoRound
-    (IsProfitableRound, NO_MAJORITY): IsProfitableRound
-    (IsProfitableRound, ROUND_TIMEOUT): IsProfitableRound
-    (IsWorkableRound, DONE): IsProfitableRound
-    (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
-    (IsWorkableRound, NO_MAJORITY): IsWorkableRound
-    (IsWorkableRound, ROUND_TIMEOUT): IsWorkableRound
+    (BondingRound, BOND_TX): HealthCheckRound
+    (BondingRound, NO_MAJORITY): BondingRound
+    (BondingRound, ROUND_TIMEOUT): BondingRound
+    (WaitRound, DONE): ActivateRound
+    (WaitRound, NO_MAJORITY): WaitRound
+    (WaitRound, ROUND_TIMEOUT): WaitRound
+    (ActivateRound, ACTIVATE_TX): HealthCheckRound
+    (ActivateRound, AWAITING_BONDING): WaitRound
+    (ActivateRound, NO_MAJORITY): ActivateRound
+    (ActivateRound, ROUND_TIMEOUT): ActivateRound
+    (GetJobsRound, DONE): JobSelectionRound
+    (GetJobsRound, NO_MAJORITY): GetJobsRound
+    (GetJobsRound, ROUND_TIMEOUT): GetJobsRound
     (JobSelectionRound, DONE): IsWorkableRound
-    (JobSelectionRound, NOT_WORKABLE): NothingToDoRound
+    (JobSelectionRound, NO_JOBS): HealthCheckRound
     (JobSelectionRound, NO_MAJORITY): JobSelectionRound
     (JobSelectionRound, ROUND_TIMEOUT): JobSelectionRound
-    (PrepareTxRound, DONE): FinishedPrepareTxRound
-    (PrepareTxRound, NO_MAJORITY): PrepareTxRound
-    (PrepareTxRound, ROUND_TIMEOUT): FailedRound
+    (IsWorkableRound, WORKABLE): IsProfitableRound
+    (IsWorkableRound, NOT_WORKABLE): JobSelectionRound
+    (IsWorkableRound, NO_MAJORITY): IsWorkableRound
+    (IsWorkableRound, ROUND_TIMEOUT): IsWorkableRound
+    (IsProfitableRound, PROFITABLE): PerformWorkRound
+    (IsProfitableRound, NOT_PROFITABLE): JobSelectionRound
+    (IsProfitableRound, NO_MAJORITY): IsProfitableRound
+    (IsProfitableRound, ROUND_TIMEOUT): IsProfitableRound
+    (PerformWorkRound, WORK_TX): HealthCheckRound
+    (PerformWorkRound, POOR): HealthCheckRound
+    (PerformWorkRound, NO_MAJORITY): PerformWorkRound
+    (PerformWorkRound, ROUND_TIMEOUT): PerformWorkRound
+    (HealthCheckRound, HEALTHY): GetJobsRound
+    (HealthCheckRound, POOR): AwaitTopUpRound
+    (HealthCheckRound, CRIMINAL): BlacklistedRound
+    (HealthCheckRound, UNKNOWN): DegenerateRound
+    (AwaitTopUpRound, TOPUP): HealthCheckRound
+    (AwaitTopUpRound, ROUND_TIMEOUT): ActivateRound
