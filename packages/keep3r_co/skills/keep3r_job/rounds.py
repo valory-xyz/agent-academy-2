@@ -258,7 +258,7 @@ class IsProfitableRound(Keep3rJobAbstractRound):
         return None
 
 
-class PerformWorkRound(AbstractRound):
+class PerformWorkRound(Keep3rJobAbstractRound):
     """PerformWorkRound"""
 
     round_id: str = "perform_work"
@@ -278,7 +278,7 @@ class PerformWorkRound(AbstractRound):
         raise NotImplementedError
 
 
-class AwaitTopUpRound(AbstractRound):
+class AwaitTopUpRound(Keep3rJobAbstractRound):
     """AwaitTopUpRound"""
 
     round_id: str = "await_top_up"
@@ -339,9 +339,16 @@ class DegenerateRound(DegenerateRound):
 class Keep3rJobAbciApp(AbciApp[Event]):
     """Keep3rJobAbciApp"""
 
-    initial_round_cls: Type[AbstractRound] = BondingRound
-    initial_states: Set[AppState] = {BondingRound}
+    initial_round_cls: Type[AbstractRound] = HealthCheckRound
+    initial_states: Set[AppState] = {HealthCheckRound}
     transition_function: AbciAppTransitionFunction = {
+        HealthCheckRound: {
+            Event.NOT_REGISTERED: BondingRound,
+            Event.HEALTHY: GetJobsRound,
+            Event.INSUFFICIENT_FUNDS: AwaitTopUpRound,
+            Event.BLACKLISTED: BlacklistedRound,
+            Event.UNKNOWN_HEALTH_ISSUE: DegenerateRound,
+        },
         BondingRound: {
             Event.BONDING_TX: HealthCheckRound,
             Event.NO_MAJORITY: BondingRound,
@@ -386,13 +393,6 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.INSUFFICIENT_FUNDS: HealthCheckRound,
             Event.NO_MAJORITY: PerformWorkRound,
             Event.ROUND_TIMEOUT: PerformWorkRound,
-        },
-        HealthCheckRound: {
-            Event.NOT_REGISTERED: BondingRound,
-            Event.HEALTHY: GetJobsRound,
-            Event.INSUFFICIENT_FUNDS: AwaitTopUpRound,
-            Event.BLACKLISTED: BlacklistedRound,
-            Event.UNKNOWN_HEALTH_ISSUE: DegenerateRound,
         },
         AwaitTopUpRound: {
             Event.TOP_UP: HealthCheckRound,
