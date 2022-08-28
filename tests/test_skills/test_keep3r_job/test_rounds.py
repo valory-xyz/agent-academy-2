@@ -23,6 +23,8 @@ from types import MappingProxyType
 from typing import FrozenSet, cast
 from unittest import mock
 
+import pytest
+
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
@@ -33,8 +35,8 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
     IsProfitableRound,
     IsWorkableRound,
-    PerformWorkRound,
     JobSelectionRound,
+    PerformWorkRound,
     SynchronizedData,
 )
 from packages.valory.skills.abstract_round_abci.base import (
@@ -86,6 +88,7 @@ class BaseRoundTestClass:
             assert event == Event.NO_MAJORITY
 
 
+@pytest.mark.skip("ABCIApp redesign: no payment assigned yet")
 class TestPerformWorkRound(BaseRoundTestClass):
     """Tests for PrepareTxRound."""
 
