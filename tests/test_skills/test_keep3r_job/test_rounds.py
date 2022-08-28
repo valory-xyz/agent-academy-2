@@ -27,16 +27,14 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
-    SafeExistencePayload,
     TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
-    CheckSafeExistenceRound,
     Event,
     IsProfitableRound,
     IsWorkableRound,
+    PerformWorkRound,
     JobSelectionRound,
-    PrepareTxRound,
     SynchronizedData,
 )
 from packages.valory.skills.abstract_round_abci.base import (
@@ -88,7 +86,7 @@ class BaseRoundTestClass:
             assert event == Event.NO_MAJORITY
 
 
-class TestPrepareTxRound(BaseRoundTestClass):
+class TestPerformWorkRound(BaseRoundTestClass):
     """Tests for PrepareTxRound."""
 
     def test_run(
@@ -96,7 +94,7 @@ class TestPrepareTxRound(BaseRoundTestClass):
     ) -> None:
         """Run tests."""
 
-        test_round = PrepareTxRound(
+        test_round = PerformWorkRound(
             synchronized_data=self.synchronized_data,
             consensus_params=self.consensus_params,
         )
@@ -124,99 +122,6 @@ class TestPrepareTxRound(BaseRoundTestClass):
         assert (
             cast(SynchronizedData, state).participants
             == cast(SynchronizedData, actual_next_state).participants
-        )
-        assert event == Event.DONE
-
-
-class TestSafeExistenceRound(BaseRoundTestClass):
-    """Tests for RegistrationRound."""
-
-    def test_run_negative(
-        self,
-    ) -> None:
-        """Run tests."""
-
-        test_round = CheckSafeExistenceRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
-        )
-
-        first_payload, *payloads = [
-            SafeExistencePayload(
-                sender=participant,
-                safe_exists=False,
-            )
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection[first_payload.sender] == first_payload
-        assert test_round.end_block() is None
-
-        self._test_no_majority_event(test_round)
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            participant_to_selection=MappingProxyType(test_round.collection),
-            safe_exists=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert all(
-            [
-                key in cast(SynchronizedData, state).participant_to_selection
-                for key in cast(
-                    SynchronizedData, actual_next_state
-                ).participant_to_selection
-            ]
-        )
-        assert event == Event.NEGATIVE
-
-    def test_run_positive(
-        self,
-    ) -> None:
-        """Run tests."""
-        test_round = CheckSafeExistenceRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
-        )
-
-        first_payload, *payloads = [
-            SafeExistencePayload(
-                sender=participant,
-                safe_exists=True,
-            )
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection[first_payload.sender] == first_payload
-        assert test_round.end_block() is None
-
-        self._test_no_majority_event(test_round)
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            participant_to_selection=MappingProxyType(test_round.collection),
-            safe_exists=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert all(
-            [
-                key in cast(SynchronizedData, state).participant_to_selection
-                for key in cast(
-                    SynchronizedData, actual_next_state
-                ).participant_to_selection
-            ]
         )
         assert event == Event.DONE
 
