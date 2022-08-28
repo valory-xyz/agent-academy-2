@@ -33,6 +33,7 @@ from packages.valory.skills.registration_abci.rounds import (
     AgentRegistrationAbciApp,
     FinishedRegistrationFFWRound,
     FinishedRegistrationRound,
+    RegistrationRound,
     RegistrationStartupRound,
 )
 from packages.valory.skills.reset_pause_abci.rounds import (
@@ -55,13 +56,13 @@ from packages.valory.skills.transaction_settlement_abci.rounds import (
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
     FinishedRegistrationRound: RandomnessSafeRound,
-    FinishedRegistrationFFWRound: RandomnessSafeRound,
+    FinishedRegistrationFFWRound: HealthCheckRound,
     FinishedSafeRound: HealthCheckRound,
     FinalizeBondingRound: RandomnessTransactionSubmissionRound,
     FinalizeActivationRound: RandomnessTransactionSubmissionRound,
     FinalizeWorkRound: RandomnessTransactionSubmissionRound,
     FinishedTransactionSubmissionRound: ResetAndPauseRound,
-    FinishedResetAndPauseRound: HealthCheckRound,
+    FinishedResetAndPauseRound: RegistrationRound,
     FinishedResetAndPauseErrorRound: RegistrationStartupRound,
 }
 

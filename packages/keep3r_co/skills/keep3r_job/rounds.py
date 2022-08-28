@@ -331,7 +331,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     transition_function: AbciAppTransitionFunction = {
         HealthCheckRound: {
             Event.NOT_REGISTERED: BondingRound,
-            Event.AWAITING_BONDING: AwaitTopUpRound,
+            Event.AWAITING_BONDING: WaitingRound,
             Event.HEALTHY: GetJobsRound,
             Event.INSUFFICIENT_FUNDS: AwaitTopUpRound,
             Event.BLACKLISTED: BlacklistedRound,
