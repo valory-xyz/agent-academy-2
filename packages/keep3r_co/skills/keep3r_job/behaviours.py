@@ -34,11 +34,11 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     AwaitTopUpRound,
     BondingRound,
     GetJobsRound,
-    HealthCheckRound,
     IsProfitableRound,
     IsWorkableRound,
     JobSelectionRound,
     Keep3rJobAbciApp,
+    PathSelectionRound,
     PerformWorkRound,
     SynchronizedData,
     WaitingRound,
@@ -113,7 +113,7 @@ class HealthCheckBehaviour(Keep3rJobBaseBehaviour):
     """HealthCheckBehaviour"""
 
     behaviour_id: str = "health_check"
-    matching_round: Type[AbstractRound] = HealthCheckRound
+    matching_round: Type[AbstractRound] = PathSelectionRound
 
     @abstractmethod
     def async_act(self) -> Generator:

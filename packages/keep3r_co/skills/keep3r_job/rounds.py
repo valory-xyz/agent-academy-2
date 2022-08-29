@@ -21,7 +21,7 @@
 
 from abc import ABC
 from enum import Enum
-from typing import Dict, Optional, Set, Tuple, Type, cast
+from typing import List, Optional, Set, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
@@ -37,6 +37,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     BaseTxPayload,
     CollectSameUntilThresholdRound,
     DegenerateRound,
+    EventToTimeout,
     TransactionType,
 )
 
@@ -44,24 +45,25 @@ from packages.valory.skills.abstract_round_abci.base import (
 class Event(Enum):
     """Events"""
 
-    PROFITABLE = "profitable"
-    INSUFFICIENT_FUNDS = "insufficient_funds"
-    WORKABLE = "workable"
-    ACTIVATION_TX = "activation_tx"
-    NOT_REGISTERED = "not_registered"
-    UNKNOWN_HEALTH_ISSUE = "unknown_health_issue"
-    NO_JOBS = "no_jobs"
-    NOT_WORKABLE = "not_workable"
-    NO_MAJORITY = "no_majority"
-    AWAITING_BONDING = "awaiting_bonding"
+    NOT_BONDED = "not_bonded"
     BONDING_TX = "bonding_tx"
+    NOT_ACTIVATED = "not_activated"
+    ACTIVATION_TX = "activation_tx"
+    AWAITING_BONDING = "awaiting_bonding"
     BLACKLISTED = "blacklisted"
+    UNKNOWN_HEALTH_ISSUE = "unknown_health_issue"
+    HEALTHY = "healthy"
     DONE = "done"
-    ROUND_TIMEOUT = "round_timeout"
+    NO_JOBS = "no_jobs"
+    WORKABLE = "workable"
+    NOT_WORKABLE = "not_workable"
+    PROFITABLE = "profitable"
     NOT_PROFITABLE = "not_profitable"
     WORK_TX = "work_tx"
+    INSUFFICIENT_FUNDS = "insufficient_funds"
     TOP_UP = "top_up"
-    HEALTHY = "healthy"
+    NO_MAJORITY = "no_majority"
+    ROUND_TIMEOUT = "round_timeout"
 
 
 class SynchronizedData(BaseSynchronizedData):
@@ -89,15 +91,24 @@ class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
     synchronized_data_class = SynchronizedData
 
 
-class HealthCheckRound(Keep3rJobAbstractRound):
+class PathSelectionRound(Keep3rJobAbstractRound):
     """HealthCheckRound"""
 
-    round_id: str = "health_check"
+    round_id: str = "path_selection"
     allowed_tx_type: Optional[TransactionType]  # type: ignore
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+        _ = (
+            Event.NOT_BONDED,
+            Event.NOT_ACTIVATED,
+            Event.HEALTHY,
+            Event.INSUFFICIENT_FUNDS,
+            Event.BLACKLISTED,
+            Event.NO_MAJORITY,
+            Event.UNKNOWN_HEALTH_ISSUE,
+        )
         raise NotImplementedError
 
     def check_payload(self, payload: BaseTxPayload) -> None:
@@ -118,6 +129,7 @@ class BondingRound(Keep3rJobAbstractRound):
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+        _ = (Event.BONDING_TX, Event.NO_MAJORITY)
         raise NotImplementedError
 
     def check_payload(self, payload: BaseTxPayload) -> None:
@@ -138,6 +150,7 @@ class WaitingRound(Keep3rJobAbstractRound):
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+        _ = (Event.DONE, Event.NO_MAJORITY)
         raise NotImplementedError
 
     def check_payload(self, payload: BaseTxPayload) -> None:
@@ -152,12 +165,13 @@ class WaitingRound(Keep3rJobAbstractRound):
 class ActivationRound(Keep3rJobAbstractRound):
     """ActivationRound"""
 
-    round_id: str = "activation_round"
+    round_id: str = "activation"
     allowed_tx_type: Optional[TransactionType]  # type: ignore
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+        _ = (Event.ACTIVATION_TX, Event.AWAITING_BONDING, Event.NO_MAJORITY)
         raise NotImplementedError
 
     def check_payload(self, payload: BaseTxPayload) -> None:
@@ -178,6 +192,7 @@ class GetJobsRound(AbstractRound):
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+        _ = (Event.DONE, Event.NO_MAJORITY)
         raise NotImplementedError
 
     def check_payload(self, payload: BaseTxPayload) -> None:
@@ -199,11 +214,12 @@ class JobSelectionRound(Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
+            _ = (Event.DONE, Event.NO_JOBS, Event.NO_MAJORITY)
             job_selection = self.most_voted_payload
             state = self.synchronized_data.update(job_selection=job_selection)
             if job_selection:
                 return state, Event.DONE
-            return state, Event.NOT_WORKABLE  # NO_JOBS ?
+            return state, Event.NO_JOBS  # NO_JOBS ?
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
@@ -226,7 +242,7 @@ class IsWorkableRound(Keep3rJobAbstractRound):
             )
             is_workable = self.most_voted_payload
             if is_workable:
-                return state, Event.DONE
+                return state, Event.WORKABLE
             return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
@@ -249,7 +265,7 @@ class IsProfitableRound(Keep3rJobAbstractRound):
             state = self.synchronized_data.update(is_profitable=self.most_voted_payload)
             is_profitable = self.most_voted_payload
             if is_profitable:
-                return state, Event.DONE
+                return state, Event.PROFITABLE
             return state, Event.NOT_PROFITABLE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
@@ -265,8 +281,9 @@ class PerformWorkRound(Keep3rJobAbstractRound):
     allowed_tx_type: Optional[TransactionType]  # type: ignore
     payload_attribute: str
 
-    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+        _ = (Event.WORK_TX, Event.INSUFFICIENT_FUNDS, Event.NO_MAJORITY)
         raise NotImplementedError
 
     def check_payload(self, payload: BaseTxPayload) -> None:
@@ -285,8 +302,9 @@ class AwaitTopUpRound(Keep3rJobAbstractRound):
     allowed_tx_type: Optional[TransactionType]  # type: ignore
     payload_attribute: str
 
-    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Enum]]:
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+        _ = (Event.TOP_UP, Event.NO_MAJORITY)
         raise NotImplementedError
 
     def check_payload(self, payload: BaseTxPayload) -> None:
@@ -326,16 +344,20 @@ class BlacklistedRound(DegenerateRound):
 class Keep3rJobAbciApp(AbciApp[Event]):
     """Keep3rJobAbciApp"""
 
-    initial_round_cls: Type[AbstractRound] = HealthCheckRound
-    initial_states: Set[AppState] = {HealthCheckRound}
+    initial_round_cls: Type[AbstractRound] = PathSelectionRound
+
+    initial_states: Set[AppState] = {PathSelectionRound}
+
     transition_function: AbciAppTransitionFunction = {
-        HealthCheckRound: {
-            Event.NOT_REGISTERED: BondingRound,
-            Event.AWAITING_BONDING: WaitingRound,
+        PathSelectionRound: {
+            Event.NOT_BONDED: BondingRound,
+            Event.NOT_ACTIVATED: WaitingRound,
             Event.HEALTHY: GetJobsRound,
             Event.INSUFFICIENT_FUNDS: AwaitTopUpRound,
             Event.BLACKLISTED: BlacklistedRound,
             Event.UNKNOWN_HEALTH_ISSUE: DegenerateRound,
+            Event.NO_MAJORITY: PathSelectionRound,
+            Event.ROUND_TIMEOUT: PathSelectionRound,
         },
         BondingRound: {
             Event.BONDING_TX: FinalizeBondingRound,
@@ -360,7 +382,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         },
         JobSelectionRound: {
             Event.DONE: IsWorkableRound,
-            Event.NO_JOBS: HealthCheckRound,
+            Event.NO_JOBS: PathSelectionRound,
             Event.NO_MAJORITY: JobSelectionRound,
             Event.ROUND_TIMEOUT: JobSelectionRound,
         },
@@ -378,12 +400,13 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         },
         PerformWorkRound: {
             Event.WORK_TX: FinalizeWorkRound,
-            Event.INSUFFICIENT_FUNDS: HealthCheckRound,
+            Event.INSUFFICIENT_FUNDS: PathSelectionRound,
             Event.NO_MAJORITY: PerformWorkRound,
             Event.ROUND_TIMEOUT: PerformWorkRound,
         },
         AwaitTopUpRound: {
-            Event.TOP_UP: HealthCheckRound,
+            Event.TOP_UP: PathSelectionRound,
+            Event.NO_MAJORITY: AwaitTopUpRound,
             Event.ROUND_TIMEOUT: AwaitTopUpRound,
         },
         FinalizeBondingRound: {},
@@ -392,14 +415,17 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         BlacklistedRound: {},
         DegenerateRound: {},
     }
+
     final_states: Set[AppState] = {
         FinalizeBondingRound,
         FinalizeActivationRound,
         FinalizeWorkRound,
-        DegenerateRound,
         BlacklistedRound,
+        DegenerateRound,
     }
-    event_to_timeout: Dict[Event, float] = {
+
+    event_to_timeout: EventToTimeout = {
         Event.ROUND_TIMEOUT: 30.0,
     }
-    cross_period_persisted_keys = ["safe_contract_address"]
+
+    cross_period_persisted_keys: List[str] = ["safe_contract_address"]
