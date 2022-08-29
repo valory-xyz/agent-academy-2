@@ -16,6 +16,8 @@ cp -r ../open-autonomy/packages/valory/protocols/contract_api packages/valory/pr
 cp -r ../open-autonomy/packages/valory/protocols/http packages/valory/protocols
 cp -r ../open-autonomy/packages/valory/protocols/ledger_api packages/valory/protocols
 cp -r ../open-autonomy/packages/valory/protocols/tendermint packages/valory/protocols
+rm -rf packages/valory/skills
+mkdir packages/valory/skills
 cp -r ../open-autonomy/packages/valory/skills/__init__.py packages/valory/skills
 cp -r ../open-autonomy/packages/valory/skills/abstract_abci packages/valory/skills
 cp -r ../open-autonomy/packages/valory/skills/abstract_round_abci packages/valory/skills
