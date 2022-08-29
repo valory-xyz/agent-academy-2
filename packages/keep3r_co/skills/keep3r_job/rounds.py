@@ -342,7 +342,74 @@ class BlacklistedRound(DegenerateRound):
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):
-    """Keep3rJobAbciApp"""
+    """Keep3rJobAbciApp
+
+    Initial round: PathSelectionRound
+
+    Initial states: {PathSelectionRound}
+
+    Transition states:
+        0. PathSelectionRound
+            - not bonded: 1.
+            - not activated: 2.
+            - healthy: 4.
+            - insufficient funds: 9.
+            - blacklisted: 13.
+            - unknown health issue: 14.
+            - no majority: 0.
+            - round timeout: 0.
+        1. BondingRound
+            - bonding tx: 10.
+            - no majority: 1.
+            - round timeout: 1.
+        2. WaitingRound
+            - done: 3.
+            - no majority: 2.
+            - round timeout: 2.
+        3. ActivationRound
+            - activation tx: 11.
+            - awaiting bonding: 2.
+            - no majority: 3.
+            - round timeout: 3.
+        4. GetJobsRound
+            - done: 5.
+            - no majority: 4.
+            - round timeout: 4.
+        5. JobSelectionRound
+            - done: 6.
+            - no jobs: 0.
+            - no majority: 5.
+            - round timeout: 5.
+        6. IsWorkableRound
+            - workable: 7.
+            - not workable: 5.
+            - no majority: 6.
+            - round timeout: 6.
+        7. IsProfitableRound
+            - profitable: 8.
+            - not profitable: 5.
+            - no majority: 7.
+            - round timeout: 7.
+        8. PerformWorkRound
+            - work tx: 12.
+            - insufficient funds: 0.
+            - no majority: 8.
+            - round timeout: 8.
+        9. AwaitTopUpRound
+            - top up: 0.
+            - no majority: 9.
+            - round timeout: 9.
+        10. FinalizeBondingRound
+        11. FinalizeActivationRound
+        12. FinalizeWorkRound
+        13. BlacklistedRound
+        14. DegenerateRound
+
+    Final states: {FinalizeBondingRound, FinalizeActivationRound, FinalizeWorkRound, BlacklistedRound, DegenerateRound}
+
+    Timeouts:
+        round timeout: 30.0
+    """
 
     initial_round_cls: Type[AbstractRound] = PathSelectionRound
 
