@@ -23,7 +23,7 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Any, Dict, cast
+from typing import Any, Dict
 
 from aea.common import JSONLike
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
@@ -54,7 +54,7 @@ from tests.test_contracts.constants import (
     ONE_ETH,
     SECONDS_PER_DAY,
 )
-from autonomy.test_tools.base_test_classes.contracts import BaseContractTest
+
 
 BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
 ENDPOINT_GANACHE_URI = f"{DEFAULT_GANACHE_ADDR}:{DEFAULT_GANACHE_PORT}"
@@ -243,17 +243,6 @@ class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
     job_path = Path(BASE_CONTRACT_PATH / TEST_JOB_PUBLIC_ID.name)
     test_job_contract: Any
 
-    def add_job(self, contract_address: str) -> JSONLike:
-        """Add job."""
-
-        contract = self.contract.get_instance(**self.base_kw)  # type: ignore
-        tx_parameters = self.get_tx_parameters(
-            self.ledger_api, self.deployer_crypto.address
-        )
-        function = contract.functions.addJob(job=contract_address)
-        raw_tx = function.buildTransaction(tx_parameters)
-        return self.perform_tx(raw_tx)
-
     @classmethod
     def setup_class(cls) -> None:
         """Setup class"""
@@ -270,7 +259,11 @@ class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
     def test_add_and_get_jobs(self) -> None:
         """Test get_jobs after adding the test job contract."""
 
-        self.add_job(self.test_job_contract.address)
+        job = self.test_job_contract.address
+        kw = dict(address=self.deployer_crypto.address, job=job)
+        raw_tx = self.contract.build_add_job_tx(**self.base_kw, **kw)
+        raw_tx["gas"] = DEFAULT_GAS
+        self.perform_tx(raw_tx)
         expected = [self.test_job_contract.address]
         assert self.contract.get_jobs(**self.base_kw) == expected
 
