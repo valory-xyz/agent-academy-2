@@ -201,7 +201,7 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
     def test_allowance(self) -> None:
         """Test allowance"""
 
-        kw = dict(address=self.deployer_crypto.address, spender=self.empty_address)
+        kw = dict(account=self.deployer_crypto.address, spender=self.empty_address)
         assert self.contract.allowance(**self.base_kw, **kw) == 0
 
     def test_build_bond_tx(self) -> None:
