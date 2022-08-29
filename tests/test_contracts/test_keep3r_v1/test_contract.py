@@ -20,6 +20,7 @@
 """Tests for the keep3r v1 contract."""
 
 import json
+import logging
 import time
 from pathlib import Path
 from typing import Any, Dict, cast
@@ -27,7 +28,7 @@ from typing import Any, Dict, cast
 from aea.common import JSONLike
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
 from web3 import Web3, HTTPProvider
-from web3.types import Nonce, TxParams, Wei
+from web3.types import Nonce, TxParams, Wei, RPCEndpoint
 
 from autonomy.test_tools.base_test_classes.contracts import (
     BaseGanacheContractWithDependencyTest,
@@ -44,7 +45,7 @@ from packages.valory.contracts.keep3r_v1_library.contract import (
 )
 
 from tests.conftest import KEEP3R_V1_FOR_TEST, ROOT_DIR
-from tests.test_contracts.constants import DEFAULT_GAS, HALF_A_SECOND, ONE_ETH
+from tests.test_contracts.constants import DEFAULT_GAS, HALF_A_SECOND, ONE_ETH, SECONDS_PER_DAY
 
 
 BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
@@ -69,6 +70,21 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     ]
 
     ganache_provider = Web3(provider=HTTPProvider(ENDPOINT_GANACHE_URI)).provider
+
+    @classmethod
+    def mine_block(cls) -> None:
+        """Force a block to be mined. Takes no parameters. Mines a block independent of whether or not mining is started or stopped."""
+
+        cls.ganache_provider.make_request(RPCEndpoint("evm_mine"), [])
+        block_number = cls.ledger_api.api.eth.get_block_number()
+        logging.info(f"Block {block_number} forcefully mined")
+
+    @classmethod
+    def time_jump(cls, seconds: int) -> None:
+        """Jump forward in time. Takes one parameter, which is the amount of time to increase in seconds."""
+
+        response = cls.ganache_provider.make_request(RPCEndpoint("evm_increaseTime"), [seconds])
+        logging.info(f"Time jumped to {response['result']}")
 
     @classmethod
     def deployment_kwargs(cls) -> Dict[str, Any]:
@@ -113,6 +129,7 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
         signed_tx = cls.deployer_crypto.sign_transaction(raw_tx)
         tx_digest = cls.ledger_api.send_signed_transaction(signed_tx)
         time.sleep(HALF_A_SECOND)
+        cls.mine_block()
         tx_receipt = cls.ledger_api.get_transaction_receipt(tx_digest)
         time.sleep(HALF_A_SECOND)
         if not tx_receipt or not tx_receipt["status"]:
@@ -252,14 +269,6 @@ class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
         expected = [self.test_job_contract.address]
         assert self.contract.get_jobs(**self.base_kw) == expected
 
-    def wait_n_blocks(self, n: int = 1) -> None:
-        """Wait for n blocks."""
-
-        target = self.ledger_api.api.eth.get_block_number() + n
-        while (current := self.ledger_api.api.eth.get_block_number()) < target:
-            print(f"waiting for more blocks, current: {current}, target: {target}")
-            time.sleep(3)
-
     def test_become_keeper(self) -> None:
         """Test become keeper"""
 
@@ -267,20 +276,17 @@ class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
         kw = dict(address=self.deployer_crypto.address)
         assert self.contract.is_keeper(**self.base_kw, **kw) is False
 
-        # 1. approve
-        raw_tx = self.contract.build_approve_tx(
-            **self.base_kw, **kw, spender=self.contract_address, amount=amount
-        )
+        # 1. bond - normally has a bonding period associated
+        raw_tx = self.contract.build_bond_tx(**self.base_kw, **kw, amount=amount)
+        raw_tx["gas"] = DEFAULT_GAS
         self.perform_tx(raw_tx)
 
-        # 2. bond - normally has a bonding period associated
-        raw_tx = self.contract.build_bond_tx(**self.base_kw, **kw, amount=amount)
-        raw_tx["gas"] *= 100  # TODO: works for now
-        self.perform_tx(raw_tx)
+        # 2. wait bondTime - 3 days
+        self.time_jump(3 * SECONDS_PER_DAY)
 
         # 3. activate
-        # TODO: need to advance time and block here somehow
         raw_tx = self.contract.build_activate_tx(**self.base_kw, **kw)
+        raw_tx["gas"] = DEFAULT_GAS
         self.perform_tx(raw_tx)
 
         # validate
