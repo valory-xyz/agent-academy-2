@@ -32,14 +32,13 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
     AwaitTopUpRound,
-    BlacklistedRound,
     BondingRound,
     GetJobsRound,
-    HealthCheckRound,
     IsProfitableRound,
     IsWorkableRound,
     JobSelectionRound,
     Keep3rJobAbciApp,
+    PathSelectionRound,
     PerformWorkRound,
     SynchronizedData,
     WaitingRound,
@@ -114,7 +113,7 @@ class HealthCheckBehaviour(Keep3rJobBaseBehaviour):
     """HealthCheckBehaviour"""
 
     behaviour_id: str = "health_check"
-    matching_round: Type[AbstractRound] = HealthCheckRound
+    matching_round: Type[AbstractRound] = PathSelectionRound
 
     @abstractmethod
     def async_act(self) -> Generator:
@@ -320,17 +319,6 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         return tx_hash
 
 
-class BlacklistedBehaviour(Keep3rJobBaseBehaviour):
-    """BlacklistedBehaviour"""
-
-    behaviour_id: str = "blacklisted"
-    matching_round: Type[AbstractRound] = BlacklistedRound
-
-    @abstractmethod
-    def async_act(self) -> Generator:
-        """Do the act, supporting asynchronous execution."""
-
-
 class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
     """AwaitTopUpBehaviour"""
 
@@ -348,15 +336,14 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     initial_behaviour_cls = BondingBehaviour
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviours: Set[Type[BaseBehaviour]] = {
-        BondingBehaviour,
-        WaitingBehaviour,
-        ActivationBehaviour,
-        GetJobsBehaviour,
-        JobSelectionBehaviour,
-        IsWorkableBehaviour,
-        IsProfitableBehaviour,
-        PerformWorkBehaviour,
-        HealthCheckBehaviour,
-        BlacklistedBehaviour,
-        AwaitTopUpBehaviour,
+        BondingBehaviour,  # type: ignore
+        WaitingBehaviour,  # type: ignore
+        ActivationBehaviour,  # type: ignore
+        GetJobsBehaviour,  # type: ignore
+        JobSelectionBehaviour,  # type: ignore
+        IsWorkableBehaviour,  # type: ignore
+        IsProfitableBehaviour,  # type: ignore
+        PerformWorkBehaviour,  # type: ignore
+        HealthCheckBehaviour,  # type: ignore
+        AwaitTopUpBehaviour,  # type: ignore
     }

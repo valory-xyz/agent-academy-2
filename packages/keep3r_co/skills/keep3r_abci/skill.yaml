@@ -9,9 +9,9 @@ fingerprint:
   README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
   __init__.py: bafybeiaahg7kgkjgmlxj6yy6etmqcbfln5so7z7pv4aeccw3d54shhrpkq
   behaviours.py: bafybeifi42hus4lkkiwvnhvgiammpmmrnttbtekuq36wykyf6rbpejpwze
-  composition.py: bafybeicez3gaibfezqzha46oxo25phtjdn73fns3bo35y5s3z4jlmfeira
+  composition.py: bafybeidty6qfofyiocezqw3ry522b6t36zabinrebfups5jlo73a6qg3ym
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
-  fsm_specification.yaml: bafybeiges6ga7ncgt2rdbiqkfuolhsfsy5avespx5bbb3xpic6rsmwbvre
+  fsm_specification.yaml: bafybeiaikbyujzwswukd3pifcq7wldb5acnib7dfxzlsgyvanrdeptyzze
   handlers.py: bafybeieo3w3bahresulnoyo7mecda5b2ddpj4d3qv4pc7vfnfvvttcqnyi
   models.py: bafybeid7q4e63htcofhfgjnpg625jtoykbzvdpwckjohzgloiplbofwwea
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
@@ -20,7 +20,7 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeicqslzdmy4su5zrl3o6lilnwy7kxyr2olqp7wy2gfb6mlpbqknewa
+- keep3r_co/keep3r_job:0.1.0:bafybeihy5k25luakk5k6z53scs4kny7ow3ws6i72xhj6dhcc62w6zwupsy
 - valory/abstract_round_abci:0.1.0:bafybeify5cyzxqczuoap2winsssau5wjiv4nhvla7ktmamhadsq5x2p6si
 - valory/registration_abci:0.1.0:bafybeihebvuim7u5wkkzbj6bseywo27eudezdcvmbi33swejasd6mvjkmi
 - valory/reset_pause_abci:0.1.0:bafybeidjcxhhywaa5ddaqh7jikbxqk4qdcmt2sxhpx3eib5o6ji4xyywsq
