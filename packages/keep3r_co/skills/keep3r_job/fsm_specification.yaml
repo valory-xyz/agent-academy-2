@@ -9,7 +9,8 @@ alphabet_in:
 - ACTIVATION_TX
 - WORK_TX
 - HEALTHY
-- NOT_REGISTERED
+- NOT_BONDED
+- NOT_ACTIVATED
 - INSUFFICIENT_FUNDS
 - BLACKLISTED
 - UNKNOWN_HEALTH_ISSUE
@@ -17,34 +18,48 @@ alphabet_in:
 - NO_JOBS
 - NO_MAJORITY
 - ROUND_TIMEOUT
-default_start_state: HealthCheckRound
+default_start_state: PathSelectionRound
 final_states:
+- FinalizeBondingRound
+- FinalizeActivationRound
+- FinalizeWorkRound
 - DegenerateRound
 - BlacklistedRound
-label: packages.valory.skills.keep3r_bot_abci.rounds.Keep3rJobAbciApp
+label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
 start_states:
-- HealthCheckRound
+- PathSelectionRound
 states:
 - BondingRound
+- FinalizeBondingRound
 - WaitingRound
 - ActivationRound
+- FinalizeActivationRound
 - GetJobsRound
 - JobSelectionRound
 - IsWorkableRound
 - IsProfitableRound
 - PerformWorkRound
-- HealthCheckRound
+- FinalizeWorkRound
+- PathSelectionRound
 - AwaitTopUpRound
 - BlacklistedRound
 - DegenerateRound
 transition_func:
-    (BondingRound, BONDING_TX): WaitingRound
+    (PathSelectionRound, NOT_BONDED): BondingRound
+    (PathSelectionRound, NOT_ACTIVATED): WaitingRound
+    (PathSelectionRound, HEALTHY): GetJobsRound
+    (PathSelectionRound, INSUFFICIENT_FUNDS): AwaitTopUpRound
+    (PathSelectionRound, BLACKLISTED): BlacklistedRound
+    (PathSelectionRound, UNKNOWN_HEALTH_ISSUE): DegenerateRound
+    (PathSelectionRound, NO_MAJORITY): PathSelectionRound
+    (PathSelectionRound, ROUND_TIMEOUT): PathSelectionRound
+    (BondingRound, BONDING_TX): FinalizeBondingRound
     (BondingRound, NO_MAJORITY): BondingRound
     (BondingRound, ROUND_TIMEOUT): BondingRound
     (WaitingRound, DONE): ActivationRound
     (WaitingRound, NO_MAJORITY): WaitingRound
     (WaitingRound, ROUND_TIMEOUT): WaitingRound
-    (ActivationRound, ACTIVATION_TX): HealthCheckRound
+    (ActivationRound, ACTIVATION_TX): FinalizeActivationRound
     (ActivationRound, AWAITING_BONDING): WaitingRound
     (ActivationRound, NO_MAJORITY): ActivationRound
     (ActivationRound, ROUND_TIMEOUT): ActivationRound
@@ -52,7 +67,7 @@ transition_func:
     (GetJobsRound, NO_MAJORITY): GetJobsRound
     (GetJobsRound, ROUND_TIMEOUT): GetJobsRound
     (JobSelectionRound, DONE): IsWorkableRound
-    (JobSelectionRound, NO_JOBS): HealthCheckRound
+    (JobSelectionRound, NO_JOBS): PathSelectionRound
     (JobSelectionRound, NO_MAJORITY): JobSelectionRound
     (JobSelectionRound, ROUND_TIMEOUT): JobSelectionRound
     (IsWorkableRound, WORKABLE): IsProfitableRound
@@ -63,14 +78,10 @@ transition_func:
     (IsProfitableRound, NOT_PROFITABLE): JobSelectionRound
     (IsProfitableRound, NO_MAJORITY): IsProfitableRound
     (IsProfitableRound, ROUND_TIMEOUT): IsProfitableRound
-    (PerformWorkRound, WORK_TX): HealthCheckRound
-    (PerformWorkRound, INSUFFICIENT_FUNDS): HealthCheckRound
+    (PerformWorkRound, WORK_TX): FinalizeWorkRound
+    (PerformWorkRound, INSUFFICIENT_FUNDS): PathSelectionRound
     (PerformWorkRound, NO_MAJORITY): PerformWorkRound
     (PerformWorkRound, ROUND_TIMEOUT): PerformWorkRound
-    (HealthCheckRound, NOT_REGISTERED): BondingRound
-    (HealthCheckRound, HEALTHY): GetJobsRound
-    (HealthCheckRound, INSUFFICIENT_FUNDS): AwaitTopUpRound
-    (HealthCheckRound, BLACKLISTED): BlacklistedRound
-    (HealthCheckRound, UNKNOWN_HEALTH_ISSUE): DegenerateRound
-    (AwaitTopUpRound, TOP_UP): HealthCheckRound
+    (AwaitTopUpRound, TOP_UP): PathSelectionRound
+    (AwaitTopUpRound, NO_MAJORITY): AwaitTopUpRound
     (AwaitTopUpRound, ROUND_TIMEOUT): AwaitTopUpRound
