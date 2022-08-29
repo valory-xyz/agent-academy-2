@@ -47,17 +47,19 @@ and proceed to its execution.
 <figure markdown>
 <div class="mermaid">
 stateDiagram-v2
-    HealthCheckRound --> BlacklistedRound: <center>BLACKLISTED</center>
-    HealthCheckRound --> GetJobsRound: <center>HEALTHY</center>
-    HealthCheckRound --> AwaitTopUpRound: <center>INSUFFICIENT_FUNDS</center>
-    HealthCheckRound --> BondingRound: <center>NOT_REGISTERED</center>
-    HealthCheckRound --> DegenerateRound: <center>UNKNOWN_HEALTH_ISSUE</center>
-    ActivationRound --> HealthCheckRound: <center>ACTIVATION_TX</center>
+    PathSelectionRound --> BlacklistedRound: <center>BLACKLISTED</center>
+    PathSelectionRound --> GetJobsRound: <center>HEALTHY</center>
+    PathSelectionRound --> AwaitTopUpRound: <center>INSUFFICIENT_FUNDS</center>
+    PathSelectionRound --> WaitingRound: <center>NOT_ACTIVATED</center>
+    PathSelectionRound --> BondingRound: <center>NOT_BONDED</center>
+    PathSelectionRound --> PathSelectionRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    PathSelectionRound --> DegenerateRound: <center>UNKNOWN_HEALTH_ISSUE</center>
+    ActivationRound --> FinalizeActivationRound: <center>ACTIVATION_TX</center>
     ActivationRound --> WaitingRound: <center>AWAITING_BONDING</center>
     ActivationRound --> ActivationRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    AwaitTopUpRound --> AwaitTopUpRound: <center>ROUND_TIMEOUT</center>
-    AwaitTopUpRound --> HealthCheckRound: <center>TOP_UP</center>
-    BondingRound --> WaitingRound: <center>BONDING_TX</center>
+    AwaitTopUpRound --> AwaitTopUpRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    AwaitTopUpRound --> PathSelectionRound: <center>TOP_UP</center>
+    BondingRound --> FinalizeBondingRound: <center>BONDING_TX</center>
     BondingRound --> BondingRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
     GetJobsRound --> JobSelectionRound: <center>DONE</center>
     GetJobsRound --> GetJobsRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
@@ -68,10 +70,11 @@ stateDiagram-v2
     IsWorkableRound --> IsWorkableRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
     IsWorkableRound --> IsProfitableRound: <center>WORKABLE</center>
     JobSelectionRound --> IsWorkableRound: <center>DONE</center>
-    JobSelectionRound --> HealthCheckRound: <center>NO_JOBS</center>
+    JobSelectionRound --> PathSelectionRound: <center>NO_JOBS</center>
     JobSelectionRound --> JobSelectionRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    PerformWorkRound --> HealthCheckRound: <center>INSUFFICIENT_FUNDS<br />WORK_TX</center>
+    PerformWorkRound --> PathSelectionRound: <center>INSUFFICIENT_FUNDS</center>
     PerformWorkRound --> PerformWorkRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    PerformWorkRound --> FinalizeWorkRound: <center>WORK_TX</center>
     WaitingRound --> ActivationRound: <center>DONE</center>
     WaitingRound --> WaitingRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
 </div>
@@ -96,51 +99,65 @@ that connect their states.
 <figure markdown>
 <div class="mermaid">
 stateDiagram-v2
-    RegistrationStartupRound --> CheckSafeExistenceRound: <center>FAST_FORWARD<br />DONE</center>
+    RegistrationStartupRound --> RandomnessSafeRound: <center>DONE</center>
+    RegistrationStartupRound --> PathSelectionRound: <center>FAST_FORWARD</center>
+    ActivationRound --> RandomnessTransactionSubmissionRound: <center>ACTIVATION_TX</center>
+    ActivationRound --> WaitingRound: <center>AWAITING_BONDING</center>
+    ActivationRound --> ActivationRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    AwaitTopUpRound --> AwaitTopUpRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    AwaitTopUpRound --> PathSelectionRound: <center>TOP_UP</center>
+    BondingRound --> RandomnessTransactionSubmissionRound: <center>BONDING_TX</center>
+    BondingRound --> BondingRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
     CheckLateTxHashesRound --> SynchronizeLateMessagesRound: <center>CHECK_LATE_ARRIVING_MESSAGE</center>
     CheckLateTxHashesRound --> CheckLateTxHashesRound: <center>CHECK_TIMEOUT</center>
     CheckLateTxHashesRound --> ResetAndPauseRound: <center>DONE</center>
     CheckLateTxHashesRound --> FailedRound: <center>NONE<br />NO_MAJORITY<br />NEGATIVE</center>
-    CheckSafeExistenceRound --> JobSelectionRound: <center>DONE</center>
-    CheckSafeExistenceRound --> RandomnessSafeRound: <center>NEGATIVE</center>
-    CheckSafeExistenceRound --> CheckSafeExistenceRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
     CheckTransactionHistoryRound --> SynchronizeLateMessagesRound: <center>CHECK_LATE_ARRIVING_MESSAGE</center>
-    CheckTransactionHistoryRound --> CheckTransactionHistoryRound: <center>NO_MAJORITY<br />CHECK_TIMEOUT</center>
+    CheckTransactionHistoryRound --> CheckTransactionHistoryRound: <center>CHECK_TIMEOUT<br />NO_MAJORITY</center>
     CheckTransactionHistoryRound --> ResetAndPauseRound: <center>DONE</center>
     CheckTransactionHistoryRound --> SelectKeeperTransactionSubmissionRoundB: <center>NEGATIVE</center>
     CheckTransactionHistoryRound --> FailedRound: <center>NONE</center>
     CollectSignatureRound --> FinalizationRound: <center>DONE</center>
     CollectSignatureRound --> ResetRound: <center>NO_MAJORITY</center>
     CollectSignatureRound --> CollectSignatureRound: <center>ROUND_TIMEOUT</center>
-    DeploySafeRound --> SelectKeeperSafeRound: <center>FAILED<br />DEPLOY_TIMEOUT</center>
+    DeploySafeRound --> SelectKeeperSafeRound: <center>DEPLOY_TIMEOUT<br />FAILED</center>
     DeploySafeRound --> ValidateSafeRound: <center>DONE</center>
     FinalizationRound --> CheckTransactionHistoryRound: <center>CHECK_HISTORY</center>
     FinalizationRound --> SynchronizeLateMessagesRound: <center>CHECK_LATE_ARRIVING_MESSAGE</center>
     FinalizationRound --> ValidateTransactionRound: <center>DONE</center>
     FinalizationRound --> SelectKeeperTransactionSubmissionRoundB: <center>FINALIZATION_FAILED<br />INSUFFICIENT_FUNDS</center>
     FinalizationRound --> SelectKeeperTransactionSubmissionRoundBAfterTimeout: <center>FINALIZE_TIMEOUT</center>
-    IsProfitableRound --> PrepareTxRound: <center>DONE</center>
-    IsProfitableRound --> ResetAndPauseRound: <center>NOT_PROFITABLE</center>
+    GetJobsRound --> JobSelectionRound: <center>DONE</center>
+    GetJobsRound --> GetJobsRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    IsProfitableRound --> JobSelectionRound: <center>NOT_PROFITABLE</center>
     IsProfitableRound --> IsProfitableRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    IsWorkableRound --> IsProfitableRound: <center>DONE</center>
-    IsWorkableRound --> ResetAndPauseRound: <center>NOT_WORKABLE</center>
+    IsProfitableRound --> PerformWorkRound: <center>PROFITABLE</center>
+    IsWorkableRound --> JobSelectionRound: <center>NOT_WORKABLE</center>
     IsWorkableRound --> IsWorkableRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    IsWorkableRound --> IsProfitableRound: <center>WORKABLE</center>
     JobSelectionRound --> IsWorkableRound: <center>DONE</center>
-    JobSelectionRound --> ResetAndPauseRound: <center>NOT_WORKABLE</center>
+    JobSelectionRound --> PathSelectionRound: <center>NO_JOBS</center>
     JobSelectionRound --> JobSelectionRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    PrepareTxRound --> RandomnessTransactionSubmissionRound: <center>DONE</center>
-    PrepareTxRound --> PrepareTxRound: <center>NO_MAJORITY</center>
-    PrepareTxRound --> ResetAndPauseRound: <center>ROUND_TIMEOUT</center>
+    PathSelectionRound --> BlacklistedRound: <center>BLACKLISTED</center>
+    PathSelectionRound --> GetJobsRound: <center>HEALTHY</center>
+    PathSelectionRound --> AwaitTopUpRound: <center>INSUFFICIENT_FUNDS</center>
+    PathSelectionRound --> WaitingRound: <center>NOT_ACTIVATED</center>
+    PathSelectionRound --> BondingRound: <center>NOT_BONDED</center>
+    PathSelectionRound --> PathSelectionRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    PathSelectionRound --> DegenerateRound: <center>UNKNOWN_HEALTH_ISSUE</center>
+    PerformWorkRound --> PathSelectionRound: <center>INSUFFICIENT_FUNDS</center>
+    PerformWorkRound --> PerformWorkRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
+    PerformWorkRound --> RandomnessTransactionSubmissionRound: <center>WORK_TX</center>
     RandomnessSafeRound --> SelectKeeperSafeRound: <center>DONE</center>
     RandomnessSafeRound --> RandomnessSafeRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
     RandomnessTransactionSubmissionRound --> SelectKeeperTransactionSubmissionRoundA: <center>DONE</center>
     RandomnessTransactionSubmissionRound --> RandomnessTransactionSubmissionRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    RegistrationRound --> CheckSafeExistenceRound: <center>DONE</center>
+    RegistrationRound --> PathSelectionRound: <center>DONE</center>
     RegistrationRound --> RegistrationRound: <center>NO_MAJORITY</center>
     ResetAndPauseRound --> RegistrationRound: <center>DONE</center>
-    ResetAndPauseRound --> RegistrationStartupRound: <center>NO_MAJORITY<br />RESET_AND_PAUSE_TIMEOUT</center>
+    ResetAndPauseRound --> RegistrationStartupRound: <center>RESET_AND_PAUSE_TIMEOUT<br />NO_MAJORITY</center>
     ResetRound --> RandomnessTransactionSubmissionRound: <center>DONE</center>
-    ResetRound --> FailedRound: <center>RESET_TIMEOUT<br />NO_MAJORITY</center>
+    ResetRound --> FailedRound: <center>NO_MAJORITY<br />RESET_TIMEOUT</center>
     SelectKeeperSafeRound --> DeploySafeRound: <center>DONE</center>
     SelectKeeperSafeRound --> RandomnessSafeRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
     SelectKeeperTransactionSubmissionRoundA --> CollectSignatureRound: <center>DONE</center>
@@ -161,12 +178,14 @@ stateDiagram-v2
     SynchronizeLateMessagesRound --> FailedRound: <center>MISSED_AND_LATE_MESSAGES_MISMATCH</center>
     SynchronizeLateMessagesRound --> SelectKeeperTransactionSubmissionRoundB: <center>NONE</center>
     SynchronizeLateMessagesRound --> SynchronizeLateMessagesRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
-    ValidateSafeRound --> CheckSafeExistenceRound: <center>DONE</center>
+    ValidateSafeRound --> PathSelectionRound: <center>DONE</center>
     ValidateSafeRound --> RandomnessSafeRound: <center>NONE<br />NO_MAJORITY<br />VALIDATE_TIMEOUT<br />NEGATIVE</center>
     ValidateTransactionRound --> ResetAndPauseRound: <center>DONE</center>
     ValidateTransactionRound --> CheckTransactionHistoryRound: <center>NEGATIVE</center>
     ValidateTransactionRound --> SelectKeeperTransactionSubmissionRoundB: <center>NONE<br />VALIDATE_TIMEOUT</center>
     ValidateTransactionRound --> ValidateTransactionRound: <center>NO_MAJORITY</center>
+    WaitingRound --> ActivationRound: <center>DONE</center>
+    WaitingRound --> WaitingRound: <center>ROUND_TIMEOUT<br />NO_MAJORITY</center>
 </div>
 <figcaption>Keep3rAbciApp FSM</figcaption>
 </figure>
