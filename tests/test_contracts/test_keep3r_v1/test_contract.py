@@ -54,7 +54,7 @@ from tests.test_contracts.constants import (
     ONE_ETH,
     SECONDS_PER_DAY,
 )
-
+from autonomy.test_tools.base_test_classes.contracts import BaseContractTest
 
 BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
 ENDPOINT_GANACHE_URI = f"{DEFAULT_GANACHE_ADDR}:{DEFAULT_GANACHE_PORT}"
@@ -63,6 +63,7 @@ ENDPOINT_GANACHE_URI = f"{DEFAULT_GANACHE_ADDR}:{DEFAULT_GANACHE_PORT}"
 class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     """Base class for the Keep3rV1 contract tests"""
 
+    contract: Keep3rV1Contract
     contract_address = KEEP3R_V1_FOR_TEST
     contract_directory = BASE_CONTRACT_PATH / PUBLIC_ID.name
 
@@ -101,12 +102,6 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
         """Get deployment kwargs."""
 
         return dict(gas=DEFAULT_GAS, _kph=cls.deployer_crypto.address)
-
-    @property
-    def contract(self) -> Keep3rV1Contract:  # type: ignore
-        """Get the contract."""
-
-        return cast(Keep3rV1Contract, super().contract)
 
     @property
     def empty_address(self) -> str:
