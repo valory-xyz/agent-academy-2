@@ -22,8 +22,8 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeActivationRound,
     FinalizeBondingRound,
     FinalizeWorkRound,
-    HealthCheckRound,
     Keep3rJobAbciApp,
+    PathSelectionRound,
 )
 from packages.valory.skills.abstract_round_abci.abci_app_chain import (
     AbciAppTransitionMapping,
@@ -56,8 +56,8 @@ from packages.valory.skills.transaction_settlement_abci.rounds import (
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
     FinishedRegistrationRound: RandomnessSafeRound,
-    FinishedRegistrationFFWRound: HealthCheckRound,
-    FinishedSafeRound: HealthCheckRound,
+    FinishedRegistrationFFWRound: PathSelectionRound,
+    FinishedSafeRound: PathSelectionRound,
     FinalizeBondingRound: RandomnessTransactionSubmissionRound,
     FinalizeActivationRound: RandomnessTransactionSubmissionRound,
     FinalizeWorkRound: RandomnessTransactionSubmissionRound,
