@@ -224,7 +224,7 @@ class TestIsWorkableRound(BaseRoundTestClass):
                 ).participant_to_selection
             ]
         )
-        assert event == Event.DONE
+        assert event == Event.WORKABLE
 
     def test_run_negative(
         self,
@@ -318,7 +318,7 @@ class TestIsProfitableRound(BaseRoundTestClass):
                 ).participant_to_selection
             ]
         )
-        assert event == Event.DONE
+        assert event == Event.PROFITABLE
 
     def test_run_negative(
         self,
