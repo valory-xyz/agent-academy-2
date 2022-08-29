@@ -26,12 +26,14 @@ from typing import Any, Dict, cast
 
 from aea.common import JSONLike
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
+from web3 import Web3, HTTPProvider
 from web3.types import Nonce, TxParams, Wei
 
 from autonomy.test_tools.base_test_classes.contracts import (
     BaseGanacheContractWithDependencyTest,
 )
 from autonomy.test_tools.docker.base import skip_docker_tests
+from autonomy.test_tools.docker.ganache import DEFAULT_GANACHE_PORT, DEFAULT_GANACHE_ADDR
 
 from packages.valory.contracts.keep3r_test_job.contract import (
     PUBLIC_ID as TEST_JOB_PUBLIC_ID,
@@ -46,6 +48,7 @@ from tests.test_contracts.constants import DEFAULT_GAS, HALF_A_SECOND, ONE_ETH
 
 
 BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
+ENDPOINT_GANACHE_URI = f"{DEFAULT_GANACHE_ADDR}:{DEFAULT_GANACHE_PORT}"
 
 
 class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
@@ -64,6 +67,8 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
             dict(gas=DEFAULT_GAS),
         ),
     ]
+
+    ganache_provider = Web3(provider=HTTPProvider(ENDPOINT_GANACHE_URI)).provider
 
     @classmethod
     def deployment_kwargs(cls) -> Dict[str, Any]:
