@@ -1,46 +1,87 @@
 alphabet_in:
 - DONE
-- NEGATIVE
-- NOT_PROFITABLE
+- AWAITING_BONDING
+- WORKABLE
 - NOT_WORKABLE
+- PROFITABLE
+- NOT_PROFITABLE
+- BONDING_TX
+- ACTIVATION_TX
+- WORK_TX
+- HEALTHY
+- NOT_BONDED
+- NOT_ACTIVATED
+- INSUFFICIENT_FUNDS
+- BLACKLISTED
+- UNKNOWN_HEALTH_ISSUE
+- TOP_UP
+- NO_JOBS
 - NO_MAJORITY
 - ROUND_TIMEOUT
-default_start_state: CheckSafeExistenceRound
+default_start_state: PathSelectionRound
 final_states:
-- FailedRound
-- FinishedPrepareTxRound
-- NothingToDoRound
-- SafeNotDeployedRound
+- FinalizeBondingRound
+- FinalizeActivationRound
+- FinalizeWorkRound
+- DegenerateRound
+- BlacklistedRound
 label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
 start_states:
-- CheckSafeExistenceRound
+- PathSelectionRound
 states:
-- CheckSafeExistenceRound
-- FailedRound
-- FinishedPrepareTxRound
-- IsProfitableRound
-- IsWorkableRound
+- BondingRound
+- FinalizeBondingRound
+- WaitingRound
+- ActivationRound
+- FinalizeActivationRound
+- GetJobsRound
 - JobSelectionRound
-- NothingToDoRound
-- PrepareTxRound
-- SafeNotDeployedRound
+- IsWorkableRound
+- IsProfitableRound
+- PerformWorkRound
+- FinalizeWorkRound
+- PathSelectionRound
+- AwaitTopUpRound
+- BlacklistedRound
+- DegenerateRound
 transition_func:
-    (CheckSafeExistenceRound, DONE): JobSelectionRound
-    (CheckSafeExistenceRound, NEGATIVE): SafeNotDeployedRound
-    (CheckSafeExistenceRound, NO_MAJORITY): CheckSafeExistenceRound
-    (CheckSafeExistenceRound, ROUND_TIMEOUT): CheckSafeExistenceRound
-    (IsProfitableRound, DONE): PrepareTxRound
-    (IsProfitableRound, NOT_PROFITABLE): NothingToDoRound
-    (IsProfitableRound, NO_MAJORITY): IsProfitableRound
-    (IsProfitableRound, ROUND_TIMEOUT): IsProfitableRound
-    (IsWorkableRound, DONE): IsProfitableRound
-    (IsWorkableRound, NOT_WORKABLE): NothingToDoRound
-    (IsWorkableRound, NO_MAJORITY): IsWorkableRound
-    (IsWorkableRound, ROUND_TIMEOUT): IsWorkableRound
+    (PathSelectionRound, NOT_BONDED): BondingRound
+    (PathSelectionRound, NOT_ACTIVATED): WaitingRound
+    (PathSelectionRound, HEALTHY): GetJobsRound
+    (PathSelectionRound, INSUFFICIENT_FUNDS): AwaitTopUpRound
+    (PathSelectionRound, BLACKLISTED): BlacklistedRound
+    (PathSelectionRound, UNKNOWN_HEALTH_ISSUE): DegenerateRound
+    (PathSelectionRound, NO_MAJORITY): PathSelectionRound
+    (PathSelectionRound, ROUND_TIMEOUT): PathSelectionRound
+    (BondingRound, BONDING_TX): FinalizeBondingRound
+    (BondingRound, NO_MAJORITY): BondingRound
+    (BondingRound, ROUND_TIMEOUT): BondingRound
+    (WaitingRound, DONE): ActivationRound
+    (WaitingRound, NO_MAJORITY): WaitingRound
+    (WaitingRound, ROUND_TIMEOUT): WaitingRound
+    (ActivationRound, ACTIVATION_TX): FinalizeActivationRound
+    (ActivationRound, AWAITING_BONDING): WaitingRound
+    (ActivationRound, NO_MAJORITY): ActivationRound
+    (ActivationRound, ROUND_TIMEOUT): ActivationRound
+    (GetJobsRound, DONE): JobSelectionRound
+    (GetJobsRound, NO_MAJORITY): GetJobsRound
+    (GetJobsRound, ROUND_TIMEOUT): GetJobsRound
     (JobSelectionRound, DONE): IsWorkableRound
-    (JobSelectionRound, NOT_WORKABLE): NothingToDoRound
+    (JobSelectionRound, NO_JOBS): PathSelectionRound
     (JobSelectionRound, NO_MAJORITY): JobSelectionRound
     (JobSelectionRound, ROUND_TIMEOUT): JobSelectionRound
-    (PrepareTxRound, DONE): FinishedPrepareTxRound
-    (PrepareTxRound, NO_MAJORITY): PrepareTxRound
-    (PrepareTxRound, ROUND_TIMEOUT): FailedRound
+    (IsWorkableRound, WORKABLE): IsProfitableRound
+    (IsWorkableRound, NOT_WORKABLE): JobSelectionRound
+    (IsWorkableRound, NO_MAJORITY): IsWorkableRound
+    (IsWorkableRound, ROUND_TIMEOUT): IsWorkableRound
+    (IsProfitableRound, PROFITABLE): PerformWorkRound
+    (IsProfitableRound, NOT_PROFITABLE): JobSelectionRound
+    (IsProfitableRound, NO_MAJORITY): IsProfitableRound
+    (IsProfitableRound, ROUND_TIMEOUT): IsProfitableRound
+    (PerformWorkRound, WORK_TX): FinalizeWorkRound
+    (PerformWorkRound, INSUFFICIENT_FUNDS): PathSelectionRound
+    (PerformWorkRound, NO_MAJORITY): PerformWorkRound
+    (PerformWorkRound, ROUND_TIMEOUT): PerformWorkRound
+    (AwaitTopUpRound, TOP_UP): PathSelectionRound
+    (AwaitTopUpRound, NO_MAJORITY): AwaitTopUpRound
+    (AwaitTopUpRound, ROUND_TIMEOUT): AwaitTopUpRound

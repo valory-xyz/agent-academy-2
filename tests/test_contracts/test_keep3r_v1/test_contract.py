@@ -27,14 +27,17 @@ from typing import Any, Dict, cast
 
 from aea.common import JSONLike
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
-from web3 import Web3, HTTPProvider
-from web3.types import Nonce, TxParams, Wei, RPCEndpoint
+from web3 import HTTPProvider, Web3
+from web3.types import Nonce, RPCEndpoint, TxParams, Wei
 
 from autonomy.test_tools.base_test_classes.contracts import (
     BaseGanacheContractWithDependencyTest,
 )
 from autonomy.test_tools.docker.base import skip_docker_tests
-from autonomy.test_tools.docker.ganache import DEFAULT_GANACHE_PORT, DEFAULT_GANACHE_ADDR
+from autonomy.test_tools.docker.ganache import (
+    DEFAULT_GANACHE_ADDR,
+    DEFAULT_GANACHE_PORT,
+)
 
 from packages.valory.contracts.keep3r_test_job.contract import (
     PUBLIC_ID as TEST_JOB_PUBLIC_ID,
@@ -45,7 +48,12 @@ from packages.valory.contracts.keep3r_v1_library.contract import (
 )
 
 from tests.conftest import KEEP3R_V1_FOR_TEST, ROOT_DIR
-from tests.test_contracts.constants import DEFAULT_GAS, HALF_A_SECOND, ONE_ETH, SECONDS_PER_DAY
+from tests.test_contracts.constants import (
+    DEFAULT_GAS,
+    HALF_A_SECOND,
+    ONE_ETH,
+    SECONDS_PER_DAY,
+)
 
 
 BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
@@ -75,7 +83,8 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     def mine_block(cls) -> None:
         """Force a block to be mined. Takes no parameters. Mines a block independent of whether or not mining is started or stopped."""
 
-        cls.ganache_provider.make_request(RPCEndpoint("evm_mine"), [])
+        endpoint = RPCEndpoint("evm_mine")
+        cls.ganache_provider.make_request(endpoint, [])
         block_number = cls.ledger_api.api.eth.get_block_number()
         logging.info(f"Block {block_number} forcefully mined")
 
@@ -83,8 +92,9 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     def time_jump(cls, seconds: int) -> None:
         """Jump forward in time. Takes one parameter, which is the amount of time to increase in seconds."""
 
-        response = cls.ganache_provider.make_request(RPCEndpoint("evm_increaseTime"), [seconds])
-        logging.info(f"Time jumped to {response['result']}")
+        endpoint = RPCEndpoint("evm_increaseTime")
+        response = cls.ganache_provider.make_request(endpoint, [seconds])
+        logging.info(f"Time jumped to {response['result']} seconds")
 
     @classmethod
     def deployment_kwargs(cls) -> Dict[str, Any]:
