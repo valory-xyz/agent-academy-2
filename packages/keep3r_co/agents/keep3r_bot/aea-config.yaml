@@ -25,8 +25,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeif2c3jt4tim3zbfq5c2lds7bs6qj5gvj2obk3pzdk3uy6zk2ivo3e
 - valory/tendermint:0.1.0:bafybeihcnjhovvyyfbkuw5sjyfx2lfd4soeocfqzxz54g67333m6nk5gxq
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeiaeug2zlic64hphgqriomxnosxgxc6zsv7muspoesmgy6ycmtg65q
-- keep3r_co/keep3r_job:0.1.0:bafybeicecvltpcu7ydi4i5vmos6iqhc34vi5eblayikxfeai5om5wthjya
+- keep3r_co/keep3r_abci:0.1.0:bafybeiajmxwcnqcp2c3pt3le2getr7qfpl53h5ks2bknqluiphyn7tvvei
+- keep3r_co/keep3r_job:0.1.0:bafybeigsp3ah7ciuq4sy773pgz24stxtuqbjsr7cqqrds6zibr4ww7eigy
 - valory/abstract_abci:0.1.0:bafybeiam52ztcss46i3tgywuv4qmvddqgn7exmbt5kcicqpyip4kfeyap4
 - valory/abstract_round_abci:0.1.0:bafybeiayewfb2ytovp7exhawqwbw63eerx4tw53ztey5r4ozbtcvsw3gua
 - valory/registration_abci:0.1.0:bafybeibe2so7dcm2sivhum7gqik27c73a6v7gf3aligmbbucgh2zh2wvzu
