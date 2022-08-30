@@ -65,6 +65,7 @@ class Params(BaseParams):
         self.validate_timeout = self._ensure("validate_timeout", kwargs)
         self.finalize_timeout = self._ensure("finalize_timeout", kwargs)
         self.job_contract_addresses = self._ensure("job_contract_addresses", kwargs)
+        self.keep3r_v1_contract_address = self._ensure("keep3r_v1_contract_address", kwargs)
         super().__init__(*args, **kwargs)
 
 

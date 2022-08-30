@@ -75,6 +75,7 @@ models:
       finalize_timeout: 60.0
       job_contract_addresses:
       - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      keep3r_v1_contract_address: "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
