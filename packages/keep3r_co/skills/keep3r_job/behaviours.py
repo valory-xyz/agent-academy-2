@@ -288,9 +288,9 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         - If a timeout is hit, set exit A event, otherwise set done event.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            work_tx = None
-            while work_tx is None:
-                work_tx = yield from self._get_raw_work_transaction_hash()
+            work_tx = yield from self._get_raw_work_transaction_hash()
+            if not work_tx:
+                return
             payload = WorkTxPayload(self.context.agent_address, work_tx)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
