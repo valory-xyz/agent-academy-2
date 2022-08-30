@@ -146,7 +146,7 @@ class TestPerformWorkRound(BaseRoundTestClass):
         test_hash = "test_hash"
 
         first_payload, *payloads = [
-            WorkTxPayload(sender=participant, tx_hash=test_hash)
+            WorkTxPayload(sender=participant, work_tx=test_hash)
             for participant in self.participants
         ]
 

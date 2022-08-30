@@ -188,9 +188,9 @@ class GetJobsPayload(BaseKeep3rJobPayload):
         self._job_list = job_list
 
     @property
-    def job_list(self) -> Tuple[str, ...]:
+    def job_list(self) -> str:
         """Get the job list."""
-        return tuple(self._job_list)
+        return "".join(self._job_list)
 
 
 class JobSelectionPayload(BaseKeep3rJobPayload):
