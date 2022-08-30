@@ -18,7 +18,9 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the transaction payloads for the keep3r_job app."""
-from abc import ABC
+
+from abc import ABC, abstractmethod
+from collections.abc import Hashable
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -44,47 +46,135 @@ class TransactionType(Enum):
         return self.value
 
 
-class BaseAbciPayload(BaseTxPayload, ABC):
+class BaseKeep3rJobPayload(BaseTxPayload, ABC):
     """Base class for the simple abci demo."""
 
-    def __hash__(self) -> int:
-        """Hash the payload."""
-        return hash(tuple(sorted(self.data.items())))
+    @property
+    @abstractmethod
+    def _data_keys(self) -> Tuple[str]:
+        """Attributes to be retrieved and used as keys in .data()"""
+
+    @property
+    def data(self) -> Dict[str, Hashable]:
+        """Get the data for this payload"""
+
+        return {k: getattr(self, k) for k in self._data_keys}
 
 
-class PathSelectionPayload(BaseTxPayload):
+class PathSelectionPayload(BaseKeep3rJobPayload):
     """PathSelectionPayload"""
 
+    _data_keys: Tuple[str] = ("path_selection",)
     transaction_type = TransactionType.SELECTED_PATH
 
+    def __init__(self, sender: str, path_selection: str, **kwargs: Any) -> None:
+        """Initialize a 'path_selection' payload.
 
-class BondingTxPayload(BaseTxPayload):
+        :param sender: the sender (Ethereum) address
+        :param bonding_tx: the bonding transaction
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._path_selection = path_selection
+
+    @property
+    def path_selection(self) -> str:
+        """Get path_selection"""
+        return self._path_selection
+
+
+class BondingTxPayload(BaseKeep3rJobPayload):
     """BondingTxPayload"""
 
+    _data_keys: Tuple[str] = ("bonding_tx",)
     transaction_type = TransactionType.BONDING_TX
 
+    def __init__(self, sender: str, bonding_tx: str, **kwargs: Any) -> None:
+        """Initialize a 'bonding_tx' payload.
 
-class WaitingPayload(BaseTxPayload):
+        :param sender: the sender (Ethereum) address
+        :param bonding_tx: the bonding transaction
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._bonding_tx = bonding_tx
+
+    @property
+    def bonding_tx(self) -> str:
+        """Get done_waiting"""
+        return self._bonding_tx
+
+
+class WaitingPayload(BaseKeep3rJobPayload):
     """WaitingPayload"""
 
+    _data_keys: Tuple[str] = ("done_waiting",)
     transaction_type = TransactionType.DONE_WAITING
 
+    def __init__(self, sender: str, done_waiting: bool, **kwargs: Any) -> None:
+        """Initialize a 'done_waiting' payload.
 
-class ActivationTxPayload(BaseTxPayload):
+        :param sender: the sender (Ethereum) address
+        :param is_waiting: whether agent is done waiting
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._done_waiting = done_waiting
+
+    @property
+    def done_waiting(self) -> bool:
+        """Get done_waiting"""
+        return self._done_waiting
+
+
+class ActivationTxPayload(BaseKeep3rJobPayload):
     """ActivationPayload"""
 
+    _data_keys: Tuple[str] = ("activation_tx",)
     transaction_type = TransactionType.ACTIVATION_TX
 
+    def __init__(self, sender: str, activation_tx: str, **kwargs: Any) -> None:
+        """Initialize a 'activation_tx' payload.
 
-class TopUpPayload(BaseTxPayload):
+        :param sender: the sender (Ethereum) address
+        :param activation_tx: the activation transaction
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._activation_tx = activation_tx
+
+    @property
+    def activation_tx(self) -> str:
+        """Get the activation transaction"""
+        return self._activation_tx
+
+
+class TopUpPayload(BaseKeep3rJobPayload):
     """TopUpPayload"""
 
+    _data_keys: Tuple[str] = ("top_up",)
     transaction_type = TransactionType.TOP_UP
 
+    def __init__(self, sender: str, top_up: bool, **kwargs: Any) -> None:
+        """Initialize a 'top_up' payload.
 
-class GetJobsPayload(BaseTxPayload):
+        :param sender: the sender (Ethereum) address
+        :param topped_up: increase in funds detected
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._top_up = top_up
+
+    @property
+    def top_up(self) -> bool:
+        """Get top_up."""
+        return self._top_up
+
+
+class GetJobsPayload(BaseKeep3rJobPayload):
     """GetJobsPayload"""
 
+    _data_keys: Tuple[str] = ("job_list",)
     transaction_type = TransactionType.JOB_LIST
 
     def __init__(self, sender: str, job_list: List[str], **kwargs: Any) -> None:
@@ -103,16 +193,17 @@ class GetJobsPayload(BaseTxPayload):
         return tuple(self._job_list)
 
 
-class JobSelectionPayload(BaseAbciPayload):
+class JobSelectionPayload(BaseKeep3rJobPayload):
     """Represent a transaction payload of type 'job_selection'."""
 
+    _data_keys: Tuple[str] = ("job_selection",)
     transaction_type = TransactionType.JOB_SELECTION
 
     def __init__(self, sender: str, job_selection: Any, **kwargs: Any) -> None:
-        """Initialize an 'select_keeper' transaction payload.
+        """Initialize an 'job_selection' payload.
 
         :param sender: the sender (Ethereum) address
-        :param job_selection: Select a job
+        :param job_selection: Selected job address
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
@@ -123,23 +214,15 @@ class JobSelectionPayload(BaseAbciPayload):
         """Get the job selection."""
         return self._job_selection
 
-    @property
-    def data(self) -> Dict[str, Optional[Any]]:
-        """Get the data."""
-        return (
-            dict(job_selection=self.job_selection)
-            if self._job_selection is not None
-            else {}
-        )
 
-
-class IsWorkablePayload(BaseAbciPayload):
+class IsWorkablePayload(BaseKeep3rJobPayload):
     """Represent a transaction payload of type 'is_workable'."""
 
+    _data_keys: Tuple[str] = ("is_workable",)
     transaction_type = TransactionType.IS_WORKABLE
 
     def __init__(self, sender: str, is_workable: bool, **kwargs: Any) -> None:
-        """Initialize an 'select_keeper' transaction payload.
+        """Initialize an 'is_workable' payload.
 
         :param sender: the sender (Ethereum) address
         :param is_workable: whether the contract is workable
@@ -153,44 +236,11 @@ class IsWorkablePayload(BaseAbciPayload):
         """Get whether the contract is workable."""
         return self._is_workable
 
-    @property
-    def data(self) -> Dict[str, Optional[bool]]:
-        """Get the data."""
-        return (
-            dict(is_workable=self.is_workable) if self._is_workable is not None else {}
-        )
 
-
-class WorkTxPayload(BaseAbciPayload):
-    """Represent a transaction payload of type 'randomness'."""
-
-    transaction_type = TransactionType.WORK_TX
-
-    def __init__(self, sender: str, tx_hash: Optional[str], **kwargs: Any) -> None:
-        """Initialize an 'prepare_tx' transaction payload.
-
-        :param sender: the sender (Ethereum) address
-        :param tx_hash: the hash of the raw transaction
-        :param kwargs: the keyword arguments
-        """
-        super().__init__(sender, **kwargs)
-        self._tx_hash = tx_hash
-
-    @property
-    def tx_hash(self) -> Optional[str]:
-        """Get the tx hash"""
-        return self._tx_hash
-
-    @property
-    def data(self) -> Dict[str, Optional[str]]:
-        """Get the data."""
-        return dict(tx_hash=self.tx_hash) if self.tx_hash is not None else {}
-
-
-class IsProfitablePayload(BaseAbciPayload):
+class IsProfitablePayload(BaseKeep3rJobPayload):
     """Represent a transaction payload of type 'is_profitable'."""
 
-    # Why do I have to set this transaction type here if it's not used anywhere else?
+    _data_keys: Tuple[str] = ("is_profitable",)
     transaction_type = TransactionType.IS_PROFITABLE
 
     def __init__(self, sender: str, is_profitable: bool, **kwargs: Any) -> None:
@@ -208,11 +258,24 @@ class IsProfitablePayload(BaseAbciPayload):
         """Get whether the contract is profitable."""
         return self._is_profitable
 
+
+class WorkTxPayload(BaseKeep3rJobPayload):
+    """Represent a transaction payload of type 'randomness'."""
+
+    _data_keys: Tuple[str] = ("work_tx",)
+    transaction_type = TransactionType.WORK_TX
+
+    def __init__(self, sender: str, work_tx: str, **kwargs: Any) -> None:
+        """Initialize a 'work_tx' payload.
+
+        :param sender: the sender (Ethereum) address
+        :param tx_hash: the hash of the raw transaction
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._work_tx = work_tx
+
     @property
-    def data(self) -> Dict[str, Optional[bool]]:
-        """Get the data."""
-        return (
-            dict(is_profitable=self.is_profitable)
-            if self.is_profitable is not None
-            else {}
-        )
+    def work_tx(self) -> str:
+        """Get the work transaction"""
+        return self._work_tx
