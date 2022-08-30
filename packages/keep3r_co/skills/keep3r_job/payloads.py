@@ -28,44 +28,20 @@ from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 class TransactionType(Enum):
     """Enumeration of transaction types."""
 
+    SELECTED_PATH = "selected_path"
+    TOP_UP = "top_up"
+    BONDING_TX = "bonding_tx"
+    DONE_WAITING = "done_waiting"
+    ACTIVATION_TX = "activation_tx"
     JOB_LIST = "job_list"
-    PREPARE_TX = "prepare_tx"
-    SAFE_EXISTENCE = "safe_existence"
-    IS_WORKABLE = "is_workable"
     JOB_SELECTION = "job_selection"
+    IS_WORKABLE = "is_workable"
     IS_PROFITABLE = "is_profitable"
+    WORK_TX = "work_tx"
 
     def __str__(self) -> str:
         """Get the string value of the transaction type."""
         return self.value
-
-
-class SafeExistencePayload(BaseTxPayload):
-    """Represent a transaction payload of type 'safe_existence'."""
-
-    transaction_type = TransactionType.SAFE_EXISTENCE
-
-    def __init__(self, sender: str, safe_exists: bool, **kwargs: Any) -> None:
-        """Initialize an 'safe_existence' transaction payload.
-
-        :param sender: the sender (Ethereum) address
-        :param safe_exists: whether a safe contract exists
-        :param kwargs: the keyword arguments
-        """
-        super().__init__(sender, **kwargs)
-        self._safe_exists = safe_exists
-
-    @property
-    def safe_exists(self) -> Optional[bool]:
-        """Get the safe_exists."""
-        return self._safe_exists
-
-    @property
-    def data(self) -> Dict:
-        """Get the data."""
-        return (
-            dict(safe_exists=self.safe_exists) if self.safe_exists is not None else {}
-        )
 
 
 class BaseAbciPayload(BaseTxPayload, ABC):
@@ -74,6 +50,36 @@ class BaseAbciPayload(BaseTxPayload, ABC):
     def __hash__(self) -> int:
         """Hash the payload."""
         return hash(tuple(sorted(self.data.items())))
+
+
+class PathSelectionPayload(BaseTxPayload):
+    """PathSelectionPayload"""
+
+    transaction_type = TransactionType.SELECTED_PATH
+
+
+class BondingTxPayload(BaseTxPayload):
+    """BondingTxPayload"""
+
+    transaction_type = TransactionType.BONDING_TX
+
+
+class WaitingPayload(BaseTxPayload):
+    """WaitingPayload"""
+
+    transaction_type = TransactionType.DONE_WAITING
+
+
+class ActivationTxPayload(BaseTxPayload):
+    """ActivationPayload"""
+
+    transaction_type = TransactionType.ACTIVATION_TX
+
+
+class TopUpPayload(BaseTxPayload):
+    """TopUpPayload"""
+
+    transaction_type = TransactionType.TOP_UP
 
 
 class GetJobsPayload(BaseTxPayload):
@@ -155,10 +161,10 @@ class IsWorkablePayload(BaseAbciPayload):
         )
 
 
-class TXHashPayload(BaseAbciPayload):
+class WorkTxPayload(BaseAbciPayload):
     """Represent a transaction payload of type 'randomness'."""
 
-    transaction_type = TransactionType.PREPARE_TX
+    transaction_type = TransactionType.WORK_TX
 
     def __init__(self, sender: str, tx_hash: Optional[str], **kwargs: Any) -> None:
         """Initialize an 'prepare_tx' transaction payload.
