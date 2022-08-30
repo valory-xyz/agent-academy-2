@@ -27,6 +27,7 @@ import pytest
 from aea.helpers.transaction.base import RawTransaction
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
+    GetJobsBehaviour,
     IsProfitableBehaviour,
     IsWorkableBehaviour,
     JobSelectionBehaviour,
@@ -48,7 +49,10 @@ from packages.keep3r_co.skills.keep3r_job.rounds import Event
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeWorkRound as FinishedPrepareTxRound,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import IsProfitableRound
+from packages.keep3r_co.skills.keep3r_job.rounds import (
+    IsProfitableRound,
+    JobSelectionRound,
+)
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     PerformWorkRound as PrepareTxRound,
 )
@@ -56,7 +60,8 @@ from packages.keep3r_co.skills.keep3r_job.rounds import SynchronizedData
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
 )
-from packages.valory.contracts.keep3r_test_job.contract import PUBLIC_ID as CONTRACT_ID
+from packages.valory.contracts.keep3r_test_job.contract import PUBLIC_ID as TEST_JOB_CONTRACT_ID
+from packages.valory.contracts.keep3r_v1.contract import PUBLIC_ID as KEEP3R_V1_CONTRACT_ID
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbciAppDB, BaseTxPayload
 from packages.valory.skills.abstract_round_abci.behaviour_utils import (
@@ -103,16 +108,52 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     def setup(cls, **kwargs: Any) -> None:
         """Set up the test class."""
         super().setup(**kwargs)
-        cls.synchronized_data = SynchronizedData(
-            AbciAppDB(
-                setup_data={},
-            )
-        )
+        cls.synchronized_data = SynchronizedData(AbciAppDB(setup_data={}))
 
     @property
     def current_behaviour(self) -> BaseBehaviour:
         """Current behaviour"""
         return cast(BaseBehaviour, self.behaviour.current_behaviour)
+
+
+class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test GetJobsBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = GetJobsBehaviour
+
+    def test_get_jobs(self) -> None:
+        """Test get_jobs."""
+
+        address = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
+        data = dict(keep3r_v1_contract_address=address)
+        self.fast_forward_to_behaviour(
+            self.behaviour,
+            GetJobsBehaviour.behaviour_id,
+            SynchronizedData(AbciAppDB(setup_data=AbciAppDB.data_to_lists(data))),
+        )
+        assert self.current_behaviour.behaviour_id == GetJobsBehaviour.behaviour_id
+
+        contract_callable = "get_jobs"
+        self.behaviour.act_wrapper()
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=contract_callable,
+            ),
+            contract_id=str(KEEP3R_V1_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=contract_callable,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": ["some_job_address"]},
+                ),
+            ),
+        )
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.DONE)
+        assert self.current_behaviour.behaviour_id == JobSelectionRound.round_id
 
 
 @pytest.mark.skip("ABCIApp redesign: no payment assigned yet")
