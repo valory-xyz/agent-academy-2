@@ -27,6 +27,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
+    GetJobsPayload,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -183,25 +184,26 @@ class ActivationRound(Keep3rJobAbstractRound):
         raise NotImplementedError
 
 
-class GetJobsRound(AbstractRound):
+class GetJobsRound(Keep3rJobAbstractRound):
     """GetJobsRound"""
 
     round_id: str = "get_jobs"
-    allowed_tx_type: Optional[TransactionType]  # type: ignore
-    payload_attribute: str
+    allowed_tx_type = GetJobsPayload.transaction_type
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.DONE, Event.NO_MAJORITY)
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        if self.threshold_reached:
+            job_list = self.most_voted_payload
+            state = self.synchronized_data.update(job_list=job_list)
+            if not job_list:
+                return state, Event.NO_JOBS
+            return state, Event.DONE
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 class JobSelectionRound(Keep3rJobAbstractRound):
