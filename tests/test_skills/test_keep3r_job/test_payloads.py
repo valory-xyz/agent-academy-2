@@ -19,21 +19,36 @@
 
 """Test the payloads.py module of the skill."""
 
+from typing import List
+
+import pytest
+
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    GetJobsPayload,
     IsProfitablePayload,
-    TXHashPayload,
     TransactionType,
+    WorkTxPayload,
 )
+
+
+@pytest.mark.parametrize("job_list", [[], ["job_address"]])
+def test_get_jobs_payload(job_list: List[str]) -> None:
+    """Test `IsProfitablePayload`"""
+
+    payload = GetJobsPayload(sender="sender", job_list=job_list)
+    assert payload.sender == "sender"
+    assert payload.job_list == job_list
+    assert payload.transaction_type == TransactionType.JOB_LIST
 
 
 def test_preparetx_payload() -> None:
     """Test `TXHashPayload`"""
 
-    payload = TXHashPayload(sender="sender", tx_hash="test_hash")
+    payload = WorkTxPayload(sender="sender", tx_hash="test_hash")
 
     assert payload.sender == "sender"
     assert payload.tx_hash == "test_hash"
-    assert payload.transaction_type == TransactionType.PREPARE_TX
+    assert payload.transaction_type == TransactionType.WORK_TX
 
 
 def test_is_profitable_payload() -> None:
