@@ -98,6 +98,20 @@ class Keep3rV1Contract(Contract):
         return contract.functions.isKeeper(keeper=address).call()
 
     @classmethod
+    def build_add_job_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+        job: str,
+    ) -> RawTransaction:
+        """Allows governance to add new job systems."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        function = contract.functions.addJob(job=job)
+        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+
+    @classmethod
     def build_approve_tx(
         cls,
         ledger_api: EthereumApi,
