@@ -26,6 +26,7 @@ from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
+    GetJobsPayload,
     JobSelectionPayload,
     TXHashPayload,
 )
@@ -44,6 +45,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     WaitingRound,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
@@ -65,6 +67,11 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     def params(self) -> Params:
         """Return the params."""
         return cast(Params, self.context.params)
+
+    @property
+    def keep3r_v1_contract_address(self) -> str:
+        """Return Keep3r V1 Contract address."""
+        return self.context.params.keep3r_v1_contract_address
 
     @property
     def current_job_contract(self) -> Optional[str]:
@@ -126,9 +133,25 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "get_jobs"
     matching_round: Type[AbstractRound] = GetJobsRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
-        """Do the act, supporting asynchronous execution."""
+        """Behaviour to get the current job listing"""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            contract_api_response = yield from self.get_contract_api_response(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                contract_address=self.keep3r_v1_contract_address,
+                contract_id=str(Keep3rV1Contract.contract_id),
+                contract_callable="get_jobs",
+            )
+            job_list = contract_api_response.state.body.get("data")
+            payload = GetJobsPayload(self.context.agent_address, job_list=job_list)
+            self.context.logger.info(f"Job list retrieved: {job_list}")
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
 
 
 class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
