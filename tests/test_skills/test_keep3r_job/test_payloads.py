@@ -33,7 +33,7 @@ def test_preparetx_payload() -> None:
 
     assert payload.sender == "sender"
     assert payload.tx_hash == "test_hash"
-    assert payload.transaction_type == TransactionType.PREPARE_TX
+    assert payload.transaction_type == TransactionType.WORK_TX
 
 
 def test_is_profitable_payload() -> None:

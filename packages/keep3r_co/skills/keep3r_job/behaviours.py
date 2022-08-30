@@ -20,13 +20,14 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC, abstractmethod
-from typing import Generator, Optional, Set, Type, cast
+from typing import Any, Dict, Generator, Optional, Set, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
+    PathSelectionPayload,
     TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
@@ -45,7 +46,9 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
+from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
+from packages.valory.protocols.ledger_api.message import LedgerApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
@@ -67,6 +70,11 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         return cast(Params, self.context.params)
 
     @property
+    def keep3r_v1_contract_address(self) -> str:
+        """Get the Keep3r contract address."""
+        return cast(str, self.context.params.keep3r_v1_contract_address)
+
+    @property
     def current_job_contract(self) -> Optional[str]:
         """Get current job contract address"""
         if not self.context.params.job_contract_addresses:
@@ -74,6 +82,80 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         addresses = self.context.params.job_contract_addresses
         job_ix = self.synchronized_data.period_count % len(addresses)
         return self.context.params.job_contract_addresses[job_ix]
+
+
+class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
+    """PathSelectionBehaviour"""
+
+    behaviour_id: str = "path_selection"
+    matching_round: Type[AbstractRound] = PathSelectionRound
+
+    def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
+        """Read Keep3r V1 contract state"""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+            contract_address=self.current_job_contract,
+            contract_id=str(Keep3rV1Contract.contract_id),
+            contract_callable=method,
+            **kwargs,
+        )
+        return contract_api_response.state.body.get("data")
+
+    def is_bonded_keep3r(self, bond_time: int) -> Generator[None, None, bool]:
+        """Is bonded keep3r"""
+
+        bond = yield from self.read_keep3r_v1("BOND")  # contract parameter
+        ledger_api_response = yield from self.get_ledger_api_response(
+            performative=LedgerApiMessage.Performative.GET_STATE,
+            ledger_callable="get_block",
+            block_identifier="latest",
+        )
+        latest_block = cast(Dict, ledger_api_response.state.body.get("data"))
+        return latest_block["timestamp"] > bond_time + bond
+
+    def has_sufficient_funds(self, address: str) -> Generator[None, None, bool]:
+        """Has sufficient funds"""
+
+        ledger_api_response = yield from self.get_ledger_api_response(
+            performative=LedgerApiMessage.Performative.GET_STATE,
+            ledger_callable="get_balance",
+            account=address,
+        )
+        balance = cast(int, ledger_api_response.state.body.get("data"))
+        return balance >= cast(int, self.context.params.threshold)
+
+    def select_path(self) -> str:
+        """Select path to traverse"""
+
+        address = self.synchronized_data.safe_contract_address
+        blacklisted = self.read_keep3r_v1("blacklisted", address=address)
+        if blacklisted:  # pylint: disable=using-constant-test
+            return "BLACKLISTED"
+        sufficient_funds = self.has_sufficient_funds(address)
+        if not sufficient_funds:
+            return "INSUFFICIENT_FUNDS"
+        bond_time = cast(int, self.read_keep3r_v1("bondings", address=address))
+        if not bond_time:
+            return "NOT_BONDED"
+        bonded_keeper = self.is_bonded_keep3r(bond_time)
+        if not bonded_keeper:
+            return "NOT_ACTIVATED"
+        return "HEALTHY"
+
+    def async_act(self) -> Generator:
+        """Behaviour to select the path to traverse"""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            path = self.select_path()
+            payload = PathSelectionPayload(self.context.agent_address, path)
+            self.context.logger.info(f"Selected path: {path}")
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
 
 
 class BondingBehaviour(Keep3rJobBaseBehaviour):
@@ -103,17 +185,6 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
 
     behaviour_id: str = "activation"
     matching_round: Type[AbstractRound] = ActivationRound
-
-    @abstractmethod
-    def async_act(self) -> Generator:
-        """Do the act, supporting asynchronous execution."""
-
-
-class HealthCheckBehaviour(Keep3rJobBaseBehaviour):
-    """HealthCheckBehaviour"""
-
-    behaviour_id: str = "health_check"
-    matching_round: Type[AbstractRound] = PathSelectionRound
 
     @abstractmethod
     def async_act(self) -> Generator:
@@ -336,6 +407,7 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     initial_behaviour_cls = BondingBehaviour
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviours: Set[Type[BaseBehaviour]] = {
+        PathSelectionBehaviour,  # type: ignore
         BondingBehaviour,  # type: ignore
         WaitingBehaviour,  # type: ignore
         ActivationBehaviour,  # type: ignore
@@ -344,6 +416,5 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
         IsWorkableBehaviour,  # type: ignore
         IsProfitableBehaviour,  # type: ignore
         PerformWorkBehaviour,  # type: ignore
-        HealthCheckBehaviour,  # type: ignore
         AwaitTopUpBehaviour,  # type: ignore
     }

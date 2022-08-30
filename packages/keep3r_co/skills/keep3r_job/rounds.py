@@ -27,6 +27,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
+    PathSelectionPayload,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -95,29 +96,29 @@ class PathSelectionRound(Keep3rJobAbstractRound):
     """HealthCheckRound"""
 
     round_id: str = "path_selection"
-    allowed_tx_type: Optional[TransactionType]  # type: ignore
+    allowed_tx_type = PathSelectionPayload.transaction_type
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (
-            Event.NOT_BONDED,
-            Event.NOT_ACTIVATED,
-            Event.HEALTHY,
-            Event.INSUFFICIENT_FUNDS,
-            Event.BLACKLISTED,
-            Event.NO_MAJORITY,
-            Event.UNKNOWN_HEALTH_ISSUE,
-        )
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        path_transitions = {
+            "NOT_BONDED": Event.NOT_BONDED,
+            "NOT_ACTIVATED": Event.NOT_ACTIVATED,
+            "HEALTHY": Event.HEALTHY,
+            "INSUFFICIENT_FUNDS": Event.INSUFFICIENT_FUNDS,
+            "BLACKLISTED": Event.BLACKLISTED,
+            "UNKNOWN_HEALTH_ISSUE": Event.UNKNOWN_HEALTH_ISSUE,
+        }
+        if self.threshold_reached:
+            selected_path = self.most_voted_payload
+            state = self.synchronized_data.update(selected_path=selected_path)
+            return state, path_transitions[selected_path]
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 class BondingRound(Keep3rJobAbstractRound):
