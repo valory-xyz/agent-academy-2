@@ -20,7 +20,7 @@
 """This module contains the transaction payloads for the keep3r_job app."""
 from abc import ABC
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -28,6 +28,7 @@ from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 class TransactionType(Enum):
     """Enumeration of transaction types."""
 
+    JOB_LIST = "job_list"
     PREPARE_TX = "prepare_tx"
     SAFE_EXISTENCE = "safe_existence"
     IS_WORKABLE = "is_workable"
@@ -73,6 +74,27 @@ class BaseAbciPayload(BaseTxPayload, ABC):
     def __hash__(self) -> int:
         """Hash the payload."""
         return hash(tuple(sorted(self.data.items())))
+
+
+class GetJobsPayload(BaseTxPayload):
+    """GetJobsPayload"""
+
+    transaction_type = TransactionType.JOB_LIST
+
+    def __init__(self, sender: str, job_list: List[str], **kwargs: Any) -> None:
+        """Initialize an 'get_jobs' transaction payload.
+
+        :param sender: the sender (Ethereum) address
+        :param job_list: The job list
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._job_list = job_list
+
+    @property
+    def job_list(self) -> List[str]:
+        """Get the job list."""
+        return self._job_list
 
 
 class JobSelectionPayload(BaseAbciPayload):
