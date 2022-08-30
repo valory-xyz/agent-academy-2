@@ -37,7 +37,7 @@ def test_get_jobs_payload(job_list: List[str]) -> None:
 
     payload = GetJobsPayload(sender="sender", job_list=job_list)
     assert payload.sender == "sender"
-    assert payload.job_list == job_list
+    assert payload.job_list == tuple(job_list)
     assert payload.transaction_type == TransactionType.JOB_LIST
 
 

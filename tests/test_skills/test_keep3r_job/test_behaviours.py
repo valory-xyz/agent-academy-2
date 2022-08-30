@@ -60,8 +60,12 @@ from packages.keep3r_co.skills.keep3r_job.rounds import SynchronizedData
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
 )
-from packages.valory.contracts.keep3r_test_job.contract import PUBLIC_ID as TEST_JOB_CONTRACT_ID
-from packages.valory.contracts.keep3r_v1.contract import PUBLIC_ID as KEEP3R_V1_CONTRACT_ID
+from packages.valory.contracts.keep3r_test_job.contract import (
+    PUBLIC_ID as TEST_JOB_CONTRACT_ID,
+)
+from packages.valory.contracts.keep3r_v1.contract import (
+    PUBLIC_ID as KEEP3R_V1_CONTRACT_ID,
+)
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbciAppDB, BaseTxPayload
 from packages.valory.skills.abstract_round_abci.behaviour_utils import (
@@ -196,7 +200,7 @@ class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
                 performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
                 contract_address=SOME_CONTRACT_ADDRESS,
             ),
-            contract_id=str(CONTRACT_ID),
+            contract_id=str(TEST_JOB_CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.RAW_TRANSACTION,
                 callable="work",
@@ -314,7 +318,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
                 performative=ContractApiMessage.Performative.GET_STATE,
                 callable=self.CONTRACT_CALLABLE,
             ),
-            contract_id=str(CONTRACT_ID),
+            contract_id=str(TEST_JOB_CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.STATE,
                 callable=self.CONTRACT_CALLABLE,
@@ -348,7 +352,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
                 performative=ContractApiMessage.Performative.GET_STATE,
                 callable=self.CONTRACT_CALLABLE,
             ),
-            contract_id=str(CONTRACT_ID),
+            contract_id=str(TEST_JOB_CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.STATE,
                 callable=self.CONTRACT_CALLABLE,
@@ -391,7 +395,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.behaviour.context.params.profitability_threshold = 100
         self.behaviour.act_wrapper()
         self.mock_contract_api_request(
-            contract_id=str(CONTRACT_ID),
+            contract_id=str(TEST_JOB_CONTRACT_ID),
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_STATE,
                 callable=self.CONTRACT_CALLABLE,
@@ -427,7 +431,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.behaviour.context.params.profitability_threshold = 100
         self.behaviour.act_wrapper()
         self.mock_contract_api_request(
-            contract_id=str(CONTRACT_ID),
+            contract_id=str(TEST_JOB_CONTRACT_ID),
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_STATE,
                 callable=self.CONTRACT_CALLABLE,
