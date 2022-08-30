@@ -44,6 +44,7 @@ def test_path_selection_payload(path_selection: str) -> None:
     assert payload.sender == "sender"
     assert payload.path_selection == path_selection
     assert payload.transaction_type == TransactionType.SELECTED_PATH
+    assert payload.from_json(payload.json) == payload
 
 
 @pytest.mark.parametrize("bonding_tx", ["tx_hash"])
@@ -54,6 +55,7 @@ def test_bonding_tx_payload(bonding_tx: str) -> None:
     assert payload.sender == "sender"
     assert payload.bonding_tx == bonding_tx
     assert payload.transaction_type == TransactionType.BONDING_TX
+    assert payload.from_json(payload.json) == payload
 
 
 @pytest.mark.parametrize("done_waiting", [True, False])
@@ -64,6 +66,7 @@ def test_waiting_payload(done_waiting: bool) -> None:
     assert payload.sender == "sender"
     assert payload.done_waiting == done_waiting
     assert payload.transaction_type == TransactionType.DONE_WAITING
+    assert payload.from_json(payload.json) == payload
 
 
 @pytest.mark.parametrize("activation_tx", ["tx_hash"])
@@ -74,6 +77,7 @@ def test_activation_tx_payload(activation_tx: str) -> None:
     assert payload.sender == "sender"
     assert payload.activation_tx == activation_tx
     assert payload.transaction_type == TransactionType.ACTIVATION_TX
+    assert payload.from_json(payload.json) == payload
 
 
 @pytest.mark.parametrize("job_list", [[], ["job_address"]])
@@ -84,6 +88,7 @@ def test_get_jobs_payload(job_list: List[str]) -> None:
     assert payload.sender == "sender"
     assert payload.job_list == "".join(job_list)
     assert payload.transaction_type == TransactionType.JOB_LIST
+    assert payload.from_json(payload.json) == payload
 
 
 @pytest.mark.parametrize("is_workable", [True, False])
@@ -94,6 +99,7 @@ def test_is_workable_payload(is_workable: bool) -> None:
     assert payload.sender == "sender"
     assert payload.is_workable == is_workable
     assert payload.transaction_type == TransactionType.IS_WORKABLE
+    assert payload.from_json(payload.json) == payload
 
 
 @pytest.mark.parametrize("is_profitable", [True, False])
@@ -104,6 +110,7 @@ def test_is_profitable_payload(is_profitable: bool) -> None:
     assert payload.sender == "sender"
     assert payload.is_profitable == is_profitable
     assert payload.transaction_type == TransactionType.IS_PROFITABLE
+    assert payload.from_json(payload.json) == payload
 
 
 @pytest.mark.parametrize("work_tx", ["tx_hash"])
@@ -114,3 +121,4 @@ def test_work_tx_payload(work_tx: str) -> None:
     assert payload.sender == "sender"
     assert payload.work_tx == work_tx
     assert payload.transaction_type == TransactionType.WORK_TX
+    assert payload.from_json(payload.json) == payload
