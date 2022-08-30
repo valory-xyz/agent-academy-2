@@ -19,8 +19,8 @@
 
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Generator, Optional, Set, Type, cast
+from abc import ABC
+from typing import Any, Dict, Generator, List, Optional, Set, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
@@ -28,13 +28,14 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
-    WorkTxPayload,
     PathSelectionPayload,
+    WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
     AwaitTopUpRound,
     BondingRound,
+    Event,
     GetJobsRound,
     IsProfitableRound,
     IsWorkableRound,
@@ -90,6 +91,7 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
 
     behaviour_id: str = "path_selection"
     matching_round: Type[AbstractRound] = PathSelectionRound
+    transitions = PathSelectionRound.transitions
 
     def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
         """Read Keep3r V1 contract state"""
@@ -126,23 +128,23 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         balance = cast(int, ledger_api_response.state.body.get("data"))
         return balance >= cast(int, self.context.params.threshold)
 
-    def select_path(self) -> str:
+    def select_path(self) -> Event:
         """Select path to traverse"""
 
         address = self.synchronized_data.safe_contract_address
         blacklisted = self.read_keep3r_v1("blacklisted", address=address)
         if blacklisted:  # pylint: disable=using-constant-test
-            return "BLACKLISTED"
+            return self.transitions["BLACKLISTED"]
         sufficient_funds = self.has_sufficient_funds(address)
         if not sufficient_funds:
-            return "INSUFFICIENT_FUNDS"
+            return self.transitions["INSUFFICIENT_FUNDS"]
         bond_time = cast(int, self.read_keep3r_v1("bondings", address=address))
         if not bond_time:
-            return "NOT_BONDED"
+            return self.transitions["NOT_BONDED"]
         bonded_keeper = self.is_bonded_keep3r(bond_time)
         if not bonded_keeper:
-            return "NOT_ACTIVATED"
-        return "HEALTHY"
+            return self.transitions["NOT_ACTIVATED"]
+        return self.transitions["HEALTHY"]
 
     def async_act(self) -> Generator:
         """Behaviour to select the path to traverse"""

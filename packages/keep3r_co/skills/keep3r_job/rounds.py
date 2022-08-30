@@ -21,7 +21,7 @@
 
 from abc import ABC
 from enum import Enum
-from typing import List, Optional, Set, Tuple, Type, cast
+from typing import Dict, List, Optional, Set, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
@@ -105,21 +105,22 @@ class PathSelectionRound(Keep3rJobAbstractRound):
     allowed_tx_type: TransactionType = PathSelectionPayload.transaction_type
     payload_attribute: str
 
+    transitions: Dict[str, Event] = {
+        "NOT_BONDED": Event.NOT_BONDED,
+        "NOT_ACTIVATED": Event.NOT_ACTIVATED,
+        "HEALTHY": Event.HEALTHY,
+        "INSUFFICIENT_FUNDS": Event.INSUFFICIENT_FUNDS,
+        "BLACKLISTED": Event.BLACKLISTED,
+        "UNKNOWN_HEALTH_ISSUE": Event.UNKNOWN_HEALTH_ISSUE,
+    }
+
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
-        path_transitions = {
-            "NOT_BONDED": Event.NOT_BONDED,
-            "NOT_ACTIVATED": Event.NOT_ACTIVATED,
-            "HEALTHY": Event.HEALTHY,
-            "INSUFFICIENT_FUNDS": Event.INSUFFICIENT_FUNDS,
-            "BLACKLISTED": Event.BLACKLISTED,
-            "UNKNOWN_HEALTH_ISSUE": Event.UNKNOWN_HEALTH_ISSUE,
-        }
         if self.threshold_reached:
             selected_path = self.most_voted_payload
             state = self.synchronized_data.update(selected_path=selected_path)
-            return state, path_transitions[selected_path]
+            return state, self.transitions[selected_path]
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
