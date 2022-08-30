@@ -26,13 +26,15 @@ from unittest import mock
 import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
-    TXHashPayload,
+    WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
+    GetJobsRound,
     IsProfitableRound,
     IsWorkableRound,
     JobSelectionRound,
@@ -88,6 +90,46 @@ class BaseRoundTestClass:
             assert event == Event.NO_MAJORITY
 
 
+class TestGetJobsRound(BaseRoundTestClass):
+    """Tests for GetJobsRound."""
+
+    def test_run(self) -> None:
+        """Run tests."""
+
+        job_list = [
+            "some_job_address",
+        ]
+        test_round = GetJobsRound(
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
+        )
+
+        first_payload, *payloads = [
+            GetJobsPayload(sender=participant, job_list=job_list)
+            for participant in self.participants
+        ]
+
+        test_round.process_payload(first_payload)
+        assert test_round.collection == {first_payload.sender: first_payload}
+        assert test_round.end_block() is None
+
+        for payload in payloads:
+            test_round.process_payload(payload)
+
+        actual_next_state = self.synchronized_data.update(
+            most_voted_tx_hash=test_round.most_voted_payload,
+        )
+
+        res = test_round.end_block()
+        assert res is not None
+        state, event = res
+        assert (
+            cast(SynchronizedData, state).participants
+            == cast(SynchronizedData, actual_next_state).participants
+        )
+        assert event == Event.DONE
+
+
 @pytest.mark.skip("ABCIApp redesign: no payment assigned yet")
 class TestPerformWorkRound(BaseRoundTestClass):
     """Tests for PrepareTxRound."""
@@ -104,7 +146,7 @@ class TestPerformWorkRound(BaseRoundTestClass):
         test_hash = "test_hash"
 
         first_payload, *payloads = [
-            TXHashPayload(sender=participant, tx_hash=test_hash)
+            WorkTxPayload(sender=participant, work_tx=test_hash)
             for participant in self.participants
         ]
 

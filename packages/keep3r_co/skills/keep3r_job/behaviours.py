@@ -20,15 +20,16 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generator, Optional, Set, Type, cast
+from typing import Any, Dict, List, Generator, Optional, Set, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
+    WorkTxPayload,
     PathSelectionPayload,
-    TXHashPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
@@ -71,8 +72,8 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
 
     @property
     def keep3r_v1_contract_address(self) -> str:
-        """Get the Keep3r contract address."""
-        return cast(str, self.context.params.keep3r_v1_contract_address)
+        """Return Keep3r V1 Contract address."""
+        return self.context.params.keep3r_v1_contract_address
 
     @property
     def current_job_contract(self) -> Optional[str]:
@@ -164,7 +165,6 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "bonding"
     matching_round: Type[AbstractRound] = BondingRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
@@ -175,7 +175,6 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "waiting"
     matching_round: Type[AbstractRound] = WaitingRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
@@ -186,7 +185,6 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "activation"
     matching_round: Type[AbstractRound] = ActivationRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
@@ -197,9 +195,25 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "get_jobs"
     matching_round: Type[AbstractRound] = GetJobsRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
-        """Do the act, supporting asynchronous execution."""
+        """Behaviour to get the current job listing"""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            contract_api_response = yield from self.get_contract_api_response(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                contract_address=self.keep3r_v1_contract_address,
+                contract_id=str(Keep3rV1Contract.contract_id),
+                contract_callable="get_jobs",
+            )
+            job_list = cast(List[str], contract_api_response.state.body.get("data"))
+            payload = GetJobsPayload(self.context.agent_address, job_list=job_list)
+            self.context.logger.info(f"Job list retrieved: {job_list}")
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
 
 
 class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
@@ -339,9 +353,10 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         - If a timeout is hit, set exit A event, otherwise set done event.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-
-            tx_hash = yield from self._get_raw_work_transaction_hash()
-            payload = TXHashPayload(self.context.agent_address, tx_hash)
+            work_tx = yield from self._get_raw_work_transaction_hash()
+            if not work_tx:
+                return
+            payload = WorkTxPayload(self.context.agent_address, work_tx)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -396,7 +411,6 @@ class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "await_top_up"
     matching_round: Type[AbstractRound] = AwaitTopUpRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 

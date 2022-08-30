@@ -8,18 +8,19 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeic7rbk42siqz5di7gm6j3ua2fjyr7bg5omght722khtauppzdlzom
+  behaviours.py: bafybeib6gkponleho23nvq5fbzbyuelte3lvjfvc7i2d6asyaxfbxikcju
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
   fsm_specification.yaml: bafybeifjaklbcefmwqkr45ar7ak3fkhodb73ulddamwot7lymqbrc55j4q
   handlers.py: bafybeie6ntjlqfb5glkciuo56pisvgobi2tuqhcjlzm7h5uvhgi2ipxrzq
-  models.py: bafybeiggqqqgqvtqwqc6tnfebegsjygiehvolal4o3t5zn5fgrffk2wsme
-  payloads.py: bafybeihrm34flnqzjkaqtlbbezjwmh2in7abzbwnkuc725oh5nig4nro2q
-  rounds.py: bafybeiakqzw4whsybdavq4dgivkipjsirr4qnwbdsiozvdfzbckclonxp4
+  models.py: bafybeih6jrjxhgdl3tff4fh27qgpl7fvpctypcj3nvu4zy43jmtukmdouq
+  payloads.py: bafybeihh3ux37qjzkkojum5l3aq2qvtazmbsgighlrux6krd6l56dukvkm
+  rounds.py: bafybeiebzs6klsiemvb6hfdhpzregvveqm3mavpqqrmvpdvewtjezive5a
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeif5ump4p7p5bygqyxeznwdvtdhtwihxnjnvjajbcnt7rmcyzyjafy
 - valory/keep3r_test_job:0.1.0:bafybeid4k344cidfr5f7d5xxdlygzqdrgqdfauhsdfti3uvky3d5pxko5a
+- valory/keep3r_v1:0.1.0:bafybeiaqlidkagllrawoz6k6upbm3dshpzq2j5gdonwxvjbz547tzlrava
 protocols:
 - valory/contract_api:1.0.0:bafybeigkedpmqhm7lrqusnkyfcapyx3dlkz2djfq74hou5pwtrskxgvuxu
 skills:
@@ -75,7 +76,7 @@ models:
       finalize_timeout: 60.0
       job_contract_addresses:
       - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
-      keep3r_contract_address: '0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC'
+      keep3r_v1_contract_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
