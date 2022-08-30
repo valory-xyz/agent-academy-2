@@ -20,7 +20,7 @@
 """This module contains the transaction payloads for the keep3r_job app."""
 from abc import ABC
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -98,9 +98,9 @@ class GetJobsPayload(BaseTxPayload):
         self._job_list = job_list
 
     @property
-    def job_list(self) -> List[str]:
+    def job_list(self) -> Tuple[str, ...]:
         """Get the job list."""
-        return self._job_list
+        return tuple(self._job_list)
 
 
 class JobSelectionPayload(BaseAbciPayload):
