@@ -20,15 +20,15 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC, abstractmethod
-from typing import Generator, Optional, Set, Type, cast
+from typing import Generator, List, Optional, Set, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
-    GetJobsPayload,
     JobSelectionPayload,
-    TXHashPayload,
+    WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
@@ -45,8 +45,8 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     WaitingRound,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
-from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
+from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
 from packages.valory.skills.abstract_round_abci.behaviours import (
@@ -89,7 +89,6 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "bonding"
     matching_round: Type[AbstractRound] = BondingRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
@@ -100,7 +99,6 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "waiting"
     matching_round: Type[AbstractRound] = WaitingRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
@@ -111,7 +109,6 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "activation"
     matching_round: Type[AbstractRound] = ActivationRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
@@ -143,7 +140,7 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
                 contract_id=str(Keep3rV1Contract.contract_id),
                 contract_callable="get_jobs",
             )
-            job_list = contract_api_response.state.body.get("data")
+            job_list = cast(List[str], contract_api_response.state.body.get("data"))
             payload = GetJobsPayload(self.context.agent_address, job_list=job_list)
             self.context.logger.info(f"Job list retrieved: {job_list}")
 
@@ -293,7 +290,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             tx_hash = yield from self._get_raw_work_transaction_hash()
-            payload = TXHashPayload(self.context.agent_address, tx_hash)
+            payload = WorkTxPayload(self.context.agent_address, tx_hash)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)

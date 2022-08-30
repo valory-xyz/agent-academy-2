@@ -24,10 +24,17 @@ from enum import Enum
 from typing import List, Optional, Set, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    ActivationTxPayload,
+    BondingTxPayload,
+    GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
-    GetJobsPayload,
+    PathSelectionPayload,
+    TopUpPayload,
+    TransactionType,
+    WaitingPayload,
+    WorkTxPayload,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -39,7 +46,6 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
     DegenerateRound,
     EventToTimeout,
-    TransactionType,
 )
 
 
@@ -96,7 +102,7 @@ class PathSelectionRound(Keep3rJobAbstractRound):
     """HealthCheckRound"""
 
     round_id: str = "path_selection"
-    allowed_tx_type: Optional[TransactionType]  # type: ignore
+    allowed_tx_type: TransactionType = PathSelectionPayload.transaction_type
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
@@ -125,7 +131,7 @@ class BondingRound(Keep3rJobAbstractRound):
     """BondingRound"""
 
     round_id: str = "bonding"
-    allowed_tx_type: Optional[TransactionType]  # type: ignore
+    allowed_tx_type: TransactionType = BondingTxPayload.transaction_type
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
@@ -146,7 +152,7 @@ class WaitingRound(Keep3rJobAbstractRound):
     """WaitingRound"""
 
     round_id: str = "waiting"
-    allowed_tx_type: Optional[TransactionType]  # type: ignore
+    allowed_tx_type: TransactionType = WaitingPayload.transaction_type
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
@@ -167,7 +173,7 @@ class ActivationRound(Keep3rJobAbstractRound):
     """ActivationRound"""
 
     round_id: str = "activation"
-    allowed_tx_type: Optional[TransactionType]  # type: ignore
+    allowed_tx_type: TransactionType = ActivationTxPayload.transaction_type
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
@@ -188,7 +194,7 @@ class GetJobsRound(Keep3rJobAbstractRound):
     """GetJobsRound"""
 
     round_id: str = "get_jobs"
-    allowed_tx_type = GetJobsPayload.transaction_type
+    allowed_tx_type: TransactionType = GetJobsPayload.transaction_type
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -210,7 +216,7 @@ class JobSelectionRound(Keep3rJobAbstractRound):
     """JobSelectionRound"""
 
     round_id = "job_selection"
-    allowed_tx_type = JobSelectionPayload.transaction_type
+    allowed_tx_type: TransactionType = JobSelectionPayload.transaction_type
     payload_attribute = "job_selection"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
@@ -233,7 +239,7 @@ class IsWorkableRound(Keep3rJobAbstractRound):
     """IsWorkableRound"""
 
     round_id = "is_workable"
-    allowed_tx_type = IsWorkablePayload.transaction_type
+    allowed_tx_type: TransactionType = IsWorkablePayload.transaction_type
     payload_attribute = "is_workable"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
@@ -257,7 +263,7 @@ class IsProfitableRound(Keep3rJobAbstractRound):
     """IsProfitableRound"""
 
     round_id = "is_profitable"
-    allowed_tx_type = IsProfitablePayload.transaction_type
+    allowed_tx_type: TransactionType = IsProfitablePayload.transaction_type
     payload_attribute = "is_profitable"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
@@ -280,7 +286,7 @@ class PerformWorkRound(Keep3rJobAbstractRound):
     """PerformWorkRound"""
 
     round_id: str = "perform_work"
-    allowed_tx_type: Optional[TransactionType]  # type: ignore
+    allowed_tx_type: TransactionType = WorkTxPayload.transaction_type
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
@@ -301,7 +307,7 @@ class AwaitTopUpRound(Keep3rJobAbstractRound):
     """AwaitTopUpRound"""
 
     round_id: str = "await_top_up"
-    allowed_tx_type: Optional[TransactionType]  # type: ignore
+    allowed_tx_type: TransactionType = TopUpPayload.transaction_type
     payload_attribute: str
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
