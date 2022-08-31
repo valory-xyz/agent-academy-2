@@ -38,6 +38,7 @@ from packages.keep3r_co.skills.keep3r_job.behaviours import (
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     PerformWorkBehaviour as PrepareTxBehaviour,
 )
+from packages.keep3r_co.skills.keep3r_job.behaviours import WaitingBehaviour
 from packages.keep3r_co.skills.keep3r_job.handlers import (
     ContractApiHandler,
     HttpHandler,
@@ -45,6 +46,7 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
     SigningHandler,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    ActivationRound,
     AwaitTopUpRound,
     BlacklistedRound,
     BondingRound,
@@ -267,7 +269,7 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.behaviour.act_wrapper()
 
     def test_bonding_tx(self) -> None:
-        """Text bonding tx"""
+        """Test bonding tx"""
 
         self.mock_keep3r_v1_call("build_bond_tx", {})
         self.mock_a2a_transaction()
@@ -275,6 +277,31 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.end_round(done_event=Event.BONDING_TX)
         expected = f"degenerate_{FinalizeBondingRound.round_id}"
         assert self.current_behaviour.behaviour_id == expected
+
+
+class TestWaitingBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test BondingBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = WaitingBehaviour
+
+    def setup(self, **kwargs: Any) -> None:  # type: ignore
+        """Setup"""
+        super().setup(**kwargs)
+        address = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
+        data = dict(safe_contract_address=address)
+        self.fast_forward(data)
+        self.behaviour.act_wrapper()
+
+    def test_waiting(self) -> None:
+        """Test waiting"""
+
+        self.mock_keep3r_v1_call("bondings", 0)
+        self.mock_keep3r_v1_call("BOND", 1)
+        self.mock_get_latest_block(block={"timestamp": 2})
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.DONE)
+        assert self.current_behaviour.behaviour_id == ActivationRound.round_id
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
