@@ -33,6 +33,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsWorkablePayload,
     JobSelectionPayload,
     PathSelectionPayload,
+    WaitingPayload,
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
@@ -46,6 +47,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     PathSelectionRound,
     PerformWorkRound,
     SynchronizedData,
+    WaitingRound,
 )
 from packages.valory.skills.abstract_round_abci.base import (
     AbciAppDB,
@@ -148,6 +150,21 @@ class TestBondingRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(bonding_tx=bonding_tx)
         event = self.complete_round(next_state)
         assert event == Event.BONDING_TX
+
+
+class TestWaitingRound(BaseRoundTestClass):
+    """Tests for BondingRound."""
+
+    round_class = WaitingRound
+    payload_class = WaitingPayload
+
+    @pytest.mark.parametrize("done_waiting", [True])
+    def test_run(self, done_waiting: bool) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(done_waiting=done_waiting)
+        event = self.complete_round(next_state)
+        assert event == Event.DONE
 
 
 class TestGetJobsRound(BaseRoundTestClass):
