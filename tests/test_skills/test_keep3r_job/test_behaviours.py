@@ -21,12 +21,13 @@
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, Type, cast
+from typing import Any, Dict, Type, cast, Optional
 
 import pytest
 from aea.helpers.transaction.base import RawTransaction
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
+    PathSelectionBehaviour,
     GetJobsBehaviour,
     IsProfitableBehaviour,
     IsWorkableBehaviour,
@@ -50,6 +51,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeWorkRound as FinishedPrepareTxRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    BlacklistedRound,
     IsProfitableRound,
     JobSelectionRound,
 )
@@ -108,6 +110,8 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     benchmark_dir: TemporaryDirectory
     done_event = Event.DONE
 
+    behaviour_class: Type[BaseBehaviour]
+
     @classmethod
     def setup(cls, **kwargs: Any) -> None:
         """Set up the test class."""
@@ -118,6 +122,59 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     def current_behaviour(self) -> BaseBehaviour:
         """Current behaviour"""
         return cast(BaseBehaviour, self.behaviour.current_behaviour)
+
+    def fast_forward(self, data: Optional[Dict[str, Any]] = None):
+        """Fast-forward"""
+
+        data = data if data is not None else {}
+        self.fast_forward_to_behaviour(
+            self.behaviour,
+            self.behaviour_class.behaviour_id,
+            SynchronizedData(AbciAppDB(setup_data=AbciAppDB.data_to_lists(data))),
+        )
+        assert self.current_behaviour.behaviour_id == self.behaviour_class.behaviour_id
+
+    def mock_keep3r_v1_call(self, contract_callable: str, data: Any):
+        """Mock keep3r V1 contract call"""
+
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=contract_callable,
+            ),
+            contract_id=str(KEEP3R_V1_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=contract_callable,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": data},
+                ),
+            ),
+        )
+
+
+class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test GetJobsBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = PathSelectionBehaviour
+
+    def setup(self, **kwargs: Any) -> None:
+        super().setup()
+        address = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
+        data = dict(safe_contract_address=address)
+        self.fast_forward(data)
+        self.behaviour.act_wrapper()
+
+    def test_blacklist(self) -> None:
+        """Test path_selection to blacklisted."""
+
+        self.mock_keep3r_v1_call("blacklist", True)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.BLACKLISTED)
+        expected = f"degenerate_{BlacklistedRound.round_id}"
+        assert self.current_behaviour.behaviour_id == expected
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -130,12 +187,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
         address = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
         data = dict(keep3r_v1_contract_address=address)
-        self.fast_forward_to_behaviour(
-            self.behaviour,
-            GetJobsBehaviour.behaviour_id,
-            SynchronizedData(AbciAppDB(setup_data=AbciAppDB.data_to_lists(data))),
-        )
-        assert self.current_behaviour.behaviour_id == GetJobsBehaviour.behaviour_id
+        self.fast_forward(data)
 
         contract_callable = "get_jobs"
         self.behaviour.act_wrapper()
