@@ -55,6 +55,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeWorkRound as FinishedPrepareTxRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    BondingRound,
     IsProfitableRound,
     JobSelectionRound,
 )
@@ -169,7 +170,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             ),
         )
 
-    def mock_ethereum_get_balance(self, amount: int):
+    def mock_ethereum_get_balance(self, amount: int) -> None:
         """Mock call to ethereum ledger for reading balance"""
 
         self.mock_ethereum_ledger_state_call(amount)
@@ -206,6 +207,17 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.INSUFFICIENT_FUNDS)
         assert self.current_behaviour.behaviour_id == AwaitTopUpRound.round_id
+
+    def test_not_bonded(self) -> None:
+        """Test path_selection to insufficient funds."""
+
+        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_keep3r_v1_call("bondings", 0)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.NOT_BONDED)
+        assert self.current_behaviour.behaviour_id == BondingRound.round_id
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
