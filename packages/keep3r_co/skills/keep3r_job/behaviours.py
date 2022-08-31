@@ -85,14 +85,6 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         job_ix = self.synchronized_data.period_count % len(addresses)
         return self.context.params.job_contract_addresses[job_ix]
 
-
-class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
-    """PathSelectionBehaviour"""
-
-    behaviour_id: str = "path_selection"
-    matching_round: Type[AbstractRound] = PathSelectionRound
-    transitions = PathSelectionRound.transitions
-
     def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
         """Read Keep3r V1 contract state"""
 
@@ -129,6 +121,14 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         balance = cast(int, ledger_api_response.state.body.get("data"))
         self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
+
+
+class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
+    """PathSelectionBehaviour"""
+
+    behaviour_id: str = "path_selection"
+    matching_round: Type[AbstractRound] = PathSelectionRound
+    transitions = PathSelectionRound.transitions
 
     def select_path(self) -> Generator[None, None, Any]:
         """Select path to traverse"""
