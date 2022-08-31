@@ -30,6 +30,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsWorkablePayload,
     JobSelectionPayload,
     PathSelectionPayload,
+    WaitingPayload,
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
@@ -200,6 +201,24 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+
+            address = self.synchronized_data.safe_contract_address
+            bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+            done_waiting = yield from self.has_bonded(bond_time)
+            self.context.logger.info(f"Done waiting: {done_waiting}")
+            if not done_waiting:
+                return
+            payload = WaitingPayload(
+                self.context.agent_address, done_waiting=done_waiting
+            )
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
 
 
 class ActivationBehaviour(Keep3rJobBaseBehaviour):
