@@ -8,11 +8,11 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeigpc7ecqraj4lmgsxtgccvh4r2qv6iqpidg6d7m3iyp2u2q4ridvi
+  behaviours.py: bafybeic5oxnvyh52zimd27dc7b6ksgmkhsxkr7rcklkecfqxu3c5vv266u
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
   fsm_specification.yaml: bafybeifjaklbcefmwqkr45ar7ak3fkhodb73ulddamwot7lymqbrc55j4q
   handlers.py: bafybeie6ntjlqfb5glkciuo56pisvgobi2tuqhcjlzm7h5uvhgi2ipxrzq
-  models.py: bafybeih6jrjxhgdl3tff4fh27qgpl7fvpctypcj3nvu4zy43jmtukmdouq
+  models.py: bafybeifxjxhec2vsi7oitjxqdzsgou5w4bg7addhzu7zttjokgncqkiayu
   payloads.py: bafybeifgyhcppjkndwqfrzso54c7kmkjwtmdmfsz7vsasoxojwwhlfy4wq
   rounds.py: bafybeieudtfgqk5xswxk4z3zbnn542tai47ee5hmw5qsb3kmmwnbthtqoy
 fingerprint_ignore_patterns: []
@@ -20,7 +20,7 @@ connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeif5ump4p7p5bygqyxeznwdvtdhtwihxnjnvjajbcnt7rmcyzyjafy
 - valory/keep3r_test_job:0.1.0:bafybeid4k344cidfr5f7d5xxdlygzqdrgqdfauhsdfti3uvky3d5pxko5a
-- valory/keep3r_v1:0.1.0:bafybeidhrdsbkragusag2ggdmdizhymlufla6n5su5sxctq6acccutist4
+- valory/keep3r_v1:0.1.0:bafybeibkeo5r4i2lopjk4vo6lz3rdlghmrf5nb554t5h3e7qn3ne4xt6ny
 protocols:
 - valory/contract_api:1.0.0:bafybeigkedpmqhm7lrqusnkyfcapyx3dlkz2djfq74hou5pwtrskxgvuxu
 - valory/ledger_api:1.0.0:bafybeif2c3jt4tim3zbfq5c2lds7bs6qj5gvj2obk3pzdk3uy6zk2ivo3e
@@ -74,8 +74,8 @@ models:
       consensus:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
-      insufficient_funds_threshold: 0
       finalize_timeout: 60.0
+      insufficient_funds_threshold: 0
       job_contract_addresses:
       - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       keep3r_v1_contract_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'

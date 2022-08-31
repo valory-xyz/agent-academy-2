@@ -92,7 +92,7 @@ class Keep3rV1Contract(Contract):
         contract_address: str,
         address: str,
     ) -> int:
-        """Tracks all current bondings (time)"""
+        """Tracks all current bond times (start)"""
 
         contract = cls.get_instance(ledger_api, contract_address)
         return contract.functions.bondings(address, contract.address).call()

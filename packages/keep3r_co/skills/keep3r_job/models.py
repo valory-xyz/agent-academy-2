@@ -68,7 +68,9 @@ class Params(BaseParams):
         self.keep3r_v1_contract_address = self._ensure(
             "keep3r_v1_contract_address", kwargs
         )
-        self.insufficient_funds_threshold = self._ensure("insufficient_funds_threshold", kwargs)
+        self.insufficient_funds_threshold = self._ensure(
+            "insufficient_funds_threshold", kwargs
+        )
         super().__init__(*args, **kwargs)
 
 

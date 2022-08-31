@@ -18,7 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the behaviours for the 'keep3r_job' skill."""
-import logging
+
 from abc import ABC
 from typing import Any, Dict, Generator, List, Optional, Set, Type, cast
 
@@ -35,7 +35,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
     AwaitTopUpRound,
     BondingRound,
-    Event,
     GetJobsRound,
     IsProfitableRound,
     IsWorkableRound,
@@ -103,11 +102,11 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
             contract_callable=method,
             **kwargs,
         )
-        logging.error(contract_api_response)
+        self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
         return contract_api_response.state.body.get("data")
 
-    def is_bonded_keep3r(self, bond_time: int) -> Generator[None, None, bool]:
-        """Is bonded keep3r"""
+    def has_bonded(self, bond_time: int) -> Generator[None, None, bool]:
+        """Check if bonding is completed"""
 
         bond = yield from self.read_keep3r_v1("BOND")  # contract parameter
         ledger_api_response = yield from self.get_ledger_api_response(
@@ -127,6 +126,7 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
             account=address,
         )
         balance = cast(int, ledger_api_response.state.body.get("data"))
+        self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
 
     def select_path(self) -> Generator[None, None, Any]:
@@ -134,8 +134,7 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
 
         address = self.synchronized_data.safe_contract_address
         blacklisted = yield from self.read_keep3r_v1("blacklist", address=address)
-        logging.error(f"blacklisted: {blacklisted}")
-        if blacklisted:  # pylint: disable=using-constant-test
+        if blacklisted:
             return self.transitions["BLACKLISTED"].name
         sufficient_funds = yield from self.has_sufficient_funds(address)
         if not sufficient_funds:
@@ -143,7 +142,7 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         bond_time = yield from self.read_keep3r_v1("bondings", address=address)
         if not bond_time:
             return self.transitions["NOT_BONDED"].name
-        bonded_keeper = yield from self.is_bonded_keep3r(bond_time)
+        bonded_keeper = yield from self.has_bonded(bond_time)
         if not bonded_keeper:
             return self.transitions["NOT_ACTIVATED"].name
         return self.transitions["HEALTHY"].name
