@@ -26,6 +26,7 @@ from unittest import mock
 import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    ActivationTxPayload,
     BaseKeep3rJobPayload,
     BondingTxPayload,
     GetJobsPayload,
@@ -37,6 +38,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    ActivationRound,
     BondingRound,
     Event,
     GetJobsRound,
@@ -165,6 +167,21 @@ class TestWaitingRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(done_waiting=done_waiting)
         event = self.complete_round(next_state)
         assert event == Event.DONE
+
+
+class TestActivationRound(BaseRoundTestClass):
+    """Tests for ActivationRound."""
+
+    round_class = ActivationRound
+    payload_class = ActivationTxPayload
+
+    @pytest.mark.parametrize("activation_tx", ["some_raw_tx_hash"])
+    def test_run(self, activation_tx: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(activation_tx=activation_tx)
+        event = self.complete_round(next_state)
+        assert event == Event.ACTIVATION_TX
 
 
 class TestGetJobsRound(BaseRoundTestClass):
