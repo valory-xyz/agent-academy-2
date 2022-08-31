@@ -127,7 +127,7 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
             account=address,
         )
         balance = cast(int, ledger_api_response.state.body.get("data"))
-        return balance >= cast(int, self.context.params.threshold)
+        return balance >= cast(int, self.context.params.insufficient_funds_threshold)
 
     def select_path(self) -> Generator[None, None, Any]:
         """Select path to traverse"""
