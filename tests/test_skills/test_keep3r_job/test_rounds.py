@@ -27,6 +27,7 @@ import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     BaseKeep3rJobPayload,
+    BondingTxPayload,
     GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
@@ -35,6 +36,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    BondingRound,
     Event,
     GetJobsRound,
     IsProfitableRound,
@@ -131,6 +133,21 @@ class TestPathSelectionRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(path_selection=path_selection)
         event = self.complete_round(next_state)
         assert event == PathSelectionRound.transitions[path_selection]
+
+
+class TestBondingRound(BaseRoundTestClass):
+    """Tests for PathSelectionRound."""
+
+    round_class = BondingRound
+    payload_class = BondingTxPayload
+
+    @pytest.mark.parametrize("bonding_tx", ["some_raw_tx_hash"])
+    def test_run(self, bonding_tx: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(bonding_tx=bonding_tx)
+        event = self.complete_round(next_state)
+        assert event == Event.BONDING_TX
 
 
 class TestGetJobsRound(BaseRoundTestClass):
