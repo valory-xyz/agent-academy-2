@@ -45,8 +45,8 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     AwaitTopUpRound,
-    WaitingRound,
     BlacklistedRound,
+    BondingRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     DegenerateRound as NothingToDoRound,
@@ -56,14 +56,14 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeWorkRound as FinishedPrepareTxRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
-    BondingRound,
+    GetJobsRound,
     IsProfitableRound,
     JobSelectionRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     PerformWorkRound as PrepareTxRound,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import SynchronizedData
+from packages.keep3r_co.skills.keep3r_job.rounds import SynchronizedData, WaitingRound
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
 )
@@ -188,8 +188,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     behaviour_class: Type[BaseBehaviour] = PathSelectionBehaviour
 
-    def setup(self, **kwargs: Any) -> None:
-        super().setup()
+    def setup(self, **kwargs: Any) -> None:  # type: ignore
+        """Setup"""
+        super().setup(**kwargs)
         address = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
         data = dict(safe_contract_address=address)
         self.fast_forward(data)
@@ -238,6 +239,19 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.NOT_ACTIVATED)
         assert self.current_behaviour.behaviour_id == WaitingRound.round_id
+
+    def test_healthy(self) -> None:
+        """Test path_selection to healthy."""
+
+        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_keep3r_v1_call("bondings", 1)
+        self.mock_keep3r_v1_call("BOND", 3 * SECONDS_PER_DAY)
+        self.mock_get_latest_block(block={"timestamp": 3 * SECONDS_PER_DAY + 1})
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.HEALTHY)
+        assert self.current_behaviour.behaviour_id == GetJobsRound.round_id
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
