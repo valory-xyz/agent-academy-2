@@ -24,6 +24,7 @@ from typing import Any, Dict, Generator, List, Optional, Set, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    BondingTxPayload,
     GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
@@ -170,6 +171,25 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            contract_api_response = yield from self.get_contract_api_response(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                contract_address=self.keep3r_v1_contract_address,
+                contract_id=str(Keep3rV1Contract.contract_id),
+                contract_callable="build_bond_tx",
+            )
+            bonding_tx = cast(str, contract_api_response.state.body.get("data"))
+            payload = BondingTxPayload(
+                self.context.agent_address, bonding_tx=bonding_tx
+            )
+            self.context.logger.info(f"Bonding raw tx: {bonding_tx}")
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
 
 
 class WaitingBehaviour(Keep3rJobBaseBehaviour):
