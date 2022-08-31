@@ -45,6 +45,7 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     AwaitTopUpRound,
+    WaitingRound,
     BlacklistedRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
@@ -85,6 +86,7 @@ from packages.valory.skills.abstract_round_abci.test_tools.base import (
 )
 
 from tests.conftest import ROOT_DIR
+from tests.test_contracts.constants import SECONDS_PER_DAY
 
 
 AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
@@ -175,6 +177,11 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
 
         self.mock_ethereum_ledger_state_call(amount)
 
+    def mock_get_latest_block(self, block: Dict[str, Any]) -> None:
+        """Mock call to ethereum ledger for getting latest block"""
+
+        return self.mock_ethereum_ledger_state_call(block)
+
 
 class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test GetJobsBehaviour"""
@@ -209,7 +216,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         assert self.current_behaviour.behaviour_id == AwaitTopUpRound.round_id
 
     def test_not_bonded(self) -> None:
-        """Test path_selection to insufficient funds."""
+        """Test path_selection to not bonded."""
 
         self.mock_keep3r_v1_call("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
@@ -218,6 +225,19 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.NOT_BONDED)
         assert self.current_behaviour.behaviour_id == BondingRound.round_id
+
+    def test_not_activated(self) -> None:
+        """Test path_selection to not activated."""
+
+        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_keep3r_v1_call("bondings", 1)
+        self.mock_keep3r_v1_call("BOND", 3 * SECONDS_PER_DAY)
+        self.mock_get_latest_block(block={"timestamp": 0})
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.NOT_ACTIVATED)
+        assert self.current_behaviour.behaviour_id == WaitingRound.round_id
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
