@@ -20,28 +20,28 @@
 """Test the base.py module of the skill."""
 import logging  # noqa: F401
 from types import MappingProxyType
-from typing import FrozenSet, cast, Type, Any
+from typing import Any, FrozenSet, Type, cast
 from unittest import mock
 
 import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     BaseKeep3rJobPayload,
-    PathSelectionPayload,
     GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
+    PathSelectionPayload,
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
-    Keep3rJobAbstractRound,
-    PathSelectionRound,
     Event,
     GetJobsRound,
     IsProfitableRound,
     IsWorkableRound,
     JobSelectionRound,
+    Keep3rJobAbstractRound,
+    PathSelectionRound,
     PerformWorkRound,
     SynchronizedData,
 )
@@ -85,7 +85,7 @@ class BaseRoundTestClass:
             consensus_params=self.consensus_params,
         )
 
-    def deliver_payloads(self, **content: Any) -> None:
+    def deliver_payloads(self, **content: Any) -> SynchronizedData:
         """Deliver payloads"""
 
         payloads = [self.payload_class(sender=p, **content) for p in self.participants]
@@ -93,8 +93,12 @@ class BaseRoundTestClass:
         self.round.process_payload(first_payload)
         assert self.round.collection == {first_payload.sender: first_payload}
         assert self.round.end_block() is None
+        self._test_no_majority_event(self.round)
         for payload in payloads:
             self.round.process_payload(payload)
+
+        kwargs = dict(path_selection=self.round.most_voted_payload)
+        return cast(SynchronizedData, self.synchronized_data.update(**kwargs))
 
     def complete_round(self, expected_state: SynchronizedData) -> Event:
         """Complete round"""
@@ -114,6 +118,21 @@ class BaseRoundTestClass:
             assert event == Event.NO_MAJORITY
 
 
+class TestPathSelectionRound(BaseRoundTestClass):
+    """Tests for PathSelectionRound."""
+
+    round_class = PathSelectionRound
+    payload_class = PathSelectionPayload
+
+    @pytest.mark.parametrize("path_selection", PathSelectionRound.transitions)
+    def test_run(self, path_selection: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(path_selection=path_selection)
+        event = self.complete_round(next_state)
+        assert event == PathSelectionRound.transitions[path_selection]
+
+
 class TestGetJobsRound(BaseRoundTestClass):
     """Tests for GetJobsRound."""
 
@@ -124,10 +143,7 @@ class TestGetJobsRound(BaseRoundTestClass):
         """Run tests."""
 
         job_list = ["some_job_address"]
-        self.deliver_payloads(job_list=job_list)
-        next_state = self.synchronized_data.update(
-            job_list=self.round.most_voted_payload,
-        )
+        next_state = self.deliver_payloads(job_list=job_list)
         event = self.complete_round(next_state)
         assert event == Event.DONE
 
