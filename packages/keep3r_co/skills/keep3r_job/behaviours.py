@@ -78,15 +78,6 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         """Return Keep3r V1 Contract address."""
         return self.context.params.keep3r_v1_contract_address
 
-    @property
-    def current_job_contract(self) -> Optional[str]:
-        """Get current job contract address"""
-        if not self.context.params.job_contract_addresses:
-            return None
-        addresses = self.context.params.job_contract_addresses
-        job_ix = self.synchronized_data.period_count % len(addresses)
-        return self.context.params.job_contract_addresses[job_ix]
-
     def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
         """Read Keep3r V1 contract state"""
 
@@ -291,8 +282,15 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
         job selection payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            job_contract = self.current_job_contract
-            payload = JobSelectionPayload(self.context.agent_address, job_contract)
+            if not self.synchronized_data.job_list:
+                payload = JobSelectionPayload(self.context.agent_address, None)
+            else:
+                addresses = self.synchronized_data.job_list
+                period_count = self.synchronized_data.period_count
+                round_count = self.synchronized_data.round_count
+                job_ix = period_count + round_count % len(addresses)
+                job_contract = addresses[job_ix]
+                payload = JobSelectionPayload(self.context.agent_address, job_contract)
             self.context.logger.info(f"Job contract selected : {job_contract}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
@@ -315,18 +313,12 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
         is workable payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            self.context.logger.info(
-                f"Interacting with Job contract at {self.current_job_contract}"
-            )
             is_workable = yield from self._get_workable()
             if is_workable is None:
                 is_workable = False
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            self.context.logger.info(
-                f"Job contract is workable {self.current_job_contract}: {is_workable}"
-            )
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
@@ -336,7 +328,7 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
         """Get workable jobs from contract"""
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.current_job_contract,
+            contract_address=self.synchronized_data.job_selection,
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="get_workable",
         )
@@ -382,7 +374,7 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
 
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
-            contract_address=self.current_job_contract,
+            contract_address=self.synchronized_data.job_selection,
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="rewardMultiplier",
         )
@@ -432,7 +424,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="work",
-            contract_address=self.current_job_contract,
+            contract_address=self.synchronized_data.job_selection,
             sender_address=self.context.agent_address,
         )
 
