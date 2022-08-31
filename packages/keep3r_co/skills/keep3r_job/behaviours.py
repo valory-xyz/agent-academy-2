@@ -143,10 +143,10 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         bond_time = yield from self.read_keep3r_v1("bondings", address=address)
         if not bond_time:
             return self.transitions["NOT_BONDED"].name
-        bonded_keeper = self.is_bonded_keep3r(bond_time)
+        bonded_keeper = yield from self.is_bonded_keep3r(bond_time)
         if not bonded_keeper:
-            return self.transitions["NOT_ACTIVATED"]
-        return self.transitions["HEALTHY"]
+            return self.transitions["NOT_ACTIVATED"].name
+        return self.transitions["HEALTHY"].name
 
     def async_act(self) -> Generator:
         """Behaviour to select the path to traverse"""
