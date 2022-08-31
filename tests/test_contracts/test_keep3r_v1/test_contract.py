@@ -170,6 +170,11 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
 
         assert self.contract
 
+    def test_bond(self) -> None:
+        """Test bond"""
+
+        assert self.contract.bond(self.ledger_api, self.contract_address) == 3 * SECONDS_PER_DAY
+
     def test_get_jobs(self) -> None:
         """Test get_jobs"""
 
