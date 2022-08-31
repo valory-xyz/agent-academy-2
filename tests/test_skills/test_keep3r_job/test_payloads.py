@@ -86,6 +86,7 @@ def test_get_jobs_payload(job_list: List[str]) -> None:
     """Test GetJobsPayload"""
 
     payload = GetJobsPayload(sender="sender", job_list=job_list)
+    assert payload.sender == "sender"
     assert payload.job_list == "".join(job_list)
     assert payload.transaction_type == TransactionType.JOB_LIST
     assert payload.from_json(payload.json) == payload
