@@ -18,7 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the behaviours for the 'keep3r_job' skill."""
-
+import logging
 from abc import ABC
 from typing import Any, Dict, Generator, List, Optional, Set, Type, cast
 
@@ -98,11 +98,12 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
 
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.current_job_contract,
+            contract_address=self.keep3r_v1_contract_address,
             contract_id=str(Keep3rV1Contract.contract_id),
             contract_callable=method,
             **kwargs,
         )
+        logging.error(contract_api_response)
         return contract_api_response.state.body.get("data")
 
     def is_bonded_keep3r(self, bond_time: int) -> Generator[None, None, bool]:
@@ -128,13 +129,14 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         balance = cast(int, ledger_api_response.state.body.get("data"))
         return balance >= cast(int, self.context.params.threshold)
 
-    def select_path(self) -> Event:
+    def select_path(self) -> Generator[None, None, Any]:
         """Select path to traverse"""
 
         address = self.synchronized_data.safe_contract_address
-        blacklisted = self.read_keep3r_v1("blacklisted", address=address)
+        blacklisted = yield from self.read_keep3r_v1("blacklist", address=address)
+        logging.error(f"blacklisted: {blacklisted}")
         if blacklisted:  # pylint: disable=using-constant-test
-            return self.transitions["BLACKLISTED"]
+            return self.transitions["BLACKLISTED"].name
         sufficient_funds = self.has_sufficient_funds(address)
         if not sufficient_funds:
             return self.transitions["INSUFFICIENT_FUNDS"]
@@ -150,7 +152,7 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         """Behaviour to select the path to traverse"""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            path = self.select_path()
+            path = yield from self.select_path()
             payload = PathSelectionPayload(self.context.agent_address, path)
             self.context.logger.info(f"Selected path: {path}")
 
