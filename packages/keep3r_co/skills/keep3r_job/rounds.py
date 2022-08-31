@@ -103,7 +103,7 @@ class PathSelectionRound(Keep3rJobAbstractRound):
 
     round_id: str = "path_selection"
     allowed_tx_type: TransactionType = PathSelectionPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "path_selection"
 
     transitions: Dict[str, Event] = {
         "NOT_BONDED": Event.NOT_BONDED,
