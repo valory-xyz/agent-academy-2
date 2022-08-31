@@ -137,9 +137,9 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         logging.error(f"blacklisted: {blacklisted}")
         if blacklisted:  # pylint: disable=using-constant-test
             return self.transitions["BLACKLISTED"].name
-        sufficient_funds = self.has_sufficient_funds(address)
+        sufficient_funds = yield from self.has_sufficient_funds(address)
         if not sufficient_funds:
-            return self.transitions["INSUFFICIENT_FUNDS"]
+            return self.transitions["INSUFFICIENT_FUNDS"].name
         bond_time = cast(int, self.read_keep3r_v1("bondings", address=address))
         if not bond_time:
             return self.transitions["NOT_BONDED"]
