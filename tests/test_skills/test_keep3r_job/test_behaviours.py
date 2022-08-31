@@ -27,6 +27,7 @@ import pytest
 from aea.helpers.transaction.base import RawTransaction
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
+    BondingBehaviour,
     GetJobsBehaviour,
     IsProfitableBehaviour,
     IsWorkableBehaviour,
@@ -51,7 +52,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     DegenerateRound as NothingToDoRound,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import Event
+from packages.keep3r_co.skills.keep3r_job.rounds import Event, FinalizeBondingRound
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeWorkRound as FinishedPrepareTxRound,
 )
@@ -252,6 +253,28 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.HEALTHY)
         assert self.current_behaviour.behaviour_id == GetJobsRound.round_id
+
+
+class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test GetJobsBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = BondingBehaviour
+
+    def setup(self, **kwargs: Any) -> None:  # type: ignore
+        """Setup"""
+        super().setup(**kwargs)
+        self.fast_forward()
+        self.behaviour.act_wrapper()
+
+    def test_bonding_tx(self) -> None:
+        """Text bonding tx"""
+
+        self.mock_keep3r_v1_call("build_bond_tx", {})
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.BONDING_TX)
+        expected = f"degenerate_{FinalizeBondingRound.round_id}"
+        assert self.current_behaviour.behaviour_id == expected
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
