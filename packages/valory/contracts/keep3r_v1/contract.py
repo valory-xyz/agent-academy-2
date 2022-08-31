@@ -86,6 +86,18 @@ class Keep3rV1Contract(Contract):
         return contract.functions.BOND().call()
 
     @classmethod
+    def bondings(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+    ) -> int:
+        """Tracks all current bondings (time)"""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        return contract.functions.bondings(address, contract.address).call()
+
+    @classmethod
     def blacklist(
         cls,
         ledger_api: EthereumApi,
