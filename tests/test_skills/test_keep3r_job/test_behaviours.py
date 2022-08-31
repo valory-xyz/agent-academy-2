@@ -21,18 +21,18 @@
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, Type, cast, Optional
+from typing import Any, Dict, Optional, Type, cast
 
 import pytest
 from aea.helpers.transaction.base import RawTransaction
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
-    PathSelectionBehaviour,
     GetJobsBehaviour,
     IsProfitableBehaviour,
     IsWorkableBehaviour,
     JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
+    PathSelectionBehaviour,
 )
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     PerformWorkBehaviour as PrepareTxBehaviour,
@@ -44,6 +44,10 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
     SigningHandler,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    AwaitTopUpRound,
+    BlacklistedRound,
+)
+from packages.keep3r_co.skills.keep3r_job.rounds import (
     DegenerateRound as NothingToDoRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import Event
@@ -51,7 +55,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeWorkRound as FinishedPrepareTxRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
-    BlacklistedRound,
     IsProfitableRound,
     JobSelectionRound,
 )
@@ -68,7 +71,9 @@ from packages.valory.contracts.keep3r_test_job.contract import (
 from packages.valory.contracts.keep3r_v1.contract import (
     PUBLIC_ID as KEEP3R_V1_CONTRACT_ID,
 )
+from packages.valory.protocols.contract_api.custom_types import State
 from packages.valory.protocols.contract_api.message import ContractApiMessage
+from packages.valory.protocols.ledger_api.message import LedgerApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbciAppDB, BaseTxPayload
 from packages.valory.skills.abstract_round_abci.behaviour_utils import (
     BaseBehaviour,
@@ -123,7 +128,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
         """Current behaviour"""
         return cast(BaseBehaviour, self.behaviour.current_behaviour)
 
-    def fast_forward(self, data: Optional[Dict[str, Any]] = None):
+    def fast_forward(self, data: Optional[Dict[str, Any]] = None) -> None:
         """Fast-forward"""
 
         data = data if data is not None else {}
@@ -134,7 +139,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
         )
         assert self.current_behaviour.behaviour_id == self.behaviour_class.behaviour_id
 
-    def mock_keep3r_v1_call(self, contract_callable: str, data: Any):
+    def mock_keep3r_v1_call(self, contract_callable: str, data: Any) -> None:
         """Mock keep3r V1 contract call"""
 
         self.mock_contract_api_request(
@@ -153,6 +158,22 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             ),
         )
 
+    def mock_ethereum_ledger_state_call(self, data: Any) -> None:
+        """Mock ethereum ledger get state call"""
+
+        self.mock_ledger_api_request(
+            request_kwargs=dict(performative=LedgerApiMessage.Performative.GET_STATE),
+            response_kwargs=dict(
+                performative=LedgerApiMessage.Performative.STATE,
+                state=State(ledger_id="ethereum", body={"data": data}),
+            ),
+        )
+
+    def mock_ethereum_get_balance(self, amount: int):
+        """Mock call to ethereum ledger for reading balance"""
+
+        self.mock_ethereum_ledger_state_call(amount)
+
 
 class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test GetJobsBehaviour"""
@@ -166,7 +187,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.fast_forward(data)
         self.behaviour.act_wrapper()
 
-    def test_blacklist(self) -> None:
+    def test_blacklisted(self) -> None:
         """Test path_selection to blacklisted."""
 
         self.mock_keep3r_v1_call("blacklist", True)
@@ -175,6 +196,16 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.end_round(done_event=Event.BLACKLISTED)
         expected = f"degenerate_{BlacklistedRound.round_id}"
         assert self.current_behaviour.behaviour_id == expected
+
+    def test_insufficient_funds(self) -> None:
+        """Test path_selection to insufficient funds."""
+
+        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_ethereum_get_balance(amount=-1)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.INSUFFICIENT_FUNDS)
+        assert self.current_behaviour.behaviour_id == AwaitTopUpRound.round_id
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
