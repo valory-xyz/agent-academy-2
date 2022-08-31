@@ -75,6 +75,41 @@ class Keep3rV1Contract(Contract):
         return tx_parameters
 
     @classmethod
+    def bond(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+    ) -> int:
+        """Bonding duration before one can activate to become a keeper"""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        return contract.functions.BOND().call()
+
+    @classmethod
+    def bondings(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+    ) -> int:
+        """Tracks all current bond times (start)"""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        return contract.functions.bondings(address, contract.address).call()
+
+    @classmethod
+    def blacklist(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+    ) -> bool:
+        """Check blacklist of keepers not allowed to participate"""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        return contract.functions.blacklist(address).call()
+
+    @classmethod
     def get_jobs(
         cls,
         ledger_api: EthereumApi,

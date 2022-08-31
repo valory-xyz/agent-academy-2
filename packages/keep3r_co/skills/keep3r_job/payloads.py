@@ -67,7 +67,7 @@ class PathSelectionPayload(BaseKeep3rJobPayload):
     _data_keys: Tuple[str] = ("path_selection",)
     transaction_type = TransactionType.SELECTED_PATH
 
-    def __init__(self, sender: str, path_selection: str, **kwargs: Any) -> None:
+    def __init__(self, sender: str, path_selection: Hashable, **kwargs: Any) -> None:
         """Initialize a 'path_selection' payload.
 
         :param sender: the sender (Ethereum) address
@@ -78,7 +78,7 @@ class PathSelectionPayload(BaseKeep3rJobPayload):
         self._path_selection = path_selection
 
     @property
-    def path_selection(self) -> str:
+    def path_selection(self) -> Hashable:
         """Get path_selection"""
         return self._path_selection
 

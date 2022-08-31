@@ -34,9 +34,10 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     WaitingPayload,
     WorkTxPayload,
 )
+from packages.keep3r_co.skills.keep3r_job.rounds import PathSelectionRound
 
 
-@pytest.mark.parametrize("path_selection", [""])
+@pytest.mark.parametrize("path_selection", PathSelectionRound.transitions)
 def test_path_selection_payload(path_selection: str) -> None:
     """Test PathSelectionPayload"""
 

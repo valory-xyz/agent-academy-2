@@ -19,8 +19,8 @@
 
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
-from abc import ABC, abstractmethod
-from typing import Generator, List, Optional, Set, Type, cast
+from abc import ABC
+from typing import Any, Dict, Generator, List, Optional, Set, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
@@ -28,6 +28,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
+    PathSelectionPayload,
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
@@ -48,6 +49,7 @@ from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
 from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
+from packages.valory.protocols.ledger_api.message import LedgerApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
@@ -83,6 +85,83 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         return self.context.params.job_contract_addresses[job_ix]
 
 
+class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
+    """PathSelectionBehaviour"""
+
+    behaviour_id: str = "path_selection"
+    matching_round: Type[AbstractRound] = PathSelectionRound
+    transitions = PathSelectionRound.transitions
+
+    def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
+        """Read Keep3r V1 contract state"""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+            contract_address=self.keep3r_v1_contract_address,
+            contract_id=str(Keep3rV1Contract.contract_id),
+            contract_callable=method,
+            **kwargs,
+        )
+        self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
+        return contract_api_response.state.body.get("data")
+
+    def has_bonded(self, bond_time: int) -> Generator[None, None, bool]:
+        """Check if bonding is completed"""
+
+        bond = yield from self.read_keep3r_v1("BOND")  # contract parameter
+        ledger_api_response = yield from self.get_ledger_api_response(
+            performative=LedgerApiMessage.Performative.GET_STATE,
+            ledger_callable="get_block",
+            block_identifier="latest",
+        )
+        latest_block = cast(Dict, ledger_api_response.state.body.get("data"))
+        return latest_block["timestamp"] > bond_time + bond
+
+    def has_sufficient_funds(self, address: str) -> Generator[None, None, bool]:
+        """Has sufficient funds"""
+
+        ledger_api_response = yield from self.get_ledger_api_response(
+            performative=LedgerApiMessage.Performative.GET_STATE,
+            ledger_callable="get_balance",
+            account=address,
+        )
+        balance = cast(int, ledger_api_response.state.body.get("data"))
+        self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
+        return balance >= cast(int, self.context.params.insufficient_funds_threshold)
+
+    def select_path(self) -> Generator[None, None, Any]:
+        """Select path to traverse"""
+
+        address = self.synchronized_data.safe_contract_address
+        blacklisted = yield from self.read_keep3r_v1("blacklist", address=address)
+        if blacklisted:
+            return self.transitions["BLACKLISTED"].name
+        sufficient_funds = yield from self.has_sufficient_funds(address)
+        if not sufficient_funds:
+            return self.transitions["INSUFFICIENT_FUNDS"].name
+        bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+        if not bond_time:
+            return self.transitions["NOT_BONDED"].name
+        bonded_keeper = yield from self.has_bonded(bond_time)
+        if not bonded_keeper:
+            return self.transitions["NOT_ACTIVATED"].name
+        return self.transitions["HEALTHY"].name
+
+    def async_act(self) -> Generator:
+        """Behaviour to select the path to traverse"""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            path = yield from self.select_path()
+            payload = PathSelectionPayload(self.context.agent_address, path)
+            self.context.logger.info(f"Selected path: {path}")
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+
 class BondingBehaviour(Keep3rJobBaseBehaviour):
     """BondingBehaviour"""
 
@@ -109,17 +188,6 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "activation"
     matching_round: Type[AbstractRound] = ActivationRound
 
-    def async_act(self) -> Generator:
-        """Do the act, supporting asynchronous execution."""
-
-
-class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
-    """PathSelectionBehaviour"""
-
-    behaviour_id: str = "path_selection"
-    matching_round: Type[AbstractRound] = PathSelectionRound
-
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 

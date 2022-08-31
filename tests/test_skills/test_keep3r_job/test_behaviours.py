@@ -21,7 +21,7 @@
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, Type, cast
+from typing import Any, Dict, Optional, Type, cast
 
 import pytest
 from aea.helpers.transaction.base import RawTransaction
@@ -32,6 +32,7 @@ from packages.keep3r_co.skills.keep3r_job.behaviours import (
     IsWorkableBehaviour,
     JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
+    PathSelectionBehaviour,
 )
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     PerformWorkBehaviour as PrepareTxBehaviour,
@@ -43,6 +44,11 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
     SigningHandler,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    AwaitTopUpRound,
+    BlacklistedRound,
+    BondingRound,
+)
+from packages.keep3r_co.skills.keep3r_job.rounds import (
     DegenerateRound as NothingToDoRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import Event
@@ -50,13 +56,14 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeWorkRound as FinishedPrepareTxRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    GetJobsRound,
     IsProfitableRound,
     JobSelectionRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     PerformWorkRound as PrepareTxRound,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import SynchronizedData
+from packages.keep3r_co.skills.keep3r_job.rounds import SynchronizedData, WaitingRound
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
 )
@@ -66,7 +73,9 @@ from packages.valory.contracts.keep3r_test_job.contract import (
 from packages.valory.contracts.keep3r_v1.contract import (
     PUBLIC_ID as KEEP3R_V1_CONTRACT_ID,
 )
+from packages.valory.protocols.contract_api.custom_types import State
 from packages.valory.protocols.contract_api.message import ContractApiMessage
+from packages.valory.protocols.ledger_api.message import LedgerApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbciAppDB, BaseTxPayload
 from packages.valory.skills.abstract_round_abci.behaviour_utils import (
     BaseBehaviour,
@@ -77,6 +86,7 @@ from packages.valory.skills.abstract_round_abci.test_tools.base import (
 )
 
 from tests.conftest import ROOT_DIR
+from tests.test_contracts.constants import SECONDS_PER_DAY
 
 
 AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
@@ -108,6 +118,8 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     benchmark_dir: TemporaryDirectory
     done_event = Event.DONE
 
+    behaviour_class: Type[BaseBehaviour]
+
     @classmethod
     def setup(cls, **kwargs: Any) -> None:
         """Set up the test class."""
@@ -118,6 +130,128 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     def current_behaviour(self) -> BaseBehaviour:
         """Current behaviour"""
         return cast(BaseBehaviour, self.behaviour.current_behaviour)
+
+    def fast_forward(self, data: Optional[Dict[str, Any]] = None) -> None:
+        """Fast-forward"""
+
+        data = data if data is not None else {}
+        self.fast_forward_to_behaviour(
+            self.behaviour,
+            self.behaviour_class.behaviour_id,
+            SynchronizedData(AbciAppDB(setup_data=AbciAppDB.data_to_lists(data))),
+        )
+        assert self.current_behaviour.behaviour_id == self.behaviour_class.behaviour_id
+
+    def mock_keep3r_v1_call(self, contract_callable: str, data: Any) -> None:
+        """Mock keep3r V1 contract call"""
+
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=contract_callable,
+            ),
+            contract_id=str(KEEP3R_V1_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=contract_callable,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": data},
+                ),
+            ),
+        )
+
+    def mock_ethereum_ledger_state_call(self, data: Any) -> None:
+        """Mock ethereum ledger get state call"""
+
+        self.mock_ledger_api_request(
+            request_kwargs=dict(performative=LedgerApiMessage.Performative.GET_STATE),
+            response_kwargs=dict(
+                performative=LedgerApiMessage.Performative.STATE,
+                state=State(ledger_id="ethereum", body={"data": data}),
+            ),
+        )
+
+    def mock_ethereum_get_balance(self, amount: int) -> None:
+        """Mock call to ethereum ledger for reading balance"""
+
+        self.mock_ethereum_ledger_state_call(amount)
+
+    def mock_get_latest_block(self, block: Dict[str, Any]) -> None:
+        """Mock call to ethereum ledger for getting latest block"""
+
+        return self.mock_ethereum_ledger_state_call(block)
+
+
+class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test GetJobsBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = PathSelectionBehaviour
+
+    def setup(self, **kwargs: Any) -> None:  # type: ignore
+        """Setup"""
+        super().setup(**kwargs)
+        address = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
+        data = dict(safe_contract_address=address)
+        self.fast_forward(data)
+        self.behaviour.act_wrapper()
+
+    def test_blacklisted(self) -> None:
+        """Test path_selection to blacklisted."""
+
+        self.mock_keep3r_v1_call("blacklist", True)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.BLACKLISTED)
+        expected = f"degenerate_{BlacklistedRound.round_id}"
+        assert self.current_behaviour.behaviour_id == expected
+
+    def test_insufficient_funds(self) -> None:
+        """Test path_selection to insufficient funds."""
+
+        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_ethereum_get_balance(amount=-1)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.INSUFFICIENT_FUNDS)
+        assert self.current_behaviour.behaviour_id == AwaitTopUpRound.round_id
+
+    def test_not_bonded(self) -> None:
+        """Test path_selection to not bonded."""
+
+        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_keep3r_v1_call("bondings", 0)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.NOT_BONDED)
+        assert self.current_behaviour.behaviour_id == BondingRound.round_id
+
+    def test_not_activated(self) -> None:
+        """Test path_selection to not activated."""
+
+        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_keep3r_v1_call("bondings", 1)
+        self.mock_keep3r_v1_call("BOND", 3 * SECONDS_PER_DAY)
+        self.mock_get_latest_block(block={"timestamp": 0})
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.NOT_ACTIVATED)
+        assert self.current_behaviour.behaviour_id == WaitingRound.round_id
+
+    def test_healthy(self) -> None:
+        """Test path_selection to healthy."""
+
+        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_keep3r_v1_call("bondings", 1)
+        self.mock_keep3r_v1_call("BOND", 3 * SECONDS_PER_DAY)
+        self.mock_get_latest_block(block={"timestamp": 3 * SECONDS_PER_DAY + 1})
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.HEALTHY)
+        assert self.current_behaviour.behaviour_id == GetJobsRound.round_id
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -130,12 +264,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
         address = "0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44"
         data = dict(keep3r_v1_contract_address=address)
-        self.fast_forward_to_behaviour(
-            self.behaviour,
-            GetJobsBehaviour.behaviour_id,
-            SynchronizedData(AbciAppDB(setup_data=AbciAppDB.data_to_lists(data))),
-        )
-        assert self.current_behaviour.behaviour_id == GetJobsBehaviour.behaviour_id
+        self.fast_forward(data)
 
         contract_callable = "get_jobs"
         self.behaviour.act_wrapper()
