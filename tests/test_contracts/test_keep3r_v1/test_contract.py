@@ -175,6 +175,12 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
 
         assert self.contract.bond(**self.base_kw) == 3 * SECONDS_PER_DAY
 
+    def test_bondings(self) -> None:
+        """Test bondings"""
+
+        kw = dict(address=self.deployer_crypto.address)
+        assert self.contract.bondings(**self.base_kw, **kw) == 0
+
     def test_blacklist(self) -> None:
         """Test blacklist"""
 
