@@ -20,12 +20,14 @@
 """Test the base.py module of the skill."""
 import logging  # noqa: F401
 from types import MappingProxyType
-from typing import FrozenSet, cast
+from typing import FrozenSet, cast, Type, Any
 from unittest import mock
 
 import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    BaseKeep3rJobPayload,
+    PathSelectionPayload,
     GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
@@ -33,6 +35,8 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    Keep3rJobAbstractRound,
+    PathSelectionRound,
     Event,
     GetJobsRound,
     IsProfitableRound,
@@ -53,33 +57,53 @@ MAX_PARTICIPANTS: int = 4
 
 def get_participants() -> FrozenSet[str]:
     """Participants"""
-    return frozenset([f"agent_{i}" for i in range(MAX_PARTICIPANTS)])
+    return frozenset(f"agent_{i}" for i in range(MAX_PARTICIPANTS))
 
 
 class BaseRoundTestClass:
     """Base test class for Rounds."""
 
+    round_class: Type[Keep3rJobAbstractRound]
+    payload_class: Type[BaseKeep3rJobPayload]
+    round: Keep3rJobAbstractRound
+    payload: BaseKeep3rJobPayload
     synchronized_data: SynchronizedData
     consensus_params: ConsensusParams
     participants: FrozenSet[str]
 
-    @classmethod
-    def setup(
-        cls,
-    ) -> None:
-        """Setup the test class."""
+    def setup(self) -> None:
+        """Setup the test method."""
 
-        cls.participants = get_participants()
-        cls.synchronized_data = SynchronizedData(
-            AbciAppDB(
-                setup_data=AbciAppDB.data_to_lists(
-                    dict(
-                        participants=cls.participants, all_participants=cls.participants
-                    )
-                ),
-            )
+        self.participants = get_participants()
+        data = dict(participants=self.participants, all_participants=self.participants)
+        self.synchronized_data = SynchronizedData(
+            AbciAppDB(setup_data=AbciAppDB.data_to_lists(data))
         )
-        cls.consensus_params = ConsensusParams(max_participants=MAX_PARTICIPANTS)
+        self.consensus_params = ConsensusParams(max_participants=MAX_PARTICIPANTS)
+        self.round = self.round_class(
+            synchronized_data=self.synchronized_data,
+            consensus_params=self.consensus_params,
+        )
+
+    def deliver_payloads(self, **content: Any) -> None:
+        """Deliver payloads"""
+
+        payloads = [self.payload_class(sender=p, **content) for p in self.participants]
+        first_payload, *payloads = payloads
+        self.round.process_payload(first_payload)
+        assert self.round.collection == {first_payload.sender: first_payload}
+        assert self.round.end_block() is None
+        for payload in payloads:
+            self.round.process_payload(payload)
+
+    def complete_round(self, expected_state: SynchronizedData) -> Event:
+        """Complete round"""
+
+        res = self.round.end_block()
+        assert res is not None
+        state, event = res
+        assert state.db == expected_state.db
+        return cast(Event, event)
 
     def _test_no_majority_event(self, round_obj: AbstractRound) -> None:
         """Test the NO_MAJORITY event."""
@@ -93,40 +117,18 @@ class BaseRoundTestClass:
 class TestGetJobsRound(BaseRoundTestClass):
     """Tests for GetJobsRound."""
 
+    round_class = GetJobsRound
+    payload_class = GetJobsPayload
+
     def test_run(self) -> None:
         """Run tests."""
 
-        job_list = [
-            "some_job_address",
-        ]
-        test_round = GetJobsRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
+        job_list = ["some_job_address"]
+        self.deliver_payloads(job_list=job_list)
+        next_state = self.synchronized_data.update(
+            job_list=self.round.most_voted_payload,
         )
-
-        first_payload, *payloads = [
-            GetJobsPayload(sender=participant, job_list=job_list)
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection == {first_payload.sender: first_payload}
-        assert test_round.end_block() is None
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            most_voted_tx_hash=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert (
-            cast(SynchronizedData, state).participants
-            == cast(SynchronizedData, actual_next_state).participants
-        )
+        event = self.complete_round(next_state)
         assert event == Event.DONE
 
 
@@ -173,6 +175,8 @@ class TestPerformWorkRound(BaseRoundTestClass):
 
 class TestJobSelectionRound(BaseRoundTestClass):
     """Tests for RegistrationRound."""
+
+    round_class = JobSelectionRound
 
     def test_selects_job(
         self,
@@ -222,6 +226,8 @@ class TestJobSelectionRound(BaseRoundTestClass):
 
 class TestIsWorkableRound(BaseRoundTestClass):
     """Tests for RegistrationRound."""
+
+    round_class = IsWorkableRound
 
     def test_run_positive(
         self,
@@ -316,6 +322,8 @@ class TestIsWorkableRound(BaseRoundTestClass):
 
 class TestIsProfitableRound(BaseRoundTestClass):
     """Tests for ProfitabilityRound."""
+
+    round_class = IsProfitableRound
 
     def test_run_positive(
         self,
