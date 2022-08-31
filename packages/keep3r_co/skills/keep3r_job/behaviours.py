@@ -140,9 +140,9 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         sufficient_funds = yield from self.has_sufficient_funds(address)
         if not sufficient_funds:
             return self.transitions["INSUFFICIENT_FUNDS"].name
-        bond_time = cast(int, self.read_keep3r_v1("bondings", address=address))
+        bond_time = yield from self.read_keep3r_v1("bondings", address=address)
         if not bond_time:
-            return self.transitions["NOT_BONDED"]
+            return self.transitions["NOT_BONDED"].name
         bonded_keeper = self.is_bonded_keep3r(bond_time)
         if not bonded_keeper:
             return self.transitions["NOT_ACTIVATED"]
