@@ -133,20 +133,20 @@ class BondingRound(Keep3rJobAbstractRound):
 
     round_id: str = "bonding"
     allowed_tx_type: TransactionType = BondingTxPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "bonding_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.BONDING_TX, Event.NO_MAJORITY)
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        if self.threshold_reached:
+            bonding_tx = self.most_voted_payload
+            state = self.synchronized_data.update(bonding_tx=bonding_tx)
+            return state, Event.BONDING_TX
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 class WaitingRound(Keep3rJobAbstractRound):
