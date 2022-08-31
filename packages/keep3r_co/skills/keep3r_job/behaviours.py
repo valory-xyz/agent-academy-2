@@ -113,10 +113,10 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
 
-class HealthCheckBehaviour(Keep3rJobBaseBehaviour):
-    """HealthCheckBehaviour"""
+class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
+    """PathSelectionBehaviour"""
 
-    behaviour_id: str = "health_check"
+    behaviour_id: str = "path_selection"
     matching_round: Type[AbstractRound] = PathSelectionRound
 
     @abstractmethod
@@ -288,9 +288,10 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         - If a timeout is hit, set exit A event, otherwise set done event.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-
-            tx_hash = yield from self._get_raw_work_transaction_hash()
-            payload = WorkTxPayload(self.context.agent_address, tx_hash)
+            work_tx = yield from self._get_raw_work_transaction_hash()
+            if not work_tx:
+                return
+            payload = WorkTxPayload(self.context.agent_address, work_tx)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -345,7 +346,6 @@ class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
     behaviour_id: str = "await_top_up"
     matching_round: Type[AbstractRound] = AwaitTopUpRound
 
-    @abstractmethod
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
@@ -356,6 +356,7 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     initial_behaviour_cls = BondingBehaviour
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviours: Set[Type[BaseBehaviour]] = {
+        PathSelectionBehaviour,  # type: ignore
         BondingBehaviour,  # type: ignore
         WaitingBehaviour,  # type: ignore
         ActivationBehaviour,  # type: ignore
@@ -364,6 +365,5 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
         IsWorkableBehaviour,  # type: ignore
         IsProfitableBehaviour,  # type: ignore
         PerformWorkBehaviour,  # type: ignore
-        HealthCheckBehaviour,  # type: ignore
         AwaitTopUpBehaviour,  # type: ignore
     }
