@@ -185,7 +185,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
 
 
 class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
-    """Test GetJobsBehaviour"""
+    """Test PathSelectionBehaviour"""
 
     behaviour_class: Type[BaseBehaviour] = PathSelectionBehaviour
 
@@ -256,7 +256,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
 
 class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
-    """Test GetJobsBehaviour"""
+    """Test BondingBehaviour"""
 
     behaviour_class: Type[BaseBehaviour] = BondingBehaviour
 

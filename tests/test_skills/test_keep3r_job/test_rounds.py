@@ -136,7 +136,7 @@ class TestPathSelectionRound(BaseRoundTestClass):
 
 
 class TestBondingRound(BaseRoundTestClass):
-    """Tests for PathSelectionRound."""
+    """Tests for BondingRound."""
 
     round_class = BondingRound
     payload_class = BondingTxPayload
