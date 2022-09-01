@@ -23,8 +23,6 @@ from abc import ABC
 from enum import Enum
 from typing import Dict, List, Optional, Set, Tuple, Type, cast
 
-from web3.types import ChecksumAddress
-
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
     BondingTxPayload,
@@ -89,13 +87,13 @@ class SynchronizedData(BaseSynchronizedData):
         return cast(str, self.db.get_strict("most_voted_tx_hash"))
 
     @property
-    def job_list(self) -> List[ChecksumAddress]:
-        """Get current job contract address"""
-        return cast(List[ChecksumAddress], self.db.get_strict("job_list"))
+    def job_list(self) -> str:
+        """Get the job_list."""
+        return cast(str, self.db.get_strict("job_list"))
 
     @property
     def current_job(self) -> Optional[str]:
-        """Get the job_selection."""
+        """Get the current_job."""
         return cast(str, self.db.get_strict("current_job"))
 
 
@@ -145,7 +143,7 @@ class BondingRound(Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
-        if self.threshold_reached:
+        if self.threshold_reached and self.most_voted_payload:
             bonding_tx = self.most_voted_payload
             state = self.synchronized_data.update(bonding_tx=bonding_tx)
             return state, Event.BONDING_TX
