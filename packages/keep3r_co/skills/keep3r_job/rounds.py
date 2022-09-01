@@ -260,9 +260,9 @@ class IsWorkableRound(Keep3rJobAbstractRound):
             if is_workable:
                 state = self.synchronized_data.update(is_workable=is_workable)
                 return state, Event.WORKABLE
-            # remove the non-workable job and attempt another
-            job_list: List[str] = self.synchronized_data.job_list.copy()
-            job_list.remove(self.synchronized_data.job_selection)
+            # remove the non-workable job, then transition to JobSelectionRound
+            current_job = self.synchronized_data.current_job
+            job_list = self.synchronized_data.job_list.replace(current_job, "")
             state = self.synchronized_data.update(job_list=job_list)
             return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
