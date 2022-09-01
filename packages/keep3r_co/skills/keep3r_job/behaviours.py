@@ -24,12 +24,14 @@ from typing import Any, Dict, Generator, List, Optional, Set, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    ActivationTxPayload,
     BondingTxPayload,
     GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
     JobSelectionPayload,
     PathSelectionPayload,
+    WaitingPayload,
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
@@ -76,23 +78,6 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         """Return Keep3r V1 Contract address."""
         return self.context.params.keep3r_v1_contract_address
 
-    @property
-    def current_job_contract(self) -> Optional[str]:
-        """Get current job contract address"""
-        if not self.context.params.job_contract_addresses:
-            return None
-        addresses = self.context.params.job_contract_addresses
-        job_ix = self.synchronized_data.period_count % len(addresses)
-        return self.context.params.job_contract_addresses[job_ix]
-
-
-class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
-    """PathSelectionBehaviour"""
-
-    behaviour_id: str = "path_selection"
-    matching_round: Type[AbstractRound] = PathSelectionRound
-    transitions = PathSelectionRound.transitions
-
     def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
         """Read Keep3r V1 contract state"""
 
@@ -103,6 +88,9 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
             contract_callable=method,
             **kwargs,
         )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(f"Failed read_keep3r_v1: {contract_api_response}")
+            return None
         self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
         return contract_api_response.state.body.get("data")
 
@@ -110,13 +98,21 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         """Check if bonding is completed"""
 
         bond = yield from self.read_keep3r_v1("BOND")  # contract parameter
+        if bond is None:
+            self.context.logger.error("Failed keep3r v1 BOND call")
+            return False
         ledger_api_response = yield from self.get_ledger_api_response(
             performative=LedgerApiMessage.Performative.GET_STATE,
             ledger_callable="get_block",
             block_identifier="latest",
         )
+        if ledger_api_response.performative != LedgerApiMessage.Performative.STATE:
+            self.context.logger.error(f"Failed has_bonded: {ledger_api_response}")
+            return False
         latest_block = cast(Dict, ledger_api_response.state.body.get("data"))
-        return latest_block["timestamp"] > bond_time + bond
+        remaining_time = bond_time + bond - latest_block["timestamp"]
+        self.context.logger.info(f"Remaining bond time: {remaining_time}")
+        return remaining_time <= 0
 
     def has_sufficient_funds(self, address: str) -> Generator[None, None, bool]:
         """Has sufficient funds"""
@@ -126,9 +122,19 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
             ledger_callable="get_balance",
             account=address,
         )
+        if ledger_api_response.performative != LedgerApiMessage.Performative.STATE:
+            return False  # transition to await top-up round
         balance = cast(int, ledger_api_response.state.body.get("data"))
         self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
+
+
+class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
+    """PathSelectionBehaviour"""
+
+    behaviour_id: str = "path_selection"
+    matching_round: Type[AbstractRound] = PathSelectionRound
+    transitions = PathSelectionRound.transitions
 
     def select_path(self) -> Generator[None, None, Any]:
         """Select path to traverse"""
@@ -208,6 +214,30 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+
+            address = self.synchronized_data.safe_contract_address
+            bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+            if bond_time is None:
+                log_msg = "Failed to check `bondings` on Keep3rV1 contract"
+                self.context.logger.error(log_msg)
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            done_waiting = yield from self.has_bonded(bond_time)
+            self.context.logger.info(f"Done waiting: {done_waiting}")
+            if not done_waiting:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            payload = WaitingPayload(
+                self.context.agent_address, done_waiting=done_waiting
+            )
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
 
 class ActivationBehaviour(Keep3rJobBaseBehaviour):
     """ActivationBehaviour"""
@@ -217,6 +247,25 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            contract_api_response = yield from self.get_contract_api_response(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                contract_address=self.keep3r_v1_contract_address,
+                contract_id=str(Keep3rV1Contract.contract_id),
+                contract_callable="build_activation_tx",
+            )
+            activation_tx = cast(str, contract_api_response.state.body.get("data"))
+            payload = ActivationTxPayload(
+                self.context.agent_address, activation_tx=activation_tx
+            )
+            self.context.logger.info(f"Activation raw tx: {activation_tx}")
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
 
 
 class GetJobsBehaviour(Keep3rJobBaseBehaviour):
@@ -259,9 +308,15 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
         job selection payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            job_contract = self.current_job_contract
-            payload = JobSelectionPayload(self.context.agent_address, job_contract)
-            self.context.logger.info(f"Job contract selected : {job_contract}")
+            if not self.synchronized_data.job_list:
+                current_job = None
+            else:
+                addresses = self.synchronized_data.job_list
+                period_count = self.synchronized_data.period_count
+                job_ix = period_count % len(addresses)
+                current_job = addresses[job_ix]
+            payload = JobSelectionPayload(self.context.agent_address, current_job)
+            self.context.logger.info(f"Job contract selected: {current_job}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -283,18 +338,12 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
         is workable payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            self.context.logger.info(
-                f"Interacting with Job contract at {self.current_job_contract}"
-            )
             is_workable = yield from self._get_workable()
             if is_workable is None:
                 is_workable = False
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            self.context.logger.info(
-                f"Job contract is workable {self.current_job_contract}: {is_workable}"
-            )
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
@@ -304,7 +353,7 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
         """Get workable jobs from contract"""
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.current_job_contract,
+            contract_address=self.synchronized_data.current_job,
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="get_workable",
         )
@@ -350,7 +399,7 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
 
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
-            contract_address=self.current_job_contract,
+            contract_address=self.synchronized_data.current_job,
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="rewardMultiplier",
         )
@@ -400,7 +449,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="work",
-            contract_address=self.current_job_contract,
+            contract_address=self.synchronized_data.current_job,
             sender_address=self.context.agent_address,
         )
 
