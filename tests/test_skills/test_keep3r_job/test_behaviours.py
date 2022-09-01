@@ -70,6 +70,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     JobSelectionRound,
     Keep3rJobAbstractRound,
     PathSelectionRound,
+    PerformWorkRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     PerformWorkRound as PrepareTxRound,
@@ -473,84 +474,26 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         assert self.current_behaviour.behaviour_id == next_round.round_id
 
 
-@pytest.mark.skip("ABCIApp redesign: no payment assigned yet")
 class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test case to test IsProfitableBehaviour."""
 
-    CONTRACT_ADDRESS: str = "contract_address"
-    CONTRACT_CALLABLE: str = "rewardMultiplier"
-    is_profitable_behaviour_class: Type[BaseBehaviour] = IsProfitableBehaviour
+    behaviour_class: Type[BaseBehaviour] = IsProfitableBehaviour
 
-    def test_is_profitable_true(self) -> None:
-        """Test is profitable true."""
-        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
-        self.fast_forward_to_behaviour(
-            self.behaviour,
-            self.is_profitable_behaviour_class.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(dict(job_selection="some_job"))
-                )
-            ),
-        )
+    @pytest.mark.parametrize(
+        "credits, event, next_round",
+        [
+            (-1, Event.NOT_PROFITABLE, JobSelectionRound),
+            (1, Event.PROFITABLE, PerformWorkRound),
+        ],
+    )
+    def test_is_profitable(
+        self, credits: bool, event: Event, next_round: Keep3rJobAbstractRound
+    ) -> None:
+        """Test is_profitable."""
 
-        assert self.current_behaviour.behaviour_id == IsProfitableBehaviour.behaviour_id
-
-        self.behaviour.context.params.profitability_threshold = 100
+        self.mock_keep3r_v1_call("credits", credits)
         self.behaviour.act_wrapper()
-        self.mock_contract_api_request(
-            contract_id=str(TEST_JOB_CONTRACT_ID),
-            request_kwargs=dict(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                callable=self.CONTRACT_CALLABLE,
-            ),
-            response_kwargs=dict(
-                performative=ContractApiMessage.Performative.STATE,
-                callable=self.CONTRACT_CALLABLE,
-                state=ContractApiMessage.State(
-                    ledger_id="ethereum",
-                    body={"rewardMultiplier": 90},
-                ),
-            ),
-        )
         self.mock_a2a_transaction()
         self._test_done_flag_set()
-        self.end_round(done_event=Event.DONE)
-        assert self.current_behaviour.behaviour_id == PrepareTxRound.round_id
-
-    def test_is_profitable_false(self) -> None:
-        """Test is profitable false."""
-        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
-        self.fast_forward_to_behaviour(
-            self.behaviour,
-            self.is_profitable_behaviour_class.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(dict(job_selection="some_job"))
-                )
-            ),
-        )
-        assert self.current_behaviour.behaviour_id == IsProfitableBehaviour.behaviour_id
-
-        self.behaviour.context.params.profitability_threshold = 100
-        self.behaviour.act_wrapper()
-        self.mock_contract_api_request(
-            contract_id=str(TEST_JOB_CONTRACT_ID),
-            request_kwargs=dict(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                callable=self.CONTRACT_CALLABLE,
-            ),
-            response_kwargs=dict(
-                performative=ContractApiMessage.Performative.STATE,
-                callable=self.CONTRACT_CALLABLE,
-                state=ContractApiMessage.State(
-                    ledger_id="ethereum",
-                    body={"rewardMultiplier": 110},
-                ),
-            ),
-        )
-        self.mock_a2a_transaction()
-        self._test_done_flag_set()
-        self.end_round(done_event=Event.NOT_PROFITABLE)
-        degenerate_state = make_degenerate_behaviour(NothingToDoRound.round_id)
-        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
+        self.end_round(done_event=event)
+        assert self.current_behaviour.behaviour_id == next_round.round_id
