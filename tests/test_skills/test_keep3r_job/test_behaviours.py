@@ -51,11 +51,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     AwaitTopUpRound,
     BlacklistedRound,
     BondingRound,
-)
-from packages.keep3r_co.skills.keep3r_job.rounds import (
-    DegenerateRound as NothingToDoRound,
-)
-from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
     FinalizeActivationRound,
     FinalizeBondingRound,
@@ -71,11 +66,9 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     Keep3rJobAbstractRound,
     PathSelectionRound,
     PerformWorkRound,
+    SynchronizedData,
+    WaitingRound,
 )
-from packages.keep3r_co.skills.keep3r_job.rounds import (
-    PerformWorkRound as PrepareTxRound,
-)
-from packages.keep3r_co.skills.keep3r_job.rounds import SynchronizedData, WaitingRound
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
 )

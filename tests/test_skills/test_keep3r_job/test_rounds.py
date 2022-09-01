@@ -18,8 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """Test the base.py module of the skill."""
-import logging  # noqa: F401
-from types import MappingProxyType
+
 from typing import Any, FrozenSet, Optional, Type, cast
 from unittest import mock
 
@@ -242,7 +241,7 @@ class TestPerformWorkRound(BaseRoundTestClass):
 
 
 class TestJobSelectionRound(BaseRoundTestClass):
-    """Tests for RegistrationRound."""
+    """Tests for JobSelectionRound."""
 
     round_class = JobSelectionRound
     payload_class = JobSelectionPayload
@@ -257,13 +256,14 @@ class TestJobSelectionRound(BaseRoundTestClass):
 
 
 class TestIsWorkableRound(BaseRoundTestClass):
-    """Tests for RegistrationRound."""
+    """Tests for IsWorkableRound."""
 
     round_class = IsWorkableRound
     payload_class = IsWorkablePayload
 
     def setup(self, **kwargs: Any) -> None:
         """Setup"""
+
         job_list = "some_job_address"
         kwargs.update(job_list=job_list, current_job=job_list)
         super().setup(**kwargs)
