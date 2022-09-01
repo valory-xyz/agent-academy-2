@@ -332,15 +332,19 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
     matching_round: Type[AbstractRound] = IsWorkableRound
 
     def async_act(self) -> Generator:
-        """
-        Behaviour to get whether job is workable.
+        """Behaviour to get whether job is workable."""
 
-        is workable payload is shared between participants.
-        """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            is_workable = yield from self._get_workable()
-            if is_workable is None:
-                is_workable = False
+            current_job = self.synchronized_data.current_job
+            contract_api_response = yield from self.get_contract_api_response(
+                performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+                contract_address=current_job,
+                contract_id=str(Keep3rTestJobContract.contract_id),  # TODO
+                contract_callable="workable",
+            )
+            log_msg = f"`workable` contract api response on {current_job}"
+            self.context.logger.info(f"{log_msg}: {contract_api_response}")
+            is_workable = contract_api_response.state.body.get("data", False)
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
@@ -348,17 +352,6 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
             yield from self.wait_until_round_end()
 
         self.set_done()
-
-    def _get_workable(self) -> Generator:
-        """Get workable jobs from contract"""
-        contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.synchronized_data.current_job,
-            contract_id=str(Keep3rTestJobContract.contract_id),
-            contract_callable="get_workable",
-        )
-        is_workable = contract_api_response.state.body.get("data")
-        return is_workable
 
 
 class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
