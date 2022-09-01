@@ -196,23 +196,23 @@ class GetJobsPayload(BaseKeep3rJobPayload):
 class JobSelectionPayload(BaseKeep3rJobPayload):
     """Represent a transaction payload of type 'job_selection'."""
 
-    _data_keys: Tuple[str] = ("job_selection",)
+    _data_keys: Tuple[str] = ("current_job",)
     transaction_type = TransactionType.JOB_SELECTION
 
-    def __init__(self, sender: str, job_selection: Any, **kwargs: Any) -> None:
+    def __init__(self, sender: str, current_job: Optional[str], **kwargs: Any) -> None:
         """Initialize an 'job_selection' payload.
 
         :param sender: the sender (Ethereum) address
-        :param job_selection: Selected job address
+        :param current_job: selected job address
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
-        self._job_selection = job_selection
+        self._current_job = current_job
 
     @property
-    def job_selection(self) -> Optional[Any]:
-        """Get the job selection."""
-        return self._job_selection
+    def current_job(self) -> Optional[str]:
+        """Get the current job selection."""
+        return self._current_job
 
 
 class IsWorkablePayload(BaseKeep3rJobPayload):

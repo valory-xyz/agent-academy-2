@@ -20,12 +20,13 @@
 """Test the base.py module of the skill."""
 import logging  # noqa: F401
 from types import MappingProxyType
-from typing import Any, FrozenSet, Type, cast
+from typing import Any, FrozenSet, Optional, Type, cast
 from unittest import mock
 
 import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    ActivationTxPayload,
     BaseKeep3rJobPayload,
     BondingTxPayload,
     GetJobsPayload,
@@ -37,6 +38,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    ActivationRound,
     BondingRound,
     Event,
     GetJobsRound,
@@ -167,6 +169,21 @@ class TestWaitingRound(BaseRoundTestClass):
         assert event == Event.DONE
 
 
+class TestActivationRound(BaseRoundTestClass):
+    """Tests for ActivationRound."""
+
+    round_class = ActivationRound
+    payload_class = ActivationTxPayload
+
+    @pytest.mark.parametrize("activation_tx", ["some_raw_tx_hash"])
+    def test_run(self, activation_tx: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(activation_tx=activation_tx)
+        event = self.complete_round(next_state)
+        assert event == Event.ACTIVATION_TX
+
+
 class TestGetJobsRound(BaseRoundTestClass):
     """Tests for GetJobsRound."""
 
@@ -227,51 +244,15 @@ class TestJobSelectionRound(BaseRoundTestClass):
     """Tests for RegistrationRound."""
 
     round_class = JobSelectionRound
+    payload_class = JobSelectionPayload
 
-    def test_selects_job(
-        self,
-    ) -> None:
+    @pytest.mark.parametrize("current_job", [None, "some_job_address"])
+    def test_selects_job(self, current_job: Optional[str]) -> None:
         """Run tests."""
 
-        test_round = JobSelectionRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
-        )
-
-        first_payload, *payloads = [
-            JobSelectionPayload(
-                sender=participant,
-                job_selection="some_job",
-            )
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection[first_payload.sender] == first_payload
-        assert test_round.end_block() is None
-
-        self._test_no_majority_event(test_round)
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            participant_to_selection=MappingProxyType(test_round.collection),
-            job_selection=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert all(
-            [
-                key in cast(SynchronizedData, state).participant_to_selection
-                for key in cast(
-                    SynchronizedData, actual_next_state
-                ).participant_to_selection
-            ]
-        )
-        assert event == Event.DONE
+        next_state = self.deliver_payloads(current_job=current_job)
+        event = self.complete_round(next_state)
+        assert event == Event.DONE if current_job else Event.NO_JOBS
 
 
 class TestIsWorkableRound(BaseRoundTestClass):
