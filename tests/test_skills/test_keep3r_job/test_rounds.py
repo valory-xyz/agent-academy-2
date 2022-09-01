@@ -281,93 +281,12 @@ class TestIsProfitableRound(BaseRoundTestClass):
     """Tests for ProfitabilityRound."""
 
     round_class = IsProfitableRound
+    payload_class = IsProfitablePayload
 
-    def test_run_positive(
-        self,
-    ) -> None:
-        """Run tests."""
+    @pytest.mark.parametrize("is_profitable", [True, False])
+    def test_run(self, is_profitable: bool) -> None:
+        """Run tests"""
 
-        test_round = IsProfitableRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
-        )
-
-        first_payload, *payloads = [
-            IsProfitablePayload(
-                sender=participant,
-                is_profitable=True,
-            )
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection[first_payload.sender] == first_payload
-        assert test_round.end_block() is None
-
-        self._test_no_majority_event(test_round)
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            participant_to_selection=MappingProxyType(test_round.collection),
-            is_profitable=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert all(
-            [
-                key in cast(SynchronizedData, state).participant_to_selection
-                for key in cast(
-                    SynchronizedData, actual_next_state
-                ).participant_to_selection
-            ]
-        )
-        assert event == Event.PROFITABLE
-
-    def test_run_negative(
-        self,
-    ) -> None:
-        """Run tests."""
-
-        test_round = IsProfitableRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
-        )
-
-        first_payload, *payloads = [
-            IsProfitablePayload(
-                sender=participant,
-                is_profitable=False,
-            )
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection[first_payload.sender] == first_payload
-        assert test_round.end_block() is None
-
-        self._test_no_majority_event(test_round)
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            participant_to_selection=MappingProxyType(test_round.collection),
-            is_profitable=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert all(
-            [
-                key in cast(SynchronizedData, state).participant_to_selection
-                for key in cast(
-                    SynchronizedData, actual_next_state
-                ).participant_to_selection
-            ]
-        )
-        assert event == Event.NOT_PROFITABLE
+        next_state = self.deliver_payloads(is_profitable=is_profitable)
+        event = self.complete_round(next_state)
+        assert event == Event.PROFITABLE if is_profitable else Event.NOT_PROFITABLE
