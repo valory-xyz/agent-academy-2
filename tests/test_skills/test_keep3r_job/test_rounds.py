@@ -77,11 +77,12 @@ class BaseRoundTestClass:
     consensus_params: ConsensusParams
     participants: FrozenSet[str]
 
-    def setup(self) -> None:
+    def setup(self, **kwargs: Any) -> None:
         """Setup the test method."""
 
         self.participants = get_participants()
         data = dict(participants=self.participants, all_participants=self.participants)
+        data.update(kwargs)
         self.synchronized_data = SynchronizedData(
             AbciAppDB(setup_data=AbciAppDB.data_to_lists(data))
         )
@@ -259,96 +260,109 @@ class TestIsWorkableRound(BaseRoundTestClass):
     """Tests for RegistrationRound."""
 
     round_class = IsWorkableRound
+    payload_class = IsWorkablePayload
 
-    def test_run_positive(
-        self,
-    ) -> None:
-        """Run tests."""
+    def setup(self, **kwargs: Any) -> None:
+        job_list = ["some_job_address"]
+        kwargs.update(job_list=job_list, job_selection=job_list[0])
+        super().setup(**kwargs)
 
-        test_round = IsWorkableRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
-        )
+    @pytest.mark.parametrize("is_workable", [True, False])
+    def test_run(self, is_workable: bool) -> None:
+        """Run tests"""
 
-        first_payload, *payloads = [
-            IsWorkablePayload(
-                sender=participant,
-                is_workable=True,
-            )
-            for participant in self.participants
-        ]
+        next_state = self.deliver_payloads(is_workable=is_workable)
+        event = self.complete_round(next_state)
+        assert event == Event.WORKABLE if is_workable else Event.NOT_WORKABLE
 
-        test_round.process_payload(first_payload)
-        assert test_round.collection[first_payload.sender] == first_payload
-        assert test_round.end_block() is None
 
-        self._test_no_majority_event(test_round)
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            participant_to_selection=MappingProxyType(test_round.collection),
-            is_workable=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert all(
-            [
-                key in cast(SynchronizedData, state).participant_to_selection
-                for key in cast(
-                    SynchronizedData, actual_next_state
-                ).participant_to_selection
-            ]
-        )
-        assert event == Event.WORKABLE
-
-    def test_run_negative(
-        self,
-    ) -> None:
-        """Run tests."""
-
-        test_round = IsWorkableRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
-        )
-
-        first_payload, *payloads = [
-            IsWorkablePayload(
-                sender=participant,
-                is_workable=False,
-            )
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection[first_payload.sender] == first_payload
-        assert test_round.end_block() is None
-
-        self._test_no_majority_event(test_round)
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            participant_to_selection=MappingProxyType(test_round.collection),
-            is_workable=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert all(
-            [
-                key in cast(SynchronizedData, state).participant_to_selection
-                for key in cast(
-                    SynchronizedData, actual_next_state
-                ).participant_to_selection
-            ]
-        )
-        assert event == Event.NOT_WORKABLE
+    # def test_run_positive(self) -> None:
+    #     """Run tests."""
+    #
+    #     test_round = IsWorkableRound(
+    #         synchronized_data=self.synchronized_data,
+    #         consensus_params=self.consensus_params,
+    #     )
+    #
+    #     first_payload, *payloads = [
+    #         IsWorkablePayload(
+    #             sender=participant,
+    #             is_workable=True,
+    #         )
+    #         for participant in self.participants
+    #     ]
+    #
+    #     test_round.process_payload(first_payload)
+    #     assert test_round.collection[first_payload.sender] == first_payload
+    #     assert test_round.end_block() is None
+    #
+    #     self._test_no_majority_event(test_round)
+    #
+    #     for payload in payloads:
+    #         test_round.process_payload(payload)
+    #
+    #     actual_next_state = self.synchronized_data.update(
+    #         participant_to_selection=MappingProxyType(test_round.collection),
+    #         is_workable=test_round.most_voted_payload,
+    #     )
+    #
+    #     res = test_round.end_block()
+    #     assert res is not None
+    #     state, event = res
+    #     assert all(
+    #         [
+    #             key in cast(SynchronizedData, state).participant_to_selection
+    #             for key in cast(
+    #                 SynchronizedData, actual_next_state
+    #             ).participant_to_selection
+    #         ]
+    #     )
+    #     assert event == Event.WORKABLE
+    #
+    # def test_run_negative(
+    #     self,
+    # ) -> None:
+    #     """Run tests."""
+    #
+    #     test_round = IsWorkableRound(
+    #         synchronized_data=self.synchronized_data,
+    #         consensus_params=self.consensus_params,
+    #     )
+    #
+    #     first_payload, *payloads = [
+    #         IsWorkablePayload(
+    #             sender=participant,
+    #             is_workable=False,
+    #         )
+    #         for participant in self.participants
+    #     ]
+    #
+    #     test_round.process_payload(first_payload)
+    #     assert test_round.collection[first_payload.sender] == first_payload
+    #     assert test_round.end_block() is None
+    #
+    #     self._test_no_majority_event(test_round)
+    #
+    #     for payload in payloads:
+    #         test_round.process_payload(payload)
+    #
+    #     actual_next_state = self.synchronized_data.update(
+    #         participant_to_selection=MappingProxyType(test_round.collection),
+    #         is_workable=test_round.most_voted_payload,
+    #     )
+    #
+    #     res = test_round.end_block()
+    #     assert res is not None
+    #     state, event = res
+    #     assert all(
+    #         [
+    #             key in cast(SynchronizedData, state).participant_to_selection
+    #             for key in cast(
+    #                 SynchronizedData, actual_next_state
+    #             ).participant_to_selection
+    #         ]
+    #     )
+    #     assert event == Event.NOT_WORKABLE
 
 
 class TestIsProfitableRound(BaseRoundTestClass):

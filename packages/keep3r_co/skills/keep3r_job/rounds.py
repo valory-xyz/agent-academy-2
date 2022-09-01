@@ -104,6 +104,12 @@ class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
 
     synchronized_data_class = SynchronizedData
 
+    @property
+    def synchronized_data(self) -> SynchronizedData:
+        """Synchronized data"""
+
+        return cast(SynchronizedData, super().synchronized_data)
+
 
 class PathSelectionRound(Keep3rJobAbstractRound):
     """HealthCheckRound"""
@@ -250,13 +256,16 @@ class IsWorkableRound(Keep3rJobAbstractRound):
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+
         if self.threshold_reached:
-            state = self.synchronized_data.update(
-                is_workable=self.most_voted_payload,
-            )
             is_workable = self.most_voted_payload
             if is_workable:
+                state = self.synchronized_data.update(is_workable=is_workable)
                 return state, Event.WORKABLE
+            # remove the non-workable job and attempt another
+            job_list: List[str] = self.synchronized_data.job_list.copy()
+            job_list.remove(self.synchronized_data.job_selection)
+            state = self.synchronized_data.update(job_list=job_list)
             return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
