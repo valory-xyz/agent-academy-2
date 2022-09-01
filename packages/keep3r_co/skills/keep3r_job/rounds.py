@@ -87,6 +87,11 @@ class SynchronizedData(BaseSynchronizedData):
         return cast(str, self.db.get_strict("most_voted_tx_hash"))
 
     @property
+    def job_list(self) -> str:
+        """Get the job_list."""
+        return cast(str, self.db.get_strict("job_list"))
+
+    @property
     def job_selection(self) -> str:
         """Get the job_selection."""
         return cast(str, self.db.get_strict("job_selection"))
@@ -138,7 +143,7 @@ class BondingRound(Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
-        if self.threshold_reached:
+        if self.threshold_reached and self.most_voted_payload:
             bonding_tx = self.most_voted_payload
             state = self.synchronized_data.update(bonding_tx=bonding_tx)
             return state, Event.BONDING_TX
