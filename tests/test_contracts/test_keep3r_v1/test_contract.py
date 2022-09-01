@@ -187,6 +187,12 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
         kw = dict(address=self.deployer_crypto.address)
         assert self.contract.blacklist(**self.base_kw, **kw) is False
 
+    def test_credits(self) -> None:
+        """Test credits"""
+
+        kw = dict(address=self.deployer_crypto.address)
+        assert self.contract.credits(**self.base_kw, **kw) == 0
+
     def test_get_jobs(self) -> None:
         """Test get_jobs"""
 
