@@ -138,6 +138,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             keep3r_v1_contract_address=SOME_CONTRACT_ADDRESS,
             safe_contract_address=SOME_CONTRACT_ADDRESS,
             job_list=[SOME_CONTRACT_ADDRESS],
+            current_job=SOME_CONTRACT_ADDRESS,
         )
         self.fast_forward(data)
         self.behaviour.act_wrapper()
@@ -167,6 +168,25 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
                 callable=contract_callable,
             ),
             contract_id=str(KEEP3R_V1_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=contract_callable,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": data},
+                ),
+            ),
+        )
+
+    def mock_test_job_call(self, contract_callable: str, data: Any) -> None:
+        """Mock TestJob contract call"""
+
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=contract_callable,
+            ),
+            contract_id=str(TEST_JOB_CONTRACT_ID),
             response_kwargs=dict(
                 performative=ContractApiMessage.Performative.STATE,
                 callable=contract_callable,
@@ -319,23 +339,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_get_jobs(self) -> None:
         """Test get_jobs."""
 
-        contract_callable = "get_jobs"
-        self.behaviour.act_wrapper()
-        self.mock_contract_api_request(
-            request_kwargs=dict(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                callable=contract_callable,
-            ),
-            contract_id=str(KEEP3R_V1_CONTRACT_ID),
-            response_kwargs=dict(
-                performative=ContractApiMessage.Performative.STATE,
-                callable=contract_callable,
-                state=ContractApiMessage.State(
-                    ledger_id="ethereum",
-                    body={"data": ["some_job_address"]},
-                ),
-            ),
-        )
+        self.mock_keep3r_v1_call("get_jobs", ["some_job_address"])
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.DONE)
@@ -444,83 +448,29 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         assert self.current_behaviour.behaviour_id == next_round.round_id
 
 
-@pytest.mark.skip("ABCIApp redesign: no payment assigned yet")
 class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test case to test IsWorkableBehaviour."""
 
-    CONTRACT_ADDRESS: str = "contract_address"
-    CONTRACT_CALLABLE: str = "get_workable"
-    is_workable_behaviour_class: Type[BaseBehaviour] = IsWorkableBehaviour
+    behaviour_class: Type[BaseBehaviour] = IsWorkableBehaviour
 
-    def test_is_workable_true(self) -> None:
-        """Test is workable true."""
-        self.skill.skill_context.params.job_contract_addresses = ["job_contract_1"]
-        self.fast_forward_to_behaviour(
-            self.behaviour,
-            IsWorkableBehaviour.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(dict(job_selection="some_job"))
-                )
-            ),
-        )
-        assert self.current_behaviour.behaviour_id == IsWorkableBehaviour.behaviour_id
+    @pytest.mark.parametrize(
+        "is_workable, event, next_round",
+        [
+            (True, Event.WORKABLE, IsProfitableRound),
+            (False, Event.NOT_WORKABLE, JobSelectionRound),
+        ],
+    )
+    def test_is_workable(
+        self, is_workable: bool, event: Event, next_round: Keep3rJobAbstractRound
+    ) -> None:
+        """Test is_workable."""
 
+        self.mock_test_job_call("workable", is_workable)
         self.behaviour.act_wrapper()
-        self.mock_contract_api_request(
-            request_kwargs=dict(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                callable=self.CONTRACT_CALLABLE,
-            ),
-            contract_id=str(TEST_JOB_CONTRACT_ID),
-            response_kwargs=dict(
-                performative=ContractApiMessage.Performative.STATE,
-                callable=self.CONTRACT_CALLABLE,
-                state=ContractApiMessage.State(
-                    ledger_id="ethereum",
-                    body={"data": True},
-                ),
-            ),
-        )
         self.mock_a2a_transaction()
         self._test_done_flag_set()
-        self.end_round(done_event=Event.DONE)
-        assert self.current_behaviour.behaviour_id == IsProfitableRound.round_id
-
-    def test_is_workable_false(self) -> None:
-        """Test is workable false."""
-        self.fast_forward_to_behaviour(
-            self.behaviour,
-            IsWorkableBehaviour.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(dict(job_selection="some_job"))
-                )
-            ),
-        )
-        assert self.current_behaviour.behaviour_id == IsWorkableBehaviour.behaviour_id
-
-        self.behaviour.act_wrapper()
-        self.mock_contract_api_request(
-            request_kwargs=dict(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                callable=self.CONTRACT_CALLABLE,
-            ),
-            contract_id=str(TEST_JOB_CONTRACT_ID),
-            response_kwargs=dict(
-                performative=ContractApiMessage.Performative.STATE,
-                callable=self.CONTRACT_CALLABLE,
-                state=ContractApiMessage.State(
-                    ledger_id="ethereum",
-                    body={"data": False},
-                ),
-            ),
-        )
-        self.mock_a2a_transaction()
-        self._test_done_flag_set()
-        self.end_round(done_event=Event.NOT_WORKABLE)
-        degenerate_state = make_degenerate_behaviour(NothingToDoRound.round_id)
-        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
+        self.end_round(done_event=event)
+        assert self.current_behaviour.behaviour_id == next_round.round_id
 
 
 @pytest.mark.skip("ABCIApp redesign: no payment assigned yet")
