@@ -225,15 +225,15 @@ class JobSelectionRound(Keep3rJobAbstractRound):
 
     round_id = "job_selection"
     allowed_tx_type: TransactionType = JobSelectionPayload.transaction_type
-    payload_attribute = "job_selection"
+    payload_attribute = "job_contract"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
         if self.threshold_reached:
-            job_selection = self.most_voted_payload
-            state = self.synchronized_data.update(job_selection=job_selection)
-            return state, Event.DONE if job_selection else Event.NO_JOBS
+            job_contract = self.most_voted_payload
+            state = self.synchronized_data.update(job_contract=job_contract)
+            return state, Event.DONE if job_contract else Event.NO_JOBS
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):

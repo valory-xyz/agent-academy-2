@@ -246,13 +246,13 @@ class TestJobSelectionRound(BaseRoundTestClass):
     round_class = JobSelectionRound
     payload_class = JobSelectionPayload
 
-    @pytest.mark.parametrize("job_selection", [None, "some_job_address"])
-    def test_selects_job(self, job_selection: Optional[str]) -> None:
+    @pytest.mark.parametrize("job_contract", [None, "some_job_address"])
+    def test_selects_job(self, job_contract: Optional[str]) -> None:
         """Run tests."""
 
-        next_state = self.deliver_payloads(job_selection=job_selection)
+        next_state = self.deliver_payloads(job_contract=job_contract)
         event = self.complete_round(next_state)
-        assert event == Event.DONE if job_selection else Event.NO_JOBS
+        assert event == Event.DONE if job_contract else Event.NO_JOBS
 
 
 class TestIsWorkableRound(BaseRoundTestClass):

@@ -283,15 +283,15 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             if not self.synchronized_data.job_list:
-                payload = JobSelectionPayload(self.context.agent_address, None)
+                job_contract = None
             else:
                 addresses = self.synchronized_data.job_list
                 period_count = self.synchronized_data.period_count
                 round_count = self.synchronized_data.round_count
                 job_ix = period_count + round_count % len(addresses)
                 job_contract = addresses[job_ix]
-                payload = JobSelectionPayload(self.context.agent_address, job_contract)
-            self.context.logger.info(f"Job contract selected : {job_contract}")
+            payload = JobSelectionPayload(self.context.agent_address, job_contract)
+            self.context.logger.info(f"Job contract selected: {job_contract}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
