@@ -339,23 +339,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_get_jobs(self) -> None:
         """Test get_jobs."""
 
-        contract_callable = "get_jobs"
-        self.behaviour.act_wrapper()
-        self.mock_contract_api_request(
-            request_kwargs=dict(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                callable=contract_callable,
-            ),
-            contract_id=str(KEEP3R_V1_CONTRACT_ID),
-            response_kwargs=dict(
-                performative=ContractApiMessage.Performative.STATE,
-                callable=contract_callable,
-                state=ContractApiMessage.State(
-                    ledger_id="ethereum",
-                    body={"data": ["some_job_address"]},
-                ),
-            ),
-        )
+        self.mock_keep3r_v1_call("get_jobs", ["some_job_address"])
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.DONE)
@@ -471,10 +455,14 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     @pytest.mark.parametrize(
         "is_workable, event, next_round",
-        [(True, Event.WORKABLE, IsProfitableRound),
-         (False, Event.NOT_WORKABLE, JobSelectionRound)],
+        [
+            (True, Event.WORKABLE, IsProfitableRound),
+            (False, Event.NOT_WORKABLE, JobSelectionRound),
+        ],
     )
-    def test_is_workable(self, is_workable: bool, event: Event, next_round: Keep3rJobAbstractRound) -> None:
+    def test_is_workable(
+        self, is_workable: bool, event: Event, next_round: Keep3rJobAbstractRound
+    ) -> None:
         """Test is_workable."""
 
         self.mock_test_job_call("workable", is_workable)

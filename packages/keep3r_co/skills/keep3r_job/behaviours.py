@@ -344,7 +344,7 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
             )
             log_msg = f"`workable` contract api response on {current_job}"
             self.context.logger.info(f"{log_msg}: {contract_api_response}")
-            is_workable = contract_api_response.state.body.get("data", False)
+            is_workable = bool(contract_api_response.state.body.get("data"))
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
