@@ -179,6 +179,13 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
                 contract_id=str(Keep3rV1Contract.contract_id),
                 contract_callable="build_bond_tx",
             )
+            state_performative = ContractApiMessage.Performative.STATE
+            if contract_api_response.performative != state_performative:
+                log_msg = "Failed build_bond_tx"
+                self.context.logger.error(f"{log_msg}: {contract_api_response}")
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+
             bonding_tx = cast(str, contract_api_response.state.body.get("data"))
             payload = BondingTxPayload(
                 self.context.agent_address, bonding_tx=bonding_tx

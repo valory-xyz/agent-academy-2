@@ -138,7 +138,7 @@ class BondingRound(Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
-        if self.threshold_reached:
+        if self.threshold_reached and self.most_voted_payload:
             bonding_tx = self.most_voted_payload
             state = self.synchronized_data.update(bonding_tx=bonding_tx)
             return state, Event.BONDING_TX
