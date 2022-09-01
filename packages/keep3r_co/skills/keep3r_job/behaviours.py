@@ -361,51 +361,20 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
     matching_round: Type[AbstractRound] = IsProfitableRound
 
     def async_act(self) -> Generator:
-        """Do the action
-
-        Steps:
-        - Call the contract to get the rewardMultiplier
-        - Check if the job is profitable given the current rewardMultiplier
-        - Set Payload accordingly and send transaction, then end the round.
-        """
+        """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            reward_multiplier = yield from self.rewardMultiplier()
-            if reward_multiplier is None:
-                raise RuntimeError("Contract call has failed")
-
-            # TODO: compute a more meaningful profitability measure
-            if reward_multiplier > self.context.params.profitability_threshold:
-                payload = IsProfitablePayload(self.context.agent_address, True)
-            else:
-                payload = IsProfitablePayload(self.context.agent_address, False)
+            current_job = self.synchronized_data.current_job
+            reward = yield from self.read_keep3r_v1("credits", address=current_job)
+            is_profitable = reward >= self.context.params.profitability_threshold
+            self.context.logger.info(f"reward: {reward}, profitable: {is_profitable}")
+            payload = IsProfitablePayload(self.context.agent_address, is_profitable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            self.context.logger.info(f"Safe transaction hash: {reward_multiplier}")
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
         self.set_done()
-
-    def rewardMultiplier(self) -> Generator:
-        """Calls the contract to get the reward multiplier for the job."""
-
-        contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_STATE,
-            contract_address=self.synchronized_data.current_job,
-            contract_id=str(Keep3rTestJobContract.contract_id),
-            contract_callable="rewardMultiplier",
-        )
-        if (
-            contract_api_response.performative != ContractApiMessage.Performative.STATE
-        ):  # pragma: nocover
-            self.context.logger.warning("Get reward multiplier unsuccessful!")
-            return None
-
-        reward_multiplier = cast(
-            int, contract_api_response.state.body.pop("rewardMultiplier")
-        )
-        return reward_multiplier
 
 
 class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
