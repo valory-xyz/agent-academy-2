@@ -275,7 +275,6 @@ class TestIsWorkableRound(BaseRoundTestClass):
         event = self.complete_round(next_state)
         assert event == Event.WORKABLE if is_workable else Event.NOT_WORKABLE
 
-
     # def test_run_positive(self) -> None:
     #     """Run tests."""
     #
