@@ -96,6 +96,9 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             contract_callable=method,
             **kwargs,
         )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(f"Failed read_keep3r_v1: {contract_api_response}")
+            return None
         self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
         return contract_api_response.state.body.get("data")
 
@@ -103,13 +106,21 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         """Check if bonding is completed"""
 
         bond = yield from self.read_keep3r_v1("BOND")  # contract parameter
+        if bond is None:
+            self.context.logger.error("Failed keep3r v1 BOND call")
+            return False
         ledger_api_response = yield from self.get_ledger_api_response(
             performative=LedgerApiMessage.Performative.GET_STATE,
             ledger_callable="get_block",
             block_identifier="latest",
         )
+        if ledger_api_response.performative != LedgerApiMessage.Performative.STATE:
+            self.context.logger.error(f"Failed has_bonded: {ledger_api_response}")
+            return False
         latest_block = cast(Dict, ledger_api_response.state.body.get("data"))
-        return latest_block["timestamp"] > bond_time + bond
+        remaining_time = bond_time + bond - latest_block["timestamp"]
+        self.context.logger.info(f"Remaining bond time: {remaining_time}")
+        return remaining_time <= 0
 
     def has_sufficient_funds(self, address: str) -> Generator[None, None, bool]:
         """Has sufficient funds"""
@@ -119,6 +130,8 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             ledger_callable="get_balance",
             account=address,
         )
+        if ledger_api_response.performative != LedgerApiMessage.Performative.STATE:
+            return False  # transition to await top-up round
         balance = cast(int, ledger_api_response.state.body.get("data"))
         self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
@@ -206,9 +219,15 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
 
             address = self.synchronized_data.safe_contract_address
             bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+            if bond_time is None:
+                log_msg = "Failed to check `bondings` on Keep3rV1 contract"
+                self.context.logger.error(log_msg)
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             done_waiting = yield from self.has_bonded(bond_time)
             self.context.logger.info(f"Done waiting: {done_waiting}")
             if not done_waiting:
+                yield from self.sleep(self.context.params.sleep_time)
                 return
             payload = WaitingPayload(
                 self.context.agent_address, done_waiting=done_waiting
