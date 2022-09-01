@@ -283,15 +283,14 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             if not self.synchronized_data.job_list:
-                job_contract = None
+                current_job = None
             else:
                 addresses = self.synchronized_data.job_list
                 period_count = self.synchronized_data.period_count
-                round_count = self.synchronized_data.round_count
-                job_ix = period_count + round_count % len(addresses)
-                job_contract = addresses[job_ix]
-            payload = JobSelectionPayload(self.context.agent_address, job_contract)
-            self.context.logger.info(f"Job contract selected: {job_contract}")
+                job_ix = period_count % len(addresses)
+                current_job = addresses[job_ix]
+            payload = JobSelectionPayload(self.context.agent_address, current_job)
+            self.context.logger.info(f"Job contract selected: {current_job}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -328,7 +327,7 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
         """Get workable jobs from contract"""
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.synchronized_data.job_selection,
+            contract_address=self.synchronized_data.current_job,
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="get_workable",
         )
@@ -374,7 +373,7 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
 
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
-            contract_address=self.synchronized_data.job_selection,
+            contract_address=self.synchronized_data.current_job,
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="rewardMultiplier",
         )
@@ -424,7 +423,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="work",
-            contract_address=self.synchronized_data.job_selection,
+            contract_address=self.synchronized_data.current_job,
             sender_address=self.context.agent_address,
         )
 

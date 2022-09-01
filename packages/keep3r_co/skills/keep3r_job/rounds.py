@@ -94,9 +94,9 @@ class SynchronizedData(BaseSynchronizedData):
         return cast(List[ChecksumAddress], self.db.get_strict("job_list"))
 
     @property
-    def job_selection(self) -> str:
+    def current_job(self) -> Optional[str]:
         """Get the job_selection."""
-        return cast(str, self.db.get_strict("job_selection"))
+        return cast(str, self.db.get_strict("current_job"))
 
 
 class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
@@ -225,15 +225,15 @@ class JobSelectionRound(Keep3rJobAbstractRound):
 
     round_id = "job_selection"
     allowed_tx_type: TransactionType = JobSelectionPayload.transaction_type
-    payload_attribute = "job_contract"
+    payload_attribute = "current_job"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
         if self.threshold_reached:
-            job_contract = self.most_voted_payload
-            state = self.synchronized_data.update(job_contract=job_contract)
-            return state, Event.DONE if job_contract else Event.NO_JOBS
+            current_job = self.most_voted_payload
+            state = self.synchronized_data.update(current_job=current_job)
+            return state, Event.DONE if current_job else Event.NO_JOBS
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
