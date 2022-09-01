@@ -87,15 +87,26 @@ class SynchronizedData(BaseSynchronizedData):
         return cast(str, self.db.get_strict("most_voted_tx_hash"))
 
     @property
-    def job_selection(self) -> str:
-        """Get the job_selection."""
-        return cast(str, self.db.get_strict("job_selection"))
+    def job_list(self) -> str:
+        """Get the job_list."""
+        return cast(str, self.db.get_strict("job_list"))
+
+    @property
+    def current_job(self) -> Optional[str]:
+        """Get the current_job."""
+        return cast(str, self.db.get_strict("current_job"))
 
 
 class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
     """Keep3rJobAbstractRound"""
 
     synchronized_data_class = SynchronizedData
+
+    @property
+    def synchronized_data(self) -> SynchronizedData:
+        """Synchronized data"""
+
+        return cast(SynchronizedData, super().synchronized_data)
 
 
 class PathSelectionRound(Keep3rJobAbstractRound):
@@ -133,20 +144,20 @@ class BondingRound(Keep3rJobAbstractRound):
 
     round_id: str = "bonding"
     allowed_tx_type: TransactionType = BondingTxPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "bonding_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.BONDING_TX, Event.NO_MAJORITY)
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        if self.threshold_reached and self.most_voted_payload:
+            bonding_tx = self.most_voted_payload
+            state = self.synchronized_data.update(bonding_tx=bonding_tx)
+            return state, Event.BONDING_TX
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 class WaitingRound(Keep3rJobAbstractRound):
@@ -154,20 +165,20 @@ class WaitingRound(Keep3rJobAbstractRound):
 
     round_id: str = "waiting"
     allowed_tx_type: TransactionType = WaitingPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "done_waiting"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.DONE, Event.NO_MAJORITY)
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        if self.threshold_reached:
+            done_waiting = self.most_voted_payload
+            state = self.synchronized_data.update(done_waiting=done_waiting)
+            return state, Event.DONE
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 class ActivationRound(Keep3rJobAbstractRound):
@@ -175,20 +186,21 @@ class ActivationRound(Keep3rJobAbstractRound):
 
     round_id: str = "activation"
     allowed_tx_type: TransactionType = ActivationTxPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "activation_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.ACTIVATION_TX, Event.AWAITING_BONDING, Event.NO_MAJORITY)
-        raise NotImplementedError
+        _ = Event.AWAITING_BONDING
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        if self.threshold_reached:
+            activation_tx = self.most_voted_payload
+            state = self.synchronized_data.update(activation_tx=activation_tx)
+            return state, Event.ACTIVATION_TX
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 class GetJobsRound(Keep3rJobAbstractRound):
@@ -217,17 +229,15 @@ class JobSelectionRound(Keep3rJobAbstractRound):
 
     round_id = "job_selection"
     allowed_tx_type: TransactionType = JobSelectionPayload.transaction_type
-    payload_attribute = "job_selection"
+    payload_attribute = "current_job"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+
         if self.threshold_reached:
-            _ = (Event.DONE, Event.NO_JOBS, Event.NO_MAJORITY)
-            job_selection = self.most_voted_payload
-            state = self.synchronized_data.update(job_selection=job_selection)
-            if job_selection:
-                return state, Event.DONE
-            return state, Event.NO_JOBS  # NO_JOBS ?
+            current_job = self.most_voted_payload
+            state = self.synchronized_data.update(current_job=current_job)
+            return state, Event.DONE if current_job else Event.NO_JOBS
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
@@ -244,13 +254,16 @@ class IsWorkableRound(Keep3rJobAbstractRound):
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
+
         if self.threshold_reached:
-            state = self.synchronized_data.update(
-                is_workable=self.most_voted_payload,
-            )
             is_workable = self.most_voted_payload
             if is_workable:
+                state = self.synchronized_data.update(is_workable=is_workable)
                 return state, Event.WORKABLE
+            # remove the non-workable job, then transition to JobSelectionRound
+            current_job = cast(str, self.synchronized_data.current_job)
+            job_list = self.synchronized_data.job_list.replace(current_job, "")
+            state = self.synchronized_data.update(job_list=job_list)
             return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
