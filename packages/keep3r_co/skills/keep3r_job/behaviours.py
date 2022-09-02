@@ -100,6 +100,22 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             return None
         return contract_api_response.state.body.get("data")
 
+    def build_keep3r_raw_tx(
+        self, method: str, **kwargs: Any
+    ) -> Generator[None, None, Optional[Dict]]:
+        """Build Keep3r V1 raw transaction"""
+
+        kwargs["performative"] = ContractApiMessage.Performative.GET_RAW_TRANSACTION
+        kwargs["contract_callable"] = method
+        contract_api_response = yield from self._call_keep3r_v1(**kwargs)
+        if (
+            contract_api_response.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
+        ):
+            self.context.logger.error(f"Failed build_keep3r_v1_raw_tx: {method}")
+            return None
+        return cast(Dict, contract_api_response.raw_transaction.body.get("data"))
+
     def has_bonded(self, bond_time: int) -> Generator[None, None, bool]:
         """Check if bonding is completed"""
 
