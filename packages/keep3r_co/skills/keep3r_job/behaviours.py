@@ -196,6 +196,30 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self.context.logger.info(f"{log_msg}: {contract_api_response}")
         return cast(bool, contract_api_response.state.body.get("data"))
 
+    def build_work_raw_tx(
+        self, job_address: str, address: str
+    ) -> Generator[None, None, Optional[RawTx]]:
+        """Build raw work transaction for a job contract"""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+            contract_id=str(Keep3rTestJobContract.contract_id),
+            contract_callable="build_work_tx",
+            contract_address=job_address,
+            address=address,
+        )
+        if (
+            contract_api_response.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
+        ):
+            self.context.logger.error(
+                f"Failed build_work_raw_tx: {contract_api_response}"
+            )
+            return None
+        log_msg = f"`build_work_tx` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        return cast(RawTx, contract_api_response.raw_transaction.body.get("data"))
+
     def build_safe_raw_tx(
         self,
         tx_params: Dict[str, Any],
