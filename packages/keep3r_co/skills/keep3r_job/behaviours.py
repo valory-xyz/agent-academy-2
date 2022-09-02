@@ -31,9 +31,9 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsWorkablePayload,
     JobSelectionPayload,
     PathSelectionPayload,
+    TopUpPayload,
     WaitingPayload,
     WorkTxPayload,
-    TopUpPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,

@@ -25,7 +25,6 @@ from unittest import mock
 import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
-    TopUpPayload,
     ActivationTxPayload,
     BaseKeep3rJobPayload,
     BondingTxPayload,
@@ -34,12 +33,13 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsWorkablePayload,
     JobSelectionPayload,
     PathSelectionPayload,
+    TopUpPayload,
     WaitingPayload,
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
-    AwaitTopUpRound,
     ActivationRound,
+    AwaitTopUpRound,
     BondingRound,
     Event,
     GetJobsRound,

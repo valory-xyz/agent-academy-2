@@ -28,13 +28,14 @@ from aea.helpers.transaction.base import RawTransaction
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     ActivationBehaviour,
+    AwaitTopUpBehaviour,
     BondingBehaviour,
     GetJobsBehaviour,
     IsProfitableBehaviour,
     IsWorkableBehaviour,
     JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
-    PathSelectionBehaviour, AwaitTopUpBehaviour,
+    PathSelectionBehaviour,
 )
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     PerformWorkBehaviour as PrepareTxBehaviour,
