@@ -299,20 +299,21 @@ class PerformWorkRound(Keep3rJobAbstractRound):
 
     round_id: str = "perform_work"
     allowed_tx_type: TransactionType = WorkTxPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "work_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.WORK_TX, Event.INSUFFICIENT_FUNDS, Event.NO_MAJORITY)
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        _ = Event.INSUFFICIENT_FUNDS,
+        if self.threshold_reached and self.most_voted_payload:
+            work_tx = self.most_voted_payload
+            state = self.synchronized_data.update(work_tx=work_tx)
+            return state, Event.WORK_TX
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 class AwaitTopUpRound(Keep3rJobAbstractRound):
