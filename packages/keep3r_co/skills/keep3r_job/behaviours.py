@@ -132,23 +132,23 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             return None
         return cast(RawTx, contract_api_response.raw_transaction.body.get("data"))
 
-    def has_bonded(self, bond_time: int) -> Generator[None, None, bool]:
+    def has_bonded(self, bond_time: int) -> Generator[None, None, Optional[bool]]:
         """Check if bonding is completed"""
 
         bond = yield from self.read_keep3r_v1("BOND")  # contract parameter
         if bond is None:
-            self.context.logger.error("Failed keep3r v1 BOND call")
-            return False
+            return None
         ledger_api_response = yield from self.get_ledger_api_response(
             performative=LedgerApiMessage.Performative.GET_STATE,
             ledger_callable="get_block",
             block_identifier="latest",
         )
         if ledger_api_response.performative != LedgerApiMessage.Performative.STATE:
-            self.context.logger.error(f"Failed has_bonded: {ledger_api_response}")
-            return False
+            log_msg = "Failed ledger get_block call in has_bonded"
+            self.context.logger.error(f"{log_msg}: {ledger_api_response}")
+            return None
         latest_block = cast(Dict, ledger_api_response.state.body.get("data"))
-        remaining_time = bond_time + bond - latest_block["timestamp"]
+        remaining_time = bond_time + cast(int, bond) - latest_block["timestamp"]
         self.context.logger.info(f"Remaining bond time: {remaining_time}")
         return remaining_time <= 0
 
