@@ -229,22 +229,35 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     matching_round: Type[AbstractRound] = PathSelectionRound
     transitions = PathSelectionRound.transitions
 
-    def select_path(self) -> Generator[None, None, Any]:
+    def select_path(self) -> Generator[None, None, Optional[str]]:
         """Select path to traverse"""
 
         address = self.synchronized_data.safe_contract_address
+
         blacklisted = yield from self.read_keep3r_v1("blacklist", address=address)
+        if blacklisted is None:
+            return None
         if blacklisted:
             return self.transitions["BLACKLISTED"].name
+
         sufficient_funds = yield from self.has_sufficient_funds(address)
+        if sufficient_funds is None:
+            return None
         if not sufficient_funds:
             return self.transitions["INSUFFICIENT_FUNDS"].name
-        bond_time = yield from self.read_keep3r_v1("bondings", address=address)
-        if not bond_time:
+
+        bond_time = yield from self.get_bond_time(address)
+        if bond_time is None:
+            return None
+        if bond_time == 0:
             return self.transitions["NOT_BONDED"].name
+
         bonded_keeper = yield from self.has_bonded(bond_time)
+        if bonded_keeper is None:
+            return None
         if not bonded_keeper:
             return self.transitions["NOT_ACTIVATED"].name
+
         return self.transitions["HEALTHY"].name
 
     def async_act(self) -> Generator:
@@ -252,6 +265,9 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             path = yield from self.select_path()
+            if path is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = PathSelectionPayload(self.context.agent_address, path)
             self.context.logger.info(f"Selected path: {path}")
 
