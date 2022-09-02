@@ -514,14 +514,15 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             address = self.synchronized_data.safe_contract_address
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-                contract_id=str(Keep3rTestJobContract.contract_id),
-                contract_callable="build_work_tx",
-                contract_address=self.synchronized_data.current_job,
-                address=address,
-            )
-            work_tx = cast(str, contract_api_response.state.body.get("data"))
+            current_job = self.synchronized_data.current_job
+            raw_tx = yield from self.build_work_raw_tx(current_job, address=address)
+            if raw_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            work_tx = yield from self.build_safe_raw_tx(raw_tx)
+            if work_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = WorkTxPayload(self.context.agent_address, work_tx)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
