@@ -222,19 +222,19 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
 
     def build_safe_raw_tx(
         self,
-        tx_params: Dict[str, Any],
+        tx_params: RawTx,
     ) -> Generator[None, None, Optional[str]]:
         """Build safe raw tx hash"""
 
         contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
             contract_address=self.synchronized_data.safe_contract_address,
             contract_id=str(GnosisSafeContract.contract_id),
             contract_callable="get_raw_safe_transaction_hash",
-            to_address=tx_params["to_address"],
-            value=tx_params["ether_value"],
+            to_address=tx_params["to"],
+            value=tx_params["value"],
             data=tx_params["data"],
-            safe_tx_gas=tx_params["safe_tx_gas"],
+            safe_tx_gas=tx_params["gas"],
         )
         if (
             contract_api_response.performative
@@ -242,8 +242,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         ):
             self.context.logger.warning("build_safe_raw_tx unsuccessful!")
             return None
-        tx_hash = cast(str, contract_api_response.raw_transaction.body.pop("hash"))
-        return tx_hash
+        return cast(str, contract_api_response.raw_transaction.body.pop("tx_hash"))
 
 
 class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
