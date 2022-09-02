@@ -129,6 +129,31 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
 
+    def build_safe_raw_tx(
+        self,
+        tx_params: Dict[str, Any],
+    ) -> Generator[None, None, Optional[str]]:
+        """Build safe raw tx hash"""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
+            contract_address=self.synchronized_data.safe_contract_address,
+            contract_id=str(GnosisSafeContract.contract_id),
+            contract_callable="get_raw_safe_transaction_hash",
+            to_address=tx_params["to_address"],
+            value=tx_params["ether_value"],
+            data=tx_params["data"],
+            safe_tx_gas=tx_params["safe_tx_gas"],
+        )
+        if (
+            contract_api_response.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
+        ):
+            self.context.logger.warning("build_safe_raw_tx unsuccessful!")
+            return None
+        tx_hash = cast(str, contract_api_response.raw_transaction.body.pop("hash"))
+        return tx_hash
+
 
 class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     """PathSelectionBehaviour"""
@@ -397,11 +422,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
                 contract_address=self.synchronized_data.current_job,
                 address=address,
             )
-            if contract_api_response.performative != ContractApiMessage.Performative.STATE:
-                self.context.logger.warning(f"Perform work failed: {contract_api_response}")
-                return None
-
-            work_tx = contract_api_response.state.body.get("data")
+            work_tx = cast(str, contract_api_response.state.body.get("data"))
             payload = WorkTxPayload(self.context.agent_address, work_tx)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
