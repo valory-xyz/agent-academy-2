@@ -38,7 +38,7 @@ from packages.keep3r_co.skills.keep3r_job.behaviours import (
     PathSelectionBehaviour,
 )
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
-    PerformWorkBehaviour as PrepareTxBehaviour,
+    PerformWorkBehaviour
 )
 from packages.keep3r_co.skills.keep3r_job.behaviours import WaitingBehaviour
 from packages.keep3r_co.skills.keep3r_job.handlers import (
@@ -55,9 +55,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     Event,
     FinalizeActivationRound,
     FinalizeBondingRound,
-)
-from packages.keep3r_co.skills.keep3r_job.rounds import (
-    FinalizeWorkRound as FinishedPrepareTxRound,
+    FinalizeWorkRound,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     GetJobsRound,
@@ -315,8 +313,8 @@ class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     behaviour_class: Type[BaseBehaviour] = ActivationBehaviour
 
-    def test_bonding_tx(self) -> None:
-        """Test bonding tx"""
+    def test_activation_tx(self) -> None:
+        """Test activation tx"""
 
         self.mock_keep3r_v1_call("build_activation_tx", {})
         self.mock_a2a_transaction()
@@ -341,87 +339,20 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
         assert self.current_behaviour.behaviour_id == JobSelectionRound.round_id
 
 
-@pytest.mark.skip("ABCIApp redesign: no payment assigned yet")
-class TestPrepareTxBehaviour(Keep3rJobFSMBehaviourBaseCase):
-    """Test SelectKeeperBehaviour."""
+class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test PerformWorkBehaviour."""
 
-    prepare_tx_behaviour_class: Type[BaseBehaviour] = PrepareTxBehaviour
+    behaviour_class: Type[BaseBehaviour] = PerformWorkBehaviour
 
-    def test_prepare_tx(
-        self,
-    ) -> None:
-        """Test prepare tx."""
+    def test_run(self) -> None:
+        """Test perform work."""
 
-        self.fast_forward_to_behaviour(
-            self.behaviour,
-            self.prepare_tx_behaviour_class.behaviour_id,
-            SynchronizedData(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(
-                        dict(
-                            job_selection="some_job",
-                            safe_contract_address=SOME_CONTRACT_ADDRESS,
-                        )
-                    ),
-                ),
-            ),
-        )
-        assert (
-            self.current_behaviour.behaviour_id
-            == self.prepare_tx_behaviour_class.behaviour_id
-        )
-        self.behaviour.act_wrapper()
-
-        # first mock the work tx itself
-
-        # then mock the safe tx
-
-        self.mock_contract_api_request(
-            request_kwargs=dict(
-                performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
-                contract_address=SOME_CONTRACT_ADDRESS,
-            ),
-            contract_id=str(TEST_JOB_CONTRACT_ID),
-            response_kwargs=dict(
-                performative=ContractApiMessage.Performative.RAW_TRANSACTION,
-                callable="work",
-                raw_transaction=RawTransaction(
-                    ledger_id="ethereum",
-                    body={
-                        "hash": "stub",
-                        "to_address": "to_address",
-                        "ether_value": 0,
-                        "data": {},
-                        "safe_tx_gas": 2100000,
-                        "operation": "call",
-                    },
-                ),
-            ),
-        )
-        self.mock_contract_api_request(
-            request_kwargs=dict(
-                performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
-            ),
-            contract_id=str(GNOSIS_SAFE_CONTRACT_ID),
-            response_kwargs=dict(
-                performative=ContractApiMessage.Performative.RAW_TRANSACTION,
-                callable="get_raw_safe_transaction_hash",
-                raw_transaction=RawTransaction(
-                    ledger_id="ethereum",
-                    body={
-                        "tx_hash": "0xb0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9"
-                    },
-                ),
-            ),
-        )
-
-        self.behaviour.act_wrapper()
-
+        self.mock_test_job_call("build_work_tx", {})
         self.mock_a2a_transaction()
         self._test_done_flag_set()
-        self.end_round(done_event=Event.DONE)
-        degenerate_state = make_degenerate_behaviour(FinishedPrepareTxRound.round_id)
-        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
+        self.end_round(done_event=Event.WORK_TX)
+        expected = f"degenerate_{FinalizeWorkRound.round_id}"
+        assert self.current_behaviour.behaviour_id == expected
 
 
 class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
