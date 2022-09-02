@@ -320,20 +320,21 @@ class AwaitTopUpRound(Keep3rJobAbstractRound):
 
     round_id: str = "await_top_up"
     allowed_tx_type: TransactionType = TopUpPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "top_up"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.TOP_UP, Event.NO_MAJORITY)
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
+        if self.threshold_reached and self.most_voted_payload:
+            top_up = self.most_voted_payload
+            state = self.synchronized_data.update(top_up=top_up)
+            return state, Event.TOP_UP
 
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 # degenerate rounds
