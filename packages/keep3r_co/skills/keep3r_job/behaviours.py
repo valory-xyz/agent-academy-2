@@ -405,13 +405,10 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
         """Behaviour to get the current job listing"""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                contract_address=self.keep3r_v1_contract_address,
-                contract_id=str(Keep3rV1Contract.contract_id),
-                contract_callable="get_jobs",
-            )
-            job_list = cast(List[str], contract_api_response.state.body.get("data"))
+            job_list = yield from self.read_keep3r_v1("get_jobs")
+            if job_list is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = GetJobsPayload(self.context.agent_address, job_list=job_list)
             self.context.logger.info(f"Job list retrieved: {job_list}")
 
