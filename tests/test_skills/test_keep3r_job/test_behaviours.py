@@ -163,6 +163,25 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             ),
         )
 
+    def mock_keep3r_v1_raw_tx(self, contract_callable: str, data: Any) -> None:
+        """Mock keep3r V1 raw transaction"""
+
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+                callable=contract_callable,
+            ),
+            contract_id=str(KEEP3R_V1_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.RAW_TRANSACTION,
+                callable=contract_callable,
+                raw_transaction=ContractApiMessage.RawTransaction(
+                    ledger_id="ethereum",
+                    body={"data": data},
+                ),
+            ),
+        )
+
     def mock_test_job_call(self, contract_callable: str, data: Any) -> None:
         """Mock TestJob contract call"""
 
