@@ -42,7 +42,6 @@ from packages.valory.skills.abstract_round_abci.base import (
     AbstractRound,
     AppState,
     BaseSynchronizedData,
-    BaseTxPayload,
     CollectSameUntilThresholdRound,
     DegenerateRound,
     EventToTimeout,
@@ -304,7 +303,7 @@ class PerformWorkRound(Keep3rJobAbstractRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
-        _ = Event.INSUFFICIENT_FUNDS,
+        _ = (Event.INSUFFICIENT_FUNDS,)
         if self.threshold_reached and self.most_voted_payload:
             work_tx = self.most_voted_payload
             state = self.synchronized_data.update(work_tx=work_tx)

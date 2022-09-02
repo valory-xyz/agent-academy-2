@@ -24,7 +24,6 @@ from tempfile import TemporaryDirectory
 from typing import Any, Dict, Optional, Type, cast
 
 import pytest
-from aea.helpers.transaction.base import RawTransaction
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     ActivationBehaviour,
@@ -36,11 +35,9 @@ from packages.keep3r_co.skills.keep3r_job.behaviours import (
     JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
     PathSelectionBehaviour,
+    PerformWorkBehaviour,
+    WaitingBehaviour,
 )
-from packages.keep3r_co.skills.keep3r_job.behaviours import (
-    PerformWorkBehaviour
-)
-from packages.keep3r_co.skills.keep3r_job.behaviours import WaitingBehaviour
 from packages.keep3r_co.skills.keep3r_job.handlers import (
     ContractApiHandler,
     HttpHandler,
@@ -56,8 +53,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeActivationRound,
     FinalizeBondingRound,
     FinalizeWorkRound,
-)
-from packages.keep3r_co.skills.keep3r_job.rounds import (
     GetJobsRound,
     IsProfitableRound,
     IsWorkableRound,
@@ -67,9 +62,6 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     PerformWorkRound,
     SynchronizedData,
     WaitingRound,
-)
-from packages.valory.contracts.gnosis_safe.contract import (
-    PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
 )
 from packages.valory.contracts.keep3r_test_job.contract import (
     PUBLIC_ID as TEST_JOB_CONTRACT_ID,
@@ -287,8 +279,8 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.BONDING_TX)
-        expected = f"degenerate_{FinalizeBondingRound.round_id}"
-        assert self.current_behaviour.behaviour_id == expected
+        degenerate_state = make_degenerate_behaviour(FinalizeBondingRound.round_id)
+        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
 
 
 class TestWaitingBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -320,8 +312,8 @@ class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.ACTIVATION_TX)
-        expected = f"degenerate_{FinalizeActivationRound.round_id}"
-        assert self.current_behaviour.behaviour_id == expected
+        degenerate_state = make_degenerate_behaviour(FinalizeActivationRound.round_id)
+        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -351,8 +343,8 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.WORK_TX)
-        expected = f"degenerate_{FinalizeWorkRound.round_id}"
-        assert self.current_behaviour.behaviour_id == expected
+        degenerate_state = make_degenerate_behaviour(FinalizeWorkRound.round_id)
+        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
 
 
 class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
