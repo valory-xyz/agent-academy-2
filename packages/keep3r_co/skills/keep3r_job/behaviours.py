@@ -20,7 +20,7 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
-from typing import Any, Dict, Generator, List, Optional, Set, Type, cast
+from typing import Any, Dict, Generator, List, Optional, Set, Type, TypedDict, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
@@ -58,6 +58,22 @@ from packages.valory.skills.abstract_round_abci.base import AbstractRound
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseBehaviour,
+)
+
+
+RawTx = TypedDict(
+    "RawTx",
+    {
+        "chainId": int,
+        "data": str,
+        "from": str,
+        "gas": int,
+        "maxFeePerGas": int,
+        "maxPriorityFeePerGas": int,
+        "nonce": int,
+        "to": str,
+        "value": int,
+    },
 )
 
 
@@ -102,7 +118,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
 
     def build_keep3r_raw_tx(
         self, method: str, **kwargs: Any
-    ) -> Generator[None, None, Optional[Dict]]:
+    ) -> Generator[None, None, Optional[RawTx]]:
         """Build Keep3r V1 raw transaction"""
 
         kwargs["performative"] = ContractApiMessage.Performative.GET_RAW_TRANSACTION
@@ -114,7 +130,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         ):
             self.context.logger.error(f"Failed build_keep3r_v1_raw_tx: {method}")
             return None
-        return cast(Dict, contract_api_response.raw_transaction.body.get("data"))
+        return cast(RawTx, contract_api_response.raw_transaction.body.get("data"))
 
     def has_bonded(self, bond_time: int) -> Generator[None, None, bool]:
         """Check if bonding is completed"""
