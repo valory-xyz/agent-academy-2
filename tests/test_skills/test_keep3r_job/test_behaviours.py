@@ -64,6 +64,9 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     SynchronizedData,
     WaitingRound,
 )
+from packages.valory.contracts.gnosis_safe.contract import (
+    PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
+)
 from packages.valory.contracts.keep3r_test_job.contract import (
     PUBLIC_ID as TEST_JOB_CONTRACT_ID,
 )
@@ -235,6 +238,27 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             ),
         )
 
+
+    def mock_build_safe_raw_tx(self) -> None:
+        """Mock build safe raw transaction"""
+
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+            ),
+            contract_id=str(GNOSIS_SAFE_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.RAW_TRANSACTION,
+                callable="get_raw_safe_transaction_hash",
+                raw_transaction=ContractApiMessage.RawTransaction(
+                    ledger_id="ethereum",
+                    body={
+                        "tx_hash": "0xb0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9"
+                    },
+                ),
+            ),
+        )
+
     def mock_ethereum_ledger_state_call(self, data: Any) -> None:
         """Mock ethereum ledger get state call"""
 
@@ -329,6 +353,7 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         """Test bonding tx"""
 
         self.mock_keep3r_v1_raw_tx("build_bond_tx", DUMMY_RAW_TX)
+        self.mock_build_safe_raw_tx()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.BONDING_TX)
@@ -362,6 +387,7 @@ class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
         """Test activation tx"""
 
         self.mock_keep3r_v1_raw_tx("build_activation_tx", DUMMY_RAW_TX)
+        self.mock_build_safe_raw_tx()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.ACTIVATION_TX)
@@ -437,6 +463,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         """Test is_workable."""
 
         self.mock_test_job_call("workable", is_workable)
+        self.mock_build_safe_raw_tx()
         self.behaviour.act_wrapper()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
