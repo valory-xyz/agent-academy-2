@@ -36,6 +36,7 @@ from packages.keep3r_co.skills.keep3r_job.behaviours import (
     Keep3rJobRoundBehaviour,
     PathSelectionBehaviour,
     PerformWorkBehaviour,
+    RawTx,
     WaitingBehaviour,
 )
 from packages.keep3r_co.skills.keep3r_job.handlers import (
@@ -87,6 +88,19 @@ from tests.test_contracts.constants import SECONDS_PER_DAY
 
 AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
 SOME_CONTRACT_ADDRESS = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
+
+
+DUMMY_RAW_TX: RawTx = {
+    "from": SOME_CONTRACT_ADDRESS,
+    "to": SOME_CONTRACT_ADDRESS,
+    "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",
+    "nonce": 0,
+    "value": 0,
+    "gas": 43242,
+    "maxFeePerGas": 2000000000,
+    "maxPriorityFeePerGas": 1000000000,
+    "chainId": 1,
+}
 
 
 class DummyRoundId:
@@ -314,7 +328,7 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_bonding_tx(self) -> None:
         """Test bonding tx"""
 
-        self.mock_keep3r_v1_call("build_bond_tx", {})
+        self.mock_keep3r_v1_raw_tx("build_bond_tx", DUMMY_RAW_TX)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.BONDING_TX)
@@ -347,7 +361,7 @@ class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_activation_tx(self) -> None:
         """Test activation tx"""
 
-        self.mock_keep3r_v1_call("build_activation_tx", {})
+        self.mock_keep3r_v1_raw_tx("build_activation_tx", DUMMY_RAW_TX)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.ACTIVATION_TX)
@@ -378,7 +392,7 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_run(self) -> None:
         """Test perform work."""
 
-        self.mock_test_job_call("build_work_tx", {})
+        self.mock_build_work_tx_call(DUMMY_RAW_TX)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.WORK_TX)
