@@ -79,20 +79,25 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         """Return Keep3r V1 Contract address."""
         return self.context.params.keep3r_v1_contract_address
 
+    def _call_keep3r_v1(self, **kwargs: Any) -> Generator[None, None, ContractApiMessage]:
+        """Helper method"""
+        contract_api_response = yield from self.get_contract_api_response(
+            contract_address=self.keep3r_v1_contract_address,
+            contract_id=str(Keep3rV1Contract.contract_id),
+            **kwargs,
+        )
+        self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
+        return contract_api_response
+
     def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
         """Read Keep3r V1 contract state"""
 
-        contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.keep3r_v1_contract_address,
-            contract_id=str(Keep3rV1Contract.contract_id),
-            contract_callable=method,
-            **kwargs,
-        )
+        kwargs['performative'] = ContractApiMessage.Performative.GET_STATE
+        kwargs["contract_callable"] = method
+        contract_api_response = yield from self._call_keep3r_v1(**kwargs)
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
             self.context.logger.error(f"Failed read_keep3r_v1: {contract_api_response}")
             return None
-        self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
         return contract_api_response.state.body.get("data")
 
     def has_bonded(self, bond_time: int) -> Generator[None, None, bool]:
