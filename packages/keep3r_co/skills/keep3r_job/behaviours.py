@@ -20,7 +20,7 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
-from typing import Any, Dict, Generator, List, Optional, Set, Type, TypedDict, cast
+from typing import Any, Dict, Generator, Optional, Set, Type, TypedDict, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
@@ -95,7 +95,9 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         """Return Keep3r V1 Contract address."""
         return self.context.params.keep3r_v1_contract_address
 
-    def _call_keep3r_v1(self, **kwargs: Any) -> Generator[None, None, ContractApiMessage]:
+    def _call_keep3r_v1(
+        self, **kwargs: Any
+    ) -> Generator[None, None, ContractApiMessage]:
         """Helper method"""
         contract_api_response = yield from self.get_contract_api_response(
             contract_address=self.keep3r_v1_contract_address,
@@ -108,7 +110,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
         """Read Keep3r V1 contract state"""
 
-        kwargs['performative'] = ContractApiMessage.Performative.GET_STATE
+        kwargs["performative"] = ContractApiMessage.Performative.GET_STATE
         kwargs["contract_callable"] = method
         contract_api_response = yield from self._call_keep3r_v1(**kwargs)
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
@@ -252,7 +254,9 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     matching_round: Type[AbstractRound] = PathSelectionRound
     transitions = PathSelectionRound.transitions
 
-    def select_path(self) -> Generator[None, None, Optional[str]]:
+    def select_path(  # pylint: disable=R0911
+        self,
+    ) -> Generator[None, None, Optional[str]]:
         """Select path to traverse"""
 
         address = self.synchronized_data.safe_contract_address
@@ -458,7 +462,7 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
         """Behaviour to get whether job is workable."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            current_job = self.synchronized_data.current_job
+            current_job = cast(str, self.synchronized_data.current_job)
             is_workable = yield from self.is_workable_job(current_job)
             if is_workable is None:
                 yield from self.sleep(self.context.params.sleep_time)
@@ -510,7 +514,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             address = self.synchronized_data.safe_contract_address
-            current_job = self.synchronized_data.current_job
+            current_job = cast(str, self.synchronized_data.current_job)
             raw_tx = yield from self.build_work_raw_tx(current_job, address=address)
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
