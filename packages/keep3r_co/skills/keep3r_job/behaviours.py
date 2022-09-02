@@ -288,24 +288,19 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                contract_address=self.keep3r_v1_contract_address,
-                contract_id=str(Keep3rV1Contract.contract_id),
-                contract_callable="build_bond_tx",
-            )
-            state_performative = ContractApiMessage.Performative.STATE
-            if contract_api_response.performative != state_performative:
-                log_msg = "Failed build_bond_tx"
-                self.context.logger.error(f"{log_msg}: {contract_api_response}")
+            raw_tx = yield from self.build_keep3r_raw_tx("build_bond_tx")
+            if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
-
-            bonding_tx = cast(str, contract_api_response.state.body.get("data"))
+            self.context.logger.info(f"Bonding raw tx: {raw_tx}")
+            bonding_tx = yield from self.build_safe_raw_tx(cast(RawTx, raw_tx))
+            if not bonding_tx:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = BondingTxPayload(
                 self.context.agent_address, bonding_tx=bonding_tx
             )
-            self.context.logger.info(f"Bonding raw tx: {bonding_tx}")
+            self.context.logger.info(f"Bonding tx: {bonding_tx}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
