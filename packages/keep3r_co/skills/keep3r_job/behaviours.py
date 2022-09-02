@@ -385,19 +385,23 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
     matching_round: Type[AbstractRound] = PerformWorkRound
 
     def async_act(self) -> Generator:
-        """
-        Do the action.
+        """Do the act, supporting asynchronous execution."""
 
-        Steps:
-        - If the agent is the designated deployer, then prepare the deployment
-          transaction and send it.
-        - Otherwise, wait until the next round.
-        - If a timeout is hit, set exit A event, otherwise set done event.
-        """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            work_tx = yield from self._get_raw_work_transaction_hash()
-            if not work_tx:
-                return
+
+            address = self.synchronized_data.safe_contract_address
+            contract_api_response = yield from self.get_contract_api_response(
+                performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+                contract_id=str(Keep3rTestJobContract.contract_id),
+                contract_callable="build_work_tx",
+                contract_address=self.synchronized_data.current_job,
+                address=address,
+            )
+            if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+                self.context.logger.warning(f"Perform work failed: {contract_api_response}")
+                return None
+
+            work_tx = contract_api_response.state.body.get("data")
             payload = WorkTxPayload(self.context.agent_address, work_tx)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
@@ -405,46 +409,6 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             yield from self.wait_until_round_end()
 
         self.set_done()
-
-    def _get_raw_work_transaction_hash(self) -> Generator[None, None, Optional[str]]:
-
-        job_contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_id=str(Keep3rTestJobContract.contract_id),
-            contract_callable="work",
-            contract_address=self.synchronized_data.current_job,
-            sender_address=self.context.agent_address,
-        )
-
-        if (
-            job_contract_api_response.performative
-            != ContractApiMessage.Performative.RAW_TRANSACTION
-        ):  # pragma: nocover
-            self.context.logger.warning("get raw work transaction unsuccessful!")
-            return None
-
-        tx_params = job_contract_api_response.raw_transaction.body
-        safe_contract_address = self.synchronized_data.safe_contract_address
-
-        safe_contract_api_msg = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
-            contract_address=safe_contract_address,
-            contract_id=str(GnosisSafeContract.contract_id),
-            contract_callable="get_raw_safe_transaction_hash",
-            to_address=tx_params["to_address"],
-            value=tx_params["ether_value"],
-            data=tx_params["data"],
-            safe_tx_gas=tx_params["safe_tx_gas"],
-        )
-        if (
-            safe_contract_api_msg.performative
-            != ContractApiMessage.Performative.RAW_TRANSACTION
-        ):  # pragma: nocover
-            self.context.logger.warning("Get work transaction hash unsuccessful!")
-            return None
-        tx_hash = cast(str, job_contract_api_response.raw_transaction.body.pop("hash"))
-
-        return tx_hash
 
 
 class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
