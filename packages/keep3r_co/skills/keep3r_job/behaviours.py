@@ -116,6 +116,16 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             return None
         return contract_api_response.state.body.get("data")
 
+    def get_bond_time(self, address: str) -> Generator[None, None, Optional[int]]:
+        """Check start of bonding time of the address"""
+
+        bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+        if bond_time is None:
+            log_msg = "Failed to check `bondings` on Keep3rV1 contract"
+            self.context.logger.error(log_msg)
+            return None
+        return cast(int, bond_time)
+
     def build_keep3r_raw_tx(
         self, method: str, **kwargs: Any
     ) -> Generator[None, None, Optional[RawTx]]:
@@ -300,15 +310,12 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             address = self.synchronized_data.safe_contract_address
-            bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+            bond_time = yield from self.get_bond_time(address=address)
             if bond_time is None:
-                log_msg = "Failed to check `bondings` on Keep3rV1 contract"
-                self.context.logger.error(log_msg)
                 yield from self.sleep(self.context.params.sleep_time)
                 return
             done_waiting = yield from self.has_bonded(bond_time)
-            self.context.logger.info(f"Done waiting: {done_waiting}")
-            if not done_waiting:
+            if not done_waiting:  # when `None` or `False`
                 yield from self.sleep(self.context.params.sleep_time)
                 return
             payload = WaitingPayload(
