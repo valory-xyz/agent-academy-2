@@ -166,6 +166,26 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
 
+    def is_workable_job(
+        self, contract_address: str
+    ) -> Generator[None, None, Optional[bool]]:
+        """Check if job contract is workable"""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=contract_address,
+            contract_id=str(Keep3rTestJobContract.contract_id),  # TODO generalize
+            contract_callable="workable",
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(
+                f"Failed is_workable_job: {contract_api_response}"
+            )
+            return None
+        log_msg = f"`workable` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        return cast(bool, contract_api_response.state.body.get("data"))
+
     def build_safe_raw_tx(
         self,
         tx_params: Dict[str, Any],
@@ -399,15 +419,10 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             current_job = self.synchronized_data.current_job
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-                contract_address=current_job,
-                contract_id=str(Keep3rTestJobContract.contract_id),  # TODO
-                contract_callable="workable",
-            )
-            log_msg = f"`workable` contract api response on {current_job}"
-            self.context.logger.info(f"{log_msg}: {contract_api_response}")
-            is_workable = bool(contract_api_response.state.body.get("data"))
+            is_workable = yield from self.is_workable_job(current_job)
+            if is_workable is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
