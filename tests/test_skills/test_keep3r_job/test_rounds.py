@@ -25,6 +25,7 @@ from unittest import mock
 import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
+    TopUpPayload,
     ActivationTxPayload,
     BaseKeep3rJobPayload,
     BondingTxPayload,
@@ -37,6 +38,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
+    AwaitTopUpRound,
     ActivationRound,
     BondingRound,
     Event,
@@ -290,3 +292,18 @@ class TestIsProfitableRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(is_profitable=is_profitable)
         event = self.complete_round(next_state)
         assert event == Event.PROFITABLE if is_profitable else Event.NOT_PROFITABLE
+
+
+class TestAwaitTopUpRound(BaseRoundTestClass):
+    """Tests for AwaitTopUpRound."""
+
+    round_class = AwaitTopUpRound
+    payload_class = TopUpPayload
+
+    @pytest.mark.parametrize("top_up", [True])
+    def test_run(self, top_up: bool) -> None:
+        """Run tests"""
+
+        next_state = self.deliver_payloads(top_up=top_up)
+        event = self.complete_round(next_state)
+        assert event == Event.TOP_UP
