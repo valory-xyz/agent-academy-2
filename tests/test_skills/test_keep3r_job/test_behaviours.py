@@ -499,13 +499,15 @@ class TestAwaitTopUpBehaviour(Keep3rJobFSMBehaviourBaseCase):
     behaviour_class: Type[BaseBehaviour] = AwaitTopUpBehaviour
 
     @pytest.mark.parametrize(
-        "event, next_round",
-        [(Event.TOP_UP, PathSelectionRound)],
+        "amount, event, next_round",
+        [(1, Event.TOP_UP, PathSelectionRound)],
     )
-    def test_top_up(self, event: Event, next_round: Keep3rJobAbstractRound) -> None:
+    def test_top_up(
+        self, amount: int, event: Event, next_round: Keep3rJobAbstractRound
+    ) -> None:
         """Test top_up."""
 
-        self.mock_ethereum_get_balance(amount=-1)
+        self.mock_ethereum_get_balance(amount=amount)
         self.behaviour.act_wrapper()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
