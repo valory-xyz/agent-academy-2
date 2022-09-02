@@ -350,17 +350,19 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                contract_address=self.keep3r_v1_contract_address,
-                contract_id=str(Keep3rV1Contract.contract_id),
-                contract_callable="build_activation_tx",
-            )
-            activation_tx = cast(str, contract_api_response.state.body.get("data"))
+            raw_tx = yield from self.build_keep3r_raw_tx("build_activation_tx")
+            if raw_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            self.context.logger.info(f"Activation raw tx: {raw_tx}")
+            activation_tx = yield from self.build_safe_raw_tx(raw_tx)
+            if activation_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            self.context.logger.info(f"Activation tx: {activation_tx}")
             payload = ActivationTxPayload(
                 self.context.agent_address, activation_tx=activation_tx
             )
-            self.context.logger.info(f"Activation raw tx: {activation_tx}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
