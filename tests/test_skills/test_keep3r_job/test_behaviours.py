@@ -92,7 +92,6 @@ from tests.test_contracts.constants import SECONDS_PER_DAY
 AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
 SOME_CONTRACT_ADDRESS = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
 
-
 DUMMY_RAW_TX: RawTx = {
     "from": SOME_CONTRACT_ADDRESS,
     "to": SOME_CONTRACT_ADDRESS,
@@ -161,7 +160,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
         )
         assert self.current_behaviour.behaviour_id == self.behaviour_class.behaviour_id
 
-    def mock_keep3r_v1_call(self, contract_callable: str, data: Any) -> None:
+    def mock_read_keep3r_v1(self, contract_callable: str, data: Any) -> None:
         """Mock keep3r V1 contract call"""
 
         self.mock_contract_api_request(
@@ -199,9 +198,10 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             ),
         )
 
-    def mock_test_job_call(self, contract_callable: str, data: Any) -> None:
-        """Mock TestJob contract call"""
+    def mock_workable_call(self, data: bool) -> None:
+        """Mock TestJob workable contract call"""
 
+        contract_callable = "workable"
         self.mock_contract_api_request(
             request_kwargs=dict(
                 performative=ContractApiMessage.Performative.GET_STATE,
@@ -218,7 +218,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             ),
         )
 
-    def mock_build_work_tx_call(self, data: Any) -> None:
+    def mock_build_work_tx_call(self, data: RawTx) -> None:
         """Mock build work transaction"""
 
         contract_callable = "build_work_tx"
@@ -233,11 +233,10 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
                 callable=contract_callable,
                 raw_transaction=ContractApiMessage.RawTransaction(
                     ledger_id="ethereum",
-                    body={"data": data},
+                    body={"data": data},  # type: ignore
                 ),
             ),
         )
-
 
     def mock_build_safe_raw_tx(self) -> None:
         """Mock build safe raw transaction"""
@@ -289,7 +288,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_blacklisted(self) -> None:
         """Test path_selection to blacklisted."""
 
-        self.mock_keep3r_v1_call("blacklist", True)
+        self.mock_read_keep3r_v1("blacklist", True)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.BLACKLISTED)
@@ -299,7 +298,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_insufficient_funds(self) -> None:
         """Test path_selection to insufficient funds."""
 
-        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=-1)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -309,9 +308,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_not_bonded(self) -> None:
         """Test path_selection to not bonded."""
 
-        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
-        self.mock_keep3r_v1_call("bondings", 0)
+        self.mock_read_keep3r_v1("bondings", 0)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.NOT_BONDED)
@@ -320,10 +319,10 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_not_activated(self) -> None:
         """Test path_selection to not activated."""
 
-        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
-        self.mock_keep3r_v1_call("bondings", 1)
-        self.mock_keep3r_v1_call("BOND", 3 * SECONDS_PER_DAY)
+        self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("BOND", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 0})
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -333,10 +332,10 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_healthy(self) -> None:
         """Test path_selection to healthy."""
 
-        self.mock_keep3r_v1_call("blacklist", False)
+        self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
-        self.mock_keep3r_v1_call("bondings", 1)
-        self.mock_keep3r_v1_call("BOND", 3 * SECONDS_PER_DAY)
+        self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("BOND", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 3 * SECONDS_PER_DAY + 1})
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -369,8 +368,8 @@ class TestWaitingBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_waiting(self) -> None:
         """Test waiting"""
 
-        self.mock_keep3r_v1_call("bondings", 0)
-        self.mock_keep3r_v1_call("BOND", 1)
+        self.mock_read_keep3r_v1("bondings", 0)
+        self.mock_read_keep3r_v1("BOND", 1)
         self.mock_get_latest_block(block={"timestamp": 2})
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -403,7 +402,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_get_jobs(self) -> None:
         """Test get_jobs."""
 
-        self.mock_keep3r_v1_call("get_jobs", ["some_job_address"])
+        self.mock_read_keep3r_v1("get_jobs", ["some_job_address"])
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.DONE)
@@ -419,6 +418,7 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
         """Test perform work."""
 
         self.mock_build_work_tx_call(DUMMY_RAW_TX)
+        self.mock_build_safe_raw_tx()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.WORK_TX)
@@ -462,8 +462,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
     ) -> None:
         """Test is_workable."""
 
-        self.mock_test_job_call("workable", is_workable)
-        self.mock_build_safe_raw_tx()
+        self.mock_workable_call(is_workable)
         self.behaviour.act_wrapper()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -488,7 +487,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
     ) -> None:
         """Test is_profitable."""
 
-        self.mock_keep3r_v1_call("credits", credits)
+        self.mock_read_keep3r_v1("credits", credits)
         self.behaviour.act_wrapper()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -514,5 +513,5 @@ class TestAwaitTopUpBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.behaviour.act_wrapper()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
-        self.end_round(done_event=Event.TOP_UP)
+        self.end_round(done_event=event)
         assert self.current_behaviour.behaviour_id == next_round.round_id
