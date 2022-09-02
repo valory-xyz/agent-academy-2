@@ -33,6 +33,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     PathSelectionPayload,
     WaitingPayload,
     WorkTxPayload,
+    TopUpPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
@@ -454,6 +455,18 @@ class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            address = self.synchronized_data.safe_contract_address
+            is_sufficient = yield from self.has_sufficient_funds(address)
+            payload = TopUpPayload(self.context.agent_address, is_sufficient)
+            self.context.logger.info(f"await_top_up sufficient: {is_sufficient}")
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
 
 
 class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
