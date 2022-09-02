@@ -283,11 +283,10 @@ class IsProfitableRound(Keep3rJobAbstractRound):
         """Process the end of the block."""
 
         if self.threshold_reached:
-            state = self.synchronized_data.update(is_profitable=self.most_voted_payload)
             is_profitable = self.most_voted_payload
-            if is_profitable:
-                return state, Event.PROFITABLE
-            return state, Event.NOT_PROFITABLE
+            state = self.synchronized_data.update(is_profitable=is_profitable)
+            return state, Event.PROFITABLE if is_profitable else Event.NOT_PROFITABLE
+
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):

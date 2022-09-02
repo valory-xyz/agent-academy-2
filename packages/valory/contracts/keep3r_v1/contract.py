@@ -110,6 +110,18 @@ class Keep3rV1Contract(Contract):
         return contract.functions.blacklist(address).call()
 
     @classmethod
+    def credits(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+    ) -> int:
+        """Check current credit available for a job"""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        return contract.functions.credits(address, contract.address).call()
+
+    @classmethod
     def get_jobs(
         cls,
         ledger_api: EthereumApi,

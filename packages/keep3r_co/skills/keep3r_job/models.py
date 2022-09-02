@@ -60,18 +60,21 @@ class SharedState(BaseSharedState):
 class Params(BaseParams):
     """Parameters."""
 
+    required = [
+        "validate_timeout",
+        "finalize_timeout",
+        "job_contract_addresses",
+        "keep3r_v1_contract_address",
+        "insufficient_funds_threshold",
+        "profitability_threshold",
+    ]
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
-        self.validate_timeout = self._ensure("validate_timeout", kwargs)
-        self.finalize_timeout = self._ensure("finalize_timeout", kwargs)
-        self.job_contract_addresses = self._ensure("job_contract_addresses", kwargs)
-        self.keep3r_v1_contract_address = self._ensure(
-            "keep3r_v1_contract_address", kwargs
-        )
-        self.insufficient_funds_threshold = self._ensure(
-            "insufficient_funds_threshold", kwargs
-        )
+
         super().__init__(*args, **kwargs)
+        for item in self.required:
+            setattr(self, item, self._ensure(item, kwargs))
 
 
 class RandomnessApi(ApiSpecs):
