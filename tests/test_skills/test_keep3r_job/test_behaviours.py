@@ -34,7 +34,7 @@ from packages.keep3r_co.skills.keep3r_job.behaviours import (
     IsWorkableBehaviour,
     JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
-    PathSelectionBehaviour,
+    PathSelectionBehaviour, AwaitTopUpBehaviour,
 )
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     PerformWorkBehaviour as PrepareTxBehaviour,
@@ -489,4 +489,24 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=event)
+        assert self.current_behaviour.behaviour_id == next_round.round_id
+
+
+class TestAwaitTopUpBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test case to test AwaitTopUpBehaviour."""
+
+    behaviour_class: Type[BaseBehaviour] = AwaitTopUpBehaviour
+
+    @pytest.mark.parametrize(
+        "event, next_round",
+        [(Event.TOP_UP, PathSelectionRound)],
+    )
+    def test_top_up(self, event: Event, next_round: Keep3rJobAbstractRound) -> None:
+        """Test top_up."""
+
+        self.mock_ethereum_get_balance(amount=-1)
+        self.behaviour.act_wrapper()
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.TOP_UP)
         assert self.current_behaviour.behaviour_id == next_round.round_id
