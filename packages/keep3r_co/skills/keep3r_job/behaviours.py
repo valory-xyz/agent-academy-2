@@ -464,6 +464,9 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             current_job = self.synchronized_data.current_job
             reward = yield from self.read_keep3r_v1("credits", address=current_job)
+            if reward is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             is_profitable = reward >= self.context.params.profitability_threshold
             self.context.logger.info(f"reward: {reward}, profitable: {is_profitable}")
             payload = IsProfitablePayload(self.context.agent_address, is_profitable)
