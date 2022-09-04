@@ -20,7 +20,7 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
-from typing import Any, Dict, Generator, List, Optional, Set, Type, cast
+from typing import Any, Dict, Generator, Optional, Set, Type, TypedDict, cast
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
@@ -61,6 +61,22 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
 )
 
 
+RawTx = TypedDict(
+    "RawTx",
+    {
+        "chainId": int,
+        "data": str,
+        "from": str,
+        "gas": int,
+        "maxFeePerGas": int,
+        "maxPriorityFeePerGas": int,
+        "nonce": int,
+        "to": str,
+        "value": int,
+    },
+)
+
+
 class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     """Base state behaviour for the simple abci skill."""
 
@@ -79,39 +95,72 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         """Return Keep3r V1 Contract address."""
         return self.context.params.keep3r_v1_contract_address
 
+    def _call_keep3r_v1(
+        self, **kwargs: Any
+    ) -> Generator[None, None, ContractApiMessage]:
+        """Helper method"""
+        contract_api_response = yield from self.get_contract_api_response(
+            contract_address=self.keep3r_v1_contract_address,
+            contract_id=str(Keep3rV1Contract.contract_id),
+            **kwargs,
+        )
+        self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
+        return contract_api_response
+
     def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
         """Read Keep3r V1 contract state"""
 
-        contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-            contract_address=self.keep3r_v1_contract_address,
-            contract_id=str(Keep3rV1Contract.contract_id),
-            contract_callable=method,
-            **kwargs,
-        )
+        kwargs["performative"] = ContractApiMessage.Performative.GET_STATE
+        kwargs["contract_callable"] = method
+        contract_api_response = yield from self._call_keep3r_v1(**kwargs)
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
             self.context.logger.error(f"Failed read_keep3r_v1: {contract_api_response}")
             return None
-        self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
         return contract_api_response.state.body.get("data")
 
-    def has_bonded(self, bond_time: int) -> Generator[None, None, bool]:
+    def get_bond_time(self, address: str) -> Generator[None, None, Optional[int]]:
+        """Check start of bonding time of the address"""
+
+        bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+        if bond_time is None:
+            log_msg = "Failed to check `bondings` on Keep3rV1 contract"
+            self.context.logger.error(log_msg)
+            return None
+        return cast(int, bond_time)
+
+    def build_keep3r_raw_tx(
+        self, method: str, **kwargs: Any
+    ) -> Generator[None, None, Optional[RawTx]]:
+        """Build Keep3r V1 raw transaction"""
+
+        kwargs["performative"] = ContractApiMessage.Performative.GET_RAW_TRANSACTION
+        kwargs["contract_callable"] = method
+        contract_api_response = yield from self._call_keep3r_v1(**kwargs)
+        if (
+            contract_api_response.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
+        ):
+            self.context.logger.error(f"Failed build_keep3r_v1_raw_tx: {method}")
+            return None
+        return cast(RawTx, contract_api_response.raw_transaction.body.get("data"))
+
+    def has_bonded(self, bond_time: int) -> Generator[None, None, Optional[bool]]:
         """Check if bonding is completed"""
 
         bond = yield from self.read_keep3r_v1("BOND")  # contract parameter
         if bond is None:
-            self.context.logger.error("Failed keep3r v1 BOND call")
-            return False
+            return None
         ledger_api_response = yield from self.get_ledger_api_response(
             performative=LedgerApiMessage.Performative.GET_STATE,
             ledger_callable="get_block",
             block_identifier="latest",
         )
         if ledger_api_response.performative != LedgerApiMessage.Performative.STATE:
-            self.context.logger.error(f"Failed has_bonded: {ledger_api_response}")
-            return False
+            log_msg = "Failed ledger get_block call in has_bonded"
+            self.context.logger.error(f"{log_msg}: {ledger_api_response}")
+            return None
         latest_block = cast(Dict, ledger_api_response.state.body.get("data"))
-        remaining_time = bond_time + bond - latest_block["timestamp"]
+        remaining_time = bond_time + cast(int, bond) - latest_block["timestamp"]
         self.context.logger.info(f"Remaining bond time: {remaining_time}")
         return remaining_time <= 0
 
@@ -129,21 +178,65 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
 
+    def is_workable_job(
+        self, contract_address: str
+    ) -> Generator[None, None, Optional[bool]]:
+        """Check if job contract is workable"""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=contract_address,
+            contract_id=str(Keep3rTestJobContract.contract_id),  # TODO generalize
+            contract_callable="workable",
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(
+                f"Failed is_workable_job: {contract_api_response}"
+            )
+            return None
+        log_msg = f"`workable` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        return cast(bool, contract_api_response.state.body.get("data"))
+
+    def build_work_raw_tx(
+        self, job_address: str, address: str
+    ) -> Generator[None, None, Optional[RawTx]]:
+        """Build raw work transaction for a job contract"""
+
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+            contract_id=str(Keep3rTestJobContract.contract_id),
+            contract_callable="build_work_tx",
+            contract_address=job_address,
+            address=address,
+        )
+        if (
+            contract_api_response.performative
+            != ContractApiMessage.Performative.RAW_TRANSACTION
+        ):
+            self.context.logger.error(
+                f"Failed build_work_raw_tx: {contract_api_response}"
+            )
+            return None
+        log_msg = f"`build_work_tx` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        return cast(RawTx, contract_api_response.raw_transaction.body.get("data"))
+
     def build_safe_raw_tx(
         self,
-        tx_params: Dict[str, Any],
+        tx_params: RawTx,
     ) -> Generator[None, None, Optional[str]]:
         """Build safe raw tx hash"""
 
         contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
             contract_address=self.synchronized_data.safe_contract_address,
             contract_id=str(GnosisSafeContract.contract_id),
             contract_callable="get_raw_safe_transaction_hash",
-            to_address=tx_params["to_address"],
-            value=tx_params["ether_value"],
+            to_address=tx_params["to"],
+            value=tx_params["value"],
             data=tx_params["data"],
-            safe_tx_gas=tx_params["safe_tx_gas"],
+            safe_tx_gas=tx_params["gas"],
         )
         if (
             contract_api_response.performative
@@ -151,8 +244,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         ):
             self.context.logger.warning("build_safe_raw_tx unsuccessful!")
             return None
-        tx_hash = cast(str, contract_api_response.raw_transaction.body.pop("hash"))
-        return tx_hash
+        return cast(str, contract_api_response.raw_transaction.body.pop("tx_hash"))
 
 
 class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
@@ -162,22 +254,37 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     matching_round: Type[AbstractRound] = PathSelectionRound
     transitions = PathSelectionRound.transitions
 
-    def select_path(self) -> Generator[None, None, Any]:
+    def select_path(  # pylint: disable=R0911
+        self,
+    ) -> Generator[None, None, Optional[str]]:
         """Select path to traverse"""
 
         address = self.synchronized_data.safe_contract_address
+
         blacklisted = yield from self.read_keep3r_v1("blacklist", address=address)
+        if blacklisted is None:
+            return None
         if blacklisted:
             return self.transitions["BLACKLISTED"].name
+
         sufficient_funds = yield from self.has_sufficient_funds(address)
+        if sufficient_funds is None:
+            return None
         if not sufficient_funds:
             return self.transitions["INSUFFICIENT_FUNDS"].name
-        bond_time = yield from self.read_keep3r_v1("bondings", address=address)
-        if not bond_time:
+
+        bond_time = yield from self.get_bond_time(address)
+        if bond_time is None:
+            return None
+        if bond_time == 0:
             return self.transitions["NOT_BONDED"].name
+
         bonded_keeper = yield from self.has_bonded(bond_time)
+        if bonded_keeper is None:
+            return None
         if not bonded_keeper:
             return self.transitions["NOT_ACTIVATED"].name
+
         return self.transitions["HEALTHY"].name
 
     def async_act(self) -> Generator:
@@ -185,6 +292,9 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             path = yield from self.select_path()
+            if path is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = PathSelectionPayload(self.context.agent_address, path)
             self.context.logger.info(f"Selected path: {path}")
 
@@ -205,24 +315,19 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                contract_address=self.keep3r_v1_contract_address,
-                contract_id=str(Keep3rV1Contract.contract_id),
-                contract_callable="build_bond_tx",
-            )
-            state_performative = ContractApiMessage.Performative.STATE
-            if contract_api_response.performative != state_performative:
-                log_msg = "Failed build_bond_tx"
-                self.context.logger.error(f"{log_msg}: {contract_api_response}")
+            raw_tx = yield from self.build_keep3r_raw_tx("build_bond_tx")
+            if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
-
-            bonding_tx = cast(str, contract_api_response.state.body.get("data"))
+            self.context.logger.info(f"Bonding raw tx: {raw_tx}")
+            bonding_tx = yield from self.build_safe_raw_tx(cast(RawTx, raw_tx))
+            if not bonding_tx:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = BondingTxPayload(
                 self.context.agent_address, bonding_tx=bonding_tx
             )
-            self.context.logger.info(f"Bonding raw tx: {bonding_tx}")
+            self.context.logger.info(f"Bonding tx: {bonding_tx}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -243,15 +348,12 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             address = self.synchronized_data.safe_contract_address
-            bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+            bond_time = yield from self.get_bond_time(address=address)
             if bond_time is None:
-                log_msg = "Failed to check `bondings` on Keep3rV1 contract"
-                self.context.logger.error(log_msg)
                 yield from self.sleep(self.context.params.sleep_time)
                 return
             done_waiting = yield from self.has_bonded(bond_time)
-            self.context.logger.info(f"Done waiting: {done_waiting}")
-            if not done_waiting:
+            if not done_waiting:  # when `None` or `False`
                 yield from self.sleep(self.context.params.sleep_time)
                 return
             payload = WaitingPayload(
@@ -275,17 +377,19 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                contract_address=self.keep3r_v1_contract_address,
-                contract_id=str(Keep3rV1Contract.contract_id),
-                contract_callable="build_activation_tx",
-            )
-            activation_tx = cast(str, contract_api_response.state.body.get("data"))
+            raw_tx = yield from self.build_keep3r_raw_tx("build_activation_tx")
+            if raw_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            self.context.logger.info(f"Activation raw tx: {raw_tx}")
+            activation_tx = yield from self.build_safe_raw_tx(raw_tx)
+            if activation_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            self.context.logger.info(f"Activation tx: {activation_tx}")
             payload = ActivationTxPayload(
                 self.context.agent_address, activation_tx=activation_tx
             )
-            self.context.logger.info(f"Activation raw tx: {activation_tx}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -304,13 +408,10 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
         """Behaviour to get the current job listing"""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,
-                contract_address=self.keep3r_v1_contract_address,
-                contract_id=str(Keep3rV1Contract.contract_id),
-                contract_callable="get_jobs",
-            )
-            job_list = cast(List[str], contract_api_response.state.body.get("data"))
+            job_list = yield from self.read_keep3r_v1("get_jobs")
+            if job_list is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = GetJobsPayload(self.context.agent_address, job_list=job_list)
             self.context.logger.info(f"Job list retrieved: {job_list}")
 
@@ -361,16 +462,11 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
         """Behaviour to get whether job is workable."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            current_job = self.synchronized_data.current_job
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-                contract_address=current_job,
-                contract_id=str(Keep3rTestJobContract.contract_id),  # TODO
-                contract_callable="workable",
-            )
-            log_msg = f"`workable` contract api response on {current_job}"
-            self.context.logger.info(f"{log_msg}: {contract_api_response}")
-            is_workable = bool(contract_api_response.state.body.get("data"))
+            current_job = cast(str, self.synchronized_data.current_job)
+            is_workable = yield from self.is_workable_job(current_job)
+            if is_workable is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
@@ -392,6 +488,9 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             current_job = self.synchronized_data.current_job
             reward = yield from self.read_keep3r_v1("credits", address=current_job)
+            if reward is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             is_profitable = reward >= self.context.params.profitability_threshold
             self.context.logger.info(f"reward: {reward}, profitable: {is_profitable}")
             payload = IsProfitablePayload(self.context.agent_address, is_profitable)
@@ -415,14 +514,15 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             address = self.synchronized_data.safe_contract_address
-            contract_api_response = yield from self.get_contract_api_response(
-                performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
-                contract_id=str(Keep3rTestJobContract.contract_id),
-                contract_callable="build_work_tx",
-                contract_address=self.synchronized_data.current_job,
-                address=address,
-            )
-            work_tx = cast(str, contract_api_response.state.body.get("data"))
+            current_job = cast(str, self.synchronized_data.current_job)
+            raw_tx = yield from self.build_work_raw_tx(current_job, address=address)
+            if raw_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            work_tx = yield from self.build_safe_raw_tx(raw_tx)
+            if work_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             payload = WorkTxPayload(self.context.agent_address, work_tx)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
