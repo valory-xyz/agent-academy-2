@@ -33,11 +33,13 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsWorkablePayload,
     JobSelectionPayload,
     PathSelectionPayload,
+    TopUpPayload,
     WaitingPayload,
     WorkTxPayload,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
+    AwaitTopUpRound,
     BondingRound,
     Event,
     GetJobsRound,
@@ -199,47 +201,6 @@ class TestGetJobsRound(BaseRoundTestClass):
         assert event == Event.DONE
 
 
-@pytest.mark.skip("ABCIApp redesign: no payment assigned yet")
-class TestPerformWorkRound(BaseRoundTestClass):
-    """Tests for PrepareTxRound."""
-
-    def test_run(
-        self,
-    ) -> None:
-        """Run tests."""
-
-        test_round = PerformWorkRound(
-            synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
-        )
-        test_hash = "test_hash"
-
-        first_payload, *payloads = [
-            WorkTxPayload(sender=participant, work_tx=test_hash)
-            for participant in self.participants
-        ]
-
-        test_round.process_payload(first_payload)
-        assert test_round.collection == {first_payload.sender: first_payload}
-        assert test_round.end_block() is None
-
-        for payload in payloads:
-            test_round.process_payload(payload)
-
-        actual_next_state = self.synchronized_data.update(
-            most_voted_tx_hash=test_round.most_voted_payload,
-        )
-
-        res = test_round.end_block()
-        assert res is not None
-        state, event = res
-        assert (
-            cast(SynchronizedData, state).participants
-            == cast(SynchronizedData, actual_next_state).participants
-        )
-        assert event == Event.DONE
-
-
 class TestJobSelectionRound(BaseRoundTestClass):
     """Tests for JobSelectionRound."""
 
@@ -290,3 +251,33 @@ class TestIsProfitableRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(is_profitable=is_profitable)
         event = self.complete_round(next_state)
         assert event == Event.PROFITABLE if is_profitable else Event.NOT_PROFITABLE
+
+
+class TestPerformWorkRound(BaseRoundTestClass):
+    """Tests for PrepareTxRound."""
+
+    round_class = PerformWorkRound
+    payload_class = WorkTxPayload
+
+    @pytest.mark.parametrize("work_tx", ["some_raw_tx_hash"])
+    def test_run(self, work_tx: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(work_tx=work_tx)
+        event = self.complete_round(next_state)
+        assert event == Event.WORK_TX
+
+
+class TestAwaitTopUpRound(BaseRoundTestClass):
+    """Tests for AwaitTopUpRound."""
+
+    round_class = AwaitTopUpRound
+    payload_class = TopUpPayload
+
+    @pytest.mark.parametrize("top_up", [True])
+    def test_run(self, top_up: bool) -> None:
+        """Run tests"""
+
+        next_state = self.deliver_payloads(top_up=top_up)
+        event = self.complete_round(next_state)
+        assert event == Event.TOP_UP

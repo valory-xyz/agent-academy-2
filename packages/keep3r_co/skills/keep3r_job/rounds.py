@@ -42,7 +42,6 @@ from packages.valory.skills.abstract_round_abci.base import (
     AbstractRound,
     AppState,
     BaseSynchronizedData,
-    BaseTxPayload,
     CollectSameUntilThresholdRound,
     DegenerateRound,
     EventToTimeout,
@@ -299,20 +298,21 @@ class PerformWorkRound(Keep3rJobAbstractRound):
 
     round_id: str = "perform_work"
     allowed_tx_type: TransactionType = WorkTxPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "work_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.WORK_TX, Event.INSUFFICIENT_FUNDS, Event.NO_MAJORITY)
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
-
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        _ = (Event.INSUFFICIENT_FUNDS,)
+        if self.threshold_reached and self.most_voted_payload:
+            work_tx = self.most_voted_payload
+            state = self.synchronized_data.update(work_tx=work_tx)
+            return state, Event.WORK_TX
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 class AwaitTopUpRound(Keep3rJobAbstractRound):
@@ -320,20 +320,21 @@ class AwaitTopUpRound(Keep3rJobAbstractRound):
 
     round_id: str = "await_top_up"
     allowed_tx_type: TransactionType = TopUpPayload.transaction_type
-    payload_attribute: str
+    payload_attribute: str = "top_up"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-        _ = (Event.TOP_UP, Event.NO_MAJORITY)
-        raise NotImplementedError
 
-    def check_payload(self, payload: BaseTxPayload) -> None:
-        """Check payload."""
-        raise NotImplementedError
+        if self.threshold_reached and self.most_voted_payload:
+            top_up = self.most_voted_payload
+            state = self.synchronized_data.update(top_up=top_up)
+            return state, Event.TOP_UP
 
-    def process_payload(self, payload: BaseTxPayload) -> None:
-        """Process payload."""
-        raise NotImplementedError
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
 
 
 # degenerate rounds
