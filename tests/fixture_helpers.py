@@ -22,8 +22,7 @@
 from typing import Any, List, Tuple
 
 import pytest
-
-from autonomy.test_tools.configurations import KEY_PAIRS
+from aea_test_autonomy.configurations import KEY_PAIRS
 
 
 @pytest.mark.integration

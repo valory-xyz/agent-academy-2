@@ -27,17 +27,13 @@ from typing import Any, Dict
 
 from aea.common import JSONLike
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
-from web3 import HTTPProvider, Web3
-from web3.types import Nonce, RPCEndpoint, TxParams, Wei
-
-from autonomy.test_tools.base_test_classes.contracts import (
+from aea_test_autonomy.base_test_classes.contracts import (
     BaseGanacheContractWithDependencyTest,
 )
-from autonomy.test_tools.docker.base import skip_docker_tests
-from autonomy.test_tools.docker.ganache import (
-    DEFAULT_GANACHE_ADDR,
-    DEFAULT_GANACHE_PORT,
-)
+from aea_test_autonomy.docker.base import skip_docker_tests
+from aea_test_autonomy.docker.ganache import DEFAULT_GANACHE_ADDR, DEFAULT_GANACHE_PORT
+from web3 import HTTPProvider, Web3
+from web3.types import Nonce, RPCEndpoint, TxParams, Wei
 
 from packages.valory.contracts.keep3r_test_job.contract import (
     PUBLIC_ID as TEST_JOB_PUBLIC_ID,

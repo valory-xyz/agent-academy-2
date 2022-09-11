@@ -20,9 +20,8 @@
 """End-to-end tests for the keep3r_co/keep3r_abci skill."""
 
 import pytest
-
-from autonomy.test_tools.base_test_classes.agents import BaseTestEnd2EndExecution
-from autonomy.test_tools.fixture_helpers import UseGnosisSafeHardHatNet
+from aea_test_autonomy.base_test_classes.agents import BaseTestEnd2EndExecution
+from aea_test_autonomy.fixture_helpers import UseGnosisSafeHardHatNet
 
 
 # check log messages of the happy path

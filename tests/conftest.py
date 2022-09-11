@@ -27,10 +27,9 @@ from typing import Any, Generator, List, Tuple
 
 import docker
 import pytest
-
-from autonomy.test_tools.configurations import KEY_PAIRS
-from autonomy.test_tools.docker.base import launch_image
-from autonomy.test_tools.docker.gnosis_safe_net import (
+from aea_test_autonomy.configurations import KEY_PAIRS
+from aea_test_autonomy.docker.base import launch_image
+from aea_test_autonomy.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_ADDR,
     DEFAULT_HARDHAT_PORT,
     GnosisSafeNetDockerImage,
