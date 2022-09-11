@@ -23,8 +23,7 @@ from pathlib import Path
 from typing import Any, Dict, cast
 
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
-
-from autonomy.test_tools.base_test_classes.contracts import BaseGanacheContractTest
+from aea_test_autonomy.base_test_classes.contracts import BaseGanacheContractTest
 
 from packages.valory.contracts.keep3r_test_job.contract import (
     Keep3rTestJobContract,
