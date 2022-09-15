@@ -19,3 +19,5 @@ coverage.txt
 coverage.xml
 htmlcov
 !.gitleaksignore
+packages/open_aea
+packages/valory

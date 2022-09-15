@@ -27,7 +27,7 @@ Valory's Agent Academy 2 - participant repo
 
 - Configure command line:
 
-      autonomy init --reset --author academy4 --remote --ipfs --ipfs-node "/dns/registry.autonolas.tech/tcp/443/https"
+      autonomy init --reset --author academy2 --remote --ipfs --ipfs-node "/dns/registry.autonolas.tech/tcp/443/https"
 
 - Pull packages:
 
