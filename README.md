@@ -5,7 +5,7 @@ Valory's Agent Academy 2 - participant repo
 
 - Clone the repository:
 
-      git clone git@github.com:valory-xyz/agent-academy-4.git
+      git clone git@github.com:valory-xyz/agent-academy-2.git
 
 - System requirements:
 
