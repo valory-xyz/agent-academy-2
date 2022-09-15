@@ -20,12 +20,12 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeihlhigtxfgr2sdstgffb75qwkqdpnsidq3yh526ie7j4hsvxa5sli
+- keep3r_co/keep3r_job:0.1.0:bafybeigsvadd3osj4iugu46saxlsyeuvx2vdocv5mav5lxj35odtapt7f4
 - valory/abstract_round_abci:0.1.0:bafybeigpz64qx22a4zzlcczmc5frhlecytrh5q3x77lwe3a5kee2qrcchm
 - valory/registration_abci:0.1.0:bafybeiajvfkffbdmggj3it7e4r6733lylxhbnb2a6tx3tmlgpy2fpxkuze
 - valory/reset_pause_abci:0.1.0:bafybeieo5m37rwoel7e6u3lrp2cei7hdyhklggsc6776vej6bp6gzua7ei
 - valory/safe_deployment_abci:0.1.0:bafybeifkxk6jkixnk4fymsw76zw2z2ofshmomqbxkp2kcwpur6dn7jb44i
-- valory/transaction_settlement_abci:0.1.0:bafybeig3lpuertmg5wngcnherollnvakvqgeisy3a6f5tbmw4e5k5khnt4
+- valory/transaction_settlement_abci:0.1.0:bafybeifkzgci7mrv3z3kwlbwcql3sa7njklmrryrrqns5xmvzlruvdaz2e
 behaviours:
   main:
     args: {}
