@@ -21,6 +21,13 @@ Valory's Agent Academy 2 - participant repo
       docker pull valory/autonolas-registries:latest
       docker pull valory/safe-contract-net:latest
 
+- Install subrepos:
+
+      cd third_party/safe-contracts && yarn install
+      cd ../..
+      cd third_party/keep3r-v1-deploy && yarn install
+      cd ../..
+
 - Create development environment:
 
       make new_env && pipenv shell
