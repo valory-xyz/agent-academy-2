@@ -3,34 +3,45 @@
 
 Valory's Agent Academy 2 - participant repo
 
-- Clone the repository, and recursively clone the submodules:
+- Clone the repository:
 
-      git clone --recursive git@github.com:valory-xyz/agent-academy-2.git
+      git clone git@github.com:valory-xyz/agent-academy-4.git
 
-  Note: to update the Git submodules later:
+- System requirements:
 
-      git submodule update --init --recursive
+    - Python `>=3.7`
+    - [Tendermint](https://docs.tendermint.com/master/introduction/install.html) `==0.34.19`
+    - [IPFS node](https://docs.ipfs.io/install/command-line/#official-distributions) `==0.6.0`
+    - [Pipenv](https://pipenv.pypa.io/en/latest/install/) `>=2021.x.xx`
+    - [Docker Engine](https://docs.docker.com/engine/install/)
+    - [Docker Compose](https://docs.docker.com/compose/install/)
 
-## System requirements
+- Pull pre-built images:
 
-- Python `>=3.7`
-- Yarn `>=1.22.xx`
-- Node `>=v12.xx`
-- [Tendermint](https://docs.tendermint.com/master/introduction/install.html) `==0.34.19`
-- [IPFS node](https://docs.ipfs.io/install/command-line/#official-distributions) `==0.6.0`
-- [Pipenv](https://pipenv.pypa.io/en/latest/install/) `>=2021.x.xx`
+      docker pull valory/autonolas-registries:latest
+      docker pull valory/safe-contract-net:latest
 
-Alternatively, you can fetch this docker image with the relevant requirements satisfied:
-
-        docker pull valory/dev-template:latest
-        docker container run -it valory/dev-template:latest
-
-- Build the Hardhat projects:
+- Install subrepos:
 
       cd third_party/safe-contracts && yarn install
       cd ../..
       cd third_party/keep3r-v1-deploy && yarn install
       cd ../..
+
+- Create development environment:
+
+      make new_env && pipenv shell
+
+- Configure command line:
+
+      autonomy init --reset --author academy2 --remote --ipfs --ipfs-node "/dns/registry.autonolas.tech/tcp/443/https"
+
+- Pull packages:
+
+      autonomy packages sync
+
+- During development use `make formatters`, `make code-checks` and `make generators`
+
 
 ## Running the Keep3r
 
@@ -56,8 +67,3 @@ which will run:
 - `TestKeep3rABCISingleAgent`
 - `TestKeep3rABCITwoAgents`
 - `TestKeep3rABCIFourAgents`
-
-## Useful commands:
-
-Check out the `Makefile` for useful commands, e.g. `make formatters`, `make generators`, `make code-checks`, as well
-as `make common-checks-1`. To run all tests use `make test`.

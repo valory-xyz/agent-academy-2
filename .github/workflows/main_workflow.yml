@@ -30,7 +30,7 @@ jobs:
           sudo apt-get autoremove
           sudo apt-get autoclean
           pip install --upgrade setuptools==60.10.0
-          pip install pipenv==2022.8.30
+          pip install pipenv
       - name: Pipenv install requirements
         run: |
           pipenv install --dev --skip-lock
@@ -183,12 +183,16 @@ jobs:
           tar -xf tendermint.tar.gz
           sudo mv tendermint /usr/local/bin/tendermint
           # pull node image needed for the integration tests
-          docker pull node:16.7.0
           docker pull trufflesuite/ganache:beta
+          docker pull valory/autonolas-registries:latest
+          docker pull valory/safe-contract-net:latest
+
           # build hardhat node in third_party/safe-contracts
+          docker pull node:16.7.0
           cd third_party/safe-contracts &&\
             sudo chown -R $(whoami) .husky &&\
             yarn
+
       - name: Unit tests
         run: |
           tox -e py${{ matrix.python-version }} -- -m 'not e2e'
@@ -238,11 +242,13 @@ jobs:
           wget -O tendermint.tar.gz https://github.com/tendermint/tendermint/releases/download/v0.34.19/tendermint_0.34.19_linux_amd64.tar.gz
           tar -xf tendermint.tar.gz
           sudo mv tendermint /usr/local/bin/tendermint
-
           # pull node image needed for the integration tests
-          docker pull node:16.7.0
           docker pull trufflesuite/ganache:beta
+          docker pull valory/autonolas-registries:latest
+          docker pull valory/safe-contract-net:latest
+
           # build hardhat node in third_party/safe-contracts
+          docker pull node:16.7.0
           cd third_party/safe-contracts &&\
             sudo chown -R $(whoami) .husky &&\
             yarn
