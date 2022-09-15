@@ -75,6 +75,7 @@ generators:
 	tox -e abci-docstrings
 	tox -e fix-copyright
 	autonomy hash all
+	autonomy packages lock
 
 .PHONY: common-checks-1
 common-checks-1:
@@ -105,12 +106,6 @@ new_env: clean
 	else\
 		echo "In a virtual environment! Exit first: 'exit'.";\
 	fi
-
-.PHONY: fix-abci-app-specs
-fix-abci-app-specs:
-	export PYTHONPATH=${PYTHONPATH}:${PWD} && autonomy analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp packages/keep3r_co/skills/keep3r_job/fsm_specification.yaml || (echo "Failed to check job abci consistency" && exit 1)
-	export PYTHONPATH=${PYTHONPATH}:${PWD} && autonomy analyse abci generate-app-specs packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp packages/keep3r_co/skills/keep3r_abci/fsm_specification.yaml || (echo "Failed to check chained abci cosistency" && exit 1)
-	echo "Successfully validated abcis!"
 
 .PHONY: run-mainnet-fork
 run-mainnet-fork:
