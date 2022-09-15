@@ -30,7 +30,7 @@ jobs:
           sudo apt-get autoremove
           sudo apt-get autoclean
           pip install --upgrade setuptools==60.10.0
-          pip install pipenv==2022.8.30
+          pip install pipenv
       - name: Pipenv install requirements
         run: |
           pipenv install --dev --skip-lock
@@ -152,10 +152,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout submodules
-        uses: srt32/git-actions@v0.0.3
-        with:
-          args: git config --global --add safe.directory /github/workspace/third_party/safe-contracts && git config --global --add safe.directory /github/workspace && git submodule update --init --recursive
       - uses: actions/setup-python@v3
         with:
           submodules: recursive
@@ -183,12 +179,10 @@ jobs:
           tar -xf tendermint.tar.gz
           sudo mv tendermint /usr/local/bin/tendermint
           # pull node image needed for the integration tests
-          docker pull node:16.7.0
           docker pull trufflesuite/ganache:beta
-          # build hardhat node in third_party/safe-contracts
-          cd third_party/safe-contracts &&\
-            sudo chown -R $(whoami) .husky &&\
-            yarn
+          docker pull valory/autonolas-registries:latest
+          docker pull valory/safe-contract-net:latest
+
       - name: Unit tests
         run: |
           tox -e py${{ matrix.python-version }} -- -m 'not e2e'
@@ -205,10 +199,6 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout submodules
-        uses: srt32/git-actions@v0.0.3
-        with:
-          args: git config --global --add safe.directory /github/workspace/third_party/safe-contracts && git config --global --add safe.directory /github/workspace && git submodule update --init --recursive
       - uses: actions/setup-python@v3
         with:
           submodules: recursive
@@ -238,14 +228,10 @@ jobs:
           wget -O tendermint.tar.gz https://github.com/tendermint/tendermint/releases/download/v0.34.19/tendermint_0.34.19_linux_amd64.tar.gz
           tar -xf tendermint.tar.gz
           sudo mv tendermint /usr/local/bin/tendermint
-
           # pull node image needed for the integration tests
-          docker pull node:16.7.0
           docker pull trufflesuite/ganache:beta
-          # build hardhat node in third_party/safe-contracts
-          cd third_party/safe-contracts &&\
-            sudo chown -R $(whoami) .husky &&\
-            yarn
+          docker pull valory/autonolas-registries:latest
+          docker pull valory/safe-contract-net:latest
 
       - name: e2e tests
         run: |
