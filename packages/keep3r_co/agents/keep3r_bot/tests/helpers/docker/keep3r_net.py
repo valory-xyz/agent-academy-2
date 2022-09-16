@@ -32,11 +32,6 @@ from aea_test_autonomy.docker.gnosis_safe_net import (
 )
 from docker.models.containers import Container
 
-from tests.helpers.constants import THIRD_PARTY_DIR
-
-
-KEEP3R_V1_CONTRACT_DIR = THIRD_PARTY_DIR / "keep3r-v1-deploy"
-
 
 class Keep3rNetDockerImage(DockerImage):
     """Spawn a local network with deployed Gnosis Safe Factory and Keep3rV1Contract contract"""
@@ -59,31 +54,15 @@ class Keep3rNetDockerImage(DockerImage):
     @property
     def tag(self) -> str:
         """Get the tag."""
-        return "node:16.7.0"
-
-    def _build_command(self) -> List[str]:
-        """Build command."""
-        return ["run", "hardhat", "extra-compile", "--port", str(self.port)]
+        return "valory/k3peerv1-contract:latest"
 
     def create(self) -> Container:
         """Create the container."""
-        cmd = self._build_command()
-        working_dir = "/build"
-        volumes = {
-            str(KEEP3R_V1_CONTRACT_DIR): {
-                "bind": working_dir,
-                "mode": "rw",
-            },
-        }
-        ports = {f"{self.port}/tcp": ("0.0.0.0", self.port)}  # nosec
+        ports = {f"{DEFAULT_HARDHAT_PORT}/tcp": ("0.0.0.0", self.port)}  # nosec
         container = self._client.containers.run(
             self.tag,
-            command=cmd,
             detach=True,
             ports=ports,
-            volumes=volumes,
-            working_dir=working_dir,
-            entrypoint="yarn",
             extra_hosts={"host.docker.internal": "host-gateway"},
         )
         return container

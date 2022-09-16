@@ -10,6 +10,8 @@ fingerprint:
   __init__.py: bafybeiabbvc2pxlrwjxv3qpj6gphfmqhurnb5ctrdmanwy4y5axrp2ecpm
   build/Keep3rJob.json: bafybeifaat7a5enr56xntjgdkwqmujnxpesn2mefh2u23rqy3wscarke4u
   contract.py: bafybeibqw6gzvoapbwksg3rfribmrjhn6wl6iqemej65bqcpjhkoupi6pu
+  tests/__init__.py: bafybeibyemvt4rrbfms65mu5ow3f4g5evzoexn3ysahr5mp2hswzkaxkom
+  tests/test_contract.py: bafybeigp76vgehci7scmtmvacym2lvewwogtkyf4ctsuflpvfzfxscu62u
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rJobContract

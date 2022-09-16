@@ -17,11 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Constants used in contract tests"""
-
-DEFAULT_GAS = 10 ** 7
-DEFAULT_MAX_FEE_PER_GAS = 10 ** 10
-DEFAULT_MAX_PRIORITY_FEE_PER_GAS = 10 ** 10
-ONE_ETH = 10 ** 18
-HALF_A_SECOND = 0.5
-SECONDS_PER_DAY = 24 * 60 * 60
+"""The tests module contains the unit tests of the keep3r V1 contract."""

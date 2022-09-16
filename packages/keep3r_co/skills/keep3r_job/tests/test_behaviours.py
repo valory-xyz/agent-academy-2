@@ -19,7 +19,6 @@
 
 """Tests for valory/keep3r_job skill's behaviours."""
 
-from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, Optional, Type, cast
 
@@ -64,6 +63,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     SynchronizedData,
     WaitingRound,
 )
+from packages.keep3r_co.skills.keep3r_job.tests import PACKAGE_DIR
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
 )
@@ -85,10 +85,8 @@ from packages.valory.skills.abstract_round_abci.test_tools.base import (
     FSMBehaviourBaseCase,
 )
 
-from tests.conftest import ROOT_DIR
-from tests.test_contracts.constants import SECONDS_PER_DAY
 
-
+SECONDS_PER_DAY = 24 * 60 * 60
 AGENT_ADDRESS = "0x1Cc0771e65FC90308DB2f7Fd02482ac4d1B82A18"
 SOME_CONTRACT_ADDRESS = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
 
@@ -105,7 +103,7 @@ DUMMY_RAW_TX: RawTx = {
 }
 
 
-class DummyRoundId:
+class DummyRoundId:  # pylint: disable=too-few-public-methods
     """Dummy class for setting round_id for exit condition."""
 
     round_id: str
@@ -118,7 +116,7 @@ class DummyRoundId:
 class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     """Base test case."""
 
-    path_to_skill = Path(ROOT_DIR, "packages", "keep3r_co", "skills", "keep3r_job")
+    path_to_skill = PACKAGE_DIR
 
     behaviour: Keep3rJobRoundBehaviour
     ledger_handler: LedgerApiHandler
@@ -482,7 +480,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
             (1, Event.PROFITABLE, PerformWorkRound),
         ],
     )
-    def test_is_profitable(
+    def test_is_profitable(  # pylint: disable=redefined-builtin
         self, credits: bool, event: Event, next_round: Keep3rJobAbstractRound
     ) -> None:
         """Test is_profitable."""

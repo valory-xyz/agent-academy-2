@@ -18,7 +18,6 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the class to connect to a keeper3 job Safe contract."""
-from pathlib import Path
 from typing import Dict
 from unittest import mock
 
@@ -27,11 +26,10 @@ from aea.test_tools.test_contract import BaseContractTestCase
 from packages.gabrielfu.contracts.keep3r_job.contract import (
     CONTRACT_ADDRESS,
     Keep3rJobContract,
-    PUBLIC_ID,
 )
-
-from tests.conftest import ROOT_DIR
-
+from packages.gabrielfu.contracts.keep3r_job.tests import (
+    PACKAGE_DIR
+)
 
 CHAIN_ID = 1
 
@@ -44,9 +42,7 @@ REWARD_MULTIPLIER = 975
 class TestKeep3rJobContract(BaseContractTestCase):
     """Test Keep3rJobContract."""
 
-    path_to_contract = Path(
-        ROOT_DIR, "packages", PUBLIC_ID.author, "contracts", PUBLIC_ID.name
-    )
+    path_to_contract = PACKAGE_DIR
     ledger_identifier = "ethereum"
     contract: Keep3rJobContract
 

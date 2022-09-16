@@ -17,4 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""The tests module contains the unit tests of the Keep3r TestJob contract."""
+"""The tests module contains the unit tests of the Keep3r Job contract."""
+from pathlib import Path
+
+PACKAGE_DIR = Path(__file__).parent.parent

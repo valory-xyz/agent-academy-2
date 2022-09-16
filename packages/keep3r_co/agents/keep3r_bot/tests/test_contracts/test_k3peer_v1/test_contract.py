@@ -35,24 +35,26 @@ from aea_test_autonomy.docker.ganache import DEFAULT_GANACHE_ADDR, DEFAULT_GANAC
 from web3 import HTTPProvider, Web3
 from web3.types import Nonce, RPCEndpoint, TxParams, Wei
 
-from packages.valory.contracts.keep3r_test_job.contract import (
-    PUBLIC_ID as TEST_JOB_PUBLIC_ID,
-)
-from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract, PUBLIC_ID
-from packages.valory.contracts.keep3r_v1_library.contract import (
-    PUBLIC_ID as LIBRARY_PUBLIC_ID,
-)
-
-from tests.conftest import KEEP3R_V1_FOR_TEST, ROOT_DIR
-from tests.test_contracts.constants import (
+from packages.keep3r_co.agents.keep3r_bot.tests.conftest import KEEP3R_V1_FOR_TEST
+from packages.keep3r_co.agents.keep3r_bot.tests.helpers.constants import (
     DEFAULT_GAS,
     HALF_A_SECOND,
     ONE_ETH,
     SECONDS_PER_DAY,
 )
+from packages.valory.contracts.keep3r_test_job.tests import (
+    PACKAGE_DIR as KEEP3R_TEST_JOB_DIR,
+)
+from packages.valory.contracts.keep3r_v1 import PACKAGE_DIR as KEEPER_V1_CONTRACT_DIR
+from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
+from packages.valory.contracts.keep3r_v1_library import (
+    PACKAGE_DIR as KEEPER_V1_LIB_CONTRACT_DIR,
+)
+from packages.valory.contracts.keep3r_v1_library.contract import (
+    PUBLIC_ID as LIBRARY_PUBLIC_ID,
+)
 
 
-BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
 ENDPOINT_GANACHE_URI = f"{DEFAULT_GANACHE_ADDR}:{DEFAULT_GANACHE_PORT}"
 
 
@@ -61,7 +63,7 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
 
     contract: Keep3rV1Contract
     contract_address = KEEP3R_V1_FOR_TEST
-    contract_directory = BASE_CONTRACT_PATH / PUBLIC_ID.name
+    contract_directory = KEEPER_V1_CONTRACT_DIR
 
     ledger_api: EthereumApi
     ledger_identifier = EthereumCrypto.identifier
@@ -69,7 +71,7 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     dependencies = [
         (
             LIBRARY_PUBLIC_ID.name,
-            Path(BASE_CONTRACT_PATH / LIBRARY_PUBLIC_ID.name),
+            KEEPER_V1_LIB_CONTRACT_DIR,
             dict(gas=DEFAULT_GAS),
         ),
     ]
@@ -259,7 +261,7 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
 class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
     """Test Keep3r V1 Contract in conjunction with the TestJob contract."""
 
-    job_path = Path(BASE_CONTRACT_PATH / TEST_JOB_PUBLIC_ID.name)
+    job_path = KEEP3R_TEST_JOB_DIR
     test_job_contract: Any
 
     @classmethod

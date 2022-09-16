@@ -16,5 +16,12 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+# pylint: skip-file
 
-"""Tests for valory/keep3r_job skill."""
+"""Test the dialogues.py module of the skill."""
+
+import packages.keep3r_co.skills.keep3r_job.dialogues  # noqa
+
+
+def test_import() -> None:
+    """Test that the 'dialogues.py' Python module can be imported."""

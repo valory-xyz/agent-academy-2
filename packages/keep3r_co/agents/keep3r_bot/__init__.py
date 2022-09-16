@@ -17,10 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Test the dialogues.py module of the skill."""
-
-import packages.keep3r_co.skills.keep3r_job.dialogues  # noqa
-
-
-def test_import() -> None:
-    """Test that the 'dialogues.py' Python module can be imported."""
+"""This module contains the agent packages authored by Keep3r Co."""  # pragma: nocover
