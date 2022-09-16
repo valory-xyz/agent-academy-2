@@ -17,4 +17,8 @@
 #
 # ------------------------------------------------------------------------------
 
-"""The tests module contains the unit tests of the contract components."""
+"""Tests for valory/keep3r_job skill."""
+from pathlib import Path
+
+
+PACKAGE_DIR = Path(__file__).parent.parent

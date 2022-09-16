@@ -19,29 +19,28 @@
 
 """This module contains the tests for the Keeper3 TestJob contract."""
 
-from pathlib import Path
 from typing import Any, Dict, cast
 
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
 from aea_test_autonomy.base_test_classes.contracts import BaseGanacheContractTest
 
-from packages.valory.contracts.keep3r_test_job.contract import (
-    Keep3rTestJobContract,
-    PUBLIC_ID,
-)
-
-from tests.conftest import KEEP3R_TEST_JOB, KEEP3R_V1_FOR_TEST, ROOT_DIR
-from tests.test_contracts.constants import DEFAULT_GAS
+from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
+from packages.valory.contracts.keep3r_test_job.tests import PACKAGE_DIR
 
 
-BASE_CONTRACT_PATH = Path(ROOT_DIR, "packages", PUBLIC_ID.author, "contracts")
+# Keep3rV1ForTest - Goerli
+KEEP3R_V1_FOR_TEST = "0x3364BF0a8DcB15E463E6659175c90A57ee3d4288"
+KEEP3R_HELPER_FOR_TEST = "0x2720535578096f1dE6C8c9B5255F1Bda40e8067A"
+KEEP3R_TEST_JOB = "0xd50345ca88e0B2cF9a6f5eD29C1F1f9d76A16C3c"
+
+DEFAULT_GAS = 10 ** 7
 
 
 class BaseKeep3rTestJobContractTest(BaseGanacheContractTest):
     """Base Keep3r test job contract test"""
 
     contract_address = KEEP3R_TEST_JOB
-    contract_directory = BASE_CONTRACT_PATH / PUBLIC_ID.name
+    contract_directory = PACKAGE_DIR
 
     ledger_api: EthereumApi
     ledger_identifier = EthereumCrypto.identifier

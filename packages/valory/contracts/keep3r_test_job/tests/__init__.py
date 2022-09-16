@@ -17,10 +17,8 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Constants for tests."""
-
+"""The tests module contains the unit tests of the Keep3r TestJob contract."""
 from pathlib import Path
 
 
-REPOSITORY_ROOT = Path(__file__).parent.parent.parent
-THIRD_PARTY_DIR = REPOSITORY_ROOT / "third_party"
+PACKAGE_DIR = Path(__file__).parent.parent

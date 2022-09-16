@@ -16,13 +16,11 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+# pylint: disable=import-error
 
 """Conftest module for Pytest."""
 
-import inspect
 import logging
-import os
-from pathlib import Path
 from typing import Any, Generator, List, Tuple
 
 import docker
@@ -34,12 +32,10 @@ from aea_test_autonomy.docker.gnosis_safe_net import (
     DEFAULT_HARDHAT_PORT,
 )
 
-from tests.helpers.docker.keep3r_net import Keep3rNetDockerImage
+from packages.keep3r_co.agents.keep3r_bot.tests.helpers.docker.keep3r_net import (
+    Keep3rNetDockerImage,
+)
 
-
-CUR_PATH = os.path.dirname(inspect.getfile(inspect.currentframe()))  # type: ignore
-ROOT_DIR = Path(CUR_PATH, "..").resolve().absolute()
-THIRD_PARTY_CONTRACTS = ROOT_DIR / "third_party"
 
 # Keep3rV1ForTest - Goerli
 KEEP3R_V1_FOR_TEST = "0x3364BF0a8DcB15E463E6659175c90A57ee3d4288"
@@ -71,7 +67,7 @@ def hardhat_keep3r_key_pairs() -> List[Tuple[str, str]]:
 
 
 @pytest.fixture(scope="function")
-def hardhat_keep3r_scope_function(
+def hardhat_keep3r_scope_function(  # pylint: disable=redefined-outer-name
     hardhat_keep3r_addr: Any,
     hardhat_keep3r_port: Any,
     timeout: float = 3.0,

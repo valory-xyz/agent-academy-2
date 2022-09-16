@@ -16,6 +16,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+# pylint: disable=import-error,too-few-public-methods
 
 """End-to-end tests for the keep3r_co/keep3r_abci skill."""
 

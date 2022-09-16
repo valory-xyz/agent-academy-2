@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2022 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -17,4 +17,12 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests for valory/keep3r_abci skill."""
+"""Constants for tests."""
+
+
+DEFAULT_GAS = 10 ** 7
+DEFAULT_MAX_FEE_PER_GAS = 10 ** 10
+DEFAULT_MAX_PRIORITY_FEE_PER_GAS = 10 ** 10
+ONE_ETH = 10 ** 18
+HALF_A_SECOND = 0.5
+SECONDS_PER_DAY = 24 * 60 * 60

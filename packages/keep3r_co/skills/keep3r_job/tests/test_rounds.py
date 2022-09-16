@@ -117,16 +117,20 @@ class BaseRoundTestClass:
         assert state.db == expected_state.db
         return cast(Event, event)
 
-    def _test_no_majority_event(self, round_obj: AbstractRound) -> None:
+    def _test_no_majority_event(  # pylint: disable=no-self-use
+        self, round_obj: AbstractRound
+    ) -> None:
         """Test the NO_MAJORITY event."""
         with mock.patch.object(round_obj, "is_majority_possible", return_value=False):
             result = round_obj.end_block()
             assert result is not None
-            state, event = result
+            _, event = result
             assert event == Event.NO_MAJORITY
 
 
-class TestPathSelectionRound(BaseRoundTestClass):
+class TestPathSelectionRound(
+    BaseRoundTestClass
+):  # pylint: disable=too-few-public-methods
     """Tests for PathSelectionRound."""
 
     round_class = PathSelectionRound

@@ -6,7 +6,7 @@ description: Keep3rV1Library contract
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeib7xeo6okif3owetawtzcr4nc6ag5gjudbxtm6nioiszwdoepgrqa
+  __init__.py: bafybeifepbm3zcx3vdnffqfqeafyjurfejv5touwgwy5drgg4kgcwwu2ei
   build/Keep3rV1Library.json: bafybeid4fe2niicabyugmaqmowm7nuua4wptomr6k6xhvdxchf577qkqla
   contract.py: bafybeidntrgzbneiabdtygmaovetlrczipj4zeew7c52uwlotc3wnscefy
 fingerprint_ignore_patterns: []

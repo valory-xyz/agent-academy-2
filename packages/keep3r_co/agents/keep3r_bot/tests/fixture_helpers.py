@@ -16,6 +16,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+# pylint: disable=import-error
 
 """This module contains helper classes/functions for fixtures."""
 
@@ -26,14 +27,14 @@ from aea_test_autonomy.configurations import KEY_PAIRS
 
 
 @pytest.mark.integration
-class UseHardHatKeep3rBaseTest:
+class UseHardHatKeep3rBaseTest:  # pylint: disable=too-few-public-methods
     """Inherit from this class to use HardHat local net with the Keep3r contracts deployed."""
 
     key_pairs: List[Tuple[str, str]] = KEY_PAIRS
 
     @classmethod
     @pytest.fixture(autouse=True)
-    def _start_hardhat(
+    def _start_hardhat(  # pylint: disable=unused-argument
         cls,
         hardhat_keep3r_scope_function: Any,
         hardhat_keep3r_addr: Any,
