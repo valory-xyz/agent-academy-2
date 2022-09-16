@@ -1,6 +1,0 @@
-[submodule "third_party/keep3r-v1-deploy"]
-	path = third_party/keep3r-v1-deploy
-	url = https://github.com/defi-wonderland/keep3r-v1-deploy
-[submodule "third_party/cli-sample-jobs"]
-	path = third_party/cli-sample-jobs
-	url = https://github.com/keep3r-network/cli-sample-jobs
