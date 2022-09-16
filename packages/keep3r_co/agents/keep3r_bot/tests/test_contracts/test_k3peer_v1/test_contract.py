@@ -16,6 +16,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+# pylint: disable=import-error
 
 """Tests for the keep3r v1 contract."""
 

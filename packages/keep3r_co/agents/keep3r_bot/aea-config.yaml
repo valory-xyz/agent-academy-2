@@ -8,7 +8,7 @@ fingerprint:
   README.md: bafybeih4kccfgxwkvd32bokjpqsfuyc2c3juek2g7vrsmixlfr7urgwkn4
   __init__.py: bafybeigz6lf3rhls73qcjyttuy7blsy3ayh4n2fz2syksrui7btjd4eowu
   tests/__init__.py: bafybeibzjusr5ywmbxtzw4ps7jfeqnsegliwa55bvuifwxacheh2bfcp2y
-  tests/conftest.py: bafybeigsbtnjwg5szevchu3n52mg33e5jzpsveglbvwqcoz5dtrqpk5pnm
+  tests/conftest.py: bafybeiaw3x6obyymnoyvtklcg67jkr32jnplnaa76pk5tpx4nylcw2ob3e
   tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/abi.json: bafybeigyscfeaguwewu2iund2mvh4oirv3c7dwq5d3do6yduusxms4lloi
   tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/contract_details.json: bafybeib6pd3qnegmhal4aiyqskrtddtczxizyosltpw7be6jcr4tx3snha
   tests/data/keep3r/contracts/0x054A87DdFdE3ccb5DDB03739375329BcC1b03203/abi.json: bafybeigczrkmmwyzglko2qiqfquuwp7sjzoeboctgkvpokkoyczsaikruq
@@ -114,16 +114,16 @@ fingerprint:
   tests/data/keep3r/contracts/0xf72D7E44ec3F79379912B8d0f661bE954a101159/abi.json: bafybeidjwxqb5e6tuseob5mko5dgwkfobl3hubhmpscbjq76ua7uwdsvea
   tests/data/keep3r/contracts/0xf72D7E44ec3F79379912B8d0f661bE954a101159/contract_details.json: bafybeigalocl4533wqplv7jdqhw66e37mngxfdwsrq2zzogjuhznwmg75m
   tests/data/keep3r/jobs.csv: bafybeidvh6jo3hv5hi2zv3ocuqnzuvkktc643olwllt6zvofp4y67rrba4
-  tests/fixture_helpers.py: bafybeigykudlkwjw7c5cvbup4gx7m74y7otcvjbpmheer4hygbbhytqebe
+  tests/fixture_helpers.py: bafybeibvxjvwvahi3z562qw545cqj4xoxritrfofc5n2sqpwfnkfb7zw3m
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
   tests/helpers/constants.py: bafybeibc3knucb35srb4ogaiu24n6yi7bd23b6yex35bngc5ywhocoo754
   tests/helpers/docker/__init__.py: bafybeifutxz6ek7bybd3dpsyfuqjpcipmchqbum3vaezflwmhaywnmv6am
-  tests/helpers/docker/keep3r_net.py: bafybeic3563moqqjzvaf3f7fyueulhskw4dsze7zujbqanqx4p7w3vq6yi
+  tests/helpers/docker/keep3r_net.py: bafybeigxgqlr6inbhmnz4epaqn3xmlpp5ejxoa3fzyz2p62ex7fajnkh34
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
-  tests/test_agents/test_keep3r_bot_abci.py: bafybeieeg32rp7b2ospc5gmtju47hz3mvohjuyn5do25a3hrd7c4u5hiv4
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeiae6r6dfahu4zrrglypgmsqcpp2oj7rbynw6pr4ffgpsdxqb6azqi
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
-  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeihgw3qdqkqdyrrb4ur4fkh4qjwpnpbqi3i4bkxbj7d4vekohrgsjq
+  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeibmqymom3oixyp7h4pn55zx53das7ubmskpfcsyxlb3amarbo36c4
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeih34yj6l7akh6wfhgwaud3luvmwxkiakcqzv3zjiz5q7jfqtdnela

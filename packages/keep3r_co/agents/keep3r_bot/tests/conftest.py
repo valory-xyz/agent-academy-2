@@ -16,6 +16,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+# pylint: disable=import-error
 
 """Conftest module for Pytest."""
 
@@ -66,7 +67,7 @@ def hardhat_keep3r_key_pairs() -> List[Tuple[str, str]]:
 
 
 @pytest.fixture(scope="function")
-def hardhat_keep3r_scope_function(
+def hardhat_keep3r_scope_function(  # pylint: disable=redefined-outer-name
     hardhat_keep3r_addr: Any,
     hardhat_keep3r_port: Any,
     timeout: float = 3.0,

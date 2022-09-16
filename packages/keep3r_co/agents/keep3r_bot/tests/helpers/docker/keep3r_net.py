@@ -16,6 +16,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+# pylint: disable=import-error
 
 """Keep3r network contracts image"""
 

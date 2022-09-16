@@ -27,9 +27,8 @@ from packages.gabrielfu.contracts.keep3r_job.contract import (
     CONTRACT_ADDRESS,
     Keep3rJobContract,
 )
-from packages.gabrielfu.contracts.keep3r_job.tests import (
-    PACKAGE_DIR
-)
+from packages.gabrielfu.contracts.keep3r_job.tests import PACKAGE_DIR
+
 
 CHAIN_ID = 1
 
