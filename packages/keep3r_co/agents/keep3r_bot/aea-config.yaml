@@ -126,31 +126,31 @@ fingerprint:
   tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeibmqymom3oixyp7h4pn55zx53das7ubmskpfcsyxlb3amarbo36c4
 fingerprint_ignore_patterns: []
 connections:
-- valory/abci:0.1.0:bafybeih34yj6l7akh6wfhgwaud3luvmwxkiakcqzv3zjiz5q7jfqtdnela
-- valory/http_client:0.1.0:bafybeiet6defg3qvov4r2ucjtkywkz53xcg6mgarjfdqmnxfgdixgcx45y
-- valory/ledger:0.1.0:bafybeicup3pqzi74h67z6oxzw7qhsz2dpezeqhalg7bex37fqcx5koivqu
-- valory/p2p_libp2p_client:0.1.0:bafybeigvayl4ykzqf6o6bw2irv7am3qvczjoeu7yjhzn27ajiwvcio3lxm
+- valory/abci:0.1.0:bafybeid6p7vwyikn7sntlpc36vymotldfgonjbk3qa5gfacxxamybhmpvy
+- valory/http_client:0.23.0:bafybeihz3tubwado7j3wlivndzzuj3c6fdsp4ra5r3nqixn3ufawzo3wii
+- valory/ledger:0.19.0:bafybeihmz5us4ntmzvgikpkx4tththrl7zvou4uiebvletdeliidiuhi6m
+- valory/p2p_libp2p_client:0.1.0:bafybeihf35zfr35qsvfte4vbi7njvuzfx4httysw7owmlux53gvxh2or54
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeifbkitkori3pi2mtevm475xbnljfejpci7u7veziaptrj4hjbciju
-- valory/gnosis_safe_proxy_factory:0.1.0:bafybeihjomblzjm76m2y6h4evnazrzpykx4iehnifzjmbw7ddnfsojvxke
+- valory/gnosis_safe:0.1.0:bafybeiaema4xgfolq3nx26zu4o3kafro4aubmsjfwvzi5tfbp3fwg4cmoa
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeicgn4hrfnjqqrpq2yjyuifpp24liwijsnvwzkfl7wdixlfmqgqesy
 - valory/keep3r_test_job:0.1.0:bafybeidoyd2aa4rdzt765234mafqy6kpjxytukbulcdjx3oh3hgqmesm4e
 protocols:
-- open_aea/signing:1.0.0:bafybeifexbtq3cqrodkmy75djq7hck5c44jnjezywins7fzzg5nn6yi6om
+- open_aea/signing:1.0.0:bafybeiambqptflge33eemdhis2whik67hjplfnqwieoa6wblzlaf7vuo44
 - valory/abci:0.1.0:bafybeiaw3tzlg3rkvnn5fcufblktmfwngmxugn4yo7pyjp76zz6aqtqcay
-- valory/acn:1.1.0:bafybeidetrrkvdgveu4ph5g6v53lbh7ardfspbkpstmjxctx647bzyosyy
-- valory/contract_api:1.0.0:bafybeidyjrthhq3p27k3v3a4xx7b7lu4fe4h765gmkyyyj7xur4b25bxim
-- valory/http:1.0.0:bafybeibfjhmmjut4dukhunbcmp5zi4eqsk6rgreztmg4svqfzyq4ei3o7i
-- valory/ledger_api:1.0.0:bafybeifawyt7ayxrvpagqecowx6y5hvc3dxzjbhhkutxsuk7u54cxo2g54
+- valory/acn:1.1.0:bafybeifontek6tvaecatoauiule3j3id6xoktpjubvuqi3h2jkzqg7zh7a
+- valory/contract_api:1.0.0:bafybeiaxbrvgtbdrh4lslskuxyp4awyr4whcx3nqq5yrr6vimzsxg5dy64
+- valory/http:1.0.0:bafybeigzqo2zaakcjtzzsm6dh4x73v72xg6ctk6muyp5uq5ueb7y34fbxy
+- valory/ledger_api:1.0.0:bafybeih7rhi5zvfvwakx5ifgxsz2cfipeecsh7bm3gnudjxtvhrygpcftq
 - valory/tendermint:0.1.0:bafybeihcnjhovvyyfbkuw5sjyfx2lfd4soeocfqzxz54g67333m6nk5gxq
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeiez3cqlbqx6swvb3ss7foto23oceamchrckvkpy3xc7oaonor576e
-- keep3r_co/keep3r_job:0.1.0:bafybeighsmlu5o6gzvsaao4nai7np7r5fzi4ua3dhvjpv5oeannbzrcpfq
-- valory/abstract_abci:0.1.0:bafybeidt4cyfhlla6faca6us6law7dijrlrzihcj6uwrmeaa3ho6fdck2u
-- valory/abstract_round_abci:0.1.0:bafybeigpz64qx22a4zzlcczmc5frhlecytrh5q3x77lwe3a5kee2qrcchm
-- valory/registration_abci:0.1.0:bafybeiajvfkffbdmggj3it7e4r6733lylxhbnb2a6tx3tmlgpy2fpxkuze
-- valory/reset_pause_abci:0.1.0:bafybeieo5m37rwoel7e6u3lrp2cei7hdyhklggsc6776vej6bp6gzua7ei
-- valory/safe_deployment_abci:0.1.0:bafybeifkxk6jkixnk4fymsw76zw2z2ofshmomqbxkp2kcwpur6dn7jb44i
-- valory/transaction_settlement_abci:0.1.0:bafybeig3lpuertmg5wngcnherollnvakvqgeisy3a6f5tbmw4e5k5khnt4
+- keep3r_co/keep3r_abci:0.1.0:bafybeihmqcq67d2wynuyxyk47juwg3lrvcp6zvx7z4lcjg4k3ly4tev6hm
+- keep3r_co/keep3r_job:0.1.0:bafybeicliw5mfz3mz3eaoer6ta4bxaqtry5tlevpuy4bc2pmjkwsa6ha7i
+- valory/abstract_abci:0.1.0:bafybeiabow5j6wc63szukedutrx6bia2agnju62avxsbhqkhchcwwpvu5i
+- valory/abstract_round_abci:0.1.0:bafybeiegpewio6lkpikfnohjqmlwkqtxdmjbky4dphof4jvrixlvkiqixi
+- valory/registration_abci:0.1.0:bafybeigck3gb5tvm5tilzii7kvzqpryxrmxu2meck5empgl7lhuz66mbgq
+- valory/reset_pause_abci:0.1.0:bafybeid65rpcwq3rzxijwrpsbirersuwk2sdtcwnpkplczbszzoq2tbitu
+- valory/safe_deployment_abci:0.1.0:bafybeiaywezmpo66nriweh7gn46tzkpftzacpz53ymdsmqpwlulmkfzlv4
+- valory/transaction_settlement_abci:0.1.0:bafybeigvdugurqbx4vqrkpro2q662vhild76r6yfw7thpgfftx6ysvdjg4
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -217,7 +217,7 @@ models:
       observation_interval: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_OBSERVATION_INTERVAL:int:300}
       max_healthcheck: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_MAX_HEALTHCHECK:int:1200}
 ---
-public_id: valory/ledger:0.1.0
+public_id: valory/ledger:0.19.0
 type: connection
 config:
   ledger_apis:
