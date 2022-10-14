@@ -20,7 +20,13 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 
 from abc import ABC
-from typing import Any, Dict, Generator, Optional, Set, Type, TypedDict, cast
+from typing import Any, Dict, Generator, Optional, Set, Type, cast
+
+
+try:
+    from typing import TypedDict  # >=py3.8
+except ImportError:
+    from mypy_extensions import TypedDict  # <=py3.7
 
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (

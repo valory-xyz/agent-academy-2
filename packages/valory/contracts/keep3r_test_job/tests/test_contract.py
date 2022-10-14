@@ -23,6 +23,7 @@ from typing import Any, Dict, cast
 
 from aea_ledger_ethereum import EthereumApi, EthereumCrypto
 from aea_test_autonomy.base_test_classes.contracts import BaseGanacheContractTest
+from aea_test_autonomy.docker.base import skip_docker_tests
 
 from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
 from packages.valory.contracts.keep3r_test_job.tests import PACKAGE_DIR
@@ -58,6 +59,7 @@ class BaseKeep3rTestJobContractTest(BaseGanacheContractTest):
         return cast(Keep3rTestJobContract, super().contract)
 
 
+@skip_docker_tests
 class TestKeep3rTestJobContract(BaseKeep3rTestJobContractTest):
     """Test Keep3rTestJobContract."""
 
