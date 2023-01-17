@@ -133,7 +133,7 @@ connections:
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeiamw5sluyueflxsvzukmayctl3ijc76fx5twstwnc7ons6lw2goa4
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeieqvrttr6fiidrzab5t2toyewixqg7oayvdo64sidi33ouro5ixdu
-- valory/keep3r_test_job:0.1.0:bafybeickhvmimcebwcf2ofwytnfxhiomwvwuq3ra55a4pg3digwq6hq734
+- valory/keep3r_test_job:0.1.0:bafybeicokl3aofp7or56il4ovcbqn5tem4di2atssspa7qylqpwgh434nq
 protocols:
 - open_aea/signing:1.0.0:bafybeihgwrowgtegpe4ixe3iy5jx65u7pxebl5btrkywzmx7g52gjtbnpi
 - valory/abci:0.1.0:bafybeihkgako44fzgurcv4hgbems4ptdtosae4lopnnr75eczb6kx3x2lm
@@ -143,8 +143,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 - valory/tendermint:0.1.0:bafybeid6b2wlb24g6d3godmqms44qvnpkhlvb27icotuobvnscmdmlhaha
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeigk3w4o5ohoqyz6ltibftxqek54fd2gmbrysel5qrw3qcwfwm43ie
-- keep3r_co/keep3r_job:0.1.0:bafybeiaxm3t6mpeaniumlu5c2wzbkz4fxsrgklpnmumlrqbiiocrv7qvgu
+- keep3r_co/keep3r_abci:0.1.0:bafybeicms67l5tvwsit6owprvh4hqn5gennmem6whzghjuw5tyl3sdam4a
+- keep3r_co/keep3r_job:0.1.0:bafybeiaghmvwmmzi2bhqjjnzmp3lbrtgbq7zgl2glrrturdx4nq33ic6bq
 - valory/abstract_abci:0.1.0:bafybeieeqbasxxghxaj7xffnto7ybegom2kl4y544cskysowmjcjd3szhe
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 - valory/registration_abci:0.1.0:bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu
