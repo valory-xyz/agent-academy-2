@@ -16,21 +16,21 @@ fingerprint:
   payloads.py: bafybeicpmqifm4fnccqhaeprjnj3azxj5b5shtnf7ybomfrysnuh4n6yoe
   rounds.py: bafybeia4ibetepvdqk3kyijomz6nefdp22chvpnafczoyk4qp22vftznne
   tests/__init__.py: bafybeihax7nv5wb5pb72cxwemjk5sz55ecsghh4zi3vbmziz2pacyqbrym
-  tests/test_behaviours.py: bafybeieq74tx7gk352xhi3oa2ckjxnvwhi4ct7uoxtkxc6texh6jzlkwd4
+  tests/test_behaviours.py: bafybeiaimcupqfcsw4zd7h4i4pawjp576isc3knzfehp27gzb3mpedis6y
   tests/test_dialogues.py: bafybeidcuxmmer62aymwtj7umeo7ld3ggyyro4kpvrdj2ojpoibxwbstnu
   tests/test_payloads.py: bafybeie33364fgslg5llsykju6zsrltpii6pfj423xy546hpiba232xiti
   tests/test_rounds.py: bafybeid5773du5siu4vi6kiqkqtnyqxyhg37uu52n6wmw32ngvo42f6c5a
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeiaema4xgfolq3nx26zu4o3kafro4aubmsjfwvzi5tfbp3fwg4cmoa
+- valory/gnosis_safe:0.1.0:bafybeiamw5sluyueflxsvzukmayctl3ijc76fx5twstwnc7ons6lw2goa4
 - valory/keep3r_test_job:0.1.0:bafybeickhvmimcebwcf2ofwytnfxhiomwvwuq3ra55a4pg3digwq6hq734
 - valory/keep3r_v1:0.1.0:bafybeieeb5e4qidgbiqwkf6hjys7r6yin2h35o34dnydrbyyhqu3qfvpp4
 protocols:
-- valory/contract_api:1.0.0:bafybeiaxbrvgtbdrh4lslskuxyp4awyr4whcx3nqq5yrr6vimzsxg5dy64
-- valory/ledger_api:1.0.0:bafybeih7rhi5zvfvwakx5ifgxsz2cfipeecsh7bm3gnudjxtvhrygpcftq
+- valory/contract_api:1.0.0:bafybeif32nchkgn6yet7e5gt4auhf7lsahxnj4t36kxbw55p3gi7qpeuxq
+- valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeiegpewio6lkpikfnohjqmlwkqtxdmjbky4dphof4jvrixlvkiqixi
+- valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 behaviours:
   main:
     args: {}

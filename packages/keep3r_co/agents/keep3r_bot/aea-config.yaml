@@ -118,7 +118,7 @@ fingerprint:
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
   tests/helpers/constants.py: bafybeibc3knucb35srb4ogaiu24n6yi7bd23b6yex35bngc5ywhocoo754
   tests/helpers/docker/__init__.py: bafybeifutxz6ek7bybd3dpsyfuqjpcipmchqbum3vaezflwmhaywnmv6am
-  tests/helpers/docker/keep3r_net.py: bafybeie52c7nb7injcuy4ore6cew4v4z55b57h4hiejaikz66a5clqtlpa
+  tests/helpers/docker/keep3r_net.py: bafybeigzj6hctoxmpixpl2chptgmblbhz6ojrf2ngidfoqose7dz6rmvmm
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
   tests/test_agents/test_keep3r_bot_abci.py: bafybeiae6r6dfahu4zrrglypgmsqcpp2oj7rbynw6pr4ffgpsdxqb6azqi
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
@@ -143,7 +143,7 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 - valory/tendermint:0.1.0:bafybeid6b2wlb24g6d3godmqms44qvnpkhlvb27icotuobvnscmdmlhaha
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeigtjduocljgme4m4pwu4td4r2ccrbgwhgvijhntglom23v6ifzofa
+- keep3r_co/keep3r_abci:0.1.0:bafybeiegtrcvr3mn62ewmfolbccpemytgljztpyjfmjdn4d7a36fshe6su
 - keep3r_co/keep3r_job:0.1.0:bafybeignguwr5uuqt5ntxkkgnhwibdlyimpvxw63t3vlb5givfkrjawig4
 - valory/abstract_abci:0.1.0:bafybeieeqbasxxghxaj7xffnto7ybegom2kl4y544cskysowmjcjd3szhe
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u

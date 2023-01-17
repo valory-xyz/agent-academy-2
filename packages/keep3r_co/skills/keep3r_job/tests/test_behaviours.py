@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -291,7 +291,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.BLACKLISTED)
         degenerate_state = make_degenerate_behaviour(BlacklistedRound)
-        assert self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
+        assert (
+            self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
+        )
 
     def test_insufficient_funds(self) -> None:
         """Test path_selection to insufficient funds."""
@@ -355,7 +357,9 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.BONDING_TX)
         degenerate_state = make_degenerate_behaviour(FinalizeBondingRound)
-        assert self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
+        assert (
+            self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
+        )
 
 
 class TestWaitingBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -389,7 +393,9 @@ class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.ACTIVATION_TX)
         degenerate_state = make_degenerate_behaviour(FinalizeActivationRound)
-        assert self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
+        assert (
+            self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
+        )
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -421,7 +427,9 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.WORK_TX)
         degenerate_state = make_degenerate_behaviour(FinalizeWorkRound)
-        assert self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
+        assert (
+            self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
+        )
 
 
 class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
