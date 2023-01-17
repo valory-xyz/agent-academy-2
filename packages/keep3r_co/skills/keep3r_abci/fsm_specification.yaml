@@ -50,7 +50,6 @@ states:
 - CheckTransactionHistoryRound
 - CollectSignatureRound
 - DegenerateRound
-- DeploySafeRound
 - FailedRound
 - FinalizationRound
 - GetJobsRound
@@ -59,18 +58,15 @@ states:
 - JobSelectionRound
 - PathSelectionRound
 - PerformWorkRound
-- RandomnessSafeRound
 - RandomnessTransactionSubmissionRound
 - RegistrationRound
 - RegistrationStartupRound
 - ResetAndPauseRound
 - ResetRound
-- SelectKeeperSafeRound
 - SelectKeeperTransactionSubmissionRoundA
 - SelectKeeperTransactionSubmissionRoundB
 - SelectKeeperTransactionSubmissionRoundBAfterTimeout
 - SynchronizeLateMessagesRound
-- ValidateSafeRound
 - ValidateTransactionRound
 - WaitingRound
 transition_func:
@@ -99,9 +95,6 @@ transition_func:
     (CollectSignatureRound, DONE): FinalizationRound
     (CollectSignatureRound, NO_MAJORITY): ResetRound
     (CollectSignatureRound, ROUND_TIMEOUT): CollectSignatureRound
-    (DeploySafeRound, DEPLOY_TIMEOUT): SelectKeeperSafeRound
-    (DeploySafeRound, DONE): ValidateSafeRound
-    (DeploySafeRound, FAILED): SelectKeeperSafeRound
     (FinalizationRound, CHECK_HISTORY): CheckTransactionHistoryRound
     (FinalizationRound, CHECK_LATE_ARRIVING_MESSAGE): SynchronizeLateMessagesRound
     (FinalizationRound, DONE): ValidateTransactionRound
@@ -135,15 +128,12 @@ transition_func:
     (PerformWorkRound, NO_MAJORITY): PerformWorkRound
     (PerformWorkRound, ROUND_TIMEOUT): PerformWorkRound
     (PerformWorkRound, WORK_TX): RandomnessTransactionSubmissionRound
-    (RandomnessSafeRound, DONE): SelectKeeperSafeRound
-    (RandomnessSafeRound, NO_MAJORITY): RandomnessSafeRound
-    (RandomnessSafeRound, ROUND_TIMEOUT): RandomnessSafeRound
     (RandomnessTransactionSubmissionRound, DONE): SelectKeeperTransactionSubmissionRoundA
     (RandomnessTransactionSubmissionRound, NO_MAJORITY): RandomnessTransactionSubmissionRound
     (RandomnessTransactionSubmissionRound, ROUND_TIMEOUT): RandomnessTransactionSubmissionRound
     (RegistrationRound, DONE): PathSelectionRound
     (RegistrationRound, NO_MAJORITY): RegistrationRound
-    (RegistrationStartupRound, DONE): RandomnessSafeRound
+    (RegistrationStartupRound, DONE): PathSelectionRound
     (RegistrationStartupRound, FAST_FORWARD): PathSelectionRound
     (ResetAndPauseRound, DONE): RegistrationRound
     (ResetAndPauseRound, NO_MAJORITY): RegistrationStartupRound
@@ -151,9 +141,6 @@ transition_func:
     (ResetRound, DONE): RandomnessTransactionSubmissionRound
     (ResetRound, NO_MAJORITY): FailedRound
     (ResetRound, RESET_TIMEOUT): FailedRound
-    (SelectKeeperSafeRound, DONE): DeploySafeRound
-    (SelectKeeperSafeRound, NO_MAJORITY): RandomnessSafeRound
-    (SelectKeeperSafeRound, ROUND_TIMEOUT): RandomnessSafeRound
     (SelectKeeperTransactionSubmissionRoundA, DONE): CollectSignatureRound
     (SelectKeeperTransactionSubmissionRoundA, INCORRECT_SERIALIZATION): FailedRound
     (SelectKeeperTransactionSubmissionRoundA, NO_MAJORITY): ResetRound
@@ -173,11 +160,6 @@ transition_func:
     (SynchronizeLateMessagesRound, NONE): SelectKeeperTransactionSubmissionRoundB
     (SynchronizeLateMessagesRound, NO_MAJORITY): SynchronizeLateMessagesRound
     (SynchronizeLateMessagesRound, ROUND_TIMEOUT): SynchronizeLateMessagesRound
-    (ValidateSafeRound, DONE): PathSelectionRound
-    (ValidateSafeRound, NEGATIVE): RandomnessSafeRound
-    (ValidateSafeRound, NONE): RandomnessSafeRound
-    (ValidateSafeRound, NO_MAJORITY): RandomnessSafeRound
-    (ValidateSafeRound, VALIDATE_TIMEOUT): RandomnessSafeRound
     (ValidateTransactionRound, DONE): ResetAndPauseRound
     (ValidateTransactionRound, NEGATIVE): CheckTransactionHistoryRound
     (ValidateTransactionRound, NONE): SelectKeeperTransactionSubmissionRoundB
