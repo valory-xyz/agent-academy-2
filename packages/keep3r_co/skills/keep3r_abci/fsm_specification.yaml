@@ -38,7 +38,7 @@ final_states:
 - BlacklistedRound
 - DegenerateRound
 - FailedRound
-label: packages.keep3r_co.skills.keep3r_abci.composition.Keep3rAbciApp
+label: Keep3rAbciApp
 start_states:
 - RegistrationStartupRound
 states:
