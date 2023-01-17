@@ -9,7 +9,6 @@ alphabet_in:
 - DEPLOY_TIMEOUT
 - DONE
 - FAILED
-- FAST_FORWARD
 - FINALIZATION_FAILED
 - FINALIZE_TIMEOUT
 - HEALTHY
@@ -134,7 +133,6 @@ transition_func:
     (RegistrationRound, DONE): PathSelectionRound
     (RegistrationRound, NO_MAJORITY): RegistrationRound
     (RegistrationStartupRound, DONE): PathSelectionRound
-    (RegistrationStartupRound, FAST_FORWARD): PathSelectionRound
     (ResetAndPauseRound, DONE): RegistrationRound
     (ResetAndPauseRound, NO_MAJORITY): RegistrationStartupRound
     (ResetAndPauseRound, RESET_AND_PAUSE_TIMEOUT): RegistrationStartupRound
