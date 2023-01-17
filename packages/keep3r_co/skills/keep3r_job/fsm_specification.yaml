@@ -25,7 +25,7 @@ final_states:
 - FinalizeWorkRound
 - DegenerateRound
 - BlacklistedRound
-label: packages.keep3r_co.skills.keep3r_job.rounds.Keep3rJobAbciApp
+label: Keep3rJobAbciApp
 start_states:
 - PathSelectionRound
 states:
