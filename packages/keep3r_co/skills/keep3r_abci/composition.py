@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ from packages.valory.skills.abstract_round_abci.abci_app_chain import (
 )
 from packages.valory.skills.registration_abci.rounds import (
     AgentRegistrationAbciApp,
-    FinishedRegistrationFFWRound,
     FinishedRegistrationRound,
     RegistrationRound,
     RegistrationStartupRound,
@@ -40,12 +39,7 @@ from packages.valory.skills.reset_pause_abci.rounds import (
     FinishedResetAndPauseErrorRound,
     FinishedResetAndPauseRound,
     ResetAndPauseRound,
-    ResetPauseABCIApp,
-)
-from packages.valory.skills.safe_deployment_abci.rounds import (
-    FinishedSafeRound,
-    RandomnessSafeRound,
-    SafeDeploymentAbciApp,
+    ResetPauseAbciApp,
 )
 from packages.valory.skills.transaction_settlement_abci.rounds import (
     FinishedTransactionSubmissionRound,
@@ -55,9 +49,7 @@ from packages.valory.skills.transaction_settlement_abci.rounds import (
 
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
-    FinishedRegistrationRound: RandomnessSafeRound,
-    FinishedRegistrationFFWRound: PathSelectionRound,
-    FinishedSafeRound: PathSelectionRound,
+    FinishedRegistrationRound: PathSelectionRound,
     FinalizeBondingRound: RandomnessTransactionSubmissionRound,
     FinalizeActivationRound: RandomnessTransactionSubmissionRound,
     FinalizeWorkRound: RandomnessTransactionSubmissionRound,
@@ -69,10 +61,9 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
 Keep3rAbciApp = chain(
     (
         AgentRegistrationAbciApp,
-        SafeDeploymentAbciApp,
         Keep3rJobAbciApp,
         TransactionSubmissionAbciApp,
-        ResetPauseABCIApp,
+        ResetPauseAbciApp,
     ),
     abci_app_transition_mapping,
 )

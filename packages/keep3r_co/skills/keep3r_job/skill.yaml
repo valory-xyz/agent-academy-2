@@ -10,27 +10,27 @@ fingerprint:
   __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
   behaviours.py: bafybeiadhc3odbm3x6ydkkr7slivu5dimzm65xkeiedw5bx6q5isleikrq
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
-  fsm_specification.yaml: bafybeifjaklbcefmwqkr45ar7ak3fkhodb73ulddamwot7lymqbrc55j4q
+  fsm_specification.yaml: bafybeic2pidkx5ny7h4je4kpo3gmnguyaqi2aomztbakvuekorimtjjwka
   handlers.py: bafybeie6ntjlqfb5glkciuo56pisvgobi2tuqhcjlzm7h5uvhgi2ipxrzq
   models.py: bafybeifs66ic4uzwrgkzmbvzzg42ugees4dejv5n7nioppljawrywtirvu
-  payloads.py: bafybeicpmqifm4fnccqhaeprjnj3azxj5b5shtnf7ybomfrysnuh4n6yoe
-  rounds.py: bafybeia4ibetepvdqk3kyijomz6nefdp22chvpnafczoyk4qp22vftznne
+  payloads.py: bafybeiaygv4plcp7jlwg2vtqoupbjhogxfzwoe552lmsu4cgcrjdjho7sm
+  rounds.py: bafybeie5xbcdyzfytkvxztzlbtdnd26viojorkire3krhfiwqrrxhh2p6e
   tests/__init__.py: bafybeihax7nv5wb5pb72cxwemjk5sz55ecsghh4zi3vbmziz2pacyqbrym
-  tests/test_behaviours.py: bafybeieq74tx7gk352xhi3oa2ckjxnvwhi4ct7uoxtkxc6texh6jzlkwd4
+  tests/test_behaviours.py: bafybeiaimcupqfcsw4zd7h4i4pawjp576isc3knzfehp27gzb3mpedis6y
   tests/test_dialogues.py: bafybeidcuxmmer62aymwtj7umeo7ld3ggyyro4kpvrdj2ojpoibxwbstnu
   tests/test_payloads.py: bafybeie33364fgslg5llsykju6zsrltpii6pfj423xy546hpiba232xiti
   tests/test_rounds.py: bafybeid5773du5siu4vi6kiqkqtnyqxyhg37uu52n6wmw32ngvo42f6c5a
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeiaema4xgfolq3nx26zu4o3kafro4aubmsjfwvzi5tfbp3fwg4cmoa
-- valory/keep3r_test_job:0.1.0:bafybeickhvmimcebwcf2ofwytnfxhiomwvwuq3ra55a4pg3digwq6hq734
-- valory/keep3r_v1:0.1.0:bafybeieeb5e4qidgbiqwkf6hjys7r6yin2h35o34dnydrbyyhqu3qfvpp4
+- valory/gnosis_safe:0.1.0:bafybeiamw5sluyueflxsvzukmayctl3ijc76fx5twstwnc7ons6lw2goa4
+- valory/keep3r_test_job:0.1.0:bafybeicokl3aofp7or56il4ovcbqn5tem4di2atssspa7qylqpwgh434nq
+- valory/keep3r_v1:0.1.0:bafybeibd6j4caz6baueo4m4ybrbgmdqjuwm3oma5xhgel6c35y2s4ccwum
 protocols:
-- valory/contract_api:1.0.0:bafybeiaxbrvgtbdrh4lslskuxyp4awyr4whcx3nqq5yrr6vimzsxg5dy64
-- valory/ledger_api:1.0.0:bafybeih7rhi5zvfvwakx5ifgxsz2cfipeecsh7bm3gnudjxtvhrygpcftq
+- valory/contract_api:1.0.0:bafybeif32nchkgn6yet7e5gt4auhf7lsahxnj4t36kxbw55p3gi7qpeuxq
+- valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeiegpewio6lkpikfnohjqmlwkqtxdmjbky4dphof4jvrixlvkiqixi
+- valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 behaviours:
   main:
     args: {}

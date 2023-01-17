@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -514,6 +514,14 @@ class Keep3rJobAbciApp(AbciApp[Event]):
 
     event_to_timeout: EventToTimeout = {
         Event.ROUND_TIMEOUT: 30.0,
+    }
+    db_pre_conditions: Dict[AppState, List[str]] = {PathSelectionRound: []}
+    db_post_conditions: Dict[AppState, List[str]] = {
+        FinalizeBondingRound: ["most_voted_tx_hash"],
+        FinalizeActivationRound: ["most_voted_tx_hash"],
+        FinalizeWorkRound: ["most_voted_tx_hash"],
+        BlacklistedRound: [],
+        DegenerateRound: [],
     }
 
     cross_period_persisted_keys: List[str] = ["safe_contract_address"]

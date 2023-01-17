@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class Keep3rNetDockerImage(DockerImage):
         raise NotImplementedError()
 
     @property
-    def tag(self) -> str:
+    def image(self) -> str:
         """Get the tag."""
         return "valory/k3peerv1-contract:latest"
 
@@ -61,7 +61,7 @@ class Keep3rNetDockerImage(DockerImage):
         """Create the container."""
         ports = {f"{DEFAULT_HARDHAT_PORT}/tcp": ("0.0.0.0", self.port)}  # nosec
         container = self._client.containers.run(
-            self.tag,
+            self.image,
             detach=True,
             ports=ports,
             extra_hosts={"host.docker.internal": "host-gateway"},
