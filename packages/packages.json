@@ -4,9 +4,9 @@
         "contract/valory/service_registry/0.1.0": "bafybeif4mgymtachjdhyzemxp7oj2i7itusjvrsxw7cheuvhtypizutu5e",
         "contract/valory/keep3r_test_job/0.1.0": "bafybeickhvmimcebwcf2ofwytnfxhiomwvwuq3ra55a4pg3digwq6hq734",
         "contract/valory/keep3r_v1/0.1.0": "bafybeieeb5e4qidgbiqwkf6hjys7r6yin2h35o34dnydrbyyhqu3qfvpp4",
-        "skill/keep3r_co/keep3r_job/0.1.0": "bafybeignguwr5uuqt5ntxkkgnhwibdlyimpvxw63t3vlb5givfkrjawig4",
-        "skill/keep3r_co/keep3r_abci/0.1.0": "bafybeiegtrcvr3mn62ewmfolbccpemytgljztpyjfmjdn4d7a36fshe6su",
-        "agent/keep3r_co/keep3r_bot/0.1.0": "bafybeiddmuwwh3pgidvsvtsttbboayjjnbfmr5ndf3dyn5rflx43rs3tvu",
+        "skill/keep3r_co/keep3r_job/0.1.0": "bafybeiaxm3t6mpeaniumlu5c2wzbkz4fxsrgklpnmumlrqbiiocrv7qvgu",
+        "skill/keep3r_co/keep3r_abci/0.1.0": "bafybeigk3w4o5ohoqyz6ltibftxqek54fd2gmbrysel5qrw3qcwfwm43ie",
+        "agent/keep3r_co/keep3r_bot/0.1.0": "bafybeihmhfm4mfvaizazrxy5vlwemvthjdp3livrl5hn2coilctjh4l7pq",
         "contract/gabrielfu/keep3r_job/0.1.0": "bafybeif3imbn4snesrx4xslpngspui7x3z2bryl3q6rztlj66iyz7fj2dm"
     },
     "third_party": {
