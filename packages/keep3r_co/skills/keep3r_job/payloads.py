@@ -71,7 +71,7 @@ class PathSelectionPayload(BaseKeep3rJobPayload):
         """Initialize a 'path_selection' payload.
 
         :param sender: the sender (Ethereum) address
-        :param bonding_tx: the bonding transaction
+        :param path_selection: the selected path
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
@@ -115,7 +115,7 @@ class WaitingPayload(BaseKeep3rJobPayload):
         """Initialize a 'done_waiting' payload.
 
         :param sender: the sender (Ethereum) address
-        :param is_waiting: whether agent is done waiting
+        :param done_waiting: whether agent is done waiting
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
@@ -159,7 +159,7 @@ class TopUpPayload(BaseKeep3rJobPayload):
         """Initialize a 'top_up' payload.
 
         :param sender: the sender (Ethereum) address
-        :param topped_up: increase in funds detected
+        :param top_up: increase in funds detected
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
@@ -269,7 +269,7 @@ class WorkTxPayload(BaseKeep3rJobPayload):
         """Initialize a 'work_tx' payload.
 
         :param sender: the sender (Ethereum) address
-        :param tx_hash: the hash of the raw transaction
+        :param work_tx: the work transaction
         :param kwargs: the keyword arguments
         """
         super().__init__(sender, **kwargs)
