@@ -290,8 +290,8 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.BLACKLISTED)
-        expected = f"degenerate_{BlacklistedRound.round_id}"
-        assert self.current_behaviour.behaviour_id == expected
+        degenerate_state = make_degenerate_behaviour(BlacklistedRound)
+        assert self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
 
     def test_insufficient_funds(self) -> None:
         """Test path_selection to insufficient funds."""
@@ -301,7 +301,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.INSUFFICIENT_FUNDS)
-        assert self.current_behaviour.behaviour_id == AwaitTopUpRound.round_id
+        assert self.current_behaviour.behaviour_id == AwaitTopUpRound.auto_round_id()
 
     def test_not_bonded(self) -> None:
         """Test path_selection to not bonded."""
@@ -312,7 +312,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.NOT_BONDED)
-        assert self.current_behaviour.behaviour_id == BondingRound.round_id
+        assert self.current_behaviour.behaviour_id == BondingRound.auto_round_id()
 
     def test_not_activated(self) -> None:
         """Test path_selection to not activated."""
@@ -325,7 +325,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.NOT_ACTIVATED)
-        assert self.current_behaviour.behaviour_id == WaitingRound.round_id
+        assert self.current_behaviour.behaviour_id == WaitingRound.auto_round_id()
 
     def test_healthy(self) -> None:
         """Test path_selection to healthy."""
@@ -338,7 +338,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.HEALTHY)
-        assert self.current_behaviour.behaviour_id == GetJobsRound.round_id
+        assert self.current_behaviour.behaviour_id == GetJobsRound.auto_round_id()
 
 
 class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -354,8 +354,8 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.BONDING_TX)
-        degenerate_state = make_degenerate_behaviour(FinalizeBondingRound.round_id)
-        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
+        degenerate_state = make_degenerate_behaviour(FinalizeBondingRound)
+        assert self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
 
 
 class TestWaitingBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -372,7 +372,7 @@ class TestWaitingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.DONE)
-        assert self.current_behaviour.behaviour_id == ActivationRound.round_id
+        assert self.current_behaviour.behaviour_id == ActivationRound.auto_round_id()
 
 
 class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -388,8 +388,8 @@ class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.ACTIVATION_TX)
-        degenerate_state = make_degenerate_behaviour(FinalizeActivationRound.round_id)
-        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
+        degenerate_state = make_degenerate_behaviour(FinalizeActivationRound)
+        assert self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
 
 
 class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -404,7 +404,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.DONE)
-        assert self.current_behaviour.behaviour_id == JobSelectionRound.round_id
+        assert self.current_behaviour.behaviour_id == JobSelectionRound.auto_round_id()
 
 
 class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -420,8 +420,8 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.WORK_TX)
-        degenerate_state = make_degenerate_behaviour(FinalizeWorkRound.round_id)
-        assert self.current_behaviour.behaviour_id == degenerate_state.behaviour_id
+        degenerate_state = make_degenerate_behaviour(FinalizeWorkRound)
+        assert self.current_behaviour.behaviour_id == degenerate_state.auto_behaviour_id()
 
 
 class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -440,7 +440,7 @@ class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=event)
-        assert self.current_behaviour.behaviour_id == next_round.round_id
+        assert self.current_behaviour.behaviour_id == next_round.auto_round_id()
 
 
 class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -465,7 +465,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=event)
-        assert self.current_behaviour.behaviour_id == next_round.round_id
+        assert self.current_behaviour.behaviour_id == next_round.auto_round_id()
 
 
 class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -490,7 +490,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=event)
-        assert self.current_behaviour.behaviour_id == next_round.round_id
+        assert self.current_behaviour.behaviour_id == next_round.auto_round_id()
 
 
 class TestAwaitTopUpBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -512,4 +512,4 @@ class TestAwaitTopUpBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=event)
-        assert self.current_behaviour.behaviour_id == next_round.round_id
+        assert self.current_behaviour.behaviour_id == next_round.auto_round_id()
