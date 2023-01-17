@@ -39,7 +39,7 @@ from packages.valory.skills.reset_pause_abci.rounds import (
     FinishedResetAndPauseErrorRound,
     FinishedResetAndPauseRound,
     ResetAndPauseRound,
-    ResetPauseABCIApp,
+    ResetPauseAbciApp,
 )
 from packages.valory.skills.transaction_settlement_abci.rounds import (
     FinishedTransactionSubmissionRound,
@@ -63,7 +63,7 @@ Keep3rAbciApp = chain(
         AgentRegistrationAbciApp,
         Keep3rJobAbciApp,
         TransactionSubmissionAbciApp,
-        ResetPauseABCIApp,
+        ResetPauseAbciApp,
     ),
     abci_app_transition_mapping,
 )
