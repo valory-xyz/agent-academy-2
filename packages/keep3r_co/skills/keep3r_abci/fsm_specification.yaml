@@ -37,6 +37,7 @@ final_states:
 - FailedRound
 label: Keep3rAbciApp
 start_states:
+- RegistrationRound
 - RegistrationStartupRound
 states:
 - ActivationRound
