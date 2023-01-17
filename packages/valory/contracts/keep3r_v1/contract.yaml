@@ -15,4 +15,6 @@ contracts:
 class_name: Keep3rV1Contract
 contract_interface_paths:
   ethereum: build/Keep3rV1.json
-dependencies: {}
+dependencies:
+  open-aea-ledger-ethereum:
+    version: ==1.27.0

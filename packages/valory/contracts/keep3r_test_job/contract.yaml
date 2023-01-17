@@ -16,4 +16,6 @@ contracts: []
 class_name: Keep3rTestJobContract
 contract_interface_paths:
   ethereum: build/TestJob.json
-dependencies: {}
+dependencies:
+  open-aea-ledger-ethereum:
+    version: ==1.27.0
