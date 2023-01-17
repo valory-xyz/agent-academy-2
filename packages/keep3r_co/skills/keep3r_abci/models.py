@@ -36,7 +36,6 @@ from packages.valory.skills.abstract_round_abci.models import (
 )
 from packages.valory.skills.registration_abci.rounds import Event as RegistrationEvent
 from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
-from packages.valory.skills.safe_deployment_abci.rounds import Event as SafeEvent
 from packages.valory.skills.transaction_settlement_abci.rounds import Event as TSEvent
 
 
@@ -65,14 +64,12 @@ class SharedState(BaseSharedState):
         round_timeout_seconds = self.context.params.round_timeout_seconds
         validate_timeout = self.context.params.validate_timeout
         finalize_timeout = self.context.params.finalize_timeout
-        deploy_timeout = self.context.params.keeper_timeout + MARGIN
         reset_timeout = round_timeout_seconds * MULTIPLIER
         reset_and_pause_timeout = self.context.params.observation_interval + MARGIN
 
         # ROUND_TIMEOUT
         for event in (
             RegistrationEvent.ROUND_TIMEOUT,
-            SafeEvent.ROUND_TIMEOUT,
             Keep3rJobEvent.ROUND_TIMEOUT,
             TSEvent.ROUND_TIMEOUT,
             ResetPauseEvent.ROUND_TIMEOUT,
@@ -86,11 +83,8 @@ class SharedState(BaseSharedState):
         timeouts[TSEvent.FINALIZE_TIMEOUT] = finalize_timeout
 
         # VALIDATE_TIMEOUT
-        for event in (SafeEvent.VALIDATE_TIMEOUT, TSEvent.VALIDATE_TIMEOUT):
+        for event in (TSEvent.VALIDATE_TIMEOUT,):
             timeouts[event] = validate_timeout
-
-        # DEPLOY_TIMEOUT
-        timeouts[SafeEvent.DEPLOY_TIMEOUT] = deploy_timeout
 
         # RESET_AND_PAUSE_TIMEOUT
         timeouts[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = reset_and_pause_timeout
