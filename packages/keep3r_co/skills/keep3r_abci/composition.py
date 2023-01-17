@@ -42,11 +42,6 @@ from packages.valory.skills.reset_pause_abci.rounds import (
     ResetAndPauseRound,
     ResetPauseABCIApp,
 )
-from packages.valory.skills.safe_deployment_abci.rounds import (
-    FinishedSafeRound,
-    RandomnessSafeRound,
-    SafeDeploymentAbciApp,
-)
 from packages.valory.skills.transaction_settlement_abci.rounds import (
     FinishedTransactionSubmissionRound,
     RandomnessTransactionSubmissionRound,
@@ -55,9 +50,8 @@ from packages.valory.skills.transaction_settlement_abci.rounds import (
 
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
-    FinishedRegistrationRound: RandomnessSafeRound,
+    FinishedRegistrationRound: PathSelectionRound,
     FinishedRegistrationFFWRound: PathSelectionRound,
-    FinishedSafeRound: PathSelectionRound,
     FinalizeBondingRound: RandomnessTransactionSubmissionRound,
     FinalizeActivationRound: RandomnessTransactionSubmissionRound,
     FinalizeWorkRound: RandomnessTransactionSubmissionRound,
@@ -69,7 +63,6 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
 Keep3rAbciApp = chain(
     (
         AgentRegistrationAbciApp,
-        SafeDeploymentAbciApp,
         Keep3rJobAbciApp,
         TransactionSubmissionAbciApp,
         ResetPauseABCIApp,
