@@ -30,7 +30,6 @@
         "skill/valory/transaction_settlement_abci/0.1.0": "bafybeidy4dsrzpn5pg7ikq5te4ayufjmktzv5sp7ten5g62hidcdqgfsme",
         "skill/valory/registration_abci/0.1.0": "bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu",
         "skill/valory/reset_pause_abci/0.1.0": "bafybeihjsv2mkwrf55wtmawn7kjylm75thg7jjp7y4bfnezrkr3hu7jytu",
-        "skill/valory/termination_abci/0.1.0": "bafybeid3hyrw2tujhjvs7wrzzxe7copgzaf3vnmvvul4gfobrqca3e6a4m",
-        "contract/valory/offchain_aggregator/0.1.0": "bafybeibp2cbuaxj4sthoaf5vdbdos6am2kqcbomrt2x6cyqsmxu34jabbu"
+        "skill/valory/termination_abci/0.1.0": "bafybeid3hyrw2tujhjvs7wrzzxe7copgzaf3vnmvvul4gfobrqca3e6a4m"
     }
 }
