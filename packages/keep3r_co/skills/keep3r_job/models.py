@@ -72,9 +72,9 @@ class Params(BaseParams):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
 
-        super().__init__(*args, **kwargs)
         for item in self.required:
             setattr(self, item, self._ensure(item, kwargs))
+        super().__init__(*args, **kwargs)
 
 
 class RandomnessApi(ApiSpecs):
