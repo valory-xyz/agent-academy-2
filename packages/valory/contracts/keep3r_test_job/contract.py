@@ -20,12 +20,11 @@
 """This module contains the scaffold contract definition."""
 
 import logging
-from typing import Dict, Optional, Union
 
+from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
-from web3.types import Nonce, TxParams
 
 
 PUBLIC_ID = PublicId.from_str("valory/keep3r_test_job:0.1.0")
@@ -41,39 +40,32 @@ class Keep3rTestJobContract(Contract):
     contract_id = PUBLIC_ID
 
     @classmethod
-    def workable(cls, ledger_api: EthereumApi, contract_address: str) -> Optional[bool]:
+    def workable(cls, ledger_api: EthereumApi, contract_address: str) -> JSONLike:
         """Get the workable flag from the contract."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        return contract.functions.workable().call()
+        workable = contract.functions.workable().call()
+        return dict(data=workable)
 
     @classmethod
     def build_work_tx(  # pylint: disable=too-many-arguments,too-many-locals
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-        address: str,
-    ) -> Dict[str, Union[int, str]]:
+    ) -> JSONLike:
         """
         Get the raw work transaction
 
         :param ledger_api: the ledger API object
         :param contract_address: the contract address
-        :param address: the address of the sender
 
         :return: the raw transaction
         """
-
         contract = cls.get_instance(ledger_api, contract_address)
-
-        tx_parameters = TxParams()
-        nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
-        tx_parameters["from"] = address
-        tx_parameters["nonce"] = nonce
-        tx_parameters["gas"] = ledger_api.api.eth.estimate_gas(tx_parameters)
-        tx_parameters.update(ledger_api.try_get_gas_pricing())
-        _logger.info(f"tx_parameters: {tx_parameters}")
-
-        function = contract.functions.work()
-
-        return function.buildTransaction(tx_parameters)
+        data = contract.encodeABI(
+            fn_name="work",
+            args=[],
+        )
+        return dict(
+            data=data,
+        )

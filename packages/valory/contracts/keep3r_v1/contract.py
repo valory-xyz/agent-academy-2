@@ -20,12 +20,12 @@
 """This module contains the Keep3rV1 contract definition."""
 
 import logging
-from typing import Dict, List, Union
+from typing import Dict, Union
 
+from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
-from web3.contract import ChecksumAddress
 from web3.types import Nonce, TxParams, Wei
 
 from packages.valory.contracts.keep3r_v1_library.contract import (  # type: ignore # noqa: F401
@@ -79,11 +79,12 @@ class Keep3rV1Contract(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-    ) -> int:
+    ) -> JSONLike:
         """Bonding duration before one can activate to become a keeper"""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        return contract.functions.BOND().call()
+        bond = contract.functions.BOND().call()
+        return dict(data=bond)
 
     @classmethod
     def bondings(
@@ -91,11 +92,12 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
-    ) -> int:
+    ) -> JSONLike:
         """Tracks all current bond times (start)"""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        return contract.functions.bondings(address, contract.address).call()
+        bondings = contract.functions.bondings(address, contract.address).call()
+        return dict(data=bondings)
 
     @classmethod
     def blacklist(
@@ -103,11 +105,12 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
-    ) -> bool:
+    ) -> JSONLike:
         """Check blacklist of keepers not allowed to participate"""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        return contract.functions.blacklist(address).call()
+        is_blacklisted = contract.functions.blacklist(address).call()
+        return dict(data=is_blacklisted)
 
     @classmethod
     def credits(
@@ -115,22 +118,24 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
-    ) -> int:
+    ) -> JSONLike:
         """Check current credit available for a job"""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        return contract.functions.credits(address, contract.address).call()
+        credits = contract.functions.credits(address, contract.address).call()
+        return dict(data=credits)
 
     @classmethod
     def get_jobs(
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-    ) -> List[ChecksumAddress]:
+    ) -> JSONLike:
         """Full listing of all jobs ever added."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        return contract.functions.getJobs().call()
+        addresses = contract.functions.getJobs().call()
+        return dict(data=addresses)
 
     @classmethod
     def is_keeper(
@@ -138,11 +143,12 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
-    ) -> bool:
+    ) -> JSONLike:
         """Check if address is a registered keeper."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        return contract.functions.isKeeper(keeper=address).call()
+        is_keeper = contract.functions.isKeeper(keeper=address).call()
+        return dict(data=is_keeper)
 
     @classmethod
     def build_add_job_tx(
@@ -200,12 +206,13 @@ class Keep3rV1Contract(Contract):
         contract_address: str,
         account: str,
         spender: str,
-    ) -> int:
+    ) -> JSONLike:
         """Get the number of tokens `spender` is approved to spend on behalf of `account`."""
 
         contract = cls.get_instance(ledger_api, contract_address)
         tx_kwargs = dict(spender=spender, account=account)
-        return contract.functions.allowance(**tx_kwargs).call()
+        allowance = contract.functions.allowance(**tx_kwargs).call()
+        return dict(data=allowance)
 
     @classmethod
     def build_bond_tx(
@@ -213,13 +220,20 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
-        amount: Union[Wei, int],
+        amount: int,
     ) -> RawTransaction:
         """Begin the bonding process for a new keeper. Default bonding period takes 3 days."""
-
         contract = cls.get_instance(ledger_api, contract_address)
-        function = contract.functions.bond(bonding=contract.address, amount=amount)
-        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+        data = contract.encodeABI(
+            fn_name="bond",
+            args=[
+                address,
+                amount,
+            ],
+        )
+        return dict(
+            data=data,
+        )
 
     @classmethod
     def build_activate_tx(
@@ -231,8 +245,15 @@ class Keep3rV1Contract(Contract):
         """Allows a keeper to activate/register themselves after bonding."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        function = contract.functions.activate(bonding=contract.address)
-        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+        data = contract.encodeABI(
+            fn_name="activate",
+            args=[
+                address,
+            ],
+        )
+        return dict(
+            data=data,
+        )
 
     @classmethod
     def build_unbond_tx(
