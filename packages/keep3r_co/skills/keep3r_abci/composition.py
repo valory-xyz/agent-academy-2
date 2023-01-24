@@ -58,6 +58,7 @@ abci_app_transition_mapping: AbciAppTransitionMapping = {
     FinishedResetAndPauseErrorRound: RegistrationStartupRound,
 }
 
+# TODO: add tx multiplexing
 Keep3rAbciApp = chain(
     (
         AgentRegistrationAbciApp,
