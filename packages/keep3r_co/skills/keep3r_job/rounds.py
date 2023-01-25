@@ -18,7 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the data classes for the simple ABCI application."""
-
+import json
 from abc import ABC
 from enum import Enum
 from typing import Dict, List, Optional, Set, Tuple, Type, cast
@@ -225,7 +225,8 @@ class GetJobsRound(Keep3rJobAbstractRound):
         """Process the end of the block."""
 
         if self.threshold_reached:
-            job_list = self.most_voted_payload
+            job_list_str = self.most_voted_payload
+            job_list = json.loads(job_list_str)
             state = self.synchronized_data.update(job_list=job_list)
             return state, Event.DONE
         if not self.is_majority_possible(

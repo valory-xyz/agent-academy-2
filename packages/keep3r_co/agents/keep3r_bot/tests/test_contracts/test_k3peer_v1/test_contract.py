@@ -177,7 +177,9 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
     def test_bondings(self) -> None:
         """Test bondings"""
 
-        kw = dict(address=self.deployer_crypto.address)
+        kw = dict(
+            address=self.deployer_crypto.address, bonding_asset=self.contract_address
+        )
         assert self.contract.bondings(**self.base_kw, **kw)["data"] == 0
 
     def test_blacklist(self) -> None:

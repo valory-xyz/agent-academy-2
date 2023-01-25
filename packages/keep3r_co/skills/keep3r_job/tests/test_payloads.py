@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """Test the payloads module of the skill."""
-
+import json
 from typing import List
 
 import pytest
@@ -84,10 +84,10 @@ def test_activation_tx_payload(activation_tx: str) -> None:
 @pytest.mark.parametrize("job_list", [[], ["job_address"]])
 def test_get_jobs_payload(job_list: List[str]) -> None:
     """Test GetJobsPayload"""
-
-    payload = GetJobsPayload(sender="sender", job_list=job_list)
+    stringified_list = json.dumps(job_list)
+    payload = GetJobsPayload(sender="sender", job_list=stringified_list)
     assert payload.sender == "sender"
-    assert payload.job_list == "".join(job_list)
+    assert payload.job_list == stringified_list
     assert payload.transaction_type == TransactionType.JOB_LIST
     assert payload.from_json(payload.json) == payload
 

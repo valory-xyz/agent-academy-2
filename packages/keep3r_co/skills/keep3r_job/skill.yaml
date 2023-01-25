@@ -8,24 +8,24 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeifzh7upnp5gfjnpszbqjxlfwm5jicahxnlt4ldzsoqdwlfzj3j5xa
+  behaviours.py: bafybeibv73ls5dfko22m3t7spek25al37sduwi3ggxc6pdzgxklhxnb6fe
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
   fsm_specification.yaml: bafybeic2pidkx5ny7h4je4kpo3gmnguyaqi2aomztbakvuekorimtjjwka
   handlers.py: bafybeie6ntjlqfb5glkciuo56pisvgobi2tuqhcjlzm7h5uvhgi2ipxrzq
-  models.py: bafybeialgwgozto5nq3uvbslmndj3enuwgafowjebx55y7adj5nnqwmcxu
-  payloads.py: bafybeiaygv4plcp7jlwg2vtqoupbjhogxfzwoe552lmsu4cgcrjdjho7sm
-  rounds.py: bafybeiaopndbuv2fquotw5wq3fywyftjf6ndzdongjims66nj7jnnoxatm
+  models.py: bafybeicxmom5nxj3qejuvo5v5h6rpzjm47zgdraxxwsv3d3anx6dwmfvj4
+  payloads.py: bafybeialrc7yco7jcqba7yjygibro7rivcpiaisypsiliohni7mcnqyrsu
+  rounds.py: bafybeihskzcubtcfsurxbuzewr7f5xczt6454ywu5jhwc224etyjnteda4
   tests/__init__.py: bafybeihax7nv5wb5pb72cxwemjk5sz55ecsghh4zi3vbmziz2pacyqbrym
-  tests/test_behaviours.py: bafybeicipov5bkqeubw2fafwbjrssycasjxxqi4nbl77xqvftrjlpjz7ei
+  tests/test_behaviours.py: bafybeianl47jubmyn7hju2ut6u7evmhpl5xpb6csdw5otwv3c2u322y2fa
   tests/test_dialogues.py: bafybeidcuxmmer62aymwtj7umeo7ld3ggyyro4kpvrdj2ojpoibxwbstnu
-  tests/test_payloads.py: bafybeie33364fgslg5llsykju6zsrltpii6pfj423xy546hpiba232xiti
-  tests/test_rounds.py: bafybeid5773du5siu4vi6kiqkqtnyqxyhg37uu52n6wmw32ngvo42f6c5a
+  tests/test_payloads.py: bafybeifvf6om2pm3n2fhjx2jmf5bqiyinud5w2si4tjjwlywq2gve3luwe
+  tests/test_rounds.py: bafybeidch4chra4czw4r5vkxqkvgbkquhj5775gqkm7bsvj2suho4yuw24
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeiamw5sluyueflxsvzukmayctl3ijc76fx5twstwnc7ons6lw2goa4
 - valory/keep3r_test_job:0.1.0:bafybeibs7yy2vdbf22lo5psvn3kft7oemnzbt5sc7ahjk22u5xuykab5ty
-- valory/keep3r_v1:0.1.0:bafybeieay7qlr7lfqetegw3p4ttlr5gttkuzcrujqbfm3jis35ewn3fxby
+- valory/keep3r_v1:0.1.0:bafybeic2heqgz6svyvwgcumxkzgn36x5jjcicwrraqkysie22c3xiowpji
 protocols:
 - valory/contract_api:1.0.0:bafybeif32nchkgn6yet7e5gt4auhf7lsahxnj4t36kxbw55p3gi7qpeuxq
 - valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
@@ -74,6 +74,7 @@ models:
     class_name: LedgerApiDialogues
   params:
     args:
+      bonding_asset: '0x0000000000000000000000000000000000000000'
       broadcast_to_server: false
       cleanup_history_depth: 1
       cleanup_history_depth_current: null

@@ -277,7 +277,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
     def mock_get_latest_block(self, block: Dict[str, Any]) -> None:
         """Mock call to ethereum ledger for getting latest block"""
 
-        return self.mock_ethereum_ledger_state_call(dict(block=block))
+        return self.mock_ethereum_ledger_state_call(block)
 
 
 class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
@@ -331,7 +331,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
-        self.mock_read_keep3r_v1("BOND", 3 * SECONDS_PER_DAY)
+        self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 0})
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -347,8 +347,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
-        self.mock_read_keep3r_v1("BOND", 3 * SECONDS_PER_DAY)
-        self.mock_get_latest_block(block={"timestamp": 3 * SECONDS_PER_DAY + 1})
+        self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
+        self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
+        self.mock_read_keep3r_v1("is_keeper", True)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.HEALTHY)
@@ -387,7 +388,7 @@ class TestWaitingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         """Test waiting"""
 
         self.mock_read_keep3r_v1("bondings", 0)
-        self.mock_read_keep3r_v1("BOND", 1)
+        self.mock_read_keep3r_v1("bond", 1)
         self.mock_get_latest_block(block={"timestamp": 2})
         self.mock_a2a_transaction()
         self._test_done_flag_set()

@@ -92,11 +92,12 @@ class Keep3rV1Contract(Contract):
         ledger_api: EthereumApi,
         contract_address: str,
         address: str,
+        bonding_asset: str,
     ) -> JSONLike:
         """Tracks all current bond times (start)"""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        bondings = contract.functions.bondings(address, contract.address).call()
+        bondings = contract.functions.bondings(address, bonding_asset).call()
         return dict(data=bondings)
 
     @classmethod
@@ -135,7 +136,10 @@ class Keep3rV1Contract(Contract):
 
         contract = cls.get_instance(ledger_api, contract_address)
         addresses = contract.functions.getJobs().call()
-        return dict(data=addresses)
+        checksummed_addresses = [
+            ledger_api.api.toChecksumAddress(address) for address in addresses
+        ]
+        return dict(data=checksummed_addresses)
 
     @classmethod
     def is_keeper(
