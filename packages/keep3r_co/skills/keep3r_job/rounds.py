@@ -45,6 +45,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     CollectSameUntilThresholdRound,
     DegenerateRound,
     EventToTimeout,
+    get_name,
 )
 
 
@@ -95,6 +96,11 @@ class SynchronizedData(BaseSynchronizedData):
         """Get the current_job."""
         return cast(str, self.db.get_strict("current_job"))
 
+    @property
+    def tx_submitter(self) -> str:
+        """Get the round that submitted a tx to transaction_settlement_abci."""
+        return cast(str, self.db.get_strict("tx_submitter"))
+
 
 class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
     """Keep3rJobAbstractRound"""
@@ -113,7 +119,7 @@ class PathSelectionRound(Keep3rJobAbstractRound):
 
     round_id: str = "path_selection"
     allowed_tx_type: TransactionType = PathSelectionPayload.transaction_type
-    payload_attribute: str = "path_selection"
+    payload_attribute: str = get_name(PathSelectionPayload.path_selection)
 
     transitions: Dict[str, Event] = {
         "NOT_BONDED": Event.NOT_BONDED,
@@ -141,16 +147,20 @@ class PathSelectionRound(Keep3rJobAbstractRound):
 class BondingRound(Keep3rJobAbstractRound):
     """BondingRound"""
 
-    round_id: str = "bonding"
     allowed_tx_type: TransactionType = BondingTxPayload.transaction_type
-    payload_attribute: str = "bonding_tx"
+    payload_attribute: str = get_name(BondingTxPayload.bonding_tx)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
         if self.threshold_reached and self.most_voted_payload:
             bonding_tx = self.most_voted_payload
-            state = self.synchronized_data.update(bonding_tx=bonding_tx)
+            state = self.synchronized_data.update(
+                **{
+                    get_name(SynchronizedData.most_voted_tx_hash): bonding_tx,
+                    get_name(SynchronizedData.tx_submitter): self.auto_round_id(),
+                }
+            )
             return state, Event.BONDING_TX
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
@@ -162,9 +172,8 @@ class BondingRound(Keep3rJobAbstractRound):
 class WaitingRound(Keep3rJobAbstractRound):
     """WaitingRound"""
 
-    round_id: str = "waiting"
     allowed_tx_type: TransactionType = WaitingPayload.transaction_type
-    payload_attribute: str = "done_waiting"
+    payload_attribute: str = get_name(WaitingPayload.done_waiting)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -183,9 +192,8 @@ class WaitingRound(Keep3rJobAbstractRound):
 class ActivationRound(Keep3rJobAbstractRound):
     """ActivationRound"""
 
-    round_id: str = "activation"
     allowed_tx_type: TransactionType = ActivationTxPayload.transaction_type
-    payload_attribute: str = "activation_tx"
+    payload_attribute: str = get_name(ActivationTxPayload.activation_tx)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -193,7 +201,12 @@ class ActivationRound(Keep3rJobAbstractRound):
 
         if self.threshold_reached:
             activation_tx = self.most_voted_payload
-            state = self.synchronized_data.update(activation_tx=activation_tx)
+            state = self.synchronized_data.update(
+                **{
+                    get_name(SynchronizedData.most_voted_tx_hash): activation_tx,
+                    get_name(SynchronizedData.tx_submitter): self.auto_round_id(),
+                }
+            )
             return state, Event.ACTIVATION_TX
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
@@ -205,9 +218,8 @@ class ActivationRound(Keep3rJobAbstractRound):
 class GetJobsRound(Keep3rJobAbstractRound):
     """GetJobsRound"""
 
-    round_id: str = "get_jobs"
     allowed_tx_type: TransactionType = GetJobsPayload.transaction_type
-    payload_attribute: str = str(GetJobsPayload.transaction_type)
+    payload_attribute: str = get_name(GetJobsPayload.job_list)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -226,13 +238,11 @@ class GetJobsRound(Keep3rJobAbstractRound):
 class JobSelectionRound(Keep3rJobAbstractRound):
     """JobSelectionRound"""
 
-    round_id = "job_selection"
     allowed_tx_type: TransactionType = JobSelectionPayload.transaction_type
-    payload_attribute = "current_job"
+    payload_attribute = get_name(JobSelectionPayload.current_job)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-
         if self.threshold_reached:
             current_job = self.most_voted_payload
             state = self.synchronized_data.update(current_job=current_job)
@@ -247,13 +257,11 @@ class JobSelectionRound(Keep3rJobAbstractRound):
 class IsWorkableRound(Keep3rJobAbstractRound):
     """IsWorkableRound"""
 
-    round_id = "is_workable"
     allowed_tx_type: TransactionType = IsWorkablePayload.transaction_type
-    payload_attribute = "is_workable"
+    payload_attribute = get_name(IsWorkablePayload.is_workable)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
-
         if self.threshold_reached:
             is_workable = self.most_voted_payload
             if is_workable:
@@ -274,9 +282,8 @@ class IsWorkableRound(Keep3rJobAbstractRound):
 class IsProfitableRound(Keep3rJobAbstractRound):
     """IsProfitableRound"""
 
-    round_id = "is_profitable"
     allowed_tx_type: TransactionType = IsProfitablePayload.transaction_type
-    payload_attribute = "is_profitable"
+    payload_attribute = get_name(IsProfitablePayload.is_profitable)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -296,9 +303,8 @@ class IsProfitableRound(Keep3rJobAbstractRound):
 class PerformWorkRound(Keep3rJobAbstractRound):
     """PerformWorkRound"""
 
-    round_id: str = "perform_work"
     allowed_tx_type: TransactionType = WorkTxPayload.transaction_type
-    payload_attribute: str = "work_tx"
+    payload_attribute: str = get_name(WorkTxPayload.work_tx)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -306,7 +312,12 @@ class PerformWorkRound(Keep3rJobAbstractRound):
         _ = (Event.INSUFFICIENT_FUNDS,)
         if self.threshold_reached and self.most_voted_payload:
             work_tx = self.most_voted_payload
-            state = self.synchronized_data.update(work_tx=work_tx)
+            state = self.synchronized_data.update(
+                **{
+                    get_name(SynchronizedData.most_voted_tx_hash): work_tx,
+                    get_name(SynchronizedData.tx_submitter): self.auto_round_id(),
+                }
+            )
             return state, Event.WORK_TX
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
@@ -318,9 +329,8 @@ class PerformWorkRound(Keep3rJobAbstractRound):
 class AwaitTopUpRound(Keep3rJobAbstractRound):
     """AwaitTopUpRound"""
 
-    round_id: str = "await_top_up"
     allowed_tx_type: TransactionType = TopUpPayload.transaction_type
-    payload_attribute: str = "top_up"
+    payload_attribute: str = get_name(TopUpPayload.top_up)
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -341,25 +351,17 @@ class AwaitTopUpRound(Keep3rJobAbstractRound):
 class FinalizeBondingRound(DegenerateRound):
     """FinalizeBondingRound"""
 
-    round_id: str = "finalize_bonding_round"
-
 
 class FinalizeActivationRound(DegenerateRound):
     """FinalizeActivationRound"""
-
-    round_id: str = "finalize_activation_round"
 
 
 class FinalizeWorkRound(DegenerateRound):
     """FinalizeWorkRound"""
 
-    round_id: str = "finalize_work_round"
-
 
 class BlacklistedRound(DegenerateRound):
     """BlacklistedRound"""
-
-    round_id: str = "blacklisted"
 
 
 class Keep3rJobAbciApp(AbciApp[Event]):

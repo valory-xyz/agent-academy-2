@@ -9,18 +9,18 @@ fingerprint:
   README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
   __init__.py: bafybeiaahg7kgkjgmlxj6yy6etmqcbfln5so7z7pv4aeccw3d54shhrpkq
   behaviours.py: bafybeiapk6jx4fu3hfvtf3p2wbs7xuoooene7k6akm6meu6bnm752rml5a
-  composition.py: bafybeiabj3kiwygz4ce2o7vihuibkhurjmqzdg7xg75komwqsoj4d2lvou
+  composition.py: bafybeihm6f3nzizhtqf4hqxooykjbjttspsq52ublulmygy2sd7ygbwg3e
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
   fsm_specification.yaml: bafybeihwsxnujuu6r5d2d355v76f3y4moiymy23zbbrftg4sseat6xpxo4
   handlers.py: bafybeieo3w3bahresulnoyo7mecda5b2ddpj4d3qv4pc7vfnfvvttcqnyi
-  models.py: bafybeied54hnxmpigj2t355nw3paleokj4kpzidnrrdevys6odsksd5ypq
+  models.py: bafybeifjl7u447otiwgaxorwjpvmz357jelk35w6z7is6qvm2tajvtenhq
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeiawcym3wjztr6bmm33cokaxhqsiymrvxta4usofbjv2kjdcjj6kcu
+- keep3r_co/keep3r_job:0.1.0:bafybeieednxxq6nwnja6ckd4o2qk7rc3kpfeypj5up4do6qz3fi7sihjsm
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 - valory/registration_abci:0.1.0:bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu
 - valory/reset_pause_abci:0.1.0:bafybeihjsv2mkwrf55wtmawn7kjylm75thg7jjp7y4bfnezrkr3hu7jytu
@@ -74,8 +74,29 @@ models:
         max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
       finalize_timeout: 60.0
+      genesis_config:
+        genesis_time: '2022-09-26T00:00:00.000000000Z'
+        chain_id: chain-c4daS1
+        consensus_params:
+          block:
+            max_bytes: '22020096'
+            max_gas: '-1'
+            time_iota_ms: '1000'
+          evidence:
+            max_age_num_blocks: '100000'
+            max_age_duration: '172800000000000'
+            max_bytes: '1048576'
+          validator:
+            pub_key_types:
+            - ed25519
+          version: {}
+        voting_power: '10'
+      history_check_timeout: 1205
+      insufficient_funds_threshold: 0
       job_contract_addresses:
       - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      keep3r_v1_contract_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
+      keeper_allowed_retries: 3
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
@@ -88,12 +109,15 @@ models:
       service_id: keep3r_abci
       service_registry_address: null
       setup:
-        safe_contract_address: []
+        safe_contract_address:
+        - 998127839176041529662948328954036092774026816765
+        all_participants: []
       share_tm_config_on_startup: false
       sleep_time: 1
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
+      tendermint_p2p_url: localhost:26656
       tendermint_url: http://localhost:26657
       validate_timeout: 1205
     class_name: Params

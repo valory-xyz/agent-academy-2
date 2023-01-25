@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -65,22 +65,28 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseBehaviour,
 )
+from packages.valory.skills.transaction_settlement_abci.payload_tools import (
+    hash_payload_to_hex,
+)
 
 
-RawTx = TypedDict(
-    "RawTx",
+SafeTx = TypedDict(
+    "SafeTx",
     {
-        "chainId": int,
-        "data": str,
-        "from": str,
+        "data": bytes,
         "gas": int,
-        "maxFeePerGas": int,
-        "maxPriorityFeePerGas": int,
-        "nonce": int,
         "to": str,
         "value": int,
     },
 )
+
+
+# setting the safe gas to 0 means that all available gas will be used
+# which is what we want in most cases
+# more info here: https://safe-docs.dev.gnosisdev.com/safe/docs/contracts_tx_execution/
+SAFE_GAS = 0
+
+ZERO_ETH = 0
 
 
 class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
@@ -134,21 +140,23 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             return None
         return cast(int, bond_time)
 
-    def build_keep3r_raw_tx(
-        self, method: str, **kwargs: Any
-    ) -> Generator[None, None, Optional[RawTx]]:
+    def build_activate_tx(self) -> Generator[None, None, Optional[SafeTx]]:
         """Build Keep3r V1 raw transaction"""
-
-        kwargs["performative"] = ContractApiMessage.Performative.GET_RAW_TRANSACTION
-        kwargs["contract_callable"] = method
-        contract_api_response = yield from self._call_keep3r_v1(**kwargs)
-        if (
-            contract_api_response.performative
-            != ContractApiMessage.Performative.RAW_TRANSACTION
-        ):
-            self.context.logger.error(f"Failed build_keep3r_v1_raw_tx: {method}")
+        # TODO: figure out args for this call
+        data_str = yield from self.read_keep3r_v1(
+            method="build_activate_tx", address=self.keep3r_v1_contract_address
+        )
+        if data_str is None:
+            # something went wrong
             return None
-        return cast(RawTx, contract_api_response.raw_transaction.body.get("data"))
+        data = bytes.fromhex(data_str[2:])
+        safe_tx = SafeTx(
+            data=data,
+            to=self.keep3r_v1_contract_address,
+            value=ZERO_ETH,
+            gas=SAFE_GAS,
+        )
+        return safe_tx
 
     def has_bonded(self, bond_time: int) -> Generator[None, None, Optional[bool]]:
         """Check if bonding is completed"""
@@ -165,7 +173,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             log_msg = "Failed ledger get_block call in has_bonded"
             self.context.logger.error(f"{log_msg}: {ledger_api_response}")
             return None
-        latest_block = cast(Dict, ledger_api_response.state.body.get("data"))
+        latest_block = cast(Dict, ledger_api_response.state.body.get("block"))
         remaining_time = bond_time + cast(int, bond) - latest_block["timestamp"]
         self.context.logger.info(f"Remaining bond time: {remaining_time}")
         return remaining_time <= 0
@@ -180,7 +188,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         )
         if ledger_api_response.performative != LedgerApiMessage.Performative.STATE:
             return False  # transition to await top-up round
-        balance = cast(int, ledger_api_response.state.body.get("data"))
+        balance = cast(int, ledger_api_response.state.body.get("get_balance_result"))
         self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
 
@@ -205,37 +213,41 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         return cast(bool, contract_api_response.state.body.get("data"))
 
     def build_work_raw_tx(
-        self, job_address: str, address: str
-    ) -> Generator[None, None, Optional[RawTx]]:
+        self, job_address: str
+    ) -> Generator[None, None, Optional[SafeTx]]:
         """Build raw work transaction for a job contract"""
-
         contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+            performative=ContractApiMessage.Performative.GET_STATE,
             contract_id=str(Keep3rTestJobContract.contract_id),
             contract_callable="build_work_tx",
             contract_address=job_address,
-            address=address,
         )
-        if (
-            contract_api_response.performative
-            != ContractApiMessage.Performative.RAW_TRANSACTION
-        ):
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
             self.context.logger.error(
                 f"Failed build_work_raw_tx: {contract_api_response}"
             )
             return None
         log_msg = f"`build_work_tx` contract api response on {contract_api_response}"
         self.context.logger.info(f"{log_msg}: {contract_api_response}")
-        return cast(RawTx, contract_api_response.raw_transaction.body.get("data"))
+
+        data_str = cast(str, contract_api_response.state.body["data"])[2:]
+        data = bytes.fromhex(data_str)
+        safe_tx = SafeTx(
+            data=data,
+            to=self.keep3r_v1_contract_address,
+            value=ZERO_ETH,
+            gas=SAFE_GAS,
+        )
+        return safe_tx
 
     def build_safe_raw_tx(
         self,
-        tx_params: RawTx,
+        tx_params: SafeTx,
     ) -> Generator[None, None, Optional[str]]:
         """Build safe raw tx hash"""
 
         contract_api_response = yield from self.get_contract_api_response(
-            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+            performative=ContractApiMessage.Performative.GET_STATE,
             contract_address=self.synchronized_data.safe_contract_address,
             contract_id=str(GnosisSafeContract.contract_id),
             contract_callable="get_raw_safe_transaction_hash",
@@ -244,19 +256,25 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             data=tx_params["data"],
             safe_tx_gas=tx_params["gas"],
         )
-        if (
-            contract_api_response.performative
-            != ContractApiMessage.Performative.RAW_TRANSACTION
-        ):
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
             self.context.logger.warning("build_safe_raw_tx unsuccessful!")
             return None
-        return cast(str, contract_api_response.raw_transaction.body.pop("tx_hash"))
+
+        # strip "0x" from the response hash
+        tx_hash = cast(str, contract_api_response.state.body["tx_hash"])[2:]
+        payload_data = hash_payload_to_hex(
+            safe_tx_hash=tx_hash,
+            ether_value=ZERO_ETH,  # we don't send any eth
+            safe_tx_gas=SAFE_GAS,
+            to_address=tx_params["to"],
+            data=tx_params["data"],
+        )
+        return payload_data
 
 
 class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     """PathSelectionBehaviour"""
 
-    behaviour_id: str = "path_selection"
     matching_round: Type[AbstractRound] = PathSelectionRound
     transitions = PathSelectionRound.transitions
 
@@ -314,19 +332,18 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
 class BondingBehaviour(Keep3rJobBaseBehaviour):
     """BondingBehaviour"""
 
-    behaviour_id: str = "bonding"
     matching_round: Type[AbstractRound] = BondingRound
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            raw_tx = yield from self.build_keep3r_raw_tx("build_bond_tx")
+            raw_tx = yield from self._build_bond_tx()
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
             self.context.logger.info(f"Bonding raw tx: {raw_tx}")
-            bonding_tx = yield from self.build_safe_raw_tx(cast(RawTx, raw_tx))
+            bonding_tx = yield from self.build_safe_raw_tx(cast(SafeTx, raw_tx))
             if not bonding_tx:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -341,11 +358,31 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
 
         self.set_done()
 
+    def _build_bond_tx(self) -> Generator[None, None, Optional[SafeTx]]:
+        """Build bond tx"""
+        # TODO: figure out args for this call
+        bond_amount = 1
+        data_str = yield from self.read_keep3r_v1(
+            method="build_bond_tx",
+            address=self.keep3r_v1_contract_address,
+            amount=bond_amount,
+        )
+        if data_str is None:
+            # something went wrong
+            return None
+        data = bytes.fromhex(data_str[2:])
+        safe_tx = SafeTx(
+            data=data,
+            to=self.keep3r_v1_contract_address,
+            value=ZERO_ETH,
+            gas=SAFE_GAS,
+        )
+        return safe_tx
+
 
 class WaitingBehaviour(Keep3rJobBaseBehaviour):
     """WaitingBehaviour"""
 
-    behaviour_id: str = "waiting"
     matching_round: Type[AbstractRound] = WaitingRound
 
     def async_act(self) -> Generator:
@@ -376,14 +413,13 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
 class ActivationBehaviour(Keep3rJobBaseBehaviour):
     """ActivationBehaviour"""
 
-    behaviour_id: str = "activation"
     matching_round: Type[AbstractRound] = ActivationRound
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            raw_tx = yield from self.build_keep3r_raw_tx("build_activation_tx")
+            raw_tx = yield from self.build_activate_tx()
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -407,7 +443,6 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
 class GetJobsBehaviour(Keep3rJobBaseBehaviour):
     """GetJobsBehaviour"""
 
-    behaviour_id: str = "get_jobs"
     matching_round: Type[AbstractRound] = GetJobsRound
 
     def async_act(self) -> Generator:
@@ -431,7 +466,6 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
 class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
     """JobSelectionBehaviour"""
 
-    behaviour_id: str = "job_selection"
     matching_round: Type[AbstractRound] = JobSelectionRound
 
     def async_act(self) -> Generator:
@@ -461,7 +495,6 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
 class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
     """IsWorkableBehaviour"""
 
-    behaviour_id: str = "is_workable"
     matching_round: Type[AbstractRound] = IsWorkableRound
 
     def async_act(self) -> Generator:
@@ -485,7 +518,6 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
 class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
     """IsProfitableBehaviour"""
 
-    behaviour_id: str = "is_profitable"
     matching_round: Type[AbstractRound] = IsProfitableRound
 
     def async_act(self) -> Generator:
@@ -511,17 +543,14 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
 class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
     """PerformWorkBehaviour"""
 
-    behaviour_id: str = "perform_work"
     matching_round: Type[AbstractRound] = PerformWorkRound
 
     def async_act(self) -> Generator:
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-
-            address = self.synchronized_data.safe_contract_address
             current_job = cast(str, self.synchronized_data.current_job)
-            raw_tx = yield from self.build_work_raw_tx(current_job, address=address)
+            raw_tx = yield from self.build_work_raw_tx(current_job)
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -541,7 +570,6 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
 class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
     """AwaitTopUpBehaviour"""
 
-    behaviour_id: str = "await_top_up"
     matching_round: Type[AbstractRound] = AwaitTopUpRound
 
     def async_act(self) -> Generator:

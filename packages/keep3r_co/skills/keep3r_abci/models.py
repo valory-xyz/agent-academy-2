@@ -36,6 +36,7 @@ from packages.valory.skills.abstract_round_abci.models import (
 )
 from packages.valory.skills.registration_abci.rounds import Event as RegistrationEvent
 from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
+from packages.valory.skills.transaction_settlement_abci.models import TransactionParams
 from packages.valory.skills.transaction_settlement_abci.rounds import Event as TSEvent
 
 
@@ -44,7 +45,6 @@ MULTIPLIER = 2
 
 Requests = BaseRequests
 BenchmarkTool = BaseBenchmarkTool
-Params = Keep3rJobParams
 RandomnessApi = BaseRandomnessApi
 
 
@@ -88,3 +88,7 @@ class SharedState(BaseSharedState):
 
         # RESET_AND_PAUSE_TIMEOUT
         timeouts[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = reset_and_pause_timeout
+
+
+class Params(Keep3rJobParams, TransactionParams):
+    """Parameters for the skill."""

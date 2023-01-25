@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2022 Valory AG
+#   Copyright 2022-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -172,36 +172,36 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
     def test_bond(self) -> None:
         """Test bond"""
 
-        assert self.contract.bond(**self.base_kw) == 3 * SECONDS_PER_DAY
+        assert self.contract.bond(**self.base_kw)["data"] == 3 * SECONDS_PER_DAY
 
     def test_bondings(self) -> None:
         """Test bondings"""
 
         kw = dict(address=self.deployer_crypto.address)
-        assert self.contract.bondings(**self.base_kw, **kw) == 0
+        assert self.contract.bondings(**self.base_kw, **kw)["data"] == 0
 
     def test_blacklist(self) -> None:
         """Test blacklist"""
 
         kw = dict(address=self.deployer_crypto.address)
-        assert self.contract.blacklist(**self.base_kw, **kw) is False
+        assert self.contract.blacklist(**self.base_kw, **kw)["data"] is False
 
     def test_credits(self) -> None:
         """Test credits"""
 
         kw = dict(address=self.deployer_crypto.address)
-        assert self.contract.credits(**self.base_kw, **kw) == 0
+        assert self.contract.credits(**self.base_kw, **kw)["data"] == 0
 
     def test_get_jobs(self) -> None:
         """Test get_jobs"""
 
-        assert self.contract.get_jobs(**self.base_kw) == []
+        assert self.contract.get_jobs(**self.base_kw)["data"] == []
 
     def test_is_keeper(self) -> None:
         """Test is_keeper"""
 
         kw = dict(address=self.deployer_crypto.address)
-        assert self.contract.is_keeper(**self.base_kw, **kw) is False
+        assert self.contract.is_keeper(**self.base_kw, **kw)["data"] is False
 
     def test_build_approve_tx(self) -> None:
         """Test get_jobs"""
@@ -219,14 +219,14 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
         """Test allowance"""
 
         kw = dict(account=self.deployer_crypto.address, spender=self.empty_address)
-        assert self.contract.allowance(**self.base_kw, **kw) == 0
+        assert self.contract.allowance(**self.base_kw, **kw)["data"] == 0
 
     def test_build_bond_tx(self) -> None:
         """Test build_bond_tx"""
 
         kw = dict(address=self.empty_address, amount=ONE_ETH)
         raw_tx = self.contract.build_bond_tx(**self.base_kw, **kw)  # type: ignore
-        expected = "0xa515366a000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f05120000000000000000000000000000000000000000000000000de0b6b3a7640000"
+        expected = "0xa515366a0000000000000000000000001b621c19c3e868a4df2e1858b08ceda8633927ea0000000000000000000000000000000000000000000000000de0b6b3a7640000"
         assert raw_tx["data"] == expected
 
     def test_build_activate_tx(self) -> None:
@@ -235,7 +235,7 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
         kw = dict(address=self.deployer_crypto.address)
         raw_tx = self.contract.build_activate_tx(**self.base_kw, **kw)
         expected = (
-            "0x1c5a9d9c000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f0512"
+            "0x1c5a9d9c000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"
         )
         assert raw_tx["data"] == expected
 
@@ -287,28 +287,53 @@ class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
         raw_tx["gas"] = DEFAULT_GAS
         self.perform_tx(raw_tx)
         expected = [self.test_job_contract.address]
-        assert self.contract.get_jobs(**self.base_kw) == expected
+        assert self.contract.get_jobs(**self.base_kw)["data"] == expected
 
     def test_become_keeper(self) -> None:
         """Test become keeper"""
 
+        default_gas_params = {
+            "gas": DEFAULT_GAS,
+            "maxFeePerGas": 5_000_000_000,
+            "maxPriorityFeePerGas": 3_000_000_000,
+        }
         amount = 0
         kw = dict(address=self.deployer_crypto.address)
-        assert self.contract.is_keeper(**self.base_kw, **kw) is False
+        assert self.contract.is_keeper(**self.base_kw, **kw)["data"] is False
 
         # 1. bond - normally has a bonding period associated
-        raw_tx = self.contract.build_bond_tx(**self.base_kw, **kw, amount=amount)
-        raw_tx["gas"] = DEFAULT_GAS
+        tx_data = self.contract.build_bond_tx(
+            **self.base_kw, address=self.contract_address, amount=amount
+        )
+        nonce = Nonce(
+            self.ledger_api.api.eth.get_transaction_count(self.deployer_crypto.address)
+        )
+        raw_tx = {
+            "from": self.deployer_crypto.address,
+            "to": self.contract_address,
+            "data": tx_data["data"],
+            "nonce": nonce,
+            "value": 0,
+            "chainId": self.ledger_api.api.eth.chain_id,
+        }
+        raw_tx.update(default_gas_params)
         self.perform_tx(raw_tx)
 
         # 2. wait bondTime - 3 days
         self.time_jump(3 * SECONDS_PER_DAY)
 
         # 3. activate
-        raw_tx = self.contract.build_activate_tx(**self.base_kw, **kw)
-        raw_tx["gas"] = DEFAULT_GAS
+        tx_data = self.contract.build_activate_tx(
+            **self.base_kw, address=self.contract_address
+        )
+        raw_tx.update(
+            {
+                "data": tx_data["data"],
+                "nonce": nonce + 1,
+            }
+        )
         self.perform_tx(raw_tx)
 
         # validate
         kw = dict(address=self.deployer_crypto.address)
-        assert self.contract.is_keeper(**self.base_kw, **kw) is True
+        assert self.contract.is_keeper(**self.base_kw, **kw)["data"] is True

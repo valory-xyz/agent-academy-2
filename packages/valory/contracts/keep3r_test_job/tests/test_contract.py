@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -71,5 +71,4 @@ class TestKeep3rTestJobContract(BaseKeep3rTestJobContractTest):
     def test_build_work_tx(self) -> None:
         """Test build work transaction"""
 
-        kw = dict(address=self.key_pairs()[0][0])
-        assert self.contract.build_work_tx(self.ledger_api, self.contract_address, **kw)
+        assert self.contract.build_work_tx(self.ledger_api, self.contract_address)

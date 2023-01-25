@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2022 Valory AG
+#   Copyright 2022-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 
 
 DEFAULT_GAS = 10 ** 7
-DEFAULT_MAX_FEE_PER_GAS = 10 ** 10
+DEFAULT_MAX_FEE_PER_GAS = 5000000000
 DEFAULT_MAX_PRIORITY_FEE_PER_GAS = 10 ** 10
 ONE_ETH = 10 ** 18
 HALF_A_SECOND = 0.5
