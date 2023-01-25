@@ -116,14 +116,14 @@ fingerprint:
   tests/data/keep3r/jobs.csv: bafybeidvh6jo3hv5hi2zv3ocuqnzuvkktc643olwllt6zvofp4y67rrba4
   tests/fixture_helpers.py: bafybeibvxjvwvahi3z562qw545cqj4xoxritrfofc5n2sqpwfnkfb7zw3m
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
-  tests/helpers/constants.py: bafybeibc3knucb35srb4ogaiu24n6yi7bd23b6yex35bngc5ywhocoo754
+  tests/helpers/constants.py: bafybeibjhvbw5mqdpy3dgaazofgj336ibpe6vskp5q3hs6djmetio4jnii
   tests/helpers/docker/__init__.py: bafybeifutxz6ek7bybd3dpsyfuqjpcipmchqbum3vaezflwmhaywnmv6am
   tests/helpers/docker/keep3r_net.py: bafybeigzj6hctoxmpixpl2chptgmblbhz6ojrf2ngidfoqose7dz6rmvmm
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
   tests/test_agents/test_keep3r_bot_abci.py: bafybeiae6r6dfahu4zrrglypgmsqcpp2oj7rbynw6pr4ffgpsdxqb6azqi
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
-  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeibmqymom3oixyp7h4pn55zx53das7ubmskpfcsyxlb3amarbo36c4
+  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeihbutosjjdmwxvunf27doue6l3fikmia4hxsifnbl4ta2ouwupwui
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeifln72jkbha5xtkafjj4swrwrktck4ziwk6j7plmzecskhlyamgu4
@@ -133,7 +133,7 @@ connections:
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeiamw5sluyueflxsvzukmayctl3ijc76fx5twstwnc7ons6lw2goa4
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeieqvrttr6fiidrzab5t2toyewixqg7oayvdo64sidi33ouro5ixdu
-- valory/keep3r_test_job:0.1.0:bafybeicjidrpclhzkwxlt7fdk2f4fehakncftm5nurd45iqj2yhgr56et4
+- valory/keep3r_test_job:0.1.0:bafybeibs7yy2vdbf22lo5psvn3kft7oemnzbt5sc7ahjk22u5xuykab5ty
 protocols:
 - open_aea/signing:1.0.0:bafybeihgwrowgtegpe4ixe3iy5jx65u7pxebl5btrkywzmx7g52gjtbnpi
 - valory/abci:0.1.0:bafybeihkgako44fzgurcv4hgbems4ptdtosae4lopnnr75eczb6kx3x2lm
@@ -143,8 +143,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 - valory/tendermint:0.1.0:bafybeid6b2wlb24g6d3godmqms44qvnpkhlvb27icotuobvnscmdmlhaha
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeieny2fopu3mnsammexdzwvbsc35audtbi7s6tyoveslgklrk7cgpe
-- keep3r_co/keep3r_job:0.1.0:bafybeihkm3m4jcuwfn3qsytab324iqq4tl35kpexcdkuba6hu322lttbem
+- keep3r_co/keep3r_abci:0.1.0:bafybeiccteuql5bkdkovbnadl5hn4jzdu77dwxbjgr7kjdld6lwrl4cqdq
+- keep3r_co/keep3r_job:0.1.0:bafybeieednxxq6nwnja6ckd4o2qk7rc3kpfeypj5up4do6qz3fi7sihjsm
 - valory/abstract_abci:0.1.0:bafybeieeqbasxxghxaj7xffnto7ybegom2kl4y544cskysowmjcjd3szhe
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 - valory/registration_abci:0.1.0:bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2022 Valory AG
+#   Copyright 2022-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ from packages.keep3r_co.agents.keep3r_bot.tests.helpers.constants import (
     DEFAULT_GAS,
     HALF_A_SECOND,
     ONE_ETH,
-    SECONDS_PER_DAY, DEFAULT_MAX_FEE_PER_GAS, DEFAULT_MAX_PRIORITY_FEE_PER_GAS,
+    SECONDS_PER_DAY,
 )
 from packages.valory.contracts.keep3r_test_job.tests import (
     PACKAGE_DIR as KEEP3R_TEST_JOB_DIR,
@@ -201,7 +201,7 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
         """Test is_keeper"""
 
         kw = dict(address=self.deployer_crypto.address)
-        assert self.contract.is_keeper(**self.base_kw, **kw)['data'] is False
+        assert self.contract.is_keeper(**self.base_kw, **kw)["data"] is False
 
     def test_build_approve_tx(self) -> None:
         """Test get_jobs"""
@@ -292,21 +292,22 @@ class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
     def test_become_keeper(self) -> None:
         """Test become keeper"""
 
+        default_gas_params = {
+            "gas": DEFAULT_GAS,
+            "maxFeePerGas": 5_000_000_000,
+            "maxPriorityFeePerGas": 3_000_000_000,
+        }
         amount = 0
         kw = dict(address=self.deployer_crypto.address)
         assert self.contract.is_keeper(**self.base_kw, **kw)["data"] is False
 
         # 1. bond - normally has a bonding period associated
-        tx_data = self.contract.build_bond_tx(**self.base_kw, address=self.contract_address, amount=amount)
-        nonce = Nonce(self.ledger_api.api.eth.get_transaction_count(self.deployer_crypto.address))
-        contract = self.contract.get_instance(self.ledger_api, self.contract_address)
-        function = contract.functions.bond(bonding=contract.address, amount=amount)
-        data = function.buildTransaction(self.contract.get_tx_parameters(self.ledger_api, self.deployer_crypto.address))
-        gas_params = {
-            "gas": 53_000,
-            "maxFeePerGas": 5_000_000_000,
-            "maxPriorityFeePerGas": 3_000_000_000,
-        }
+        tx_data = self.contract.build_bond_tx(
+            **self.base_kw, address=self.contract_address, amount=amount
+        )
+        nonce = Nonce(
+            self.ledger_api.api.eth.get_transaction_count(self.deployer_crypto.address)
+        )
         raw_tx = {
             "from": self.deployer_crypto.address,
             "to": self.contract_address,
@@ -315,15 +316,22 @@ class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
             "value": 0,
             "chainId": self.ledger_api.api.eth.chain_id,
         }
-        raw_tx.update(gas_params)
-        self.perform_tx(data)
+        raw_tx.update(default_gas_params)
+        self.perform_tx(raw_tx)
 
         # 2. wait bondTime - 3 days
         self.time_jump(3 * SECONDS_PER_DAY)
 
         # 3. activate
-        raw_tx = self.contract.build_activate_tx(**self.base_kw, **kw)
-        raw_tx["gas"] = DEFAULT_GAS
+        tx_data = self.contract.build_activate_tx(
+            **self.base_kw, address=self.contract_address
+        )
+        raw_tx.update(
+            {
+                "data": tx_data["data"],
+                "nonce": nonce + 1,
+            }
+        )
         self.perform_tx(raw_tx)
 
         # validate
