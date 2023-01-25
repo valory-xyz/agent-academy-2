@@ -71,5 +71,4 @@ class TestKeep3rTestJobContract(BaseKeep3rTestJobContractTest):
     def test_build_work_tx(self) -> None:
         """Test build work transaction"""
 
-        kw = dict(address=self.key_pairs()[0][0])
-        assert self.contract.build_work_tx(self.ledger_api, self.contract_address, **kw)
+        assert self.contract.build_work_tx(self.ledger_api, self.contract_address)
