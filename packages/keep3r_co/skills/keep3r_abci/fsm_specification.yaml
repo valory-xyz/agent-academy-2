@@ -1,5 +1,6 @@
 alphabet_in:
 - ACTIVATION_TX
+- APPROVE_BOND
 - AWAITING_BONDING
 - BLACKLISTED
 - BONDING_TX
@@ -41,6 +42,7 @@ start_states:
 - RegistrationStartupRound
 states:
 - ActivationRound
+- ApproveBondRound
 - AwaitTopUpRound
 - BlacklistedRound
 - BondingRound
@@ -72,6 +74,9 @@ transition_func:
     (ActivationRound, AWAITING_BONDING): WaitingRound
     (ActivationRound, NO_MAJORITY): ActivationRound
     (ActivationRound, ROUND_TIMEOUT): ActivationRound
+    (ApproveBondRound, APPROVE_BOND): RandomnessTransactionSubmissionRound
+    (ApproveBondRound, NO_MAJORITY): ApproveBondRound
+    (ApproveBondRound, ROUND_TIMEOUT): ApproveBondRound
     (AwaitTopUpRound, NO_MAJORITY): AwaitTopUpRound
     (AwaitTopUpRound, ROUND_TIMEOUT): AwaitTopUpRound
     (AwaitTopUpRound, TOP_UP): PathSelectionRound
@@ -114,6 +119,7 @@ transition_func:
     (JobSelectionRound, NO_JOBS): PathSelectionRound
     (JobSelectionRound, NO_MAJORITY): JobSelectionRound
     (JobSelectionRound, ROUND_TIMEOUT): JobSelectionRound
+    (PathSelectionRound, APPROVE_BOND): ApproveBondRound
     (PathSelectionRound, BLACKLISTED): BlacklistedRound
     (PathSelectionRound, HEALTHY): GetJobsRound
     (PathSelectionRound, INSUFFICIENT_FUNDS): AwaitTopUpRound
