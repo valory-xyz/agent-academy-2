@@ -118,7 +118,7 @@ fingerprint:
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
   tests/helpers/constants.py: bafybeigf7qz4hxqii4meksuypwke55otsuwzaidwfuundb7vpmlcdak4tm
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
-  tests/test_agents/test_keep3r_bot_abci.py: bafybeiadm4vfc4knqmweaevrf5ylyotevkdws6ao7mzlrxmp65zmqhalne
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeih3d7juwmlbspfe3toocaymula6ubfr5wlpfqag25qni54jymfvpi
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeibxvfwos7sgkrce6vywmbwc4jybqrwawq7ahinpvqhptv4r3sfrgi
@@ -141,8 +141,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 - valory/tendermint:0.1.0:bafybeid6b2wlb24g6d3godmqms44qvnpkhlvb27icotuobvnscmdmlhaha
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeigxftntemnjaa6h6ilikb2aw4azuee5ydasd2v5ls3ls3uqrxdkbu
-- keep3r_co/keep3r_job:0.1.0:bafybeieisvcw4rbzuru7tr4rjkccsrcg5mwnl3ti2demu7bwd54z7o4gzy
+- keep3r_co/keep3r_abci:0.1.0:bafybeibn6yuazissc2vgk3vanmlvrksqs4zhkqg33sgsqeq2ao3suzitma
+- keep3r_co/keep3r_job:0.1.0:bafybeic4ktu3euto277vpfmnks6qzucmdiw253odbfppnqpoz5zypvdojq
 - valory/abstract_abci:0.1.0:bafybeieeqbasxxghxaj7xffnto7ybegom2kl4y544cskysowmjcjd3szhe
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 - valory/registration_abci:0.1.0:bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu

@@ -134,7 +134,8 @@ class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
 
     def _check_logs_and_fast_forward(self, web3_provider: BaseProvider) -> None:
         """Checks the logs and fast forwards time."""
-        prev_count = 0
+        prev_count, num_changes = 0, 0
+        num_required_changes = 2
         trigger = "Period end."
         while True:
             for output in self.stdout.values():
@@ -144,6 +145,9 @@ class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
                     self._fast_forward_time(web3_provider, three_days)
                     self._mine_block(web3_provider)
                     prev_count = count
+                    num_changes += 1
+                if num_changes == num_required_changes:
+                    return
 
     def _mine_block(self, web3_provider: BaseProvider) -> None:
         """Mines a block."""
