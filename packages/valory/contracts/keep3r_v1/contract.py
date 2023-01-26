@@ -173,49 +173,44 @@ class Keep3rV1Contract(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-        address: str,
         spender: str,
         amount: Union[Wei, int],
     ) -> RawTransaction:
         """Allows a keeper to activate/register themselves after bonding.
 
         Sets `amount` as the allowance of `spender` over the caller's tokens.
-        After transaction submission, a boolean value indicating whether the operation
-        succeeded is returned. Here we only build the raw transaction.
-
-        IMPORTANT: Beware that changing an allowance with this method brings the risk
-        that someone may use both the old and the new allowance by unfortunate
-        transaction ordering. One possible solution to mitigate this race
-        condition is to first reduce the spender's allowance to 0 and set the
-        desired value afterwards:
-        https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
 
         :param ledger_api: the ledger api
         :param contract_address: the Keep3rV1 contract address
-        :param address: the address with which to sign the raw transaction
         :param spender: The address of the account which may transfer tokens
         :param amount: The number of tokens that are approved (2^256-1 means infinite)
 
         :return: the raw transaction to be signed by the agents
         """
-
         contract = cls.get_instance(ledger_api, contract_address)
-        function = contract.functions.approve(spender=spender, amount=amount)
-        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+        data = contract.encodeABI(
+            fn_name="approve",
+            args=[
+                spender,
+                amount,
+            ],
+        )
+        return dict(
+            data=data,
+        )
 
     @classmethod
     def allowance(
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-        account: str,
+        owner: str,
         spender: str,
     ) -> JSONLike:
         """Get the number of tokens `spender` is approved to spend on behalf of `account`."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        tx_kwargs = dict(spender=spender, account=account)
-        allowance = contract.functions.allowance(**tx_kwargs).call()
+        allowance = contract.functions.allowance(owner, spender).call()
         return dict(data=allowance)
 
     @classmethod

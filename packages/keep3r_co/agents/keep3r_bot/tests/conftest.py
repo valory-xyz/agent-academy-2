@@ -60,7 +60,7 @@ class UseGanacheFork:  # pylint: disable=too-few-public-methods
     """Inherit from this class to use Ganache."""
 
     NETWORK_TO_FORK = "goerli"
-    BLOCK_TO_FORK_FROM = 8378981
+    BLOCK_TO_FORK_FROM = 8378809
 
     key_pairs: List[Tuple[str, str]] = GANACHE_KEY_PAIRS
 

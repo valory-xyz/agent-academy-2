@@ -9,7 +9,7 @@ fingerprint:
   README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
   __init__.py: bafybeiaahg7kgkjgmlxj6yy6etmqcbfln5so7z7pv4aeccw3d54shhrpkq
   behaviours.py: bafybeiapk6jx4fu3hfvtf3p2wbs7xuoooene7k6akm6meu6bnm752rml5a
-  composition.py: bafybeiabj3kiwygz4ce2o7vihuibkhurjmqzdg7xg75komwqsoj4d2lvou
+  composition.py: bafybeiee3fl72qpqzz6sgy7efmql2dwp5uztf7dk47neknjbgonjpelniu
   dialogues.py: bafybeib4jbdycm2vofni3vp6draqet3nejoviqjurcilrzindr4k5dg5fa
   fsm_specification.yaml: bafybeihwsxnujuu6r5d2d355v76f3y4moiymy23zbbrftg4sseat6xpxo4
   handlers.py: bafybeieo3w3bahresulnoyo7mecda5b2ddpj4d3qv4pc7vfnfvvttcqnyi
@@ -20,7 +20,7 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeic4ktu3euto277vpfmnks6qzucmdiw253odbfppnqpoz5zypvdojq
+- keep3r_co/keep3r_job:0.1.0:bafybeie45atyudrmme57ax7btfjblizda7m4wliyy2wylctob73ipdbxsm
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 - valory/registration_abci:0.1.0:bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu
 - valory/reset_pause_abci:0.1.0:bafybeihjsv2mkwrf55wtmawn7kjylm75thg7jjp7y4bfnezrkr3hu7jytu
@@ -67,6 +67,7 @@ models:
     class_name: LedgerApiDialogues
   params:
     args:
+      bond_amount: 1000
       bonding_asset: '0x0000000000000000000000000000000000000000'
       broadcast_to_server: false
       cleanup_history_depth: 1

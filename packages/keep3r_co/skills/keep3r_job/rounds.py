@@ -25,6 +25,7 @@ from typing import Dict, List, Optional, Set, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
+    ApproveBondTxPayload,
     BondingTxPayload,
     GetJobsPayload,
     IsProfitablePayload,
@@ -52,6 +53,7 @@ from packages.valory.skills.abstract_round_abci.base import (
 class Event(Enum):
     """Events"""
 
+    APPROVE_BOND = "approve_bond"
     NOT_BONDED = "not_bonded"
     BONDING_TX = "bonding_tx"
     NOT_ACTIVATED = "not_activated"
@@ -122,6 +124,7 @@ class PathSelectionRound(Keep3rJobAbstractRound):
     payload_attribute: str = get_name(PathSelectionPayload.path_selection)
 
     transitions: Dict[str, Event] = {
+        "APPROVE_BOND": Event.APPROVE_BOND,
         "NOT_BONDED": Event.NOT_BONDED,
         "NOT_ACTIVATED": Event.NOT_ACTIVATED,
         "HEALTHY": Event.HEALTHY,
@@ -137,6 +140,31 @@ class PathSelectionRound(Keep3rJobAbstractRound):
             selected_path = self.most_voted_payload
             state = self.synchronized_data.update(selected_path=selected_path)
             return state, self.transitions[selected_path]
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
+
+
+class ApproveBondRound(Keep3rJobAbstractRound):
+    """Round to approve the keep3r contract to spend our (erc20) tokens."""
+
+    allowed_tx_type: TransactionType = ApproveBondTxPayload.transaction_type
+    payload_attribute: str = get_name(ApproveBondTxPayload.approval_tx)
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+        """Process the end of the block."""
+
+        if self.threshold_reached:
+            approval_tx = self.most_voted_payload
+            state = self.synchronized_data.update(
+                **{
+                    get_name(SynchronizedData.most_voted_tx_hash): approval_tx,
+                    get_name(SynchronizedData.tx_submitter): self.auto_round_id(),
+                }
+            )
+            return state, Event.APPROVE_BOND
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
@@ -349,6 +377,10 @@ class AwaitTopUpRound(Keep3rJobAbstractRound):
 
 
 # degenerate rounds
+class FinalizeApproveBondRound(DegenerateRound):
+    """FinalizeBondingRound"""
+
+
 class FinalizeBondingRound(DegenerateRound):
     """FinalizeBondingRound"""
 
@@ -446,9 +478,15 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.HEALTHY: GetJobsRound,
             Event.INSUFFICIENT_FUNDS: AwaitTopUpRound,
             Event.BLACKLISTED: BlacklistedRound,
+            Event.APPROVE_BOND: ApproveBondRound,
             Event.UNKNOWN_HEALTH_ISSUE: DegenerateRound,
             Event.NO_MAJORITY: PathSelectionRound,
             Event.ROUND_TIMEOUT: PathSelectionRound,
+        },
+        ApproveBondRound: {
+            Event.APPROVE_BOND: FinalizeApproveBondRound,
+            Event.NO_MAJORITY: ApproveBondRound,
+            Event.ROUND_TIMEOUT: ApproveBondRound,
         },
         BondingRound: {
             Event.BONDING_TX: FinalizeBondingRound,
@@ -500,6 +538,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.NO_MAJORITY: AwaitTopUpRound,
             Event.ROUND_TIMEOUT: AwaitTopUpRound,
         },
+        FinalizeApproveBondRound: {},
         FinalizeBondingRound: {},
         FinalizeActivationRound: {},
         FinalizeWorkRound: {},
@@ -508,6 +547,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     }
 
     final_states: Set[AppState] = {
+        FinalizeApproveBondRound,
         FinalizeBondingRound,
         FinalizeActivationRound,
         FinalizeWorkRound,
@@ -520,9 +560,10 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     }
     db_pre_conditions: Dict[AppState, List[str]] = {PathSelectionRound: []}
     db_post_conditions: Dict[AppState, List[str]] = {
-        FinalizeBondingRound: ["most_voted_tx_hash"],
-        FinalizeActivationRound: ["most_voted_tx_hash"],
-        FinalizeWorkRound: ["most_voted_tx_hash"],
+        FinalizeApproveBondRound: [get_name(SynchronizedData.most_voted_tx_hash)],
+        FinalizeBondingRound: [get_name(SynchronizedData.most_voted_tx_hash)],
+        FinalizeActivationRound: [get_name(SynchronizedData.most_voted_tx_hash)],
+        FinalizeWorkRound: [get_name(SynchronizedData.most_voted_tx_hash)],
         BlacklistedRound: [],
         DegenerateRound: [],
     }

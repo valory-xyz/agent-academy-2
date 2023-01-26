@@ -31,6 +31,7 @@ except ImportError:
 from packages.keep3r_co.skills.keep3r_job.models import Params
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
+    ApproveBondTxPayload,
     BondingTxPayload,
     GetJobsPayload,
     IsProfitablePayload,
@@ -43,6 +44,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
+    ApproveBondRound,
     AwaitTopUpRound,
     BondingRound,
     GetJobsRound,
@@ -111,11 +113,12 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self, **kwargs: Any
     ) -> Generator[None, None, ContractApiMessage]:
         """Helper method"""
-        contract_api_response = yield from self.get_contract_api_response(
-            contract_address=self.keep3r_v1_contract_address,
-            contract_id=str(Keep3rV1Contract.contract_id),
+        kwargs = {
+            "contract_address": self.keep3r_v1_contract_address,
+            "contract_id": str(Keep3rV1Contract.contract_id),
             **kwargs,
-        )
+        }
+        contract_api_response = yield from self.get_contract_api_response(**kwargs)
         self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
         return contract_api_response
 
@@ -205,6 +208,21 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self.context.logger.info(f"balance: {balance / 10 ** 18} ETH")
         return balance >= cast(int, self.context.params.insufficient_funds_threshold)
 
+    def amount_to_approve(
+        self, owner: str, spender: str, bonding_asset: str, bond_amount: int
+    ) -> Generator[None, None, Optional[int]]:
+        """Amount to approve"""
+        kwargs = {
+            "contract_address": bonding_asset,
+            "owner": owner,
+            "spender": spender,
+        }
+        allowance = yield from self.read_keep3r_v1("allowance", **kwargs)
+        if allowance is None:
+            # something went wrong
+            return None
+        return bond_amount - allowance
+
     def is_workable_job(
         self, contract_address: str
     ) -> Generator[None, None, Optional[bool]]:
@@ -224,6 +242,28 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         log_msg = f"`workable` contract api response on {contract_api_response}"
         self.context.logger.info(f"{log_msg}: {contract_api_response}")
         return cast(bool, contract_api_response.state.body.get("data"))
+
+    def build_approve_raw_tx(
+        self, spender: str, bonding_asset: str, bond_amount: int
+    ) -> Generator[None, None, Optional[SafeTx]]:
+        """Build ERC20 approve transaction"""
+        data_str = yield from self.read_keep3r_v1(
+            method="build_approve_tx",
+            contract_address=bonding_asset,
+            spender=spender,
+            amount=bond_amount,
+        )
+        if data_str is None:
+            # something went wrong
+            return None
+        data = bytes.fromhex(data_str[2:])
+        safe_tx = SafeTx(
+            data=data,
+            to=bonding_asset,
+            value=ZERO_ETH,
+            gas=SAFE_GAS,
+        )
+        return safe_tx
 
     def build_work_raw_tx(
         self, job_address: str
@@ -296,26 +336,37 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     ) -> Generator[None, None, Optional[str]]:
         """Select path to traverse"""
 
-        address = self.synchronized_data.safe_contract_address
+        safe_address = self.synchronized_data.safe_contract_address
 
-        blacklisted = yield from self.read_keep3r_v1("blacklist", address=address)
+        blacklisted = yield from self.read_keep3r_v1("blacklist", address=safe_address)
         if blacklisted is None:
             return None
         if blacklisted:
             return self.transitions["BLACKLISTED"].name
 
-        sufficient_funds = yield from self.has_sufficient_funds(address)
+        sufficient_funds = yield from self.has_sufficient_funds(safe_address)
         if sufficient_funds is None:
             return None
         if not sufficient_funds:
             return self.transitions["INSUFFICIENT_FUNDS"].name
 
         bond_time = yield from self.get_bond_time(
-            address, self.context.params.bonding_asset
+            safe_address, self.context.params.bonding_asset
         )
         if bond_time is None:
             return None
         if bond_time == 0:
+            amount_to_approve = yield from self.amount_to_approve(
+                owner=safe_address,
+                spender=self.keep3r_v1_contract_address,
+                bonding_asset=self.context.params.bonding_asset,
+                bond_amount=self.context.params.bond_amount,
+            )
+            if amount_to_approve is None:
+                # something went wrong
+                return None
+            if amount_to_approve > 0:
+                return self.transitions["APPROVE_BOND"].name
             return self.transitions["NOT_BONDED"].name
 
         bonded_keeper = yield from self.has_bonded(bond_time)
@@ -324,7 +375,7 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         if not bonded_keeper:
             return self.transitions["NOT_ACTIVATED"].name
 
-        has_activated = yield from self.has_activated(address)
+        has_activated = yield from self.has_activated(safe_address)
         if has_activated is None:
             return None
         if not has_activated:
@@ -342,6 +393,45 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
                 return
             payload = PathSelectionPayload(self.context.agent_address, path)
             self.context.logger.info(f"Selected path: {path}")
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+
+class ApproveBondBehaviour(Keep3rJobBaseBehaviour):
+    """Behaviour to prepare an ERC20 approve transaction."""
+
+    matching_round: Type[AbstractRound] = ApproveBondRound
+
+    def async_act(self) -> Generator:
+        """Behaviour to prepare an ERC20 approve transaction."""
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            raw_tx = yield from self.build_approve_raw_tx(
+                spender=self.keep3r_v1_contract_address,
+                bonding_asset=self.context.params.bonding_asset,
+                bond_amount=self.context.params.bond_amount,
+            )
+            if raw_tx is None:
+                # something went wrong
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+
+            self.context.logger.info(f"Prepared raw approve tx: {raw_tx}")
+
+            safe_tx = yield from self.build_safe_raw_tx(raw_tx)
+            if safe_tx is None:
+                # something went wrong
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+
+            self.context.logger.info(f"Prepared safe tx: {safe_tx}")
+            payload = ApproveBondTxPayload(
+                self.context.agent_address,
+                safe_tx,
+            )
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
@@ -627,6 +717,7 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
     initial_behaviour_cls = BondingBehaviour
     abci_app_cls = Keep3rJobAbciApp  # type: ignore
     behaviours: Set[Type[BaseBehaviour]] = {
+        ApproveBondBehaviour,  # type: ignore
         PathSelectionBehaviour,  # type: ignore
         BondingBehaviour,  # type: ignore
         WaitingBehaviour,  # type: ignore

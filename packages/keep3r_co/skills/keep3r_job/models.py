@@ -66,6 +66,7 @@ class Params(BaseParams):
         "insufficient_funds_threshold",
         "profitability_threshold",
         "bonding_asset",
+        "bond_amount",
     ]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

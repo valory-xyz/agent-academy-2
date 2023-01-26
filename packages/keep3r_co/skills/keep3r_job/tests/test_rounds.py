@@ -26,6 +26,7 @@ import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
+    ApproveBondTxPayload,
     BaseKeep3rJobPayload,
     BondingTxPayload,
     GetJobsPayload,
@@ -39,6 +40,7 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
+    ApproveBondRound,
     AwaitTopUpRound,
     BondingRound,
     Event,
@@ -158,6 +160,21 @@ class TestBondingRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(bonding_tx=bonding_tx)
         event = self.complete_round(next_state)
         assert event == Event.BONDING_TX
+
+
+class TestApproveBondRound(BaseRoundTestClass):
+    """Tests for ApproveBondRound."""
+
+    round_class = ApproveBondRound
+    payload_class = ApproveBondTxPayload
+
+    @pytest.mark.parametrize("approval_tx", ["some_raw_tx_hash"])
+    def test_run(self, approval_tx: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(approval_tx=approval_tx)
+        event = self.complete_round(next_state)
+        assert event == Event.APPROVE_BOND
 
 
 class TestWaitingRound(BaseRoundTestClass):
