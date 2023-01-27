@@ -61,12 +61,11 @@ class Params(BaseParams):
     """Parameters."""
 
     required = [
-        "validate_timeout",
-        "finalize_timeout",
         "job_contract_addresses",
         "keep3r_v1_contract_address",
         "insufficient_funds_threshold",
         "profitability_threshold",
+        "bonding_asset",
     ]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

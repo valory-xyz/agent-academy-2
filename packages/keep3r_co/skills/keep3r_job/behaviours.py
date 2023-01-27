@@ -18,9 +18,9 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the behaviours for the 'keep3r_job' skill."""
-
+import json
 from abc import ABC
-from typing import Any, Dict, Generator, Optional, Set, Type, cast
+from typing import Any, Generator, Optional, Set, Type, cast
 
 
 try:
@@ -130,21 +130,28 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             return None
         return contract_api_response.state.body.get("data")
 
-    def get_bond_time(self, address: str) -> Generator[None, None, Optional[int]]:
+    def get_bond_time(
+        self, address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[int]]:
         """Check start of bonding time of the address"""
 
-        bond_time = yield from self.read_keep3r_v1("bondings", address=address)
+        bond_time = yield from self.read_keep3r_v1(
+            "bondings",
+            address=address,
+            bonding_asset=bonding_asset,
+        )
         if bond_time is None:
             log_msg = "Failed to check `bondings` on Keep3rV1 contract"
             self.context.logger.error(log_msg)
             return None
         return cast(int, bond_time)
 
-    def build_activate_tx(self) -> Generator[None, None, Optional[SafeTx]]:
+    def build_activate_tx(
+        self, address: str
+    ) -> Generator[None, None, Optional[SafeTx]]:
         """Build Keep3r V1 raw transaction"""
-        # TODO: figure out args for this call
         data_str = yield from self.read_keep3r_v1(
-            method="build_activate_tx", address=self.keep3r_v1_contract_address
+            method="build_activate_tx", address=address
         )
         if data_str is None:
             # something went wrong
@@ -160,8 +167,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
 
     def has_bonded(self, bond_time: int) -> Generator[None, None, Optional[bool]]:
         """Check if bonding is completed"""
-
-        bond = yield from self.read_keep3r_v1("BOND")  # contract parameter
+        bond = yield from self.read_keep3r_v1("bond")  # contract parameter
         if bond is None:
             return None
         ledger_api_response = yield from self.get_ledger_api_response(
@@ -173,10 +179,17 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             log_msg = "Failed ledger get_block call in has_bonded"
             self.context.logger.error(f"{log_msg}: {ledger_api_response}")
             return None
-        latest_block = cast(Dict, ledger_api_response.state.body.get("block"))
-        remaining_time = bond_time + cast(int, bond) - latest_block["timestamp"]
+        latest_block_timestamp = cast(
+            int, ledger_api_response.state.body.get("timestamp")
+        )
+        remaining_time = bond_time + cast(int, bond) - latest_block_timestamp
         self.context.logger.info(f"Remaining bond time: {remaining_time}")
         return remaining_time <= 0
+
+    def has_activated(self, address: str) -> Generator[None, None, Optional[bool]]:
+        """Check if bonding is completed"""
+        is_keeper = yield from self.read_keep3r_v1("is_keeper", address=address)
+        return is_keeper
 
     def has_sufficient_funds(self, address: str) -> Generator[None, None, bool]:
         """Has sufficient funds"""
@@ -234,7 +247,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         data = bytes.fromhex(data_str)
         safe_tx = SafeTx(
             data=data,
-            to=self.keep3r_v1_contract_address,
+            to=job_address,
             value=ZERO_ETH,
             gas=SAFE_GAS,
         )
@@ -297,7 +310,9 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         if not sufficient_funds:
             return self.transitions["INSUFFICIENT_FUNDS"].name
 
-        bond_time = yield from self.get_bond_time(address)
+        bond_time = yield from self.get_bond_time(
+            address, self.context.params.bonding_asset
+        )
         if bond_time is None:
             return None
         if bond_time == 0:
@@ -307,6 +322,12 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         if bonded_keeper is None:
             return None
         if not bonded_keeper:
+            return self.transitions["NOT_ACTIVATED"].name
+
+        has_activated = yield from self.has_activated(address)
+        if has_activated is None:
+            return None
+        if not has_activated:
             return self.transitions["NOT_ACTIVATED"].name
 
         return self.transitions["HEALTHY"].name
@@ -360,11 +381,13 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
 
     def _build_bond_tx(self) -> Generator[None, None, Optional[SafeTx]]:
         """Build bond tx"""
-        # TODO: figure out args for this call
-        bond_amount = 1
+        # TODO: the erc20 asset that is being bonded
+        # needs to be approved by the safe contract
+        # before a bond tx is made
+        bond_amount = 1000
         data_str = yield from self.read_keep3r_v1(
             method="build_bond_tx",
-            address=self.keep3r_v1_contract_address,
+            address=self.context.params.bonding_asset,
             amount=bond_amount,
         )
         if data_str is None:
@@ -391,7 +414,9 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             address = self.synchronized_data.safe_contract_address
-            bond_time = yield from self.get_bond_time(address=address)
+            bond_time = yield from self.get_bond_time(
+                address=address, bonding_asset=self.context.params.bonding_asset
+            )
             if bond_time is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -419,7 +444,9 @@ class ActivationBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            raw_tx = yield from self.build_activate_tx()
+            raw_tx = yield from self.build_activate_tx(
+                self.context.params.bonding_asset
+            )
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -453,7 +480,8 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
             if job_list is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
-            payload = GetJobsPayload(self.context.agent_address, job_list=job_list)
+            job_list_str = json.dumps(job_list)
+            payload = GetJobsPayload(self.context.agent_address, job_list=job_list_str)
             self.context.logger.info(f"Job list retrieved: {job_list}")
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
@@ -475,12 +503,17 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
         job selection payload is shared between participants.
         """
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            if not self.synchronized_data.job_list:
+            if (
+                not self.synchronized_data.job_list
+                or len(self.synchronized_data.job_list) == 0
+            ):
                 current_job = None
             else:
                 addresses = self.synchronized_data.job_list
-                period_count = self.synchronized_data.period_count
-                job_ix = period_count % len(addresses)
+                self.context.logger.info(f"addresses: {addresses}")
+                # currently just try to select the first job
+                # TODO: add job selection algorithm
+                job_ix = 0
                 current_job = addresses[job_ix]
             payload = JobSelectionPayload(self.context.agent_address, current_job)
             self.context.logger.info(f"Job contract selected: {current_job}")

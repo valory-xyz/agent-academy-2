@@ -22,7 +22,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Hashable
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -177,7 +177,7 @@ class GetJobsPayload(BaseKeep3rJobPayload):
     _data_keys: Tuple[str] = ("job_list",)
     transaction_type = TransactionType.JOB_LIST
 
-    def __init__(self, sender: str, job_list: List[str], **kwargs: Any) -> None:
+    def __init__(self, sender: str, job_list: str, **kwargs: Any) -> None:
         """Initialize an 'get_jobs' transaction payload.
 
         :param sender: the sender (Ethereum) address
@@ -190,7 +190,7 @@ class GetJobsPayload(BaseKeep3rJobPayload):
     @property
     def job_list(self) -> str:
         """Get the job list."""
-        return "".join(self._job_list)
+        return self._job_list
 
 
 class JobSelectionPayload(BaseKeep3rJobPayload):

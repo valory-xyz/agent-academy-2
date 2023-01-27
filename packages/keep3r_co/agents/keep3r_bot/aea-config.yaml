@@ -8,7 +8,7 @@ fingerprint:
   README.md: bafybeih4kccfgxwkvd32bokjpqsfuyc2c3juek2g7vrsmixlfr7urgwkn4
   __init__.py: bafybeigz6lf3rhls73qcjyttuy7blsy3ayh4n2fz2syksrui7btjd4eowu
   tests/__init__.py: bafybeibzjusr5ywmbxtzw4ps7jfeqnsegliwa55bvuifwxacheh2bfcp2y
-  tests/conftest.py: bafybeiaw3x6obyymnoyvtklcg67jkr32jnplnaa76pk5tpx4nylcw2ob3e
+  tests/conftest.py: bafybeibzzccbr7li2zd7wqhp67rypwhgkwdve53wyjzf5a4vuhoh4fvlnm
   tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/abi.json: bafybeigyscfeaguwewu2iund2mvh4oirv3c7dwq5d3do6yduusxms4lloi
   tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/contract_details.json: bafybeib6pd3qnegmhal4aiyqskrtddtczxizyosltpw7be6jcr4tx3snha
   tests/data/keep3r/contracts/0x054A87DdFdE3ccb5DDB03739375329BcC1b03203/abi.json: bafybeigczrkmmwyzglko2qiqfquuwp7sjzoeboctgkvpokkoyczsaikruq
@@ -116,14 +116,12 @@ fingerprint:
   tests/data/keep3r/jobs.csv: bafybeidvh6jo3hv5hi2zv3ocuqnzuvkktc643olwllt6zvofp4y67rrba4
   tests/fixture_helpers.py: bafybeibvxjvwvahi3z562qw545cqj4xoxritrfofc5n2sqpwfnkfb7zw3m
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
-  tests/helpers/constants.py: bafybeibjhvbw5mqdpy3dgaazofgj336ibpe6vskp5q3hs6djmetio4jnii
-  tests/helpers/docker/__init__.py: bafybeifutxz6ek7bybd3dpsyfuqjpcipmchqbum3vaezflwmhaywnmv6am
-  tests/helpers/docker/keep3r_net.py: bafybeigzj6hctoxmpixpl2chptgmblbhz6ojrf2ngidfoqose7dz6rmvmm
+  tests/helpers/constants.py: bafybeigf7qz4hxqii4meksuypwke55otsuwzaidwfuundb7vpmlcdak4tm
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
-  tests/test_agents/test_keep3r_bot_abci.py: bafybeiae6r6dfahu4zrrglypgmsqcpp2oj7rbynw6pr4ffgpsdxqb6azqi
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeih3d7juwmlbspfe3toocaymula6ubfr5wlpfqag25qni54jymfvpi
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
-  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeihbutosjjdmwxvunf27doue6l3fikmia4hxsifnbl4ta2ouwupwui
+  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeibxvfwos7sgkrce6vywmbwc4jybqrwawq7ahinpvqhptv4r3sfrgi
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeifln72jkbha5xtkafjj4swrwrktck4ziwk6j7plmzecskhlyamgu4
@@ -143,8 +141,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 - valory/tendermint:0.1.0:bafybeid6b2wlb24g6d3godmqms44qvnpkhlvb27icotuobvnscmdmlhaha
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeiccteuql5bkdkovbnadl5hn4jzdu77dwxbjgr7kjdld6lwrl4cqdq
-- keep3r_co/keep3r_job:0.1.0:bafybeieednxxq6nwnja6ckd4o2qk7rc3kpfeypj5up4do6qz3fi7sihjsm
+- keep3r_co/keep3r_abci:0.1.0:bafybeibn6yuazissc2vgk3vanmlvrksqs4zhkqg33sgsqeq2ao3suzitma
+- keep3r_co/keep3r_job:0.1.0:bafybeic4ktu3euto277vpfmnks6qzucmdiw253odbfppnqpoz5zypvdojq
 - valory/abstract_abci:0.1.0:bafybeieeqbasxxghxaj7xffnto7ybegom2kl4y544cskysowmjcjd3szhe
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 - valory/registration_abci:0.1.0:bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu
@@ -215,6 +213,7 @@ models:
       reset_tendermint_after: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_RESET_TENDERMINT_AFTER:int:10}
       observation_interval: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_OBSERVATION_INTERVAL:int:300}
       max_healthcheck: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_MAX_HEALTHCHECK:int:1200}
+      bonding_asset: ${str:0x0000000000000000000000000000000000000000}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

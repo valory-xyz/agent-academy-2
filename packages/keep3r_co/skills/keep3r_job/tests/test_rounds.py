@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2021-2022 Valory AG
+#   Copyright 2021-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 # ------------------------------------------------------------------------------
 
 """Test the base.py module of the skill."""
-
+import json
 from typing import Any, FrozenSet, Optional, Type, cast
 from unittest import mock
 
@@ -199,7 +199,7 @@ class TestGetJobsRound(BaseRoundTestClass):
     def test_run(self) -> None:
         """Run tests."""
 
-        job_list = ["some_job_address"]
+        job_list = json.dumps(["some_job_address"])
         next_state = self.deliver_payloads(job_list=job_list)
         event = self.complete_round(next_state)
         assert event == Event.DONE

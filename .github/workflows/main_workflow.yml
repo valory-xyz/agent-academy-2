@@ -263,7 +263,9 @@ jobs:
   e2e-tests:
     continue-on-error: True
     needs:
-      - test
+      - lock_check
+      - copyright_and_doc_check
+      - linter_checks
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
