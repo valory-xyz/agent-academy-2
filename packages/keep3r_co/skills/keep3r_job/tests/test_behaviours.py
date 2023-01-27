@@ -26,6 +26,7 @@ import pytest
 
 from packages.keep3r_co.skills.keep3r_job.behaviours import (
     ActivationBehaviour,
+    ApproveBondBehaviour,
     AwaitTopUpBehaviour,
     BondingBehaviour,
     GetJobsBehaviour,
@@ -48,11 +49,13 @@ from packages.keep3r_co.skills.keep3r_job.handlers import (
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
+    ApproveBondRound,
     AwaitTopUpRound,
     BlacklistedRound,
     BondingRound,
     Event,
     FinalizeActivationRound,
+    FinalizeApproveBondRound,
     FinalizeBondingRound,
     FinalizeWorkRound,
     GetJobsRound,
@@ -317,12 +320,28 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 0)
+        self.mock_read_keep3r_v1("allowance", 1000000)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.NOT_BONDED)
         assert (
             self.current_behaviour.matching_round.auto_round_id()
             == BondingRound.auto_round_id()
+        )
+
+    def test_not_approved(self) -> None:
+        """Test path_selection to not bonded."""
+
+        self.mock_read_keep3r_v1("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_read_keep3r_v1("bondings", 0)
+        self.mock_read_keep3r_v1("allowance", 0)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.APPROVE_BOND)
+        assert (
+            self.current_behaviour.matching_round.auto_round_id()
+            == ApproveBondRound.auto_round_id()
         )
 
     def test_not_activated(self) -> None:
@@ -413,6 +432,26 @@ class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.ACTIVATION_TX)
         degenerate_state = make_degenerate_behaviour(FinalizeActivationRound)
+        assert (
+            self.current_behaviour.auto_behaviour_id()
+            == degenerate_state.auto_behaviour_id()
+        )
+
+
+class TestApproveBondBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test ApproveBondBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = ApproveBondBehaviour
+
+    def test_activation_tx(self) -> None:
+        """Test activation tx"""
+        self.mock_keep3r_v1_raw_tx("build_approve_tx", DUMMY_DATA)
+        self.behaviour.act_wrapper()
+        self.mock_build_safe_raw_tx()
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.APPROVE_BOND)
+        degenerate_state = make_degenerate_behaviour(FinalizeApproveBondRound)
         assert (
             self.current_behaviour.auto_behaviour_id()
             == degenerate_state.auto_behaviour_id()

@@ -30,6 +30,7 @@ from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 class TransactionType(Enum):
     """Enumeration of transaction types."""
 
+    APPROVE_BOND = "approve_bond"
     SELECTED_PATH = "selected_path"
     TOP_UP = "top_up"
     BONDING_TX = "bonding_tx"
@@ -81,6 +82,28 @@ class PathSelectionPayload(BaseKeep3rJobPayload):
     def path_selection(self) -> Hashable:
         """Get path_selection"""
         return self._path_selection
+
+
+class ApproveBondTxPayload(BaseKeep3rJobPayload):
+    """ApproveBondTxPayload"""
+
+    _data_keys: Tuple[str] = ("approval_tx",)
+    transaction_type = TransactionType.APPROVE_BOND
+
+    def __init__(self, sender: str, approval_tx: str, **kwargs: Any) -> None:
+        """Initialize a 'approve_bond' payload.
+
+        :param sender: the sender (Ethereum) address
+        :param approval_tx: the approval transaction
+        :param kwargs: the keyword arguments
+        """
+        super().__init__(sender, **kwargs)
+        self._approval_tx = approval_tx
+
+    @property
+    def approval_tx(self) -> str:
+        """Get approval tx"""
+        return self._approval_tx
 
 
 class BondingTxPayload(BaseKeep3rJobPayload):

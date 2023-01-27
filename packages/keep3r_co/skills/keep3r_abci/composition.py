@@ -20,6 +20,7 @@
 """This module contains the price estimation ABCI application."""
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     FinalizeActivationRound,
+    FinalizeApproveBondRound,
     FinalizeBondingRound,
     FinalizeWorkRound,
     Keep3rJobAbciApp,
@@ -50,6 +51,7 @@ from packages.valory.skills.transaction_settlement_abci.rounds import (
 
 abci_app_transition_mapping: AbciAppTransitionMapping = {
     FinishedRegistrationRound: PathSelectionRound,
+    FinalizeApproveBondRound: RandomnessTransactionSubmissionRound,
     FinalizeBondingRound: RandomnessTransactionSubmissionRound,
     FinalizeActivationRound: RandomnessTransactionSubmissionRound,
     FinalizeWorkRound: RandomnessTransactionSubmissionRound,

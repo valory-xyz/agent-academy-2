@@ -25,6 +25,7 @@ import pytest
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
+    ApproveBondTxPayload,
     BondingTxPayload,
     GetJobsPayload,
     IsProfitablePayload,
@@ -56,6 +57,17 @@ def test_bonding_tx_payload(bonding_tx: str) -> None:
     assert payload.sender == "sender"
     assert payload.bonding_tx == bonding_tx
     assert payload.transaction_type == TransactionType.BONDING_TX
+    assert payload.from_json(payload.json) == payload
+
+
+@pytest.mark.parametrize("approval_tx", ["tx_hash"])
+def test_approve_bond_tx_payload(approval_tx: str) -> None:
+    """Test ApproveBondTxPayload"""
+
+    payload = ApproveBondTxPayload(sender="sender", approval_tx=approval_tx)
+    assert payload.sender == "sender"
+    assert payload.approval_tx == approval_tx
+    assert payload.transaction_type == TransactionType.APPROVE_BOND
     assert payload.from_json(payload.json) == payload
 
 

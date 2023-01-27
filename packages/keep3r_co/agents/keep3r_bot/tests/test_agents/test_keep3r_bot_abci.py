@@ -39,6 +39,7 @@ from packages.keep3r_co.agents.keep3r_bot.tests.conftest import (
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
+    ApproveBondRound,
     BondingRound,
     GetJobsRound,
     IsProfitableRound,
@@ -56,9 +57,12 @@ CHECK_STRINGS = (
     f"Entered in the '{RegistrationStartupRound.auto_round_id()}' round for period 0",
     f"'{RegistrationStartupRound.auto_round_id()}' round is done with event: Event.DONE",
     f"Entered in the '{PathSelectionRound.auto_round_id()}'",
+    f"'{PathSelectionRound.auto_round_id()}' round is done with event: Event.APPROVE_BOND",
     f"'{PathSelectionRound.auto_round_id()}' round is done with event: Event.NOT_BONDED",
     f"'{PathSelectionRound.auto_round_id()}' round is done with event: Event.NOT_ACTIVATED",
     f"'{PathSelectionRound.auto_round_id()}' round is done with event: Event.HEALTHY",
+    f"Entered in the '{ApproveBondRound.auto_round_id()}' round",
+    f"'{ApproveBondRound.auto_round_id()}' round is done with event: Event.APPROVE_BOND",
     f"Entered in the '{BondingRound.auto_round_id()}' round",
     f"'{BondingRound.auto_round_id()}' round is done with event: Event.BONDING_TX",
     f"Entered in the '{WaitingRound.auto_round_id()}' round",
@@ -85,8 +89,8 @@ class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
 
     agent_package = "keep3r_co/keep3r_bot:0.1.0"
     skill_package = "keep3r_co/keep3r_abci:0.1.0"
-    wait_to_finish = 300
-    ROUND_TIMEOUT_SECONDS = 30.0
+    wait_to_finish = 360
+    ROUND_TIMEOUT_SECONDS = 60.0
     strict_check_strings = CHECK_STRINGS
     use_benchmarks = True
     network_endpoint = "http://127.0.0.1:8545"
@@ -135,7 +139,7 @@ class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
     def _check_logs_and_fast_forward(self, web3_provider: BaseProvider) -> None:
         """Checks the logs and fast forwards time."""
         prev_count, num_changes = 0, 0
-        num_required_changes = 2
+        num_required_changes = 3
         trigger = "Period end."
         while True:
             for output in self.stdout.values():
