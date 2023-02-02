@@ -350,6 +350,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 0})
         self.mock_a2a_transaction()
@@ -365,6 +366,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
+        self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
