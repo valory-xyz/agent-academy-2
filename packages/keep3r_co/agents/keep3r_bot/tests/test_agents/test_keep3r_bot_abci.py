@@ -83,12 +83,15 @@ CHECK_STRINGS = (
 
 TERMINATION_TIMEOUT = 120
 
+TARGET_SKILL = "keep3r_co/keep3r_abci:0.1.0"
+TARGET_AGENT = "keep3r_co/keep3r_bot:0.1.0"
+
 
 class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
     """BaseKeep3rABCITest"""
 
-    agent_package = "keep3r_co/keep3r_bot:0.1.0"
-    skill_package = "keep3r_co/keep3r_abci:0.1.0"
+    agent_package = TARGET_AGENT
+    skill_package = TARGET_SKILL
     wait_to_finish = 360
     ROUND_TIMEOUT_SECONDS = 60.0
     strict_check_strings = CHECK_STRINGS
@@ -179,3 +182,38 @@ class TestKeep3rABCITwoAgents(BaseKeep3rABCITest):
 @pytest.mark.parametrize("nb_nodes", (4,))
 class TestKeep3rABCIFourAgents(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with four agents."""
+
+    BLOCK_TO_FORK_FROM = 8420525
+
+
+@pytest.mark.parametrize("nb_nodes", (4,))
+class TestKeep3rABCIFourAgentsV1(BaseKeep3rABCITest):
+    """Test that the ABCI keep3r_abci skill with four agents."""
+
+    skill_package = TARGET_SKILL
+    __args_prefix = f"vendor.keep3r_co.skills.{PublicId.from_str(TARGET_SKILL).name}.models.params.args"
+    extra_configs = [
+        {
+            "dotted_path": f"{__args_prefix}.keep3r_v1_contract_address",
+            "value": KEEP3R_V1_FOR_TEST,
+        },
+        {
+            "dotted_path": f"{__args_prefix}.job_contract_addresses",
+            "value": json.dumps([KEEP3R_TEST_JOB]),
+            "type_": "list",
+        },
+        {
+            "dotted_path": f"{__args_prefix}.setup.safe_contract_address",
+            "value": json.dumps([SAFE_CONTRACT_ADDRESS]),
+            "type_": "list",
+        },
+        {
+            "dotted_path": f"{__args_prefix}.bonding_asset",
+            "value": WETH_ADDRESS,
+        },
+        {
+            "dotted_path": f"{__args_prefix}.use_v2",
+            "value": "false",
+            "type_": "bool",
+        },
+    ]

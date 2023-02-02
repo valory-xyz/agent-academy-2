@@ -8,7 +8,7 @@ fingerprint:
   README.md: bafybeih4kccfgxwkvd32bokjpqsfuyc2c3juek2g7vrsmixlfr7urgwkn4
   __init__.py: bafybeigz6lf3rhls73qcjyttuy7blsy3ayh4n2fz2syksrui7btjd4eowu
   tests/__init__.py: bafybeibzjusr5ywmbxtzw4ps7jfeqnsegliwa55bvuifwxacheh2bfcp2y
-  tests/conftest.py: bafybeib5ltzkwvong7lp2ukl35fgcw2m2og7fwnchr3vwhbohfxprdigym
+  tests/conftest.py: bafybeidvns4ymlfhgbmmrk6uqqkjznd5fhlik6bopkmmbuweqbzto5kzkm
   tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/abi.json: bafybeigyscfeaguwewu2iund2mvh4oirv3c7dwq5d3do6yduusxms4lloi
   tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/contract_details.json: bafybeib6pd3qnegmhal4aiyqskrtddtczxizyosltpw7be6jcr4tx3snha
   tests/data/keep3r/contracts/0x054A87DdFdE3ccb5DDB03739375329BcC1b03203/abi.json: bafybeigczrkmmwyzglko2qiqfquuwp7sjzoeboctgkvpokkoyczsaikruq
@@ -118,10 +118,12 @@ fingerprint:
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
   tests/helpers/constants.py: bafybeigf7qz4hxqii4meksuypwke55otsuwzaidwfuundb7vpmlcdak4tm
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
-  tests/test_agents/test_keep3r_bot_abci.py: bafybeiharu6olr3zzsjjmbzjwuhtj67svjf7du7qotidqwhedc323youru
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeigg6xpfi6bf7zveba32en7ubektj3tu25dghqiy4wjehzo7uvrc64
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeifpnzpxbblq4a6yov47ppoxtzcfox62sfeljuy4h6jv3kssy6mfbq
+  tests/test_contracts/test_keeper_for_testnet/__init__.py: bafybeigug6razuooshb7admqddi4ghaist6gpitni5pb6ps54pstdbp7ye
+  tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeigxaklrooi3m6t5spla7kuytl5mdvv3qp2y73jmqfm2c274gape3e
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeifln72jkbha5xtkafjj4swrwrktck4ziwk6j7plmzecskhlyamgu4
@@ -141,8 +143,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 - valory/tendermint:0.1.0:bafybeid6b2wlb24g6d3godmqms44qvnpkhlvb27icotuobvnscmdmlhaha
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeif6nig3dnlugtumlqm7sm4luhzdoo6g3vzppib4pcaxo2sf4mdt24
-- keep3r_co/keep3r_job:0.1.0:bafybeibguq64hfpbvb3rtht5duit6vpk7osyxkxfrrl4wrvjua7d2ana5e
+- keep3r_co/keep3r_abci:0.1.0:bafybeidtut4xhfccjajp2z3h3i2xhnpbqui4pxfxh74c4opr5arsj7i3ha
+- keep3r_co/keep3r_job:0.1.0:bafybeihs44qdq57355imgysrrhje7vfriuar5vbxp5nmufv6rvwg7hrh2i
 - valory/abstract_abci:0.1.0:bafybeieeqbasxxghxaj7xffnto7ybegom2kl4y544cskysowmjcjd3szhe
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 - valory/registration_abci:0.1.0:bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu
@@ -213,8 +215,10 @@ models:
       reset_tendermint_after: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_RESET_TENDERMINT_AFTER:int:10}
       observation_interval: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_OBSERVATION_INTERVAL:int:300}
       max_healthcheck: ${SKILL_KEEP3R_ABCI_MODELS_PARAMS_ARGS_MAX_HEALTHCHECK:int:1200}
+      use_v2: ${bool:true}
       bonding_asset: ${str:0x0000000000000000000000000000000000000000}
       bond_amount: ${int:1000}
+      keep3r_v2_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

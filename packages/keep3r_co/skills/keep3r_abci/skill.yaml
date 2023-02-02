@@ -20,7 +20,7 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeibguq64hfpbvb3rtht5duit6vpk7osyxkxfrrl4wrvjua7d2ana5e
+- keep3r_co/keep3r_job:0.1.0:bafybeihs44qdq57355imgysrrhje7vfriuar5vbxp5nmufv6rvwg7hrh2i
 - valory/abstract_round_abci:0.1.0:bafybeibfemo6nqd5itfd2damllya56qi4jrtythwcsb7wyt55qtxtsuu3u
 - valory/registration_abci:0.1.0:bafybeih6tbs4mt6x7g642kwhthxxs3qxpzsh4cy7uavrk4att3mqul6hhu
 - valory/reset_pause_abci:0.1.0:bafybeihjsv2mkwrf55wtmawn7kjylm75thg7jjp7y4bfnezrkr3hu7jytu
@@ -98,12 +98,13 @@ models:
       job_contract_addresses:
       - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       keep3r_v1_contract_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
+      keep3r_v2_contract_address: '0x85063437C02Ba7F4f82F898859e4992380DEd3bb'
       keeper_allowed_retries: 3
       keeper_timeout: 30.0
       max_healthcheck: 120
       observation_interval: 10
       on_chain_service_id: null
-      profitability_threshold: 500
+      profitability_threshold: 0
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3
@@ -121,6 +122,7 @@ models:
       tendermint_max_retries: 5
       tendermint_p2p_url: localhost:26656
       tendermint_url: http://localhost:26657
+      use_v2: false
       validate_timeout: 1205
     class_name: Params
   randomness_api:
