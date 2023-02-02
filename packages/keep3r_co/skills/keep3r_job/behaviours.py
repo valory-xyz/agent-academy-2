@@ -58,6 +58,9 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     WaitingRound,
 )
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.valory.contracts.keep3r_for_testnet.contract import (
+    KeeperForTestnetContract,
+)
 from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
 from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
@@ -109,6 +112,18 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         """Return Keep3r V1 Contract address."""
         return self.context.params.keep3r_v1_contract_address
 
+    @property
+    def keep3r_v2_contract_address(self) -> str:
+        """Return Keep3r V2 Contract address."""
+        return self.context.params.keep3r_v2_contract_address
+
+    @property
+    def bond_spender(self) -> str:
+        """Return the bond spender."""
+        if self.context.params.use_v2:
+            return self.keep3r_v2_contract_address
+        return self.keep3r_v1_contract_address
+
     def _call_keep3r_v1(
         self, **kwargs: Any
     ) -> Generator[None, None, ContractApiMessage]:
@@ -122,23 +137,49 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self.context.logger.info(f"Keep3r v1 response: {contract_api_response}")
         return contract_api_response
 
-    def read_keep3r_v1(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
-        """Read Keep3r V1 contract state"""
+    def _call_keep3r_v2(
+        self, **kwargs: Any
+    ) -> Generator[None, None, ContractApiMessage]:
+        """Helper method"""
+        kwargs = {
+            "contract_address": self.keep3r_v2_contract_address,
+            "contract_id": str(KeeperForTestnetContract.contract_id),
+            **kwargs,
+        }
+        contract_api_response = yield from self.get_contract_api_response(**kwargs)
+        self.context.logger.info(f"Keep3r v2 response: {contract_api_response}")
+        return contract_api_response
+
+    def read_keep3r(self, method: str, **kwargs: Any) -> Generator[None, None, Any]:
+        """Read Keep3r contract state"""
 
         kwargs["performative"] = ContractApiMessage.Performative.GET_STATE
         kwargs["contract_callable"] = method
-        contract_api_response = yield from self._call_keep3r_v1(**kwargs)
+        if self.context.params.use_v2:
+            contract_api_response = yield from self._call_keep3r_v2(**kwargs)
+        else:
+            contract_api_response = yield from self._call_keep3r_v1(**kwargs)
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
-            self.context.logger.error(f"Failed read_keep3r_v1: {contract_api_response}")
+            self.context.logger.error(f"Failed read_keep3r: {contract_api_response}")
             return None
         return contract_api_response.state.body.get("data")
 
-    def get_bond_time(
+    def has_bonded(
         self, address: str, bonding_asset: str
-    ) -> Generator[None, None, Optional[int]]:
+    ) -> Generator[None, None, Optional[bool]]:
         """Check start of bonding time of the address"""
+        if self.context.params.use_v2:
+            can_activate_after = yield from self.read_keep3r(
+                "can_activate_after",
+                address=address,
+                bonding_asset=bonding_asset,
+            )
+            if can_activate_after is None:
+                # something went wrong
+                return None
+            return can_activate_after != 0
 
-        bond_time = yield from self.read_keep3r_v1(
+        bond_time = yield from self.read_keep3r(
             "bondings",
             address=address,
             bonding_asset=bonding_asset,
@@ -147,13 +188,13 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             log_msg = "Failed to check `bondings` on Keep3rV1 contract"
             self.context.logger.error(log_msg)
             return None
-        return cast(int, bond_time)
+        return bond_time != 0
 
     def build_activate_tx(
         self, address: str
     ) -> Generator[None, None, Optional[SafeTx]]:
         """Build Keep3r V1 raw transaction"""
-        data_str = yield from self.read_keep3r_v1(
+        data_str = yield from self.read_keep3r(
             method="build_activate_tx", address=address
         )
         if data_str is None:
@@ -162,17 +203,40 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         data = bytes.fromhex(data_str[2:])
         safe_tx = SafeTx(
             data=data,
-            to=self.keep3r_v1_contract_address,
+            to=self.bond_spender,
             value=ZERO_ETH,
             gas=SAFE_GAS,
         )
         return safe_tx
 
-    def has_bonded(self, bond_time: int) -> Generator[None, None, Optional[bool]]:
-        """Check if bonding is completed"""
-        bond = yield from self.read_keep3r_v1("bond")  # contract parameter
-        if bond is None:
-            return None
+    def is_ready_to_activate(
+        self, keeper: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[bool]]:
+        """Check if the bond is ready to be activated"""
+        if self.context.params.use_v2:
+            can_activate_after = yield from self.read_keep3r(
+                "can_activate_after",
+                address=keeper,
+                bonding_asset=bonding_asset,
+            )
+            if can_activate_after is None:
+                # something went wrong
+                return None
+        else:
+            bond_time = yield from self.read_keep3r(
+                "bondings",
+                address=keeper,
+                bonding_asset=bonding_asset,
+            )
+            if bond_time is None:
+                # something went wrong
+                return None
+
+            bond = yield from self.read_keep3r("bond")  # contract parameter
+            if bond is None:
+                return None
+            can_activate_after = bond_time + bond
+
         ledger_api_response = yield from self.get_ledger_api_response(
             performative=LedgerApiMessage.Performative.GET_STATE,
             ledger_callable="get_block",
@@ -185,13 +249,13 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         latest_block_timestamp = cast(
             int, ledger_api_response.state.body.get("timestamp")
         )
-        remaining_time = bond_time + cast(int, bond) - latest_block_timestamp
+        remaining_time = can_activate_after - latest_block_timestamp
         self.context.logger.info(f"Remaining bond time: {remaining_time}")
         return remaining_time <= 0
 
     def has_activated(self, address: str) -> Generator[None, None, Optional[bool]]:
         """Check if bonding is completed"""
-        is_keeper = yield from self.read_keep3r_v1("is_keeper", address=address)
+        is_keeper = yield from self.read_keep3r("is_keeper", address=address)
         return is_keeper
 
     def has_sufficient_funds(self, address: str) -> Generator[None, None, bool]:
@@ -213,15 +277,37 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     ) -> Generator[None, None, Optional[int]]:
         """Amount to approve"""
         kwargs = {
+            "performative": ContractApiMessage.Performative.GET_STATE,
+            "contract_callable": "allowance",
             "contract_address": bonding_asset,
             "owner": owner,
             "spender": spender,
         }
-        allowance = yield from self.read_keep3r_v1("allowance", **kwargs)
-        if allowance is None:
+        allowance_msg = yield from self._call_keep3r_v1(**kwargs)
+        if allowance_msg.performative != ContractApiMessage.Performative.STATE:
+            # something went wrong
+            log_msg = "Failed ledger allowance call"
+            self.context.logger.error(f"{log_msg}: {allowance_msg}")
+            return None
+        allowance = cast(int, allowance_msg.state.body.get("data"))
+        return bond_amount - allowance
+
+    def has_pending_bond(
+        self, address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[bool]]:
+        """Check if bonding is completed"""
+        if not self.context.params.use_v2:
+            # only v2 has support for pending bonds
+            return False
+        pending_bond = yield from self.read_keep3r(
+            "pending_bonds",
+            address=address,
+            bonding_asset=bonding_asset,
+        )
+        if pending_bond is None:
             # something went wrong
             return None
-        return bond_amount - allowance
+        return pending_bond > 0
 
     def is_workable_job(
         self, contract_address: str
@@ -238,7 +324,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             self.context.logger.error(
                 f"Failed is_workable_job: {contract_api_response}"
             )
-            return None
+            return True
         log_msg = f"`workable` contract api response on {contract_api_response}"
         self.context.logger.info(f"{log_msg}: {contract_api_response}")
         return cast(bool, contract_api_response.state.body.get("data"))
@@ -247,12 +333,21 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self, spender: str, bonding_asset: str, bond_amount: int
     ) -> Generator[None, None, Optional[SafeTx]]:
         """Build ERC20 approve transaction"""
-        data_str = yield from self.read_keep3r_v1(
-            method="build_approve_tx",
+        contract_api_response = yield from self._call_keep3r_v1(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_callable="build_approve_tx",
             contract_address=bonding_asset,
             spender=spender,
             amount=bond_amount,
         )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            # something went wrong
+            log_msg = (
+                f"`build_approve_tx` contract api response on {contract_api_response}"
+            )
+            self.context.logger.info(f"{log_msg}: {contract_api_response}")
+            return None
+        data_str = cast(str, contract_api_response.state.body.get("data"))
         if data_str is None:
             # something went wrong
             return None
@@ -337,12 +432,13 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         """Select path to traverse"""
 
         safe_address = self.synchronized_data.safe_contract_address
-
-        blacklisted = yield from self.read_keep3r_v1("blacklist", address=safe_address)
-        if blacklisted is None:
-            return None
-        if blacklisted:
-            return self.transitions["BLACKLISTED"].name
+        if not self.context.params.use_v2:
+            # only keep3r v1 has "blacklist" functionality
+            blacklisted = yield from self.read_keep3r("blacklist", address=safe_address)
+            if blacklisted is None:
+                return None
+            if blacklisted:
+                return self.transitions["BLACKLISTED"].name
 
         sufficient_funds = yield from self.has_sufficient_funds(safe_address)
         if sufficient_funds is None:
@@ -350,26 +446,35 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         if not sufficient_funds:
             return self.transitions["INSUFFICIENT_FUNDS"].name
 
-        bond_time = yield from self.get_bond_time(
+        has_bonded = yield from self.has_bonded(
             safe_address, self.context.params.bonding_asset
         )
-        if bond_time is None:
+        if has_bonded is None:
+            # something went wrong
             return None
-        if bond_time == 0:
+        if not has_bonded:
             amount_to_approve = yield from self.amount_to_approve(
                 owner=safe_address,
-                spender=self.keep3r_v1_contract_address,
+                spender=self.bond_spender,
                 bonding_asset=self.context.params.bonding_asset,
                 bond_amount=self.context.params.bond_amount,
             )
             if amount_to_approve is None:
                 # something went wrong
                 return None
-            if amount_to_approve > 0:
+            has_pending_bond = yield from self.has_pending_bond(
+                safe_address, self.context.params.bonding_asset
+            )
+            if has_pending_bond is None:
+                # something went wrong
+                return None
+            if amount_to_approve > 0 and not has_pending_bond:
                 return self.transitions["APPROVE_BOND"].name
             return self.transitions["NOT_BONDED"].name
 
-        bonded_keeper = yield from self.has_bonded(bond_time)
+        bonded_keeper = yield from self.is_ready_to_activate(
+            safe_address, self.context.params.bonding_asset
+        )
         if bonded_keeper is None:
             return None
         if not bonded_keeper:
@@ -410,7 +515,7 @@ class ApproveBondBehaviour(Keep3rJobBaseBehaviour):
         """Behaviour to prepare an ERC20 approve transaction."""
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             raw_tx = yield from self.build_approve_raw_tx(
-                spender=self.keep3r_v1_contract_address,
+                spender=self.bond_spender,
                 bonding_asset=self.context.params.bonding_asset,
                 bond_amount=self.context.params.bond_amount,
             )
@@ -471,14 +576,10 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
 
     def _build_bond_tx(self) -> Generator[None, None, Optional[SafeTx]]:
         """Build bond tx"""
-        # TODO: the erc20 asset that is being bonded
-        # needs to be approved by the safe contract
-        # before a bond tx is made
-        bond_amount = 1000
-        data_str = yield from self.read_keep3r_v1(
+        data_str = yield from self.read_keep3r(
             method="build_bond_tx",
             address=self.context.params.bonding_asset,
-            amount=bond_amount,
+            amount=self.context.params.bond_amount,
         )
         if data_str is None:
             # something went wrong
@@ -486,7 +587,7 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
         data = bytes.fromhex(data_str[2:])
         safe_tx = SafeTx(
             data=data,
-            to=self.keep3r_v1_contract_address,
+            to=self.bond_spender,
             value=ZERO_ETH,
             gas=SAFE_GAS,
         )
@@ -504,13 +605,9 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
 
             address = self.synchronized_data.safe_contract_address
-            bond_time = yield from self.get_bond_time(
-                address=address, bonding_asset=self.context.params.bonding_asset
+            done_waiting = yield from self.is_ready_to_activate(
+                keeper=address, bonding_asset=self.context.params.bonding_asset
             )
-            if bond_time is None:
-                yield from self.sleep(self.context.params.sleep_time)
-                return
-            done_waiting = yield from self.has_bonded(bond_time)
             if not done_waiting:  # when `None` or `False`
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -566,7 +663,7 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
         """Behaviour to get the current job listing"""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            job_list = yield from self.read_keep3r_v1("get_jobs")
+            job_list = yield from self.read_keep3r("get_jobs")
             if job_list is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -601,9 +698,8 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
             else:
                 addresses = self.synchronized_data.job_list
                 self.context.logger.info(f"addresses: {addresses}")
-                # currently just try to select the first job
                 # TODO: add job selection algorithm
-                job_ix = 0
+                job_ix = -1
                 current_job = addresses[job_ix]
             payload = JobSelectionPayload(self.context.agent_address, current_job)
             self.context.logger.info(f"Job contract selected: {current_job}")
@@ -648,7 +744,7 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             current_job = self.synchronized_data.current_job
-            reward = yield from self.read_keep3r_v1("credits", address=current_job)
+            reward = yield from self.read_keep3r("credits", address=current_job)
             if reward is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return

@@ -63,10 +63,12 @@ class Params(BaseParams):
     required = [
         "job_contract_addresses",
         "keep3r_v1_contract_address",
+        "keep3r_v2_contract_address",
         "insufficient_funds_threshold",
         "profitability_threshold",
         "bonding_asset",
         "bond_amount",
+        "use_v2",
     ]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
