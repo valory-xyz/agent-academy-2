@@ -19,7 +19,7 @@
 
 """This module contains the shared state for the 'keep3r_job' application."""
 
-from typing import Any, List
+from typing import Any, List, Dict
 
 from packages.keep3r_co.skills.keep3r_job.rounds import Keep3rJobAbciApp
 from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
@@ -68,6 +68,7 @@ class Params(BaseParams):
         self.bonding_asset = self._ensure("bonding_asset", kwargs, str)
         self.bond_amount = self._ensure("bond_amount", kwargs, int)
         self.use_v2 = self._ensure("use_v2", kwargs, bool)
+        self.supported_jobs = self._ensure("supported_jobs", kwargs, Dict[str, str])
         super().__init__(*args, **kwargs)
 
 
