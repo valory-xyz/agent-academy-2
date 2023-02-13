@@ -20,7 +20,12 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 import json
 from abc import ABC
-from typing import Any, Generator, Optional, Set, Type, cast
+from typing import Any, Dict, Generator, Optional, Set, Type, cast
+
+from aea.configurations.data_types import PublicId
+
+from packages.keep3r_co.skills.keep3r_job.dynamic_package_loader import load_contract
+from packages.valory.skills.abstract_round_abci.io_.store import SupportedFiletype
 
 
 try:
@@ -96,6 +101,8 @@ ZERO_ETH = 0
 
 class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     """Base state behaviour for the simple abci skill."""
+
+    job_to_contract_id: Dict[str, PublicId] = {}
 
     @property
     def synchronized_data(self) -> SynchronizedData:
@@ -418,6 +425,26 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             data=tx_params["data"],
         )
         return payload_data
+
+    def load_contract_package(
+        self, ipfs_hash: str
+    ) -> Generator[None, None, Optional[PublicId]]:
+        """Fetch & load a contract package from IPFS."""
+        self.context.logger.info(f"Loading contract package for {ipfs_hash}")
+        job_package = yield from self.get_from_ipfs(
+            ipfs_hash,
+            filetype=SupportedFiletype.CONTRACT_PACKAGE,
+            multiple=True,
+        )
+        if job_package is None:
+            self.context.logger.error("Failed to get the package from IPFS!")
+            return None
+        contract_py, contract_yaml, abi_json = job_package
+        contract_id = load_contract(contract_py, contract_yaml, abi_json)
+        if contract_id is None:
+            self.context.logger.error("Failed to load the contract package!")
+            return None
+        return contract_id
 
 
 class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
