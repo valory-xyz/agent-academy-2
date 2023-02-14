@@ -7,7 +7,7 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   DepositManager.json: bafybeigprsi6ehxjbhl7qu4c67c7pvkbyybpr5tgbokdpffawvhi36a25u
-  __init__.py: bafybeicvyg5fcytf5m3tdvb2vmdj2toqh6sjvr23fgart23fk7msuhvlru
+  __init__.py: bafybeihkofb3skgfaeylolyzstwqc35jjf6clolnxme354mxswpecs244y
   contract.py: bafybeiayfdfrchjoi6z5i7xofysoi6jxzcyf5qs4oqiw27hr622drswb6u
 fingerprint_ignore_patterns: []
 contracts: []
@@ -16,6 +16,6 @@ contract_interface_paths:
   ethereum: DepositManager.json
 dependencies:
   open-aea-ledger-ethereum:
-    version: ==1.27.0
+    version: ==1.28.0.post1
   web3:
     version: ==5.25.0

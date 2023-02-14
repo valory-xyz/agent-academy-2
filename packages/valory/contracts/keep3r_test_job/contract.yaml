@@ -6,16 +6,14 @@ description: Goerli keep3r testnet job
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeicvyg5fcytf5m3tdvb2vmdj2toqh6sjvr23fgart23fk7msuhvlru
-  build/TestJob.json: bafybeid2jbxe2rfsfvjysvv6bv6cgj6doysl3qswhdljzkevazvuih3jki
+  TestJob.json: bafybeid2jbxe2rfsfvjysvv6bv6cgj6doysl3qswhdljzkevazvuih3jki
+  __init__.py: bafybeicd6knr477s5kirbb6muoxrqsrklg7fu4xrcpxiqfgkt5sa5iwlxe
   contract.py: bafybeie4rhh7gmkv6trchdoeddtxzc7idkg5tnxf4nijr5stgkjsibqli4
-  tests/__init__.py: bafybeifnq6gf532ygguyk3oomjr4qcgyx63tm53sdlyyk5oigk7teq2dni
-  tests/test_contract.py: bafybeidsuhrtf5miupssc6x4eptpo3u3khcvces5bobhw6ayj2h2uxvt6u
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rTestJobContract
 contract_interface_paths:
-  ethereum: build/TestJob.json
+  ethereum: TestJob.json
 dependencies:
   open-aea-ledger-ethereum:
     version: ==1.28.0.post1
