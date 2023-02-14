@@ -33,7 +33,6 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     JobSelectionPayload,
     PathSelectionPayload,
     TopUpPayload,
-    TransactionType,
     WaitingPayload,
     WorkTxPayload,
 )
@@ -119,9 +118,8 @@ class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
 class PathSelectionRound(Keep3rJobAbstractRound):
     """HealthCheckRound"""
 
-    round_id: str = "path_selection"
-    allowed_tx_type: TransactionType = PathSelectionPayload.transaction_type
-    payload_attribute: str = get_name(PathSelectionPayload.path_selection)
+    payload_class = PathSelectionPayload
+    payload_attribute: str = "path_selection"
 
     transitions: Dict[str, Event] = {
         "APPROVE_BOND": Event.APPROVE_BOND,
@@ -150,8 +148,8 @@ class PathSelectionRound(Keep3rJobAbstractRound):
 class ApproveBondRound(Keep3rJobAbstractRound):
     """Round to approve the keep3r contract to spend our (erc20) tokens."""
 
-    allowed_tx_type: TransactionType = ApproveBondTxPayload.transaction_type
-    payload_attribute: str = get_name(ApproveBondTxPayload.approval_tx)
+    payload_class = ApproveBondTxPayload
+    payload_attribute: str = "approval_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -175,8 +173,8 @@ class ApproveBondRound(Keep3rJobAbstractRound):
 class BondingRound(Keep3rJobAbstractRound):
     """BondingRound"""
 
-    allowed_tx_type: TransactionType = BondingTxPayload.transaction_type
-    payload_attribute: str = get_name(BondingTxPayload.bonding_tx)
+    payload_class = BondingTxPayload
+    payload_attribute: str = "bonding_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -200,8 +198,8 @@ class BondingRound(Keep3rJobAbstractRound):
 class WaitingRound(Keep3rJobAbstractRound):
     """WaitingRound"""
 
-    allowed_tx_type: TransactionType = WaitingPayload.transaction_type
-    payload_attribute: str = get_name(WaitingPayload.done_waiting)
+    payload_class = WaitingPayload
+    payload_attribute: str = "done_waiting"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -220,8 +218,8 @@ class WaitingRound(Keep3rJobAbstractRound):
 class ActivationRound(Keep3rJobAbstractRound):
     """ActivationRound"""
 
-    allowed_tx_type: TransactionType = ActivationTxPayload.transaction_type
-    payload_attribute: str = get_name(ActivationTxPayload.activation_tx)
+    payload_class = ActivationTxPayload
+    payload_attribute: str = "activation_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -246,8 +244,8 @@ class ActivationRound(Keep3rJobAbstractRound):
 class GetJobsRound(Keep3rJobAbstractRound):
     """GetJobsRound"""
 
-    allowed_tx_type: TransactionType = GetJobsPayload.transaction_type
-    payload_attribute: str = get_name(GetJobsPayload.job_list)
+    payload_class = GetJobsPayload
+    payload_attribute: str = "job_list"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -267,8 +265,8 @@ class GetJobsRound(Keep3rJobAbstractRound):
 class JobSelectionRound(Keep3rJobAbstractRound):
     """JobSelectionRound"""
 
-    allowed_tx_type: TransactionType = JobSelectionPayload.transaction_type
-    payload_attribute = get_name(JobSelectionPayload.current_job)
+    payload_class = JobSelectionPayload
+    payload_attribute = "current_job"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -286,8 +284,8 @@ class JobSelectionRound(Keep3rJobAbstractRound):
 class IsWorkableRound(Keep3rJobAbstractRound):
     """IsWorkableRound"""
 
-    allowed_tx_type: TransactionType = IsWorkablePayload.transaction_type
-    payload_attribute = get_name(IsWorkablePayload.is_workable)
+    payload_class = IsWorkablePayload
+    payload_attribute = "is_workable"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -311,8 +309,8 @@ class IsWorkableRound(Keep3rJobAbstractRound):
 class IsProfitableRound(Keep3rJobAbstractRound):
     """IsProfitableRound"""
 
-    allowed_tx_type: TransactionType = IsProfitablePayload.transaction_type
-    payload_attribute = get_name(IsProfitablePayload.is_profitable)
+    payload_class = IsProfitablePayload
+    payload_attribute = "is_profitable"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -332,8 +330,8 @@ class IsProfitableRound(Keep3rJobAbstractRound):
 class PerformWorkRound(Keep3rJobAbstractRound):
     """PerformWorkRound"""
 
-    allowed_tx_type: TransactionType = WorkTxPayload.transaction_type
-    payload_attribute: str = get_name(WorkTxPayload.work_tx)
+    payload_class = WorkTxPayload
+    payload_attribute: str = "work_tx"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -358,8 +356,8 @@ class PerformWorkRound(Keep3rJobAbstractRound):
 class AwaitTopUpRound(Keep3rJobAbstractRound):
     """AwaitTopUpRound"""
 
-    allowed_tx_type: TransactionType = TopUpPayload.transaction_type
-    payload_attribute: str = get_name(TopUpPayload.top_up)
+    payload_class = TopUpPayload
+    payload_attribute: str = "top_up"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""

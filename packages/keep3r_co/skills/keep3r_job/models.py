@@ -19,9 +19,9 @@
 
 """This module contains the shared state for the 'keep3r_job' application."""
 
-from typing import Any
+from typing import Any, List
 
-from packages.keep3r_co.skills.keep3r_job.rounds import Event, Keep3rJobAbciApp
+from packages.keep3r_co.skills.keep3r_job.rounds import Keep3rJobAbciApp
 from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
@@ -42,40 +42,32 @@ BenchmarkTool = BaseBenchmarkTool
 class SharedState(BaseSharedState):
     """Keep the current shared state of the skill."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """Initialize the state."""
-        super().__init__(*args, abci_app_cls=Keep3rJobAbciApp, **kwargs)
-
-    def setup(self) -> None:
-        """Set up."""
-        super().setup()
-        Keep3rJobAbciApp.event_to_timeout[
-            Event.ROUND_TIMEOUT
-        ] = self.context.params.round_timeout_seconds
-        Keep3rJobAbciApp.event_to_timeout[Event.ROUND_TIMEOUT] = (
-            self.context.params.observation_interval + MARGIN
-        )
+    abci_app_cls = Keep3rJobAbciApp
 
 
 class Params(BaseParams):
     """Parameters."""
 
-    required = [
-        "job_contract_addresses",
-        "keep3r_v1_contract_address",
-        "keep3r_v2_contract_address",
-        "insufficient_funds_threshold",
-        "profitability_threshold",
-        "bonding_asset",
-        "bond_amount",
-        "use_v2",
-    ]
-
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
-
-        for item in self.required:
-            setattr(self, item, self._ensure(item, kwargs))
+        self.job_contract_addresses = self._ensure(
+            "job_contract_addresses", kwargs, List[str]
+        )
+        self.keep3r_v1_contract_address = self._ensure(
+            "keep3r_v1_contract_address", kwargs, str
+        )
+        self.keep3r_v2_contract_address = self._ensure(
+            "keep3r_v2_contract_address", kwargs, str
+        )
+        self.insufficient_funds_threshold = self._ensure(
+            "insufficient_funds_threshold", kwargs, int
+        )
+        self.profitability_threshold = self._ensure(
+            "profitability_threshold", kwargs, int
+        )
+        self.bonding_asset = self._ensure("bonding_asset", kwargs, str)
+        self.bond_amount = self._ensure("bond_amount", kwargs, int)
+        self.use_v2 = self._ensure("use_v2", kwargs, bool)
         super().__init__(*args, **kwargs)
 
 

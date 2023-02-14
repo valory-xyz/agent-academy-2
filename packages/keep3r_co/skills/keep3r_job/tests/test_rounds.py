@@ -27,7 +27,6 @@ import pytest
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
-    BaseKeep3rJobPayload,
     BondingTxPayload,
     GetJobsPayload,
     IsProfitablePayload,
@@ -57,6 +56,7 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
 from packages.valory.skills.abstract_round_abci.base import (
     AbciAppDB,
     AbstractRound,
+    BaseTxPayload,
     ConsensusParams,
 )
 
@@ -73,9 +73,9 @@ class BaseRoundTestClass:
     """Base test class for Rounds."""
 
     round_class: Type[Keep3rJobAbstractRound]
-    payload_class: Type[BaseKeep3rJobPayload]
+    payload_class: Type[BaseTxPayload]
     round: Keep3rJobAbstractRound
-    payload: BaseKeep3rJobPayload
+    payload: BaseTxPayload
     synchronized_data: SynchronizedData
     consensus_params: ConsensusParams
     participants: FrozenSet[str]
@@ -98,7 +98,7 @@ class BaseRoundTestClass:
     def deliver_payloads(self, **content: Any) -> SynchronizedData:
         """Deliver payloads"""
 
-        payloads = [self.payload_class(sender=p, **content) for p in self.participants]
+        payloads = [self.payload_class(sender=p, **content) for p in self.participants]  # type: ignore
         first_payload, *payloads = payloads
         self.round.process_payload(first_payload)
         assert self.round.collection == {first_payload.sender: first_payload}
