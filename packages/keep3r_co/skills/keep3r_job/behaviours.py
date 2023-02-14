@@ -20,12 +20,9 @@
 """This module contains the behaviours for the 'keep3r_job' skill."""
 import json
 from abc import ABC
-from typing import Any, Dict, Generator, Optional, Set, Type, cast
+from typing import Any, Dict, Generator, Optional, Set, Tuple, Type, cast
 
 from aea.configurations.data_types import PublicId
-
-from packages.keep3r_co.skills.keep3r_job.dynamic_package_loader import load_contract
-from packages.valory.skills.abstract_round_abci.io_.store import SupportedFiletype
 
 
 try:
@@ -33,7 +30,9 @@ try:
 except ImportError:
     from mypy_extensions import TypedDict  # <=py3.7
 
-from packages.keep3r_co.skills.keep3r_job.models import Params
+from packages.keep3r_co.skills.keep3r_job.dynamic_package_loader import load_contract
+from packages.keep3r_co.skills.keep3r_job.io_.loader import ContractPackageLoader
+from packages.keep3r_co.skills.keep3r_job.models import Params, SharedState
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
@@ -66,7 +65,6 @@ from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.contracts.keep3r_for_testnet.contract import (
     KeeperForTestnetContract,
 )
-from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
 from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.protocols.ledger_api.message import LedgerApiMessage
@@ -89,7 +87,6 @@ SafeTx = TypedDict(
         "value": int,
     },
 )
-
 
 # setting the safe gas to 0 means that all available gas will be used
 # which is what we want in most cases
@@ -317,14 +314,15 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         return pending_bond > 0
 
     def is_workable_job(
-        self, contract_address: str
+        self,
+        contract_address: str,
+        contract_id: PublicId,
     ) -> Generator[None, None, Optional[bool]]:
         """Check if job contract is workable"""
-
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
             contract_address=contract_address,
-            contract_id=str(Keep3rTestJobContract.contract_id),  # TODO generalize
+            contract_id=str(contract_id),
             contract_callable="workable",
         )
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
@@ -368,12 +366,14 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         return safe_tx
 
     def build_work_raw_tx(
-        self, job_address: str
+        self,
+        job_address: str,
+        contract_id: PublicId,
     ) -> Generator[None, None, Optional[SafeTx]]:
         """Build raw work transaction for a job contract"""
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
-            contract_id=str(Keep3rTestJobContract.contract_id),
+            contract_id=str(contract_id),
             contract_callable="build_work_tx",
             contract_address=job_address,
         )
@@ -431,24 +431,40 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     ) -> Generator[None, None, Optional[PublicId]]:
         """Fetch & load a contract package from IPFS."""
         self.context.logger.info(f"Loading contract package for {ipfs_hash}")
-        job_package = yield from self.get_from_ipfs(
-            ipfs_hash,
-            filetype=SupportedFiletype.CONTRACT_PACKAGE,
-            multiple=True,
-        )
+        job_package = yield from self.get_from_ipfs(ipfs_hash)
         if job_package is None:
             self.context.logger.error("Failed to get the package from IPFS!")
             return None
-        contract_py, contract_yaml, abi_json = job_package
+        contract_yaml, contract_py, abi_json = cast(Tuple[Dict, str, Dict], job_package)
         contract_id = load_contract(contract_py, contract_yaml, abi_json)
         if contract_id is None:
             self.context.logger.error("Failed to load the contract package!")
             return None
         return contract_id
 
+    def load_contract_packages(
+        self, address_to_hash: Dict[str, str]
+    ) -> Generator[None, None, Dict[str, PublicId]]:
+        """Load contract packages from IPFS"""
+        address_to_public_id: Dict[str, PublicId] = {}
+        for address, ipfs_hash in address_to_hash.items():
+            contract_id = yield from self.load_contract_package(ipfs_hash)
+            if contract_id is None:
+                self.context.logger.error(
+                    f"Failed to load contract package with ipfs hash {ipfs_hash}!"
+                )
+                continue
+            self.context.logger.info(f"Loaded contract package {contract_id}")
+            address_to_public_id[address] = contract_id
+        return address_to_public_id
+
 
 class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     """PathSelectionBehaviour"""
+
+    def __init__(self, **kwargs: Any) -> None:
+        """Init behaviour"""
+        super().__init__(**kwargs, loader_cls=ContractPackageLoader)
 
     matching_round: Type[AbstractRound] = PathSelectionRound
     transitions = PathSelectionRound.transitions
@@ -457,6 +473,15 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         self,
     ) -> Generator[None, None, Optional[str]]:
         """Select path to traverse"""
+
+        # check if job contract packages are loaded
+        shared_state = cast(SharedState, self.context.state)
+        if len(shared_state.job_address_to_public_id) == 0:
+            # if not, load them
+            address_to_public_id = yield from self.load_contract_packages(
+                self.params.supported_jobs_to_package_hash
+            )
+            shared_state.job_address_to_public_id = address_to_public_id
 
         safe_address = self.synchronized_data.safe_contract_address
         if not self.context.params.use_v2:
@@ -630,7 +655,6 @@ class WaitingBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-
             address = self.synchronized_data.safe_contract_address
             done_waiting = yield from self.is_ready_to_activate(
                 keeper=address, bonding_asset=self.context.params.bonding_asset
@@ -694,7 +718,12 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
             if job_list is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
-            job_list_str = json.dumps(job_list)
+            shared_state = cast(SharedState, self.context.state)
+            supported_jobs_set = set(job_list).intersection(
+                set(shared_state.job_address_to_public_id.keys())
+            )
+            supported_jobs = sorted(list(supported_jobs_set))
+            job_list_str = json.dumps(supported_jobs)
             payload = GetJobsPayload(self.context.agent_address, job_list=job_list_str)
             self.context.logger.info(f"Job list retrieved: {job_list}")
 
@@ -748,7 +777,12 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             current_job = cast(str, self.synchronized_data.current_job)
-            is_workable = yield from self.is_workable_job(current_job)
+            contract_public_id = self.context.state.job_address_to_public_id[
+                current_job
+            ]
+            is_workable = yield from self.is_workable_job(
+                current_job, contract_public_id
+            )
             if is_workable is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -796,7 +830,10 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             current_job = cast(str, self.synchronized_data.current_job)
-            raw_tx = yield from self.build_work_raw_tx(current_job)
+            contract_public_id = self.context.state.job_address_to_public_id[
+                current_job
+            ]
+            raw_tx = yield from self.build_work_raw_tx(current_job, contract_public_id)
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
