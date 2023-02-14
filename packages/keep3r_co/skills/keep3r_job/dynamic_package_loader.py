@@ -24,11 +24,10 @@ from typing import Any, Dict, Optional, Type
 from aea.configurations.base import ContractConfig
 from aea.configurations.data_types import PublicId
 from aea.contracts import Contract, contract_registry
+from aea.crypto.registries.base import ItemId
 
 
 _logger = logging.getLogger(__name__)
-
-# TODO: add loaders for the ipfs response
 
 
 def load_contract(
@@ -36,10 +35,16 @@ def load_contract(
 ) -> Optional[PublicId]:
     """Load a contract dynamically."""
     # run the contract.py file to load the contract class into the global namespace
-    exec(contract_py, globals())  # pylint: disable=exec-used
+    # WARNING: should be used only if you trust the contents of contract_py
+    exec(contract_py, globals())  # pylint: disable=exec-used; #nosec
 
     # check that the contract class, as defined in contract.yaml, is in the global namespace
-    contract_config = ContractConfig(**contract_yaml)
+    contract_config = ContractConfig(
+        name=contract_yaml["name"],
+        author=contract_yaml["author"],
+        version=contract_yaml["version"],
+        class_name=contract_yaml["class_name"],
+    )
     expected_cls_name = contract_config.class_name
     if expected_cls_name not in globals():
         _logger.error(f"Contract class {expected_cls_name} not found in module.")
@@ -48,7 +53,8 @@ def load_contract(
     # load the contract into the registry
     contract_cls = globals()[expected_cls_name]
     item_spec = DynamicItemSpec(contract_config, contract_cls, abi_json)
-    contract_registry.specs[item_spec.id] = item_spec  # type: ignore
+    item_id = ItemId(str(item_spec.id))
+    contract_registry.specs[item_id] = item_spec  # type: ignore
     return item_spec.id
 
 
