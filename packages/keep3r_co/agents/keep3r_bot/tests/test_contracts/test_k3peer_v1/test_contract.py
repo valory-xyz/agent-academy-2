@@ -43,7 +43,7 @@ from packages.keep3r_co.agents.keep3r_bot.tests.helpers.constants import (
     ONE_ETH,
     SECONDS_PER_DAY,
 )
-from packages.valory.contracts.keep3r_test_job.tests import (
+from packages.valory.contracts.keep3r_test_job import (
     PACKAGE_DIR as KEEP3R_TEST_JOB_DIR,
 )
 from packages.valory.contracts.keep3r_v1 import PACKAGE_DIR as KEEPER_V1_CONTRACT_DIR
@@ -144,7 +144,7 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
     def deploy_contract(cls, path: Path, **kwargs: Any) -> Any:
         """Deploy (additional) contract"""
 
-        json_files = list(path.glob("build/*.json"))
+        json_files = list(path.glob("*.json"))
         assert len(json_files) == 1, json_files
         interface = json.loads(json_files.pop().read_text(encoding="utf-8"))
         raw_tx = cls.ledger_api.get_deploy_transaction(
