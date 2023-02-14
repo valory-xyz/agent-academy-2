@@ -10,9 +10,9 @@ fingerprint:
   __init__.py: bafybeiaahg7kgkjgmlxj6yy6etmqcbfln5so7z7pv4aeccw3d54shhrpkq
   behaviours.py: bafybeiapk6jx4fu3hfvtf3p2wbs7xuoooene7k6akm6meu6bnm752rml5a
   composition.py: bafybeiee3fl72qpqzz6sgy7efmql2dwp5uztf7dk47neknjbgonjpelniu
-  dialogues.py: bafybeiavn7vw3dvldlvhjs6vu7xb5auoky5wodfryf2x52wfbyigiqk4qe
+  dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   fsm_specification.yaml: bafybeihomn6jw4mzveuak7h5irg4myu7hxjeuzrng2bvs2i7i2mu2hwh4q
-  handlers.py: bafybeih6atwkcp3zly7bbxrthjzy5j72vuipg5tou2zpikxmjs5vnndy4a
+  handlers.py: bafybeihrnok2s2oztglt7on7g5icbugmibikb3y2kqz2imbe23yoij7a5y
   models.py: bafybeid4l4h5ndidwk4dkveor7ndxvxldvvjnb5stfdr2njgckbbkstjru
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
 fingerprint_ignore_patterns: []
@@ -20,7 +20,7 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeie2f6puvu25cbk74e2da23zcoe2w2vla5vl7nwpx2oe4i4lwrruvm
+- keep3r_co/keep3r_job:0.1.0:bafybeic7tf2zll5te5zybrvf2r2p64xfydtk5j3yaas4fib2sednqkjrry
 - valory/abstract_round_abci:0.1.0:bafybeicvbxixjsu3bgjk5frqz5mq2kmv44grwd6324viz4tehw3yejfhji
 - valory/registration_abci:0.1.0:bafybeihai2otcmnb2w7k64bnwf5qagfexg5gqow74xhj3wynikgdxre3ka
 - valory/reset_pause_abci:0.1.0:bafybeifs6zpg5nbvuapmxafzo6fdhoz5ebpiujetvk243apo3iwl2rn45i
