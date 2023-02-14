@@ -24,14 +24,14 @@ from packages.keep3r_co.skills.keep3r_job.models import Params as Keep3rJobParam
 from packages.keep3r_co.skills.keep3r_job.models import (
     RandomnessApi as BaseRandomnessApi,
 )
+from packages.keep3r_co.skills.keep3r_job.models import (
+    SharedState as Keep3rJobSharedState,
+)
 from packages.keep3r_co.skills.keep3r_job.rounds import Event as Keep3rJobEvent
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
 )
 from packages.valory.skills.abstract_round_abci.models import Requests as BaseRequests
-from packages.valory.skills.abstract_round_abci.models import (
-    SharedState as BaseSharedState,
-)
 from packages.valory.skills.registration_abci.rounds import Event as RegistrationEvent
 from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
 from packages.valory.skills.transaction_settlement_abci.models import TransactionParams
@@ -46,12 +46,12 @@ BenchmarkTool = BaseBenchmarkTool
 RandomnessApi = BaseRandomnessApi
 
 
-class SharedState(BaseSharedState):
+class SharedState(Keep3rJobSharedState):
     """Keep the current shared state of the skill."""
 
     abci_app_cls = Keep3rAbciApp
 
-    def setup(self) -> None:
+    def setup(self) -> None:  # pylint: disable=too-many-instance-attributes
         """Set up."""
         super().setup()
         timeouts = Keep3rAbciApp.event_to_timeout
