@@ -43,9 +43,7 @@ from packages.keep3r_co.agents.keep3r_bot.tests.helpers.constants import (
     ONE_ETH,
     SECONDS_PER_DAY,
 )
-from packages.valory.contracts.keep3r_test_job import (
-    PACKAGE_DIR as KEEP3R_TEST_JOB_DIR,
-)
+from packages.valory.contracts.keep3r_test_job import PACKAGE_DIR as KEEP3R_TEST_JOB_DIR
 from packages.valory.contracts.keep3r_v1 import PACKAGE_DIR as KEEPER_V1_CONTRACT_DIR
 from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.contracts.keep3r_v1_library import (

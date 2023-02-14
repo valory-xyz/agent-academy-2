@@ -20,5 +20,5 @@
 """This module contains the support resources for the Keep3r test job contract."""
 from pathlib import Path
 
-PACKAGE_DIR = Path(__file__).parent
 
+PACKAGE_DIR = Path(__file__).parent

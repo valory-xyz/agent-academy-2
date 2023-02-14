@@ -7,7 +7,7 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   TestJob.json: bafybeid2jbxe2rfsfvjysvv6bv6cgj6doysl3qswhdljzkevazvuih3jki
-  __init__.py: bafybeidcziaytstk6etxxrb2fnynjfdzkv2uxvwzlj4vej4izca2rxatly
+  __init__.py: bafybeicyhinax5gjp2li37yug35u4aef2z3afrznmlr2rsvdpmh6m4g3sy
   contract.py: bafybeie4rhh7gmkv6trchdoeddtxzc7idkg5tnxf4nijr5stgkjsibqli4
 fingerprint_ignore_patterns: []
 contracts: []

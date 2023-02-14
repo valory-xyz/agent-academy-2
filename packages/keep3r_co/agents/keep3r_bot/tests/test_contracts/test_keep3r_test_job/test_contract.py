@@ -25,9 +25,7 @@ from aea_ledger_ethereum import EthereumApi, EthereumCrypto
 from aea_test_autonomy.base_test_classes.contracts import BaseGanacheContractTest
 from aea_test_autonomy.docker.base import skip_docker_tests
 
-from packages.valory.contracts.keep3r_test_job import (
-    PACKAGE_DIR
-)
+from packages.valory.contracts.keep3r_test_job import PACKAGE_DIR
 from packages.valory.contracts.keep3r_test_job.contract import Keep3rTestJobContract
 
 
