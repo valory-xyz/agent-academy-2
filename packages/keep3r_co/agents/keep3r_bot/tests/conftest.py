@@ -34,6 +34,8 @@ from aea_test_autonomy.fixture_helpers import (  # noqa
     ganache_addr,
     ganache_configuration,
     ganache_port,
+    ipfs_daemon,
+    ipfs_domain,
     tendermint_port,
 )
 

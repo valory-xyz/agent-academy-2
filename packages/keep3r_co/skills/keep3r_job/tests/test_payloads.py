@@ -31,7 +31,6 @@ from packages.keep3r_co.skills.keep3r_job.payloads import (
     IsProfitablePayload,
     IsWorkablePayload,
     PathSelectionPayload,
-    TransactionType,
     WaitingPayload,
     WorkTxPayload,
 )
@@ -45,7 +44,6 @@ def test_path_selection_payload(path_selection: str) -> None:
     payload = PathSelectionPayload(sender="sender", path_selection=path_selection)
     assert payload.sender == "sender"
     assert payload.path_selection == path_selection
-    assert payload.transaction_type == TransactionType.SELECTED_PATH
     assert payload.from_json(payload.json) == payload
 
 
@@ -56,7 +54,6 @@ def test_bonding_tx_payload(bonding_tx: str) -> None:
     payload = BondingTxPayload(sender="sender", bonding_tx=bonding_tx)
     assert payload.sender == "sender"
     assert payload.bonding_tx == bonding_tx
-    assert payload.transaction_type == TransactionType.BONDING_TX
     assert payload.from_json(payload.json) == payload
 
 
@@ -67,7 +64,6 @@ def test_approve_bond_tx_payload(approval_tx: str) -> None:
     payload = ApproveBondTxPayload(sender="sender", approval_tx=approval_tx)
     assert payload.sender == "sender"
     assert payload.approval_tx == approval_tx
-    assert payload.transaction_type == TransactionType.APPROVE_BOND
     assert payload.from_json(payload.json) == payload
 
 
@@ -78,7 +74,6 @@ def test_waiting_payload(done_waiting: bool) -> None:
     payload = WaitingPayload(sender="sender", done_waiting=done_waiting)
     assert payload.sender == "sender"
     assert payload.done_waiting == done_waiting
-    assert payload.transaction_type == TransactionType.DONE_WAITING
     assert payload.from_json(payload.json) == payload
 
 
@@ -89,7 +84,6 @@ def test_activation_tx_payload(activation_tx: str) -> None:
     payload = ActivationTxPayload(sender="sender", activation_tx=activation_tx)
     assert payload.sender == "sender"
     assert payload.activation_tx == activation_tx
-    assert payload.transaction_type == TransactionType.ACTIVATION_TX
     assert payload.from_json(payload.json) == payload
 
 
@@ -100,7 +94,6 @@ def test_get_jobs_payload(job_list: List[str]) -> None:
     payload = GetJobsPayload(sender="sender", job_list=stringified_list)
     assert payload.sender == "sender"
     assert payload.job_list == stringified_list
-    assert payload.transaction_type == TransactionType.JOB_LIST
     assert payload.from_json(payload.json) == payload
 
 
@@ -111,7 +104,6 @@ def test_is_workable_payload(is_workable: bool) -> None:
     payload = IsWorkablePayload(sender="sender", is_workable=is_workable)
     assert payload.sender == "sender"
     assert payload.is_workable == is_workable
-    assert payload.transaction_type == TransactionType.IS_WORKABLE
     assert payload.from_json(payload.json) == payload
 
 
@@ -122,7 +114,6 @@ def test_is_profitable_payload(is_profitable: bool) -> None:
     payload = IsProfitablePayload(sender="sender", is_profitable=is_profitable)
     assert payload.sender == "sender"
     assert payload.is_profitable == is_profitable
-    assert payload.transaction_type == TransactionType.IS_PROFITABLE
     assert payload.from_json(payload.json) == payload
 
 
@@ -133,5 +124,4 @@ def test_work_tx_payload(work_tx: str) -> None:
     payload = WorkTxPayload(sender="sender", work_tx=work_tx)
     assert payload.sender == "sender"
     assert payload.work_tx == work_tx
-    assert payload.transaction_type == TransactionType.WORK_TX
     assert payload.from_json(payload.json) == payload

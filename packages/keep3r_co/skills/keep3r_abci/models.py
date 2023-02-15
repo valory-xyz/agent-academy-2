@@ -19,8 +19,6 @@
 
 """This module contains the shared state for the price estimation app ABCI application."""
 
-from typing import Any
-
 from packages.keep3r_co.skills.keep3r_abci.composition import Keep3rAbciApp
 from packages.keep3r_co.skills.keep3r_job.models import Params as Keep3rJobParams
 from packages.keep3r_co.skills.keep3r_job.models import (
@@ -51,16 +49,12 @@ RandomnessApi = BaseRandomnessApi
 class SharedState(BaseSharedState):
     """Keep the current shared state of the skill."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """Initialize the state."""
-        super().__init__(*args, abci_app_cls=Keep3rAbciApp, **kwargs)
+    abci_app_cls = Keep3rAbciApp
 
     def setup(self) -> None:
         """Set up."""
         super().setup()
-
         timeouts = Keep3rAbciApp.event_to_timeout
-
         round_timeout_seconds = self.context.params.round_timeout_seconds
         validate_timeout = self.context.params.validate_timeout
         finalize_timeout = self.context.params.finalize_timeout
