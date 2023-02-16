@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: keep3r_co/keep3r_bot:0.1.0:bafybeidm5cisf6sd253tfs3qq5wcjrpuvikqx7ixzw6aarcp5uzp4n2qse
+agent: keep3r_co/keep3r_bot:0.1.0:bafybeigwfyluynnshzagw4sn225xbtryi5vbdymygl6d65bwtespz7zdsu
 number_of_agents: 1
 ---
 public_id: keep3r_co/keep3r_abci:0.1.0
@@ -16,6 +16,7 @@ models:
   params:
     args:
       setup:
+        all_participants: ${ALL_PARTICIPANTS:list:["0x0000000000000000000000000000000000000000"]}
         safe_contract_address: ${SAFE_CONTRACT_ADDRESS:list:["0x0000000000000000000000000000000000000000"]}
       bonding_asset: ${BONDING_ASSET:str:0x0000000000000000000000000000000000000000}
       bond_amount: ${BOND_AMOUNT:int:1}

@@ -212,6 +212,7 @@ models:
         max_participants: ${MAX_PARTICIPANTS:int:4}
       setup:
         safe_contract_address: ${list:["0x0000000000000000000000000000000000000000"]}
+        all_participants: ${list:[["0x0000000000000000000000000000000000000000"]]}
       round_timeout_seconds: ${float:60.0}
       tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
       tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
