@@ -21,6 +21,7 @@
 
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, Optional, Type, cast
+from unittest import mock
 
 import pytest
 
@@ -69,11 +70,12 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
     WaitingRound,
 )
 from packages.keep3r_co.skills.keep3r_job.tests import PACKAGE_DIR
+from packages.keep3r_co.skills.keep3r_job.tests.helpers import (
+    DUMMY_CONTRACT_PACKAGE,
+    wrap_dummy_get_from_ipfs,
+)
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
-)
-from packages.valory.contracts.keep3r_test_job.contract import (
-    PUBLIC_ID as TEST_JOB_CONTRACT_ID,
 )
 from packages.valory.contracts.keep3r_v1.contract import (
     PUBLIC_ID as KEEP3R_V1_CONTRACT_ID,
@@ -103,6 +105,8 @@ DUMMY_SAFE_TX: SafeTx = {
     "value": ZERO_ETH,
     "gas": SAFE_GAS,
 }
+TEST_JOB_CONTRACT_ID = "test_job_contract_id"
+DUMMY_CONTRACT = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
 
 
 class DummyRoundId:  # pylint: disable=too-few-public-methods
@@ -142,7 +146,6 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             current_job=SOME_CONTRACT_ADDRESS,
         )
         self.fast_forward(data)
-        self.behaviour.act_wrapper()
 
     @property
     def current_behaviour(self) -> BaseBehaviour:
@@ -283,14 +286,19 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
         return self.mock_ethereum_ledger_state_call(block)
 
 
+@mock.patch.object(
+    BaseBehaviour,
+    "get_from_ipfs",
+    side_effect=wrap_dummy_get_from_ipfs(DUMMY_CONTRACT_PACKAGE),
+)
 class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test PathSelectionBehaviour"""
 
     behaviour_class: Type[BaseBehaviour] = PathSelectionBehaviour
 
-    def test_blacklisted(self) -> None:
+    def test_blacklisted(self, *_: Any) -> None:
         """Test path_selection to blacklisted."""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("blacklist", True)
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -301,9 +309,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             == degenerate_state.auto_behaviour_id()
         )
 
-    def test_insufficient_funds(self) -> None:
+    def test_insufficient_funds(self, *_: Any) -> None:
         """Test path_selection to insufficient funds."""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=-1)
         self.mock_a2a_transaction()
@@ -314,9 +322,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             == AwaitTopUpRound.auto_round_id()
         )
 
-    def test_not_bonded(self) -> None:
+    def test_not_bonded(self, *_: Any) -> None:
         """Test path_selection to not bonded."""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 0)
@@ -329,9 +337,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             == BondingRound.auto_round_id()
         )
 
-    def test_not_approved(self) -> None:
+    def test_not_approved(self, *_: Any) -> None:
         """Test path_selection to not bonded."""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 0)
@@ -344,9 +352,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             == ApproveBondRound.auto_round_id()
         )
 
-    def test_not_activated(self) -> None:
+    def test_not_activated(self, *_: Any) -> None:
         """Test path_selection to not activated."""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
@@ -361,9 +369,9 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             == WaitingRound.auto_round_id()
         )
 
-    def test_healthy(self) -> None:
+    def test_healthy(self, *_: Any) -> None:
         """Test path_selection to healthy."""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
@@ -387,7 +395,7 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_bonding_tx(self) -> None:
         """Test bonding tx"""
-
+        self.behaviour.act_wrapper()
         self.mock_keep3r_v1_raw_tx("build_bond_tx", DUMMY_DATA)
         self.mock_build_safe_raw_tx()
         self.mock_a2a_transaction()
@@ -407,7 +415,7 @@ class TestWaitingBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_waiting(self) -> None:
         """Test waiting"""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("bondings", 0)
         self.mock_read_keep3r_v1("bond", 1)
         self.mock_get_latest_block(block={"timestamp": 2})
@@ -427,6 +435,7 @@ class TestActivationBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_activation_tx(self) -> None:
         """Test activation tx"""
+        self.behaviour.act_wrapper()
         self.mock_keep3r_v1_raw_tx("build_activate_tx", DUMMY_DATA)
         self.behaviour.act_wrapper()
         self.mock_build_safe_raw_tx()
@@ -447,6 +456,7 @@ class TestApproveBondBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_activation_tx(self) -> None:
         """Test activation tx"""
+        self.behaviour.act_wrapper()
         self.mock_keep3r_v1_raw_tx("build_approve_tx", DUMMY_DATA)
         self.behaviour.act_wrapper()
         self.mock_build_safe_raw_tx()
@@ -467,7 +477,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_get_jobs(self) -> None:
         """Test get_jobs."""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("get_jobs", ["some_job_address"])
         self.mock_a2a_transaction()
         self._test_done_flag_set()
@@ -485,7 +495,10 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     def test_run(self) -> None:
         """Test perform work."""
-
+        self.behaviour.context.state.job_address_to_public_id[
+            DUMMY_CONTRACT
+        ] = TEST_JOB_CONTRACT_ID
+        self.behaviour.act_wrapper()
         self.mock_build_work_tx_call(DUMMY_DATA)
         self.mock_build_safe_raw_tx()
         self.mock_a2a_transaction()
@@ -536,7 +549,10 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self, is_workable: bool, event: Event, next_round: Keep3rJobAbstractRound
     ) -> None:
         """Test is_workable."""
-
+        self.behaviour.context.state.job_address_to_public_id[
+            DUMMY_CONTRACT
+        ] = TEST_JOB_CONTRACT_ID
+        self.behaviour.act_wrapper()
         self.mock_workable_call(is_workable)
         self.behaviour.act_wrapper()
         self.mock_a2a_transaction()
@@ -564,7 +580,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self, credits: bool, event: Event, next_round: Keep3rJobAbstractRound
     ) -> None:
         """Test is_profitable."""
-
+        self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("credits", credits)
         self.behaviour.act_wrapper()
         self.mock_a2a_transaction()
@@ -589,7 +605,7 @@ class TestAwaitTopUpBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self, amount: int, event: Event, next_round: Keep3rJobAbstractRound
     ) -> None:
         """Test top_up."""
-
+        self.behaviour.act_wrapper()
         self.mock_ethereum_get_balance(amount=amount)
         self.behaviour.act_wrapper()
         self.mock_a2a_transaction()

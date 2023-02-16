@@ -13,14 +13,14 @@ fingerprint:
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   fsm_specification.yaml: bafybeihomn6jw4mzveuak7h5irg4myu7hxjeuzrng2bvs2i7i2mu2hwh4q
   handlers.py: bafybeihrnok2s2oztglt7on7g5icbugmibikb3y2kqz2imbe23yoij7a5y
-  models.py: bafybeid4l4h5ndidwk4dkveor7ndxvxldvvjnb5stfdr2njgckbbkstjru
+  models.py: bafybeia6xbavkruv5aqb7vlwsgvyaxsgq2ba7redrdwshuuxvpqthe6mqi
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeic7tf2zll5te5zybrvf2r2p64xfydtk5j3yaas4fib2sednqkjrry
+- keep3r_co/keep3r_job:0.1.0:bafybeif6ddc3e52hd75rfogu47rb7krzqzt5q4pvyijz5n3elddb7ihtjq
 - valory/abstract_round_abci:0.1.0:bafybeicvbxixjsu3bgjk5frqz5mq2kmv44grwd6324viz4tehw3yejfhji
 - valory/registration_abci:0.1.0:bafybeihai2otcmnb2w7k64bnwf5qagfexg5gqow74xhj3wynikgdxre3ka
 - valory/reset_pause_abci:0.1.0:bafybeifs6zpg5nbvuapmxafzo6fdhoz5ebpiujetvk243apo3iwl2rn45i
@@ -128,6 +128,9 @@ models:
         - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       share_tm_config_on_startup: false
       sleep_time: 1
+      supported_jobs_to_package_hash:
+      - - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+        - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5

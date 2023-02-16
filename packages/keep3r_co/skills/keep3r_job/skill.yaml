@@ -8,15 +8,19 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeiap6k5zt7zb7gf2kjok5nlqovshysisownybkoilujhibnvlhqcra
+  behaviours.py: bafybeihwq3pmhti4gfn2fr5y7dgxverqon72mr4qn35rh44zwzqcq3dmpa
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
+  dynamic_package_loader.py: bafybeihzl4qii2z6xugkln4iyeeqp72vzs2eqbwko5tsadxgun5hfvk6ea
   fsm_specification.yaml: bafybeihno5san6zewjsmzpi2mdkud2whgohglaejcnbejblpfaa6nhnlhu
   handlers.py: bafybeig7pj6f2gadyirmwp6mu7bce6yqyn2gupdvqtcpnlbcr5wuat465y
-  models.py: bafybeie3u46un7d7vzqesd7c6qfausvziek74fjnrvbxcza6befvqnfdxm
+  io_/__init__.py: bafybeifxgmmwjqzezzn3e6keh2bfo4cyo7y5dq2ept3stfmgglbrzfl5rq
+  io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
+  models.py: bafybeifttgel2wpydvui6uc3dny3szhvl5uiwrulwcqjbe2kge6suas2sm
   payloads.py: bafybeid52iwsyzxpauezgr4rxxknjwxb673qqjxxytzlkqvxu3zpz7uonq
   rounds.py: bafybeicxmzvfmlshes5trbiu6po55xrkcu252dfu3xn3mjkqectody62s4
   tests/__init__.py: bafybeihax7nv5wb5pb72cxwemjk5sz55ecsghh4zi3vbmziz2pacyqbrym
-  tests/test_behaviours.py: bafybeigt24d5h6nde3ptqagxz5dty5itkbww667lsl5sqt4nblyoksfrry
+  tests/helpers.py: bafybeifs4vtknwbdzgvgeify5wf3jp3mggot7swnn7h4hlkm46k32ig2pq
+  tests/test_behaviours.py: bafybeid672ygvq4ngaogrmzpf6dabjqgzmjuyypvzisititi7swa6x3usa
   tests/test_dialogues.py: bafybeidcuxmmer62aymwtj7umeo7ld3ggyyro4kpvrdj2ojpoibxwbstnu
   tests/test_payloads.py: bafybeiduitacvtukmj5ll4uskvartbgjio5cuyojbryn4gs7vfhmzaiqxe
   tests/test_rounds.py: bafybeihz674wuvqqu3osxy5nfwkogskjgsop3czw36ozfwtzhfbfmmam5m
@@ -25,7 +29,6 @@ connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeiefwo2ddyhjxcpy2rlchcubv6bj35e5x4kstxwfyvyvdvcpvcoe5q
 - valory/keep3r_for_testnet:0.1.0:bafybeidybdtufncbohu5a27cbgmrgocfop4kdh2km7mq2wsvsaw6prt7le
-- valory/keep3r_test_job:0.1.0:bafybeihyhyr5v3im2vs6c5ya7xrujf5qs56c373dypgzerojcamdhwizaq
 - valory/keep3r_v1:0.1.0:bafybeiepuviwhdrop7nrttk4i3e7ht2t6kzh3c2q2o25vzyiuqigjp6shq
 protocols:
 - valory/contract_api:1.0.0:bafybeif32nchkgn6yet7e5gt4auhf7lsahxnj4t36kxbw55p3gi7qpeuxq
@@ -135,6 +138,9 @@ models:
         - '0x0000000000000000000000000000000000000000'
       share_tm_config_on_startup: false
       sleep_time: 1
+      supported_jobs_to_package_hash:
+      - - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+        - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
@@ -169,4 +175,5 @@ models:
     class_name: TendermintDialogues
 dependencies:
   hexbytes: {}
+  pyyaml: {}
 is_abstract: true

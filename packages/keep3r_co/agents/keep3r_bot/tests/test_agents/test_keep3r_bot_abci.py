@@ -31,11 +31,13 @@ from web3.providers import BaseProvider
 from web3.types import RPCEndpoint
 
 from packages.keep3r_co.agents.keep3r_bot.tests.conftest import (
-    KEEP3R_TEST_JOB,
     KEEP3R_V1_FOR_TEST,
+    KEEP3R_V1_TEST_JOB_ADDRESS,
+    KEEP3R_V2_TEST_JOB_ADDRESS,
     SAFE_CONTRACT_ADDRESS,
     UseGanacheFork,
     WETH_ADDRESS,
+    get_ipfs_hash_from_contract_id,
 )
 from packages.keep3r_co.skills.keep3r_job.rounds import (
     ActivationRound,
@@ -83,8 +85,13 @@ CHECK_STRINGS = (
 
 TERMINATION_TIMEOUT = 120
 
+PACKAGES_PATH = Path(__file__).parents[5]
 TARGET_SKILL = "keep3r_co/keep3r_abci:0.1.0"
 TARGET_AGENT = "keep3r_co/keep3r_bot:0.1.0"
+TARGET_CONTRACT_PACKAGE = "contract/valory/keep3r_test_job/0.1.0"
+TARGET_CONTRACT_HASH = get_ipfs_hash_from_contract_id(
+    PACKAGES_PATH / "packages.json", TARGET_CONTRACT_PACKAGE
+)
 
 
 class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
@@ -97,7 +104,7 @@ class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
     strict_check_strings = CHECK_STRINGS
     use_benchmarks = True
     network_endpoint = "http://127.0.0.1:8545"
-    package_registry_src = package_registry_src_rel = Path(__file__).parents[5]
+    package_registry_src = package_registry_src_rel = PACKAGES_PATH
     __args_prefix = f"vendor.keep3r_co.skills.{PublicId.from_str(skill_package).name}.models.params.args"
     extra_configs = [
         {
@@ -106,7 +113,7 @@ class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
         },
         {
             "dotted_path": f"{__args_prefix}.job_contract_addresses",
-            "value": json.dumps([KEEP3R_TEST_JOB]),
+            "value": json.dumps([KEEP3R_V1_TEST_JOB_ADDRESS]),
             "type_": "list",
         },
         {
@@ -117,6 +124,11 @@ class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
         {
             "dotted_path": f"{__args_prefix}.bonding_asset",
             "value": WETH_ADDRESS,
+        },
+        {
+            "dotted_path": f"{__args_prefix}.supported_jobs_to_package_hash",
+            "value": json.dumps([[KEEP3R_V2_TEST_JOB_ADDRESS, TARGET_CONTRACT_HASH]]),
+            "type_": "list",
         },
     ]
 
@@ -199,7 +211,7 @@ class TestKeep3rABCIFourAgentsV1(BaseKeep3rABCITest):
         },
         {
             "dotted_path": f"{__args_prefix}.job_contract_addresses",
-            "value": json.dumps([KEEP3R_TEST_JOB]),
+            "value": json.dumps([KEEP3R_V1_TEST_JOB_ADDRESS]),
             "type_": "list",
         },
         {
@@ -215,5 +227,10 @@ class TestKeep3rABCIFourAgentsV1(BaseKeep3rABCITest):
             "dotted_path": f"{__args_prefix}.use_v2",
             "value": "false",
             "type_": "bool",
+        },
+        {
+            "dotted_path": f"{__args_prefix}.supported_jobs_to_package_hash",
+            "value": json.dumps([[KEEP3R_V1_TEST_JOB_ADDRESS, TARGET_CONTRACT_HASH]]),
+            "type_": "list",
         },
     ]

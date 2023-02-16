@@ -16,12 +16,14 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-
 """This module contains the shared state for the 'keep3r_job' application."""
 
-from typing import Any, List
+from typing import Any, Dict, List, Type
+
+from aea.configurations.data_types import PublicId
 
 from packages.keep3r_co.skills.keep3r_job.rounds import Keep3rJobAbciApp
+from packages.valory.skills.abstract_round_abci.base import AbciApp
 from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
 from packages.valory.skills.abstract_round_abci.models import (
     BenchmarkTool as BaseBenchmarkTool,
@@ -42,10 +44,15 @@ BenchmarkTool = BaseBenchmarkTool
 class SharedState(BaseSharedState):
     """Keep the current shared state of the skill."""
 
-    abci_app_cls = Keep3rJobAbciApp
+    abci_app_cls: Type[AbciApp] = Keep3rJobAbciApp
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize the shared state object."""
+        self.job_address_to_public_id: Dict[str, PublicId] = {}
+        super().__init__(*args, **kwargs)
 
 
-class Params(BaseParams):
+class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
     """Parameters."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -68,7 +75,19 @@ class Params(BaseParams):
         self.bonding_asset = self._ensure("bonding_asset", kwargs, str)
         self.bond_amount = self._ensure("bond_amount", kwargs, int)
         self.use_v2 = self._ensure("use_v2", kwargs, bool)
+        self.supported_jobs_to_package_hash = self._get_supported_jobs_to_package_hash(
+            kwargs
+        )
         super().__init__(*args, **kwargs)
+
+    def _get_supported_jobs_to_package_hash(self, kwargs: Dict) -> Dict[str, str]:
+        """Get the supported jobs to package hash from the kwargs."""
+        supported_jobs_to_package_hash = self._ensure(
+            "supported_jobs_to_package_hash", kwargs, List[List[str]]
+        )
+        if len(supported_jobs_to_package_hash) == 0:
+            raise ValueError("No supported jobs specified!")
+        return {value[0]: value[1] for value in supported_jobs_to_package_hash}
 
 
 class RandomnessApi(ApiSpecs):

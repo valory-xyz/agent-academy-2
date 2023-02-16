@@ -8,7 +8,7 @@ fingerprint:
   README.md: bafybeih4kccfgxwkvd32bokjpqsfuyc2c3juek2g7vrsmixlfr7urgwkn4
   __init__.py: bafybeigz6lf3rhls73qcjyttuy7blsy3ayh4n2fz2syksrui7btjd4eowu
   tests/__init__.py: bafybeibzjusr5ywmbxtzw4ps7jfeqnsegliwa55bvuifwxacheh2bfcp2y
-  tests/conftest.py: bafybeigndet3qqbu5ot6wdaoofsaurg5ygwcllhapjmkeg3oiob7gry3yu
+  tests/conftest.py: bafybeihpo2pa46nmj4esioydo3ucsvrojynhfsohh6rwc5jyl4e22m2va4
   tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/abi.json: bafybeigyscfeaguwewu2iund2mvh4oirv3c7dwq5d3do6yduusxms4lloi
   tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/contract_details.json: bafybeib6pd3qnegmhal4aiyqskrtddtczxizyosltpw7be6jcr4tx3snha
   tests/data/keep3r/contracts/0x054A87DdFdE3ccb5DDB03739375329BcC1b03203/abi.json: bafybeigczrkmmwyzglko2qiqfquuwp7sjzoeboctgkvpokkoyczsaikruq
@@ -118,10 +118,12 @@ fingerprint:
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
   tests/helpers/constants.py: bafybeigf7qz4hxqii4meksuypwke55otsuwzaidwfuundb7vpmlcdak4tm
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
-  tests/test_agents/test_keep3r_bot_abci.py: bafybeigg6xpfi6bf7zveba32en7ubektj3tu25dghqiy4wjehzo7uvrc64
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeie5y5go7fz42wlmqnrr2kdfq5dbg35te3yaniszjup2yb6jpnpxsi
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
-  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeifpnzpxbblq4a6yov47ppoxtzcfox62sfeljuy4h6jv3kssy6mfbq
+  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeihb6yxpourbjykxgu6ufgihm77xqcpa6h6jt6pu2w332te5tr3kxm
+  tests/test_contracts/test_keep3r_test_job/__init__.py: bafybeihhopwpbkkx5vyab2mx3kjfpgnlj46nhzjnzcazrfyybetxvvfhva
+  tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeibzu6q3gtdgjjh2flocmoe7tap76ntbvfztgvk7zr6iiwi2jgrqqu
   tests/test_contracts/test_keeper_for_testnet/__init__.py: bafybeigug6razuooshb7admqddi4ghaist6gpitni5pb6ps54pstdbp7ye
   tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeigxaklrooi3m6t5spla7kuytl5mdvv3qp2y73jmqfm2c274gape3e
 fingerprint_ignore_patterns: []
@@ -134,7 +136,6 @@ connections:
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeiefwo2ddyhjxcpy2rlchcubv6bj35e5x4kstxwfyvyvdvcpvcoe5q
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeiguhnndevhp7iui65fhcezkunygdw2cwsofl4rcfzr2u2n6ql366q
-- valory/keep3r_test_job:0.1.0:bafybeihyhyr5v3im2vs6c5ya7xrujf5qs56c373dypgzerojcamdhwizaq
 protocols:
 - open_aea/signing:1.0.0:bafybeiclsbgrviyxbmi2vex5ze3dhr7ywohrqedebx26jozayxvroqtegq
 - valory/abci:0.1.0:bafybeihkgako44fzgurcv4hgbems4ptdtosae4lopnnr75eczb6kx3x2lm
@@ -145,8 +146,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
 - valory/tendermint:0.1.0:bafybeiep2dilpmu3je4z2kq7yc7l6n7ax5knwfax2ufvmnflt3uj2wrbju
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeigva7ipjnwwcy3wshuuuxoxb5numjvbk2t4k7lwev47gj5fb3ow2y
-- keep3r_co/keep3r_job:0.1.0:bafybeic7tf2zll5te5zybrvf2r2p64xfydtk5j3yaas4fib2sednqkjrry
+- keep3r_co/keep3r_abci:0.1.0:bafybeiaueek5prmnhhuzz6j3uyaa53lzy753557z4u4g3y5q7cgkmxjlba
+- keep3r_co/keep3r_job:0.1.0:bafybeif6ddc3e52hd75rfogu47rb7krzqzt5q4pvyijz5n3elddb7ihtjq
 - valory/abstract_abci:0.1.0:bafybeidwizzka3qjotu35zzstoqunp3hjhkx6oojqnlwqsvd3qnjjpmusq
 - valory/abstract_round_abci:0.1.0:bafybeicvbxixjsu3bgjk5frqz5mq2kmv44grwd6324viz4tehw3yejfhji
 - valory/registration_abci:0.1.0:bafybeihai2otcmnb2w7k64bnwf5qagfexg5gqow74xhj3wynikgdxre3ka
@@ -221,6 +222,9 @@ models:
       bonding_asset: ${str:0x0000000000000000000000000000000000000000}
       bond_amount: ${int:1000}
       keep3r_v2_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
+      supported_jobs_to_package_hash:
+      - - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+        - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
 ---
 public_id: valory/ledger:0.19.0
 type: connection
