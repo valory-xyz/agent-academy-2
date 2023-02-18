@@ -31,7 +31,7 @@ Valory's Agent Academy 2 - participant repo
 
 - Pull packages:
 
-      autonomy packages sync
+      autonomy packages sync --update-packages
 
 - During development use `make formatters`, `make code-checks` and `make generators`
 
