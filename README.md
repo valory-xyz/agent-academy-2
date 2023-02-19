@@ -37,7 +37,7 @@ Valory's Agent Academy 2 - participant repo
 
 ## Running the Keep3r
 
-To run the end-to-end tests with four agents against V2 fork of mainnet
+To run the end-to-end tests with four agents against V2 fork of Goerli
 
 ``` bash
 pytest packages/keep3r_co/agents/keep3r_bot/tests/test_agents/test_keep3r_bot_abci.py::TestKeep3rABCIFourAgentsV2
