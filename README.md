@@ -18,8 +18,7 @@ Valory's Agent Academy 2 - participant repo
 
 - Pull pre-built images:
 
-      docker pull valory/autonolas-registries:latest
-      docker pull valory/safe-contract-net:latest
+      docker pull trufflesuite/ganache:beta
 
 - Create development environment:
 
@@ -38,25 +37,8 @@ Valory's Agent Academy 2 - participant repo
 
 ## Running the Keep3r
 
-Create a virtual environment with all development dependencies:
-
-```bash
-make new_env
-```
-
-Enter virtual environment:
+To run the end-to-end tests with four agents against V2 fork of mainnet
 
 ``` bash
-pipenv shell
+pytest packages/keep3r_co/agents/keep3r_bot/tests/test_agents/test_keep3r_bot_abci.py::TestKeep3rABCIFourAgentsV2
 ```
-
-To run the end-to-end tests:
-
-``` bash
-pytest tests/test_agents/test_keep3r_bot_abci.py
-```
-
-which will run:
-- `TestKeep3rABCISingleAgent`
-- `TestKeep3rABCITwoAgents`
-- `TestKeep3rABCIFourAgents`

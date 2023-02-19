@@ -118,7 +118,7 @@ fingerprint:
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
   tests/helpers/constants.py: bafybeigf7qz4hxqii4meksuypwke55otsuwzaidwfuundb7vpmlcdak4tm
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
-  tests/test_agents/test_keep3r_bot_abci.py: bafybeie5y5go7fz42wlmqnrr2kdfq5dbg35te3yaniszjup2yb6jpnpxsi
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeietuqmwsogbd4xevifzd2d6nefwmz5suqgbdoqc33dag2k5zegvf4
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeihb6yxpourbjykxgu6ufgihm77xqcpa6h6jt6pu2w332te5tr3kxm

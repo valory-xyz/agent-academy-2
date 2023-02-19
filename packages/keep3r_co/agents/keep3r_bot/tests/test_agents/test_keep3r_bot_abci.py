@@ -181,18 +181,18 @@ class BaseKeep3rABCITest(BaseTestEnd2End, UseGanacheFork):
 
 @pytest.mark.skip
 @pytest.mark.parametrize("nb_nodes", (1,))
-class TestKeep3rABCISingleAgent(BaseKeep3rABCITest):
+class TestKeep3rABCISingleAgentV2(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with only one agent."""
 
 
 @pytest.mark.skip
 @pytest.mark.parametrize("nb_nodes", (2,))
-class TestKeep3rABCITwoAgents(BaseKeep3rABCITest):
+class TestKeep3rABCITwoAgentsV2(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with two agents."""
 
 
 @pytest.mark.parametrize("nb_nodes", (4,))
-class TestKeep3rABCIFourAgents(BaseKeep3rABCITest):
+class TestKeep3rABCIFourAgentsV2(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with four agents."""
 
     BLOCK_TO_FORK_FROM = 8420525
