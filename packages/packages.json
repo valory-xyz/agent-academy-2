@@ -6,11 +6,11 @@
         "contract/valory/keep3r_v1/0.1.0": "bafybeiepuviwhdrop7nrttk4i3e7ht2t6kzh3c2q2o25vzyiuqigjp6shq",
         "skill/keep3r_co/keep3r_job/0.1.0": "bafybeif6ddc3e52hd75rfogu47rb7krzqzt5q4pvyijz5n3elddb7ihtjq",
         "skill/keep3r_co/keep3r_abci/0.1.0": "bafybeiaueek5prmnhhuzz6j3uyaa53lzy753557z4u4g3y5q7cgkmxjlba",
-        "agent/keep3r_co/keep3r_bot/0.1.0": "bafybeigwfyluynnshzagw4sn225xbtryi5vbdymygl6d65bwtespz7zdsu",
+        "agent/keep3r_co/keep3r_bot/0.1.0": "bafybeiawan4iy6yb3brqaqet4uoysdo6pxnpsmldo3axihq4lgulv4ywry",
         "contract/gabrielfu/keep3r_job/0.1.0": "bafybeigrrcror7s5autzapghufb3mfd4lyn3cyhx53u7pdd6quig22gscq",
         "contract/valory/keep3r_for_testnet/0.1.0": "bafybeidybdtufncbohu5a27cbgmrgocfop4kdh2km7mq2wsvsaw6prt7le",
         "contract/valory/deposit_manager_job/0.1.0": "bafybeiatozsiox7bv4e736zemaszjx3pvcs6wprzp2mng2j6tpbz72ufby",
-        "service/keep3r_co/keep3r_bot/0.1.0": "bafybeifvplylm2b2y5omivv6tozk326w6itasfbrfw42aa7opjiikg6yeq"
+        "service/keep3r_co/keep3r_bot/0.1.0": "bafybeicr5f45q3vdsjwlkoxzqckty7gf76fm2chja2gfe6bptel6kf4sgy"
     },
     "third_party": {
         "protocol/valory/abci/0.1.0": "bafybeihkgako44fzgurcv4hgbems4ptdtosae4lopnnr75eczb6kx3x2lm",
