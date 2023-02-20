@@ -224,9 +224,7 @@ models:
       bond_amount: ${int:1000}
       keep3r_v1_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
       keep3r_v2_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
-      supported_jobs_to_package_hash:
-      - - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
-        - bafybeiatozsiox7bv4e736zemaszjx3pvcs6wprzp2mng2j6tpbz72ufby
+      supported_jobs_to_package_hash: ${list:[["0xaed599aadfee8e32cedb59db2b1120d33a7bacfd","bafybeiatozsiox7bv4e736zemaszjx3pvcs6wprzp2mng2j6tpbz72ufby"]]}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

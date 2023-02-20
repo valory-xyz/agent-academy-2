@@ -1,4 +1,4 @@
-name: keep3r_test_job
+name: keep3r_my_job
 author: valory
 version: 0.1.0
 type: contract
@@ -6,12 +6,12 @@ description: Goerli keep3r testnet job
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  TestJob.json: bafybeid2jbxe2rfsfvjysvv6bv6cgj6doysl3qswhdljzkevazvuih3jki
-  __init__.py: bafybeicyhinax5gjp2li37yug35u4aef2z3afrznmlr2rsvdpmh6m4g3sy
-  contract.py: bafybeie4rhh7gmkv6trchdoeddtxzc7idkg5tnxf4nijr5stgkjsibqli4
+  MyJob.json: bafybeificactlkmcctad2xh5zj2j5tevjz64uzzhcp6epcubajzhto5ppy
+  __init__.py: bafybeibrrtb3cxckcos5bjl3kff7rzdbal2rtibntjvwhchwyu3m3p72ti
+  contract.py: bafybeidm6v6rk63wfweb446ru3w5p47bfvi2a7gmbnsd5leobjufuytnhe
 fingerprint_ignore_patterns: []
 contracts: []
-class_name: Keep3rTestJobContract
+class_name: Keep3rMyJobContract
 contract_interface_paths:
   ethereum: MyJob.json
 dependencies:
