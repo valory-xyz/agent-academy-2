@@ -13,7 +13,6 @@ alphabet_in:
 - HEALTHY
 - INCORRECT_SERIALIZATION
 - INSUFFICIENT_FUNDS
-- MISSED_AND_LATE_MESSAGES_MISMATCH
 - NEGATIVE
 - NONE
 - NOT_ACTIVATED
@@ -26,6 +25,7 @@ alphabet_in:
 - RESET_AND_PAUSE_TIMEOUT
 - RESET_TIMEOUT
 - ROUND_TIMEOUT
+- SUSPICIOUS_ACTIVITY
 - TOP_UP
 - UNKNOWN_HEALTH_ISSUE
 - VALIDATE_TIMEOUT
@@ -159,10 +159,9 @@ transition_func:
     (SelectKeeperTransactionSubmissionRoundBAfterTimeout, NO_MAJORITY): ResetRound
     (SelectKeeperTransactionSubmissionRoundBAfterTimeout, ROUND_TIMEOUT): SelectKeeperTransactionSubmissionRoundBAfterTimeout
     (SynchronizeLateMessagesRound, DONE): CheckLateTxHashesRound
-    (SynchronizeLateMessagesRound, MISSED_AND_LATE_MESSAGES_MISMATCH): FailedRound
     (SynchronizeLateMessagesRound, NONE): SelectKeeperTransactionSubmissionRoundB
-    (SynchronizeLateMessagesRound, NO_MAJORITY): SynchronizeLateMessagesRound
     (SynchronizeLateMessagesRound, ROUND_TIMEOUT): SynchronizeLateMessagesRound
+    (SynchronizeLateMessagesRound, SUSPICIOUS_ACTIVITY): FailedRound
     (ValidateTransactionRound, DONE): ResetAndPauseRound
     (ValidateTransactionRound, NEGATIVE): CheckTransactionHistoryRound
     (ValidateTransactionRound, NONE): SelectKeeperTransactionSubmissionRoundB

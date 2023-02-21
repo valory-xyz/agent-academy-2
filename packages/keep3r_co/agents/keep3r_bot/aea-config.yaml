@@ -116,43 +116,43 @@ fingerprint:
   tests/data/keep3r/jobs.csv: bafybeidvh6jo3hv5hi2zv3ocuqnzuvkktc643olwllt6zvofp4y67rrba4
   tests/fixture_helpers.py: bafybeibvxjvwvahi3z562qw545cqj4xoxritrfofc5n2sqpwfnkfb7zw3m
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
-  tests/helpers/constants.py: bafybeigf7qz4hxqii4meksuypwke55otsuwzaidwfuundb7vpmlcdak4tm
+  tests/helpers/constants.py: bafybeietvag5v6ox7sdzwqle42oifrz2zf7b6pcwy2prcgrtlq2q24k6ka
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
-  tests/test_agents/test_keep3r_bot_abci.py: bafybeietuqmwsogbd4xevifzd2d6nefwmz5suqgbdoqc33dag2k5zegvf4
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeigfbitukko7e64ipx5smn6uazkv6lybkz4j32ja4erxyy73ayjo3e
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
-  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeihb6yxpourbjykxgu6ufgihm77xqcpa6h6jt6pu2w332te5tr3kxm
+  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeidgx7wb27rxabm2wsty2tqzxtmqmz6zrf72733lelkntmjcqcudt4
   tests/test_contracts/test_keep3r_test_job/__init__.py: bafybeihhopwpbkkx5vyab2mx3kjfpgnlj46nhzjnzcazrfyybetxvvfhva
-  tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeibzu6q3gtdgjjh2flocmoe7tap76ntbvfztgvk7zr6iiwi2jgrqqu
+  tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeicv4reqhukf3skx3kimlfpeut34jxcqrjo2f5kbpwghmcftfq6jqi
   tests/test_contracts/test_keeper_for_testnet/__init__.py: bafybeigug6razuooshb7admqddi4ghaist6gpitni5pb6ps54pstdbp7ye
   tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeigxaklrooi3m6t5spla7kuytl5mdvv3qp2y73jmqfm2c274gape3e
 fingerprint_ignore_patterns: []
 connections:
-- valory/abci:0.1.0:bafybeib56ojddzexxbapowofypmpk6zeznqaumwgj7ftneb5ua6sk5k5vm
-- valory/http_client:0.23.0:bafybeigggahci7hq6tr3tyueatgkvgn73y4b3av2vk7vtr7jkeuwsqcteq
-- valory/ipfs:0.1.0:bafybeihtvkn5uv3ibumme7zzmrxx7iehc6lnjhil726h2jidpdzzjnd5ay
-- valory/ledger:0.19.0:bafybeicpxyoxez7lperltamvikxu6vzk2lhqakbivce4nzywyzoqbxoogm
-- valory/p2p_libp2p_client:0.1.0:bafybeiayoofxmj6z3pasn2akqj3udgq2ta2ar6mv6zoehstul2btvv3gqa
+- valory/abci:0.1.0:bafybeihhidrulgjlrlvmk2c2ax7qmb47ywzjnjqv5gwp7fzzbcgplgaz5a
+- valory/http_client:0.23.0:bafybeidykl4elwbcjkqn32wt5h4h7tlpeqovrcq3c5bcplt6nhpznhgczi
+- valory/ipfs:0.1.0:bafybeia7kzgw4tmkl6k2vjbnss4egvhcf4fmt7cnmpjjjbjogz2bu2j3fu
+- valory/ledger:0.19.0:bafybeiavzloea5rtoxfdqjuexkqzpgbq73n4sl6af2vwa4bv2wd22qigyi
+- valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeiefwo2ddyhjxcpy2rlchcubv6bj35e5x4kstxwfyvyvdvcpvcoe5q
-- valory/gnosis_safe_proxy_factory:0.1.0:bafybeiguhnndevhp7iui65fhcezkunygdw2cwsofl4rcfzr2u2n6ql366q
+- valory/gnosis_safe:0.1.0:bafybeihwwv5aodluykglsbuhhrwusvjof6vvnr37rznwvlutmfwtvoju34
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeieuivicfjkow3asmrj57mygrqbvjnecxqaybyxf6egktdty7qxac4
 protocols:
-- open_aea/signing:1.0.0:bafybeiclsbgrviyxbmi2vex5ze3dhr7ywohrqedebx26jozayxvroqtegq
-- valory/abci:0.1.0:bafybeihkgako44fzgurcv4hgbems4ptdtosae4lopnnr75eczb6kx3x2lm
-- valory/acn:1.1.0:bafybeieldogmtf3m4jdsvt4vvyay3jh54rjn3deasymfw43vz3o42vigmq
-- valory/contract_api:1.0.0:bafybeif32nchkgn6yet7e5gt4auhf7lsahxnj4t36kxbw55p3gi7qpeuxq
-- valory/http:1.0.0:bafybeifru3qs6udfzprax7jxktbsuzn7immfvi3scgfspifq3zdxwkgvnm
-- valory/ipfs:0.1.0:bafybeigknxxwh2xts7ijbacils4a4cgq7jhcdvwahshbw22zw5hnncsfla
-- valory/ledger_api:1.0.0:bafybeigqr4y3ykz3iulrcoqmji7hy3dxaoy7zmyyzff4ivpbubcpwdknai
-- valory/tendermint:0.1.0:bafybeiep2dilpmu3je4z2kq7yc7l6n7ax5knwfax2ufvmnflt3uj2wrbju
+- open_aea/signing:1.0.0:bafybeibqlfmikg5hk4phzak6gqzhpkt6akckx7xppbp53mvwt6r73h7tk4
+- valory/abci:0.1.0:bafybeig3dj5jhsowlvg3t73kgobf6xn4nka7rkttakdb2gwsg5bp7rt7q4
+- valory/acn:1.1.0:bafybeignmc5uh3vgpuckljcj2tgg7hdqyytkm6m5b6v6mxtazdcvubibva
+- valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
+- valory/http:1.0.0:bafybeifyoio7nlh5zzyn5yz7krkou56l22to3cwg7gw5v5o3vxwklibhty
+- valory/ipfs:0.1.0:bafybeihlgai5pbmkb6mjhvgy4gkql5uvpwvxbpdowczgz4ovxat6vajrq4
+- valory/ledger_api:1.0.0:bafybeih6hfzj2obw5oajnt6ng6355edgvi5ngoaub44vpuszqoplfvyaom
+- valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeiaueek5prmnhhuzz6j3uyaa53lzy753557z4u4g3y5q7cgkmxjlba
-- keep3r_co/keep3r_job:0.1.0:bafybeif6ddc3e52hd75rfogu47rb7krzqzt5q4pvyijz5n3elddb7ihtjq
-- valory/abstract_abci:0.1.0:bafybeidwizzka3qjotu35zzstoqunp3hjhkx6oojqnlwqsvd3qnjjpmusq
-- valory/abstract_round_abci:0.1.0:bafybeicvbxixjsu3bgjk5frqz5mq2kmv44grwd6324viz4tehw3yejfhji
-- valory/registration_abci:0.1.0:bafybeihai2otcmnb2w7k64bnwf5qagfexg5gqow74xhj3wynikgdxre3ka
-- valory/reset_pause_abci:0.1.0:bafybeifs6zpg5nbvuapmxafzo6fdhoz5ebpiujetvk243apo3iwl2rn45i
-- valory/transaction_settlement_abci:0.1.0:bafybeib3dkmogar5q5ggfbgi3bfrjqb74nd7tc7zxl6rpt2qucdv6i3bpy
+- keep3r_co/keep3r_abci:0.1.0:bafybeicgp7ln3lmf4dbais7ugjelfjbavtcmuscqjytyfwnfcv3unmx3ze
+- keep3r_co/keep3r_job:0.1.0:bafybeifp7svrtc5cn6nytdus46hfo3sqcrcb2nzrztgd4fxxm2asxmtaxi
+- valory/abstract_abci:0.1.0:bafybeiheudaobfaj5lcrqvgwmdysq3za5yjrjtpdiuwhmw5c7lmbgglxti
+- valory/abstract_round_abci:0.1.0:bafybeiami2y2uwvtmjf76hl3jvfahujdir5docjby6erdyjl66ekoblesi
+- valory/registration_abci:0.1.0:bafybeieaggf6mc43tses5k7fg3pyxca43wsmfvnnzszzucohp5ebg3umwq
+- valory/reset_pause_abci:0.1.0:bafybeic6ayed23np6ngkawsf2you6nnfuvbq4smcepdvvcrw5wxn5jaevy
+- valory/transaction_settlement_abci:0.1.0:bafybeiajvxzaeeeamvb3guxtihlrj7xoyrmfeuo5chp4f3pdd2sgiecayq
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -213,6 +213,7 @@ models:
       setup:
         safe_contract_address: ${list:["0x0000000000000000000000000000000000000000"]}
         all_participants: ${list:[["0x0000000000000000000000000000000000000000"]]}
+        consensus_threshold: ${list:[null]}
       round_timeout_seconds: ${float:60.0}
       tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
       tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
