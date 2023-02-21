@@ -20,11 +20,11 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeif6ddc3e52hd75rfogu47rb7krzqzt5q4pvyijz5n3elddb7ihtjq
-- valory/abstract_round_abci:0.1.0:bafybeicvbxixjsu3bgjk5frqz5mq2kmv44grwd6324viz4tehw3yejfhji
-- valory/registration_abci:0.1.0:bafybeihai2otcmnb2w7k64bnwf5qagfexg5gqow74xhj3wynikgdxre3ka
-- valory/reset_pause_abci:0.1.0:bafybeifs6zpg5nbvuapmxafzo6fdhoz5ebpiujetvk243apo3iwl2rn45i
-- valory/transaction_settlement_abci:0.1.0:bafybeib3dkmogar5q5ggfbgi3bfrjqb74nd7tc7zxl6rpt2qucdv6i3bpy
+- keep3r_co/keep3r_job:0.1.0:bafybeifp7svrtc5cn6nytdus46hfo3sqcrcb2nzrztgd4fxxm2asxmtaxi
+- valory/abstract_round_abci:0.1.0:bafybeiami2y2uwvtmjf76hl3jvfahujdir5docjby6erdyjl66ekoblesi
+- valory/registration_abci:0.1.0:bafybeieaggf6mc43tses5k7fg3pyxca43wsmfvnnzszzucohp5ebg3umwq
+- valory/reset_pause_abci:0.1.0:bafybeic6ayed23np6ngkawsf2you6nnfuvbq4smcepdvvcrw5wxn5jaevy
+- valory/transaction_settlement_abci:0.1.0:bafybeiajvxzaeeeamvb3guxtihlrj7xoyrmfeuo5chp4f3pdd2sgiecayq
 behaviours:
   main:
     args: {}
@@ -126,6 +126,8 @@ models:
         - - '0x0000000000000000000000000000000000000000'
         safe_contract_address:
         - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+        consensus_threshold:
+        - null
       share_tm_config_on_startup: false
       sleep_time: 1
       supported_jobs_to_package_hash:
@@ -143,9 +145,9 @@ models:
   randomness_api:
     args:
       api_id: cloudflare
-      headers: []
+      headers: {}
       method: GET
-      parameters: []
+      parameters: {}
       response_key: null
       response_type: dict
       retries: 5

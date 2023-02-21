@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiblcg3qti2cyz4ytufdkmqzcm6svbo5cwgsu2srjovvljdi35iz6i
 fingerprint_ignore_patterns: []
-agent: keep3r_co/keep3r_bot:0.1.0:bafybeihxyegpp7dbormnvul5gftvwilvz7evkzpxuajvd7qerzvbawkgqi
+agent: keep3r_co/keep3r_bot:0.1.0:bafybeieo4gbjss7ce564jbcu4i3lmdqpybif5kwcvo4iikmhaheurvybmi
 number_of_agents: 1
 ---
 public_id: keep3r_co/keep3r_abci:0.1.0
@@ -24,7 +24,7 @@ models:
       service_registry_address: '0x1cEe30D08943EB58EFF84DD1AB44a6ee6FEff63a'
       on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
       share_tm_config_on_startup: ${USE_ACN:bool:false}
-      supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[["0x87eA08A70C2b9e3AD4a7f4c633aD3f5B0AD679bf","bafybeigf57so33wxx6awvyn2b5tycv6arcbj4gvwkhhm5meu36s6xsc65q"]]}
+      supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[["0x87eA08A70C2b9e3AD4a7f4c633aD3f5B0AD679bf","bafybeifvyqw7zclk77szsyvenblfb76g55eykvcinwoabdgapbdoxnvjjy"]]}
       keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x3364BF0a8DcB15E463E6659175c90A57ee3d4288}
       keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0x145d364e193204f8Ff0A87b718938406595678Dd}
       use_v2: ${USE_KEEPER_V2:bool:true}
