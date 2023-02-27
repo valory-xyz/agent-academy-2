@@ -146,8 +146,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeih6hfzj2obw5oajnt6ng6355edgvi5ngoaub44vpuszqoplfvyaom
 - valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeih6iuk6fyyljr2vgq7xbvmj2yzrcwujsdv53kmivhicfx3trnov2u
-- keep3r_co/keep3r_job:0.1.0:bafybeihd2ysn75ihhiwpsgwucatjh2qw3qs2d6xy45nnandxl2s3yeejsy
+- keep3r_co/keep3r_abci:0.1.0:bafybeihtmerlcm65rn5lwvxwrd6xd5glfobqcvcdjvz5p7otlwmd7jevne
+- keep3r_co/keep3r_job:0.1.0:bafybeihdgwhnptsfpemyh3xcsbyvhjgma3bgep3neqfiras27amckvdqhu
 - valory/abstract_abci:0.1.0:bafybeihkrunmigvlcze7uxhafj2h3kvpf2kifggq7zqj42n2we4mcwuvou
 - valory/abstract_round_abci:0.1.0:bafybeib2jw7hjccou42wis35orckwycb2dgjk7yw46anuqysf2h7su3fi4
 - valory/registration_abci:0.1.0:bafybeidgoqi7fa2gb56hdfsf74bbunfii63zgeo4qhggb66ofver2n2gya
@@ -225,7 +225,7 @@ models:
       bond_amount: ${int:1000}
       keep3r_v1_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
       keep3r_v2_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
-      supported_jobs_to_package_hash: ${list:[["0xaed599aadfee8e32cedb59db2b1120d33a7bacfd","bafybeiatozsiox7bv4e736zemaszjx3pvcs6wprzp2mng2j6tpbz72ufby"]]}
+      supported_jobs_to_package_hash: ${list:[["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihaxl5l5ltmiius3bcr5pt3tqy6fgwn56hqm7zzm3uxupj6i2xfni"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeieedl2oblihpkugxwothabjpzgglxf6ignvjppw6i2mclvh6j2tny"]]}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

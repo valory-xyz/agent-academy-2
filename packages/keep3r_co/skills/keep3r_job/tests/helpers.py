@@ -28,7 +28,7 @@ contract_yaml = {
     "author": "valory",
     "version": "0.1.0",
     "class_name": "DepositManagerJobContract",
-    "contract_interface_paths": {"ethereum": "DepositManager.json"},
+    "contract_interface_paths": {"ethereum": "PhutureJob.json"},
 }
 contract_py = """
 class DepositManagerJobContract(Contract):

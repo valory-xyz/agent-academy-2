@@ -20,7 +20,7 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- keep3r_co/keep3r_job:0.1.0:bafybeihd2ysn75ihhiwpsgwucatjh2qw3qs2d6xy45nnandxl2s3yeejsy
+- keep3r_co/keep3r_job:0.1.0:bafybeihdgwhnptsfpemyh3xcsbyvhjgma3bgep3neqfiras27amckvdqhu
 - valory/abstract_round_abci:0.1.0:bafybeib2jw7hjccou42wis35orckwycb2dgjk7yw46anuqysf2h7su3fi4
 - valory/registration_abci:0.1.0:bafybeidgoqi7fa2gb56hdfsf74bbunfii63zgeo4qhggb66ofver2n2gya
 - valory/reset_pause_abci:0.1.0:bafybeievxhu6u5r5wlpjfzcwuowlbanhfbi25saf25qit53jauv4kq6gne
