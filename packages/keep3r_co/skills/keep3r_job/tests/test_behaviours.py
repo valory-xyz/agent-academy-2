@@ -72,7 +72,8 @@ from packages.keep3r_co.skills.keep3r_job.rounds import (
 from packages.keep3r_co.skills.keep3r_job.tests import PACKAGE_DIR
 from packages.keep3r_co.skills.keep3r_job.tests.helpers import (
     DUMMY_CONTRACT_PACKAGE,
-    wrap_dummy_get_from_ipfs, wrap_dummy_sleep,
+    wrap_dummy_get_from_ipfs,
+    wrap_dummy_sleep,
 )
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
@@ -550,9 +551,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self, is_workable: bool, event: Event, next_round: Keep3rJobAbstractRound
     ) -> None:
         """Test is_workable."""
-        with mock.patch.object(
-            BaseBehaviour, "sleep", side_effects=wrap_dummy_sleep()
-        ):
+        with mock.patch.object(BaseBehaviour, "sleep", side_effects=wrap_dummy_sleep()):
             self.behaviour.context.state.job_address_to_public_id[
                 DUMMY_CONTRACT
             ] = TEST_JOB_CONTRACT_ID
