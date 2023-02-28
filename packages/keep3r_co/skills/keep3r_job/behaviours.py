@@ -780,9 +780,14 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
             is_workable = yield from self.is_workable_job(
                 current_job, contract_public_id
             )
-            if is_workable is None or not is_workable:
+            if is_workable is None:
+                # something went wrong
                 yield from self.sleep(self.context.params.sleep_time)
                 return
+            if not is_workable:
+                self.context.logger.info(f"Job {current_job} is not workable.")
+                yield from self.sleep(self.context.params.sleep_time)
+
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():

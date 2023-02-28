@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeicbxrhznmasuikziy6m3d23g75zanwqgct3gnh53rg7gz7ey5lo34
+  behaviours.py: bafybeihtdlaxu6sypnsiot2zzgwvw4kgu4vzl563uhyqmce2sn3rib4scy
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
   fsm_specification.yaml: bafybeihno5san6zewjsmzpi2mdkud2whgohglaejcnbejblpfaa6nhnlhu
@@ -19,8 +19,8 @@ fingerprint:
   payloads.py: bafybeid52iwsyzxpauezgr4rxxknjwxb673qqjxxytzlkqvxu3zpz7uonq
   rounds.py: bafybeicoui5zrd4irbz5nbmsmuhshgstm62ldbt6ufuwiwo3skkhblahym
   tests/__init__.py: bafybeihax7nv5wb5pb72cxwemjk5sz55ecsghh4zi3vbmziz2pacyqbrym
-  tests/helpers.py: bafybeiccfezpohb6l2gjpp5lpgi2eexpoj3sc2r6vywum7x7lmplhr53ie
-  tests/test_behaviours.py: bafybeico7nm3dhpsr6ls33qa6liyiwphdcwfd4g4xntruo3ngt3l6t7bvi
+  tests/helpers.py: bafybeiekaxujpepf753bre3sgio7oinunlcd3ztjgtg3t7afjskbgc7bfy
+  tests/test_behaviours.py: bafybeib7nrkow32lk2s32b5ceucyk3fmhpij5sld2hjac4yfqry7o5dc2i
   tests/test_dialogues.py: bafybeidcuxmmer62aymwtj7umeo7ld3ggyyro4kpvrdj2ojpoibxwbstnu
   tests/test_payloads.py: bafybeiduitacvtukmj5ll4uskvartbgjio5cuyojbryn4gs7vfhmzaiqxe
   tests/test_rounds.py: bafybeid5tdpzfjbidmqsrgn5lwmyp2xv7lvjoynpds5peukvqicq4x6xae

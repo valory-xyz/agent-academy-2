@@ -52,14 +52,14 @@ def wrap_dummy_get_from_ipfs(return_value: Optional[SupportedObjectType]) -> Cal
     return dummy_get_from_ipfs
 
 
-def wrap_dummy_sleep(return_value: Optional[SupportedObjectType]) -> Callable:
+def wrap_dummy_sleep() -> Callable:
     """Wrap dummy_get_from_ipfs."""
 
-    def dummy_get_from_ipfs(
+    def dummy_sleep(
         *args: Any, **kwargs: Any
-    ) -> Generator[None, None, Optional[SupportedObjectType]]:
+    ) -> Generator[None, None, None]:
         """A mock get_from_ipfs."""
-        return return_value
+        return
         yield
 
-    return dummy_get_from_ipfs
+    return dummy_sleep
