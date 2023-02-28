@@ -752,7 +752,7 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
                 addresses = self.synchronized_data.job_list
                 self.context.logger.info(f"addresses: {addresses}")
                 # TODO: add job selection algorithm
-                job_ix = self.synchronized_data.period_count % len(addresses)
+                job_ix = self.synchronized_data.job_index % len(addresses)
                 current_job = addresses[job_ix]
             payload = JobSelectionPayload(self.context.agent_address, current_job)
             self.context.logger.info(f"Job contract selected: {current_job}")
