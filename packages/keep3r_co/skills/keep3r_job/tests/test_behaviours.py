@@ -550,19 +550,22 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self, is_workable: bool, event: Event, next_round: Keep3rJobAbstractRound
     ) -> None:
         """Test is_workable."""
-        self.behaviour.context.state.job_address_to_public_id[
-            DUMMY_CONTRACT
-        ] = TEST_JOB_CONTRACT_ID
-        self.behaviour.act_wrapper()
-        self.mock_workable_call(is_workable)
-        self.behaviour.act_wrapper()
-        self.mock_a2a_transaction()
-        self._test_done_flag_set()
-        self.end_round(done_event=event)
-        assert (
-            self.current_behaviour.matching_round.auto_round_id()
-            == next_round.auto_round_id()
+        with mock.patch.object(
+            self.behaviour_class, "sleep", wrap_dummy_get_from_ipfs()
         )
+            self.behaviour.context.state.job_address_to_public_id[
+                DUMMY_CONTRACT
+            ] = TEST_JOB_CONTRACT_ID
+            self.behaviour.act_wrapper()
+            self.mock_workable_call(is_workable)
+            self.behaviour.act_wrapper()
+            self.mock_a2a_transaction()
+            self._test_done_flag_set()
+            self.end_round(done_event=event)
+            assert (
+                self.current_behaviour.matching_round.auto_round_id()
+                == next_round.auto_round_id()
+            )
 
 
 class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):

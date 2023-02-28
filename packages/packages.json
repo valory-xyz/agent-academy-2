@@ -4,16 +4,16 @@
         "contract/valory/service_registry/0.1.0": "bafybeid4wyte27tanmeiyzkjfvtvf5yyjngdsvsqvve5bzxwtzjoioubgi",
         "contract/valory/keep3r_test_job/0.1.0": "bafybeiboelt5zso2pxn7zprkyesal7gwykeecjz4sj7gaa2j4woiezgfoi",
         "contract/valory/keep3r_v1/0.1.0": "bafybeifn6injspohprzaohqdkdseh736caaunk3xybhjaijahkfwtwac74",
-        "skill/keep3r_co/keep3r_job/0.1.0": "bafybeigbrng6qakksbjfdfajjm32kxehy5cxo3gjvwjfmfep63usahzvwq",
-        "skill/keep3r_co/keep3r_abci/0.1.0": "bafybeieey6ubou75zlg72uhw4sdkgtuzfzbbw6vqq4h2sjdxt4nk5cikqu",
-        "agent/keep3r_co/keep3r_bot/0.1.0": "bafybeick646jdrymi3hi6duvudg2b2k6blplsdym2ehb2oq72mxez36s3m",
+        "skill/keep3r_co/keep3r_job/0.1.0": "bafybeice6tqp7jn5mgczdasjnaaux4orbju7d4ffwclktyomky3u3ho7m4",
+        "skill/keep3r_co/keep3r_abci/0.1.0": "bafybeiezz33c3efrmujgjkro6b4epz4arlmrouqbf4ymgjxmn636utxgku",
+        "agent/keep3r_co/keep3r_bot/0.1.0": "bafybeihh7jncpa3abbrjs5sbtekdvsoo5sqjpmztgo3c7db6n3egtp657m",
         "contract/gabrielfu/keep3r_job/0.1.0": "bafybeids5v6lptjy6223t5ecidfa2dzj2hq7zurbuwmhdyjv32aco2u4wy",
         "contract/valory/keep3r_for_testnet/0.1.0": "bafybeibkqtgiqkhfrpaqeb5q47r52nntdbbpd4rc3hev32kiucrezbmvza",
         "contract/valory/deposit_manager_job/0.1.0": "bafybeihaxl5l5ltmiius3bcr5pt3tqy6fgwn56hqm7zzm3uxupj6i2xfni",
         "contract/valory/phuture_harvesting_job/0.1.0": "bafybeieedl2oblihpkugxwothabjpzgglxf6ignvjppw6i2mclvh6j2tny",
         "contract/valory/keep3r_my_job/0.1.0": "bafybeifvyqw7zclk77szsyvenblfb76g55eykvcinwoabdgapbdoxnvjjy",
-        "service/keep3r_co/keep3r_bot/0.1.0": "bafybeieuksvumbya5ry6cwxfupblc6snhhl6erv2r5d3msnakedezprwg4",
-        "service/keep3r_co/keep3r_bot_goerli/0.1.0": "bafybeige4bd77vbbrb62xuo7upeyp2r7az3go22ste5rbjvwzavwmzo6xy"
+        "service/keep3r_co/keep3r_bot/0.1.0": "bafybeidgvl72bi4zx75kfb3jln2qjstfkfzggupnbzq6tom6akpqdkq6da",
+        "service/keep3r_co/keep3r_bot_goerli/0.1.0": "bafybeictbl2pq2u7jhqu7ywktgravd2smygwpcix5m6q2cbkytthkljmce"
     },
     "third_party": {
         "protocol/valory/abci/0.1.0": "bafybeig3dj5jhsowlvg3t73kgobf6xn4nka7rkttakdb2gwsg5bp7rt7q4",

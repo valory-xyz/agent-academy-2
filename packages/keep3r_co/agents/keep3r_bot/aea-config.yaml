@@ -146,8 +146,8 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeih6hfzj2obw5oajnt6ng6355edgvi5ngoaub44vpuszqoplfvyaom
 - valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeieey6ubou75zlg72uhw4sdkgtuzfzbbw6vqq4h2sjdxt4nk5cikqu
-- keep3r_co/keep3r_job:0.1.0:bafybeigbrng6qakksbjfdfajjm32kxehy5cxo3gjvwjfmfep63usahzvwq
+- keep3r_co/keep3r_abci:0.1.0:bafybeiezz33c3efrmujgjkro6b4epz4arlmrouqbf4ymgjxmn636utxgku
+- keep3r_co/keep3r_job:0.1.0:bafybeice6tqp7jn5mgczdasjnaaux4orbju7d4ffwclktyomky3u3ho7m4
 - valory/abstract_abci:0.1.0:bafybeihkrunmigvlcze7uxhafj2h3kvpf2kifggq7zqj42n2we4mcwuvou
 - valory/abstract_round_abci:0.1.0:bafybeib2jw7hjccou42wis35orckwycb2dgjk7yw46anuqysf2h7su3fi4
 - valory/registration_abci:0.1.0:bafybeidgoqi7fa2gb56hdfsf74bbunfii63zgeo4qhggb66ofver2n2gya
@@ -217,6 +217,7 @@ models:
       round_timeout_seconds: ${float:60.0}
       tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
       tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
+      sleep_time: ${int:15}
       reset_tendermint_after: ${int:10}
       observation_interval: ${int:300}
       max_healthcheck: ${int:1200}

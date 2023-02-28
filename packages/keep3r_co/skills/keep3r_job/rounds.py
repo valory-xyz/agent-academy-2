@@ -102,6 +102,11 @@ class SynchronizedData(BaseSynchronizedData):
         """Get the round that submitted a tx to transaction_settlement_abci."""
         return cast(str, self.db.get_strict("tx_submitter"))
 
+    @property
+    def job_index(self) -> int:
+        """Get the job_index."""
+        return cast(int, self.db.get("job_index", 0))
+
 
 class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
     """Keep3rJobAbstractRound"""
@@ -292,10 +297,16 @@ class IsWorkableRound(Keep3rJobAbstractRound):
         if self.threshold_reached:
             is_workable = self.most_voted_payload
             if is_workable:
-                state = self.synchronized_data.update(is_workable=is_workable)
+                # we reset the index when we find a workable job
+                state = self.synchronized_data.update(
+                    is_workable=is_workable, job_index=0
+                )
                 return state, Event.WORKABLE
-            # remove the non-workable job, then transition to JobSelectionRound
-            return self.synchronized_data, Event.NOT_WORKABLE
+            job_index = self.synchronized_data.job_index
+            state = self.synchronized_data.update(
+                job_index=job_index + 1,
+            )
+            return state, Event.NOT_WORKABLE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
