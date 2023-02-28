@@ -527,18 +527,15 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         bonded_keeper = yield from self.is_ready_to_activate(
             safe_address, self.context.params.bonding_asset
         )
-        if bonded_keeper is None:
-            return None
-        if not bonded_keeper:
-            return self.transitions["NOT_ACTIVATED"].name
-
         has_activated = yield from self.has_activated(safe_address)
-        if has_activated is None:
+        if has_activated is None or bonded_keeper is None:
             return None
-        if not has_activated:
-            return self.transitions["NOT_ACTIVATED"].name
+        if has_activated:
+            # we check first if we are activated, because we can be bonded and activated at the same time
+            # this can happen if we decide to increase the bond.
+            return self.transitions["HEALTHY"].name
 
-        return self.transitions["HEALTHY"].name
+        return self.transitions["NOT_ACTIVATED"].name
 
     def async_act(self) -> Generator:
         """Behaviour to select the path to traverse"""

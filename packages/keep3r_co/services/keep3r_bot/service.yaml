@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: keep3r_co/keep3r_bot:0.1.0:bafybeic7ks37dgtxqtnhggptt2c55d7sjno52bd4v3imr4wm5tou4kzhni
+agent: keep3r_co/keep3r_bot:0.1.0:bafybeihxipf54czzwalxqv3rreiheipew3ynfk6xfmmowfm3xwvv44jt3m
 number_of_agents: 1
 ---
 public_id: keep3r_co/keep3r_abci:0.1.0
@@ -20,7 +20,7 @@ models:
         safe_contract_address: ${SAFE_CONTRACT_ADDRESS:list:["0x0000000000000000000000000000000000000000"]}
       bonding_asset: ${BONDING_ASSET:str:0x0000000000000000000000000000000000000000}
       bond_amount: ${BOND_AMOUNT:int:1}
-      observation_interval: ${OBSERVATION_INTERVAL:int:11}
+      observation_interval: ${OBSERVATION_INTERVAL:int:15}
       service_registry_address: '0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA'
       on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
       share_tm_config_on_startup: ${USE_ACN:bool:false}
