@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   PhutureJob.json: bafybeidzaxpbdkn3cnxcdanxuoj7klp23u6spd6wsj4ogtfiofzhr3mhhi
   __init__.py: bafybeiflwdigkqjdp33usxkaozixd5cwyq35jy6eyf2lcr2gtp5kjbs6re
-  contract.py: bafybeie6qrwo6nlcptz3d7nkqqvvlzegnmad2sjswkfukzbvrkvd3xaoj4
+  contract.py: bafybeifv3xmoivyfec5db52vgpysixiwvvmucngkss5undea7dxfqy3dne
   test_contract.py: bafybeicij4eik7fh556p2qroddj2ts3iufjh5gt3iusokzvkemtvvftrae
 fingerprint_ignore_patterns: []
 contracts: []

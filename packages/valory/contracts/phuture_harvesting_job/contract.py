@@ -43,6 +43,37 @@ class PhutureHarvestingJobContract(Contract):
     contract_id = PUBLIC_ID
 
     @classmethod
+    def _has_deposits(cls, ledger_api: EthereumApi, config_address: str) -> bool:
+        """Check if there are depoists in the vault."""
+        partial_abi = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_savingsVault",
+                        "type": "address"
+                    }
+                ],
+                "name": "getDepositedAmount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+        contract = ledger_api.api.eth.contract(
+            address=ledger_api.api.toChecksumAddress(config_address),
+            abi=partial_abi,
+        )
+        deposit_amount = contract.functions.getDepositedAmount(USV_ADDRESS).call()
+        return deposit_amount > 0
+
+    @classmethod
     def workable(cls, ledger_api: EthereumApi, contract_address: str) -> JSONLike:
         """Get the workable flag from the contract."""
 
@@ -50,8 +81,10 @@ class PhutureHarvestingJobContract(Contract):
         is_account_settlement_required = contract.functions.isAccountSettlementRequired(
             USV_ADDRESS
         ).call()
-        can_harvest = contract.functions.canHarvest(USV_ADDRESS).call()
+        job_config_address = contract.functions.jobConfig().call()
+        can_harvest = contract.functions.canHarvest(USV_ADDRESS).call() and cls._has_deposits(ledger_api, job_config_address)
         is_paused = contract.functions.paused().call()
+
         # the job is considered workable if account settlement is required or harvesting is possible and the job is not paused
         is_workable = (is_account_settlement_required or can_harvest) and not is_paused
         return dict(data=is_workable)
