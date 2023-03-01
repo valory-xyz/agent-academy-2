@@ -51,19 +51,13 @@ class PhutureHarvestingJobContract(Contract):
                     {
                         "internalType": "address",
                         "name": "_savingsVault",
-                        "type": "address"
+                        "type": "address",
                     }
                 ],
                 "name": "getDepositedAmount",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
                 "stateMutability": "view",
-                "type": "function"
+                "type": "function",
             }
         ]
         contract = ledger_api.api.eth.contract(
@@ -82,7 +76,9 @@ class PhutureHarvestingJobContract(Contract):
             USV_ADDRESS
         ).call()
         job_config_address = contract.functions.jobConfig().call()
-        can_harvest = contract.functions.canHarvest(USV_ADDRESS).call() and cls._has_deposits(ledger_api, job_config_address)
+        can_harvest = contract.functions.canHarvest(
+            USV_ADDRESS
+        ).call() and cls._has_deposits(ledger_api, job_config_address)
         is_paused = contract.functions.paused().call()
 
         # the job is considered workable if account settlement is required or harvesting is possible and the job is not paused
