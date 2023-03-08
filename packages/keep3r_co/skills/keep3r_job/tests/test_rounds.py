@@ -19,7 +19,7 @@
 
 """Test the base.py module of the skill."""
 import json
-from typing import Any, FrozenSet, Optional, Type, cast
+from typing import Any, Optional, Tuple, Type, cast
 from unittest import mock
 
 import pytest
@@ -57,16 +57,16 @@ from packages.valory.skills.abstract_round_abci.base import (
     AbciAppDB,
     AbstractRound,
     BaseTxPayload,
-    ConsensusParams,
 )
 
 
 MAX_PARTICIPANTS: int = 4
 
 
-def get_participants() -> FrozenSet[str]:
+def get_participants() -> Tuple[str]:
     """Participants"""
-    return frozenset(f"agent_{i}" for i in range(MAX_PARTICIPANTS))
+    sorted_participants = sorted(f"agent_{i}" for i in range(MAX_PARTICIPANTS))
+    return cast(Tuple[str], tuple(sorted_participants))
 
 
 class BaseRoundTestClass:
@@ -77,22 +77,23 @@ class BaseRoundTestClass:
     round: Keep3rJobAbstractRound
     payload: BaseTxPayload
     synchronized_data: SynchronizedData
-    consensus_params: ConsensusParams
-    participants: FrozenSet[str]
+    participants: Tuple[str]
 
     def setup(self, **kwargs: Any) -> None:
         """Setup the test method."""
 
         self.participants = get_participants()
-        data = dict(participants=self.participants, all_participants=self.participants)
+        data = dict(
+            participants=self.participants,
+            all_participants=self.participants,
+            consensus_threshold=None,
+        )
         data.update(kwargs)
         self.synchronized_data = SynchronizedData(
             AbciAppDB(setup_data=AbciAppDB.data_to_lists(data))
         )
-        self.consensus_params = ConsensusParams(max_participants=MAX_PARTICIPANTS)
         self.round = self.round_class(
             synchronized_data=self.synchronized_data,
-            consensus_params=self.consensus_params,
         )
 
     def deliver_payloads(self, **content: Any) -> SynchronizedData:

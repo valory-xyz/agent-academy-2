@@ -17,6 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 # pylint: disable=import-error,too-few-public-methods,no-self-use
+# flake8: noqa: B028
 
 """End-to-end tests for the keep3r_co/keep3r_abci skill."""
 import json

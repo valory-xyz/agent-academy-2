@@ -16,6 +16,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+# flake8: noqa: B024
 """This module contains utils for dynamically loading aea packages."""
 import logging
 from abc import ABC

@@ -21,7 +21,7 @@
 import json
 from abc import ABC
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple, Type, cast
+from typing import Dict, Optional, Set, Tuple, Type, cast
 
 from packages.keep3r_co.skills.keep3r_job.payloads import (
     ActivationTxPayload,
@@ -556,14 +556,14 @@ class Keep3rJobAbciApp(AbciApp[Event]):
     event_to_timeout: EventToTimeout = {
         Event.ROUND_TIMEOUT: 30.0,
     }
-    db_pre_conditions: Dict[AppState, List[str]] = {PathSelectionRound: []}
-    db_post_conditions: Dict[AppState, List[str]] = {
-        FinalizeApproveBondRound: [get_name(SynchronizedData.most_voted_tx_hash)],
-        FinalizeBondingRound: [get_name(SynchronizedData.most_voted_tx_hash)],
-        FinalizeActivationRound: [get_name(SynchronizedData.most_voted_tx_hash)],
-        FinalizeWorkRound: [get_name(SynchronizedData.most_voted_tx_hash)],
-        BlacklistedRound: [],
-        DegenerateRound: [],
+    db_pre_conditions: Dict[AppState, Set[str]] = {PathSelectionRound: set()}
+    db_post_conditions: Dict[AppState, Set[str]] = {
+        FinalizeApproveBondRound: {get_name(SynchronizedData.most_voted_tx_hash)},
+        FinalizeBondingRound: {get_name(SynchronizedData.most_voted_tx_hash)},
+        FinalizeActivationRound: {get_name(SynchronizedData.most_voted_tx_hash)},
+        FinalizeWorkRound: {get_name(SynchronizedData.most_voted_tx_hash)},
+        BlacklistedRound: set(),
+        DegenerateRound: set(),
     }
 
-    cross_period_persisted_keys: List[str] = ["safe_contract_address"]
+    cross_period_persisted_keys: Set[str] = {"safe_contract_address"}

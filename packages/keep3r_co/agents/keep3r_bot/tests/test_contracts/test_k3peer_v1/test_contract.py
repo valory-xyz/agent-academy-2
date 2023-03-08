@@ -139,7 +139,7 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
         return tx_receipt
 
     @classmethod
-    def deploy_contract(cls, path: Path, **kwargs: Any) -> Any:
+    def deploy_contract(cls, path: Path, **kwargs: Any) -> Any:  # type: ignore
         """Deploy (additional) contract"""
 
         json_files = list(path.glob("*.json"))
