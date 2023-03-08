@@ -527,18 +527,15 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
         bonded_keeper = yield from self.is_ready_to_activate(
             safe_address, self.context.params.bonding_asset
         )
-        if bonded_keeper is None:
-            return None
-        if not bonded_keeper:
-            return self.transitions["NOT_ACTIVATED"].name
-
         has_activated = yield from self.has_activated(safe_address)
-        if has_activated is None:
+        if has_activated is None or bonded_keeper is None:
             return None
-        if not has_activated:
-            return self.transitions["NOT_ACTIVATED"].name
+        if has_activated:
+            # we check first if we are activated, because we can be bonded and activated at the same time
+            # this can happen if we decide to increase the bond.
+            return self.transitions["HEALTHY"].name
 
-        return self.transitions["HEALTHY"].name
+        return self.transitions["NOT_ACTIVATED"].name
 
     def async_act(self) -> Generator:
         """Behaviour to select the path to traverse"""
@@ -755,7 +752,7 @@ class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
                 addresses = self.synchronized_data.job_list
                 self.context.logger.info(f"addresses: {addresses}")
                 # TODO: add job selection algorithm
-                job_ix = -1
+                job_ix = self.synchronized_data.job_index % len(addresses)
                 current_job = addresses[job_ix]
             payload = JobSelectionPayload(self.context.agent_address, current_job)
             self.context.logger.info(f"Job contract selected: {current_job}")
@@ -784,8 +781,13 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
                 current_job, contract_public_id
             )
             if is_workable is None:
+                # something went wrong
                 yield from self.sleep(self.context.params.sleep_time)
                 return
+            if not is_workable:
+                self.context.logger.info(f"Job {current_job} is not workable.")
+                yield from self.sleep(self.context.params.sleep_time)
+
             payload = IsWorkablePayload(self.context.agent_address, is_workable)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():

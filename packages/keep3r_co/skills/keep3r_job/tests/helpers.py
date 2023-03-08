@@ -28,7 +28,7 @@ contract_yaml = {
     "author": "valory",
     "version": "0.1.0",
     "class_name": "DepositManagerJobContract",
-    "contract_interface_paths": {"ethereum": "DepositManager.json"},
+    "contract_interface_paths": {"ethereum": "PhutureJob.json"},
 }
 contract_py = """
 class DepositManagerJobContract(Contract):
@@ -50,3 +50,14 @@ def wrap_dummy_get_from_ipfs(return_value: Optional[SupportedObjectType]) -> Cal
         yield
 
     return dummy_get_from_ipfs
+
+
+def wrap_dummy_sleep() -> Callable:
+    """Wrap dummy_get_from_ipfs."""
+
+    def dummy_sleep(*args: Any, **kwargs: Any) -> Generator[None, None, None]:
+        """A mock get_from_ipfs."""
+        return
+        yield
+
+    return dummy_sleep
