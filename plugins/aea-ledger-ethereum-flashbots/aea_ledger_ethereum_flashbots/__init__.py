@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2022 Valory AG
-#   Copyright 2018-2021 Fetch.AI Limited
+#   Copyright 2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -18,6 +17,6 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Python package wrapping the public and private key cryptography and ledger api of Ethereum."""
+"""Python package extending the default open-aea ethereum ledger plugin to add support for flashbots."""
 
 from .ethereum_flashbots import *  # noqa isort:skip

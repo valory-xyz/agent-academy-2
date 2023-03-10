@@ -17,7 +17,8 @@
 #
 # ------------------------------------------------------------------------------
 # pylint: disable=no-member
-"""Ethereum module wrapping the public and private key cryptography and ledger api."""
+"""Python package extending the default open-aea ethereum ledger plugin to add support for flashbots."""
+
 import logging
 from typing import Any, Dict, List, Optional, cast
 from uuid import uuid4
