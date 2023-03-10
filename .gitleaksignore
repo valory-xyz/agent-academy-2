@@ -69,3 +69,5 @@ acfa12f134c9a1e5f97ad18ba2a96c5a9e590b94:packages/valory/skills/transaction_sett
 51d98005b1fa0b35291249d5f6c1e994f0a6fab1:packages/valory/protocols/ledger_api/protocol.yaml:generic-api-key:19
 51d98005b1fa0b35291249d5f6c1e994f0a6fab1:packages/valory/skills/abstract_round_abci/skill.yaml:generic-api-key:27
 af5a8209b6f6dea7aff66af0693904601892fbb0:packages/keep3r_co/agents/keep3r_bot/tests/test_contracts/test_keeper_for_testnet/test_contract.py:generic-api-key:80
+9c998a9ffb82b6ce09f5292fda6dd08bccff3658:packages/valory/skills/transaction_settlement_abci/skill.yaml:generic-api-key:92
+9c998a9ffb82b6ce09f5292fda6dd08bccff3658:packages/valory/skills/termination_abci/skill.yaml:generic-api-key:84

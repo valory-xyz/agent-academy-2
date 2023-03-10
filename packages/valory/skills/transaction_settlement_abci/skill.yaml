@@ -1,45 +1,48 @@
-name: keep3r_job
-author: keep3r_co
+name: transaction_settlement_abci
+author: valory
 version: 0.1.0
 type: skill
-description: ABCI application for keep3r jobs
+description: ABCI application for transaction settlement.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
-  __init__.py: bafybeiewrlbkuksvnjfs5aubeg3ubwyxcqm3qytv2svbvk2lq7k36zlj2y
-  behaviours.py: bafybeiayoeadnaadmjkx3abto5f4nrwc774g3yblirmlbcktfpfvwrw64a
-  dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
-  dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
-  fsm_specification.yaml: bafybeihno5san6zewjsmzpi2mdkud2whgohglaejcnbejblpfaa6nhnlhu
-  handlers.py: bafybeig7pj6f2gadyirmwp6mu7bce6yqyn2gupdvqtcpnlbcr5wuat465y
-  io_/__init__.py: bafybeifxgmmwjqzezzn3e6keh2bfo4cyo7y5dq2ept3stfmgglbrzfl5rq
-  io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
-  models.py: bafybeifttgel2wpydvui6uc3dny3szhvl5uiwrulwcqjbe2kge6suas2sm
-  payloads.py: bafybeid52iwsyzxpauezgr4rxxknjwxb673qqjxxytzlkqvxu3zpz7uonq
-  rounds.py: bafybeicoui5zrd4irbz5nbmsmuhshgstm62ldbt6ufuwiwo3skkhblahym
-  tests/__init__.py: bafybeihax7nv5wb5pb72cxwemjk5sz55ecsghh4zi3vbmziz2pacyqbrym
-  tests/helpers.py: bafybeigwnsg3r4mqo2rrai56ju4yknd6tvi3edkterbvbnptst5uwz6oa4
-  tests/test_behaviours.py: bafybeifmo2ilzib2eczhm6gatwozatel67zn5ab62i3b3xfs747c3bpwpm
-  tests/test_dialogues.py: bafybeidcuxmmer62aymwtj7umeo7ld3ggyyro4kpvrdj2ojpoibxwbstnu
-  tests/test_payloads.py: bafybeiduitacvtukmj5ll4uskvartbgjio5cuyojbryn4gs7vfhmzaiqxe
-  tests/test_rounds.py: bafybeid5tdpzfjbidmqsrgn5lwmyp2xv7lvjoynpds5peukvqicq4x6xae
+  README.md: bafybeihvqvbj2tiiyimz3e27gqhb7ku5rut7hycfahi4qle732kvj5fs7q
+  __init__.py: bafybeicjpkpig4jkeivjcf6apm3cclz5iktrockzce7hfwqrmz5nwu2txq
+  behaviours.py: bafybeibrvrhaxaao7p4bznrxlxeg24js7y6up3u6ulc6qoo55zbxh7e644
+  dialogues.py: bafybeigabhaykiyzbluu4mk6bbrmqhzld2kyp32pg24bvjmzrrb74einwm
+  fsm_specification.yaml: bafybeid3dbkgnsx55nmf3qtv5sgfckdewkycsfddbk3xogxgjsn6lppm5a
+  handlers.py: bafybeie42qa3csgy6oompuqs2qnkat5mnslepbbwmgoxv6ljme4jofa5pe
+  models.py: bafybeieziji7agfrod5hoj62j34psjawmbma2r6cl57bqy7yxyb7m45ygy
+  payload_tools.py: bafybeidzdxwskywgnaghriq2glpe47uzdtfrgogmeeav2djz27mm4fdbve
+  payloads.py: bafybeiclhjnsgylqzfnu2azlqxor3vyldaoof757dnfwz5xbwejk2ro2cm
+  rounds.py: bafybeihq6i5qehru7cuxekw2cjkwebaseoj6atdhfv7yl5uup7u32j5itq
+  test_tools/__init__.py: bafybeiem2vlegbcgfhwiveaolh6ullo3julroro5lz5u6bpchrihu3gdvy
+  test_tools/integration.py: bafybeictb7ym4xsbo3ti5y2a2fpg344graa4d7352oozsea5rbab3kq4ae
+  tests/__init__.py: bafybeibp5xj3jzh7qn7lvu4s7fdty33qbcznb4tolew4mu2erufzxszhoa
+  tests/test_behaviours.py: bafybeibzqrtogn7robd6vxcrpjtuzh3lokdetux3hkh3erdg7quufcnbby
+  tests/test_dialogues.py: bafybeic74l3ublxy5km7q5ruzthjd3dvonra7ttfdmh45ysbrulsnnto2u
+  tests/test_handlers.py: bafybeign3gzk5sdmrqxqpbmadibzw4yctu4maofasu334wof5g72tzkk2q
+  tests/test_models.py: bafybeigwbcqvwu3ho6cwxwmfcrk53ttqugug5jyukogkoqd42yjedjug7i
+  tests/test_payload_tools.py: bafybeibsbb65jvrne2bq7wojcdurlt44ll2omkrrhw3jr2t7zqmjxhvvv4
+  tests/test_payloads.py: bafybeidvjqvjvnuw5vt4zgnqwzopvprznmefosqy3wcxukvobaiishygze
+  tests/test_rounds.py: bafybeia6ftd7hfgb7wqnlua37u2bwre54nlh4jcbue2fgkmx3sxy2lijna
+  tests/test_tools/__init__.py: bafybeiaq2ftmklvu5vqq6vdfa7mrlmrnusluki35jm5n2yzf57ox5dif74
+  tests/test_tools/test_integration.py: bafybeigv6fxogm3aq3extahr75owdqnzepouv3rtxl3m4gai2urtz6u4ea
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeibzfhpib5fw3wady6dhq5bfgo37o437bi4s3hthbvvit7byvbalg4
-- valory/keep3r_for_testnet:0.1.0:bafybeibkqtgiqkhfrpaqeb5q47r52nntdbbpd4rc3hev32kiucrezbmvza
-- valory/keep3r_v1:0.1.0:bafybeifn6injspohprzaohqdkdseh736caaunk3xybhjaijahkfwtwac74
 protocols:
+- open_aea/signing:1.0.0:bafybeibqlfmikg5hk4phzak6gqzhpkt6akckx7xppbp53mvwt6r73h7tk4
+- valory/abci:0.1.0:bafybeig3dj5jhsowlvg3t73kgobf6xn4nka7rkttakdb2gwsg5bp7rt7q4
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
 - valory/ledger_api:1.0.0:bafybeih6hfzj2obw5oajnt6ng6355edgvi5ngoaub44vpuszqoplfvyaom
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeib2jw7hjccou42wis35orckwycb2dgjk7yw46anuqysf2h7su3fi4
-- valory/transaction_settlement_abci:0.1.0:bafybeihhdquebws2ise6y5scnu4jdy5erl2moc7uw3itm4c7f3ha45jqju
 behaviours:
   main:
     args: {}
-    class_name: Keep3rJobRoundBehaviour
+    class_name: TransactionSettlementRoundBehaviour
 handlers:
   abci:
     args: {}
@@ -84,16 +87,12 @@ models:
     class_name: LedgerApiDialogues
   params:
     args:
-      bond_amount: 1000
-      bonding_asset: '0x0000000000000000000000000000000000000000'
-      broadcast_to_server: false
       cleanup_history_depth: 1
       cleanup_history_depth_current: null
-      consensus:
-        max_participants: 1
       drand_public_key: 868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31
       finalize_timeout: 60.0
       genesis_config:
+        genesis_time: '2022-05-20T16:00:21.735122717Z'
         chain_id: chain-c4daS1
         consensus_params:
           block:
@@ -108,50 +107,34 @@ models:
             pub_key_types:
             - ed25519
           version: {}
-        genesis_time: '2022-05-20T16:00:21.735122717Z'
         voting_power: '10'
       history_check_timeout: 1205
-      insufficient_funds_threshold: 0
-      job_contract_addresses:
-      - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
-      keep3r_v1_contract_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
-      keep3r_v2_contract_address: '0x85063437C02Ba7F4f82F898859e4992380DEd3bb'
+      init_fallback_gas: 0
       keeper_allowed_retries: 3
       keeper_timeout: 30.0
       max_attempts: 10
       max_healthcheck: 120
       observation_interval: 10
       on_chain_service_id: null
-      profitability_threshold: 0
       request_retry_delay: 1.0
       request_timeout: 10.0
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3
       round_timeout_seconds: 30.0
-      service_id: keep3r_job
+      service_id: registration
       service_registry_address: null
-      setup:
-        all_participants:
-        - - '0x0000000000000000000000000000000000000000'
-        safe_contract_address:
-        - '0x0000000000000000000000000000000000000000'
-        consensus_threshold:
-        - null
+      setup: {}
       share_tm_config_on_startup: false
       sleep_time: 1
-      supported_jobs_to_package_hash:
-      - - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
-        - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
       tendermint_p2p_url: localhost:26656
       tendermint_url: http://localhost:26657
       tx_timeout: 10.0
-      use_v2: false
       validate_timeout: 1205
-    class_name: Params
+    class_name: TransactionParams
   randomness_api:
     args:
       api_id: cloudflare
@@ -176,6 +159,8 @@ models:
     args: {}
     class_name: TendermintDialogues
 dependencies:
-  hexbytes: {}
-  pyyaml: {}
+  open-aea-test-autonomy:
+    version: ==0.9.1
+  web3:
+    version: ==5.25.0
 is_abstract: true

@@ -17,4 +17,9 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Valory packages."""
+"""This module contains the ABCI transaction settlement skill for an AEA."""
+
+from aea.configurations.base import PublicId
+
+
+PUBLIC_ID = PublicId.from_str("valory/transaction_settlement_abci:0.1.0")

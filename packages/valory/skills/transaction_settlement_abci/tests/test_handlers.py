@@ -17,4 +17,12 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Valory packages."""
+"""Test the dialogues.py module of the skill."""
+
+# pylint: skip-file
+
+import packages.valory.skills.transaction_settlement_abci.handlers  # noqa
+
+
+def test_import() -> None:
+    """Test that the 'handlers.py' Python module can be imported."""

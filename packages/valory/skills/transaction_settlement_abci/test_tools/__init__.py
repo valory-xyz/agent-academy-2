@@ -17,4 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Valory packages."""
+"""Tests package for transaction_settlement_abci derived skills."""
