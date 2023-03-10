@@ -7,7 +7,7 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeihvqvbj2tiiyimz3e27gqhb7ku5rut7hycfahi4qle732kvj5fs7q
-  __init__.py: bafybeicyrp6x2efg43gfdekxuofrlidc3w6aubzmyioqwnryropp6u7sby
+  __init__.py: bafybeicjpkpig4jkeivjcf6apm3cclz5iktrockzce7hfwqrmz5nwu2txq
   behaviours.py: bafybeibrvrhaxaao7p4bznrxlxeg24js7y6up3u6ulc6qoo55zbxh7e644
   dialogues.py: bafybeigabhaykiyzbluu4mk6bbrmqhzld2kyp32pg24bvjmzrrb74einwm
   fsm_specification.yaml: bafybeid3dbkgnsx55nmf3qtv5sgfckdewkycsfddbk3xogxgjsn6lppm5a
@@ -16,14 +16,14 @@ fingerprint:
   payload_tools.py: bafybeidzdxwskywgnaghriq2glpe47uzdtfrgogmeeav2djz27mm4fdbve
   payloads.py: bafybeiclhjnsgylqzfnu2azlqxor3vyldaoof757dnfwz5xbwejk2ro2cm
   rounds.py: bafybeihq6i5qehru7cuxekw2cjkwebaseoj6atdhfv7yl5uup7u32j5itq
-  test_tools/__init__.py: bafybeibj2blgxzvcgdi5gzcnlzs2nt7bpdifzvjjlxlrkeutjy2qrqbwau
+  test_tools/__init__.py: bafybeiem2vlegbcgfhwiveaolh6ullo3julroro5lz5u6bpchrihu3gdvy
   test_tools/integration.py: bafybeictb7ym4xsbo3ti5y2a2fpg344graa4d7352oozsea5rbab3kq4ae
-  tests/__init__.py: bafybeifukcwmf2ewkjqdu7j6xzmaovgrul7jnea5lrl4o3ianoofje6vfa
+  tests/__init__.py: bafybeibp5xj3jzh7qn7lvu4s7fdty33qbcznb4tolew4mu2erufzxszhoa
   tests/test_behaviours.py: bafybeibzqrtogn7robd6vxcrpjtuzh3lokdetux3hkh3erdg7quufcnbby
-  tests/test_dialogues.py: bafybeictrjf6jzsj4y6u2ftdrb2nyriiipia5b7wc4fsli3lwbjpd3mbam
-  tests/test_handlers.py: bafybeievntkwacpfaom3qabvrlworjqyd4sgfjknjlhys7f5tuq7725xli
-  tests/test_models.py: bafybeifysgk6xywarymqbfwnpkjlzrjxtxkgm26k3mfiyerqvovwyyhqsa
-  tests/test_payload_tools.py: bafybeieadcp4btveovfkrqa6f4gkeaznvx2r6jtojdexbtkzerijlragge
+  tests/test_dialogues.py: bafybeic74l3ublxy5km7q5ruzthjd3dvonra7ttfdmh45ysbrulsnnto2u
+  tests/test_handlers.py: bafybeign3gzk5sdmrqxqpbmadibzw4yctu4maofasu334wof5g72tzkk2q
+  tests/test_models.py: bafybeigwbcqvwu3ho6cwxwmfcrk53ttqugug5jyukogkoqd42yjedjug7i
+  tests/test_payload_tools.py: bafybeibsbb65jvrne2bq7wojcdurlt44ll2omkrrhw3jr2t7zqmjxhvvv4
   tests/test_payloads.py: bafybeidvjqvjvnuw5vt4zgnqwzopvprznmefosqy3wcxukvobaiishygze
   tests/test_rounds.py: bafybeia6ftd7hfgb7wqnlua37u2bwre54nlh4jcbue2fgkmx3sxy2lijna
   tests/test_tools/__init__.py: bafybeiaq2ftmklvu5vqq6vdfa7mrlmrnusluki35jm5n2yzf57ox5dif74
