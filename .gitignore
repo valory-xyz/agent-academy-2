@@ -20,7 +20,10 @@ coverage.xml
 htmlcov
 !.gitleaksignore
 packages/open_aea
-packages/valory/skills
+packages/valory/skills/abstract_abci
+packages/valory/skills/abstract_round_abci
+packages/valory/skills/registration_abci
+packages/valory/skills/reset_pause_abci
 packages/valory/connections
 packages/valory/contracts/offchain_aggregator
 packages/valory/contracts/multisend

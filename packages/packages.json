@@ -6,6 +6,8 @@
         "contract/valory/keep3r_v1/0.1.0": "bafybeifn6injspohprzaohqdkdseh736caaunk3xybhjaijahkfwtwac74",
         "skill/keep3r_co/keep3r_job/0.1.0": "bafybeihs2deraniyapih63xtpbehzr5jrzzxgvbnwcfnpftsebrltrraka",
         "skill/keep3r_co/keep3r_abci/0.1.0": "bafybeidyamdsxzujqcynh5365qamirlavm3gwcbzlkbku4wcqo4n2bqzga",
+        "skill/valory/transaction_settlement_abci/0.1.0": "bafybeiftbgfzp36bknbwus3fx2equmhgmboy4qd5myex76xfc4ze6o7b54",
+        "skill/valory/termination_abci/0.1.0": "bafybeihpp4li6jw3co4c4jferrtzobq2ydoc3dcn67esqrg5ebvyoac66e",
         "agent/keep3r_co/keep3r_bot/0.1.0": "bafybeibfp7hlmazspviemw6qvwu4wgn5e5x7itjoog2ip43w4wggztub44",
         "contract/gabrielfu/keep3r_job/0.1.0": "bafybeids5v6lptjy6223t5ecidfa2dzj2hq7zurbuwmhdyjv32aco2u4wy",
         "contract/valory/keep3r_for_testnet/0.1.0": "bafybeibkqtgiqkhfrpaqeb5q47r52nntdbbpd4rc3hev32kiucrezbmvza",
@@ -33,10 +35,8 @@
         "skill/valory/abstract_round_abci/0.1.0": "bafybeib2jw7hjccou42wis35orckwycb2dgjk7yw46anuqysf2h7su3fi4",
         "connection/valory/p2p_libp2p_client/0.1.0": "bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva",
         "contract/valory/multisend/0.1.0": "bafybeigjywkl7hydjsrkogob3xebj2ifhqwmfhhxoeyrndzhhxi5u6amey",
-        "skill/valory/transaction_settlement_abci/0.1.0": "bafybeiftbgfzp36bknbwus3fx2equmhgmboy4qd5myex76xfc4ze6o7b54",
         "skill/valory/registration_abci/0.1.0": "bafybeidgoqi7fa2gb56hdfsf74bbunfii63zgeo4qhggb66ofver2n2gya",
         "skill/valory/reset_pause_abci/0.1.0": "bafybeievxhu6u5r5wlpjfzcwuowlbanhfbi25saf25qit53jauv4kq6gne",
-        "skill/valory/termination_abci/0.1.0": "bafybeihpp4li6jw3co4c4jferrtzobq2ydoc3dcn67esqrg5ebvyoac66e",
         "protocol/valory/ipfs/0.1.0": "bafybeihlgai5pbmkb6mjhvgy4gkql5uvpwvxbpdowczgz4ovxat6vajrq4",
         "connection/valory/ipfs/0.1.0": "bafybeia7kzgw4tmkl6k2vjbnss4egvhcf4fmt7cnmpjjjbjogz2bu2j3fu"
     }
