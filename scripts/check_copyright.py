@@ -318,6 +318,10 @@ def main() -> None:
             ),
             Path("packages", "valory", "contracts", "keep3r_v1").glob("**/*.py"),
             Path("packages", "valory", "contracts", "keep3r_test_job").glob("**/*.py"),
+            Path("packages", "valory", "skills", "transaction_settlement_abci").glob(
+                "**/*.py"
+            ),
+            Path("packages", "valory", "skills", "termination_abci").glob("**/*.py"),
             Path("tests").glob("**/*.py"),
             Path("scripts").glob("**/*.py"),
         ),
