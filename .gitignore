@@ -31,3 +31,4 @@ packages/valory/contracts/gnosis_safe
 packages/valory/contracts/gnosis_safe_proxy_factory
 packages/valory/contracts/service_registry
 packages/valory/protocols
+/leak_report
