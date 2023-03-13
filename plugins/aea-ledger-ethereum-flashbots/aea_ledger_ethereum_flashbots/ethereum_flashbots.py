@@ -16,7 +16,9 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+
 # pylint: disable=no-member
+
 """Python package extending the default open-aea ethereum ledger plugin to add support for flashbots."""
 
 import logging
@@ -24,7 +26,6 @@ from typing import Any, Dict, List, Optional, cast
 from uuid import uuid4
 
 from aea_ledger_ethereum import EthereumApi
-from eth_account import Account
 from eth_account.datastructures import SignedTransaction
 from flashbots import flashbot
 from web3 import Web3
@@ -45,18 +46,11 @@ class EthereumFlashbotApi(EthereumApi):
         """
         super().__init__(**kwargs)
         w3 = cast(Web3, self.api)
-        authentication_private_key = kwargs.pop("authentication_private_key", None)
-        if authentication_private_key is not None:
-            authentication_account = (
-                Account.from_key(  # pylint: disable=no-value-for-parameter
-                    private_key=authentication_private_key
-                )
+        authentication_account = kwargs.pop("authentication_account", None)
+        if authentication_account is None:
+            raise ValueError(
+                "`authentication_account` is required for `EthereumFlashbotApi`."
             )
-        else:
-            authentication_account = (
-                Account.create()  # pylint: disable=no-value-for-parameter
-            )
-
         flashbot_relayer_uri = kwargs.pop("flashbot_relayer_uri", None)
         # if flashbot_relayer_uri is None, the default URI is used
         flashbot(w3, authentication_account, flashbot_relayer_uri)
