@@ -1,6 +1,6 @@
-# Ethereum crypto plug-in
+# Ethereum Flashbots plug-in
 
-Ethereum crypto plug-in for the AEA framework.
+Ethereum Flashbots plug-in for the AEA framework.
 
 ## Install
 

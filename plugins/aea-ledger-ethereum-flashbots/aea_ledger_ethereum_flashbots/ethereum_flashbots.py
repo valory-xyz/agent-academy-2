@@ -45,24 +45,25 @@ class EthereumFlashbotApi(EthereumApi):
         """
         super().__init__(**kwargs)
         w3 = cast(Web3, self.api)
-        signature_private_key = kwargs.pop("signature_private_key", None)
-        if signature_private_key is not None:
-            signature_account = (
+        authentication_private_key = kwargs.pop("authentication_private_key", None)
+        if authentication_private_key is not None:
+            authentication_account = (
                 Account.from_key(  # pylint: disable=no-value-for-parameter
-                    private_key=signature_private_key
+                    private_key=authentication_private_key
                 )
             )
         else:
-            signature_account = (
+            authentication_account = (
                 Account.create()  # pylint: disable=no-value-for-parameter
             )
 
         flashbot_relayer_uri = kwargs.pop("flashbot_relayer_uri", None)
         # if flashbot_relayer_uri is None, the default URI is used
-        flashbot(w3, signature_account, flashbot_relayer_uri)
+        flashbot(w3, authentication_account, flashbot_relayer_uri)
 
-    def bundle_transactions(  # pylint: disable=no-self-use
-        self, signed_transactions: List[SignedTransaction]
+    @staticmethod
+    def bundle_transactions(
+        signed_transactions: List[SignedTransaction],
     ) -> List[Dict[str, Any]]:
         """Bundle transactions."""
         bundle = [
@@ -80,7 +81,7 @@ class EthereumFlashbotApi(EthereumApi):
         Simulate a bundle.
 
         1. Simulate the bundle in a try catch block.
-        2. Return whether True if simulation went through, or False if something went wrong.
+        2. Return True if simulation went through, or False if something went wrong.
 
         :param bundle: the bundle to simulate.
         :param target_block: the target block for the transaction, the current block if not provided.
@@ -105,8 +106,8 @@ class EthereumFlashbotApi(EthereumApi):
 
         1. Simulate the bundle.
         2. Send the bundle in a try catch block.
-        3. Wait for the response. If successful, go to step 3. If current block number is less than the maximum target block number, go to step 1.
-        4. Return the transaction digest if the transaction went through, or None if something went wrong.
+        3. Wait for the response. If successful, go to step 4. If current block number is less than the maximum target block number, go to step 1.
+        4. Return the transaction digests if the transactions went through, or None if something went wrong.
 
         :param bundle: the signed transactions to bundle together and send.
         :param target_blocks: the target blocks for the transactions.

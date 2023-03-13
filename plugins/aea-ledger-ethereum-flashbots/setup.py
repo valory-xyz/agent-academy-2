@@ -28,8 +28,8 @@ setup(
     version="1.29.0",
     author="Valory AG",
     license="Apache-2.0",
-    description="Python package wrapping the public and private key cryptography and ledger api of Ethereum.",
-    long_description="Python package wrapping the public and private key cryptography and ledger api of Ethereum.",
+    description="Python package extending the default open-aea ethereum ledger plugin to add support for flashbots.",
+    long_description="Python package extending the default open-aea ethereum ledger plugin to add support for flashbots.",
     long_description_content_type="text/markdown",
     packages=find_packages(include=["aea_ledger_ethereum_flashbots*"]),
     package_data={
@@ -37,12 +37,13 @@ setup(
             "py.typed",
         ]
     },
+    python_requires=">=3.9,<4.0",
     install_requires=[
         "open-aea>=1.0.0, <2.0.0",
         "web3==5.25.0",
         "ipfshttpclient==0.8.0a2",
         "eth-account==0.5.6",
-        "open-aea-ledger-ethereum~=1.30.0",
+        "open-aea-ledger-ethereum~=1.29.0",
         "flashbots==1.1.1",
     ],
     tests_require=["pytest"],
