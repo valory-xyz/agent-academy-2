@@ -37,3 +37,4 @@ packages/valory/protocols/http
 packages/valory/protocols/ipfs
 packages/valory/protocols/tendermint
 /leak_report
+build/
