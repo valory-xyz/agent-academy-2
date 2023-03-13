@@ -195,14 +195,15 @@ class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
         ledger_api_dialogues = cast(
             LedgerApiDialogues, self.context.ledger_api_dialogues
         )
+        rpc_config = dict(
+            use_flashbots=use_flashbots,
+            target_block_numbers=target_block_numbers,
+        )
         ledger_api_msg, ledger_api_dialogue = ledger_api_dialogues.create(
             counterparty=LEDGER_API_ADDRESS,
             performative=LedgerApiMessage.Performative.SEND_SIGNED_TRANSACTION,
             signed_transaction=signing_msg.signed_transaction,
-            kwargs=dict(
-                use_flashbots=use_flashbots,
-                target_block_numbers=target_block_numbers,
-            ),
+            rpc_config=LedgerApiMessage.Kwargs(rpc_config),
         )
         ledger_api_dialogue = cast(LedgerApiDialogue, ledger_api_dialogue)
         request_nonce = self._get_request_nonce_from_dialogue(ledger_api_dialogue)
