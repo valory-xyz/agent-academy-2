@@ -32,6 +32,7 @@ from web3.types import TxReceipt
 
 @pytest.fixture
 def ethereum_flashbot_api():
+    """Get the ethereum flashbot API."""
     return EthereumFlashbotApi()
 
 
@@ -48,7 +49,7 @@ def test_init_with_signature_private_key():
 def test_init_without_signature_private_key():
     """Test init without signature private key."""
     with patch.object(
-        Account, "create", side_effect=lambda: MagicMock()
+        Account, "create", side_effect=MagicMock()
     ) as account_create_mock:
         EthereumFlashbotApi()
         assert account_create_mock.called_once_with()
