@@ -46,6 +46,8 @@ config:
           priority_fee_increase_boundary: 200
       is_gas_estimation_enabled: true
       poa_chain: false
+      authentication_private_key: null
+      flashbot_relayer_uri: null
   retry_attempts: 240
   retry_timeout: 3
 excluded_protocols: []
@@ -53,5 +55,7 @@ restricted_to_protocols:
 - valory/contract_api:1.0.0
 - valory/ledger_api:1.0.0
 dependencies:
+  eth_account:
+    version: ==0.5.6
   pytest-asyncio: {}
 is_abstract: false
