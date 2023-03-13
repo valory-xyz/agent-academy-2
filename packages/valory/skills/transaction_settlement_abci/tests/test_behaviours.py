@@ -62,6 +62,7 @@ from packages.valory.contracts.gnosis_safe.contract import (
 from packages.valory.protocols.abci import AbciMessage  # noqa: F401
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.protocols.ledger_api.message import LedgerApiMessage
+from packages.valory.skills.abstract_round_abci import behaviour_utils
 from packages.valory.skills.abstract_round_abci.base import AbciAppDB
 from packages.valory.skills.abstract_round_abci.behaviour_utils import (
     BaseBehaviour,
@@ -134,9 +135,202 @@ class TransactionSettlementFSMBehaviourBaseCase(FSMBehaviourBaseCase):
 
     path_to_skill = PACKAGE_DIR
 
+    def ffw_signature(self, db_items: Optional[Dict] = None) -> None:
+        """Fast-forward to the `SignatureBehaviour`."""
+        if db_items is None:
+            db_items = {}
+
+        self.fast_forward_to_behaviour(
+            behaviour=self.behaviour,
+            behaviour_id=SignatureBehaviour.auto_behaviour_id(),
+            synchronized_data=TransactionSettlementSynchronizedSata(
+                AbciAppDB(
+                    setup_data=AbciAppDB.data_to_lists(db_items),
+                )
+            ),
+        )
+
 
 class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBaseCase):
     """Test `TransactionSettlementBaseBehaviour`."""
+
+    def test_send_transaction_request(self) -> None:
+        """Test '_send_transaction_request'."""
+        self.ffw_signature()
+
+        with mock.patch.object(
+            self.behaviour.context.ledger_api_dialogues,
+            "create",
+            return_value=(MagicMock(), MagicMock()),
+        ), mock.patch.object(
+            self.behaviour.context.outbox,
+            "put_message",
+            return_value=None,
+        ):
+            self.behaviour.current_behaviour._send_transaction_request(MagicMock())
+
+    @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
+    @mock.patch.object(BaseBehaviour, "_send_transaction_request")
+    @mock.patch.object(BaseBehaviour, "_send_transaction_receipt_request")
+    @mock.patch.object(behaviour_utils, "Terms")
+    def test_send_raw_transaction(self, *_: Any) -> None:
+        """Test 'send_raw_transaction'."""
+        self.ffw_signature()
+        m = MagicMock()
+        gen = self.behaviour.current_behaviour.send_raw_transaction(m)
+        # trigger generator function
+        gen.send(None)
+        gen.send(
+            SigningMessage(
+                cast(
+                    SigningMessage.Performative,
+                    SigningMessage.Performative.SIGNED_TRANSACTION,
+                ),
+                ("", ""),
+                signed_transaction=SignedTransaction(
+                    "ledger_id", body={"hash": "test"}
+                ),
+            )
+        )
+        try:
+            gen.send(
+                LedgerApiMessage(
+                    cast(
+                        LedgerApiMessage.Performative,
+                        LedgerApiMessage.Performative.TRANSACTION_DIGEST,
+                    ),
+                    ("", ""),
+                    transaction_digest=TransactionDigest("ledger_id", body="test"),
+                )
+            )
+            raise ValueError("Generator was expected to have reached its end!")
+        except StopIteration as e:
+            tx_hash, status = e.value
+
+        assert tx_hash == "test"
+        assert status == RPCResponseStatus.SUCCESS
+
+    @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
+    @mock.patch.object(BaseBehaviour, "_send_transaction_request")
+    @mock.patch.object(BaseBehaviour, "_send_transaction_receipt_request")
+    @mock.patch.object(behaviour_utils, "Terms")
+    def test_send_raw_transaction_with_wrong_signing_performative(
+        self, *_: Any
+    ) -> None:
+        """Test 'send_raw_transaction'."""
+        self.ffw_signature()
+        m = MagicMock()
+        gen = self.behaviour.current_behaviour.send_raw_transaction(m)
+        # trigger generator function
+        gen.send(None)
+        try:
+            gen.send(MagicMock(performative=SigningMessage.Performative.ERROR))
+            raise ValueError("Generator was expected to have reached its end!")
+        except StopIteration as e:
+            tx_hash, status = e.value
+
+        assert tx_hash is None
+        assert status == RPCResponseStatus.UNCLASSIFIED_ERROR
+
+    @pytest.mark.parametrize(
+        "message, expected_rpc_status",
+        (
+            ("replacement transaction underpriced", RPCResponseStatus.UNDERPRICED),
+            ("nonce too low", RPCResponseStatus.INCORRECT_NONCE),
+            ("insufficient funds", RPCResponseStatus.INSUFFICIENT_FUNDS),
+            ("already known", RPCResponseStatus.ALREADY_KNOWN),
+            ("test", RPCResponseStatus.UNCLASSIFIED_ERROR),
+        ),
+    )
+    @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
+    @mock.patch.object(BaseBehaviour, "_send_transaction_request")
+    @mock.patch.object(BaseBehaviour, "_send_transaction_receipt_request")
+    @mock.patch.object(behaviour_utils, "Terms")
+    def test_send_raw_transaction_errors(
+        self,
+        _: Any,
+        __: Any,
+        ___: Any,
+        ____: Any,
+        message: str,
+        expected_rpc_status: RPCResponseStatus,
+    ) -> None:
+        """Test 'send_raw_transaction'."""
+        self.ffw_signature()
+        m = MagicMock()
+        gen = self.behaviour.current_behaviour.send_raw_transaction(m)
+        # trigger generator function
+        gen.send(None)
+        gen.send(
+            SigningMessage(
+                cast(
+                    SigningMessage.Performative,
+                    SigningMessage.Performative.SIGNED_TRANSACTION,
+                ),
+                ("", ""),
+                signed_transaction=SignedTransaction(
+                    "ledger_id", body={"hash": "test"}
+                ),
+            )
+        )
+        try:
+            gen.send(
+                LedgerApiMessage(
+                    cast(
+                        LedgerApiMessage.Performative,
+                        LedgerApiMessage.Performative.ERROR,
+                    ),
+                    ("", ""),
+                    message=message,
+                )
+            )
+            raise ValueError("Generator was expected to have reached its end!")
+        except StopIteration as e:
+            tx_hash, status = e.value
+
+        assert tx_hash == "test"
+        assert status == expected_rpc_status
+
+    @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
+    @mock.patch.object(BaseBehaviour, "_send_transaction_request")
+    @mock.patch.object(BaseBehaviour, "_send_transaction_receipt_request")
+    @mock.patch.object(behaviour_utils, "Terms")
+    def test_send_raw_transaction_hashes_mismatch(self, *_: Any) -> None:
+        """Test 'send_raw_transaction' when signature and tx responses' hashes mismatch."""
+        self.ffw_signature()
+        m = MagicMock()
+        gen = self.behaviour.current_behaviour.send_raw_transaction(m)
+        # trigger generator function
+        gen.send(None)
+        gen.send(
+            SigningMessage(
+                cast(
+                    SigningMessage.Performative,
+                    SigningMessage.Performative.SIGNED_TRANSACTION,
+                ),
+                ("", ""),
+                signed_transaction=SignedTransaction(
+                    "ledger_id", body={"hash": "signed"}
+                ),
+            )
+        )
+        try:
+            gen.send(
+                LedgerApiMessage(
+                    cast(
+                        LedgerApiMessage.Performative,
+                        LedgerApiMessage.Performative.TRANSACTION_DIGEST,
+                    ),
+                    ("", ""),
+                    transaction_digest=TransactionDigest("ledger_id", body="tx"),
+                )
+            )
+            raise ValueError("Generator was expected to have reached its end!")
+        except StopIteration as e:
+            tx_hash, status = e.value
+
+        assert tx_hash is None
+        assert status == RPCResponseStatus.UNCLASSIFIED_ERROR
 
     @pytest.mark.parametrize(
         "message, tx_digest, rpc_status, expected_data, replacement",
@@ -308,27 +502,16 @@ class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBa
     ) -> None:
         """Test `_get_tx_data`."""
         # fast-forward to any behaviour of the tx settlement skill
-        self.fast_forward_to_behaviour(
-            behaviour=self.behaviour,
-            behaviour_id=SignatureBehaviour.auto_behaviour_id(),
-            synchronized_data=TransactionSettlementSynchronizedSata(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(
-                        dict(
-                            most_voted_tx_hash="b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d90000000"
-                            "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-                            "0000000000000000000000002625a000x77E9b2EF921253A171Fa0CB9ba80558648Ff7215b0e6add595e00477c"
-                            "f347d09797b156719dc5233283ac76e4efce2a674fe72d9b0e6add595e00477cf347d09797b156719dc5233283"
-                            "ac76e4efce2a674fe72d9",
-                            keepers=int(2).to_bytes(32, "big").hex()
-                            + "".join(
-                                deque(("agent_1" + "-" * 35, "agent_3" + "-" * 35))
-                            ),
-                        )
-                    ),
-                )
-            ),
+        init_db_items = dict(
+            most_voted_tx_hash="b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d90000000"
+            "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            "0000000000000000000000002625a000x77E9b2EF921253A171Fa0CB9ba80558648Ff7215b0e6add595e00477c"
+            "f347d09797b156719dc5233283ac76e4efce2a674fe72d9b0e6add595e00477cf347d09797b156719dc5233283"
+            "ac76e4efce2a674fe72d9",
+            keepers=int(2).to_bytes(32, "big").hex()
+            + "".join(deque(("agent_1" + "-" * 35, "agent_3" + "-" * 35))),
         )
+        self.ffw_signature(init_db_items)
         behaviour = cast(SignatureBehaviour, self.behaviour.current_behaviour)
         assert behaviour.behaviour_id == SignatureBehaviour.auto_behaviour_id()
         # Set `nonce` to the same value as the returned, so that we test the tx replacement logging.
@@ -404,15 +587,7 @@ class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBa
     ) -> None:
         """Test the get_gas_price_params method"""
         # fast-forward to any behaviour of the tx settlement skill
-        self.fast_forward_to_behaviour(
-            behaviour=self.behaviour,
-            behaviour_id=SignatureBehaviour.auto_behaviour_id(),
-            synchronized_data=TransactionSettlementSynchronizedSata(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(dict()),
-                )
-            ),
-        )
+        self.ffw_signature()
 
         assert (
             cast(
@@ -424,15 +599,7 @@ class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBa
     def test_parse_revert_reason_successful(self) -> None:
         """Test `_parse_revert_reason` method."""
         # fast-forward to any behaviour of the tx settlement skill
-        self.fast_forward_to_behaviour(
-            behaviour=self.behaviour,
-            behaviour_id=SignatureBehaviour.auto_behaviour_id(),
-            synchronized_data=TransactionSettlementSynchronizedSata(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(dict()),
-                )
-            ),
-        )
+        self.ffw_signature()
 
         for code, explanation in REVERT_CODES_TO_REASONS.items():
             message = MagicMock(
@@ -479,15 +646,7 @@ class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBa
     ) -> None:
         """Test `_parse_revert_reason` method."""
         # fast-forward to any behaviour of the tx settlement skill
-        self.fast_forward_to_behaviour(
-            behaviour=self.behaviour,
-            behaviour_id=SignatureBehaviour.auto_behaviour_id(),
-            synchronized_data=TransactionSettlementSynchronizedSata(
-                AbciAppDB(
-                    setup_data=AbciAppDB.data_to_lists(dict()),
-                )
-            ),
-        )
+        self.ffw_signature()
 
         expected = f"get_raw_safe_transaction unsuccessful! Received: {message}"
 
@@ -611,20 +770,15 @@ class TestSignatureBehaviour(TransactionSettlementFSMBehaviourBaseCase):
         self,
     ) -> None:
         """Test signature behaviour."""
-
-        self.fast_forward_to_behaviour(
-            behaviour=self.behaviour,
-            behaviour_id=SignatureBehaviour.auto_behaviour_id(),
-            synchronized_data=TransactionSettlementSynchronizedSata(
-                AbciAppDB(
-                    setup_data=dict(
-                        most_voted_tx_hash=[
-                            "b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002625a000x77E9b2EF921253A171Fa0CB9ba80558648Ff7215b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9"
-                        ]
-                    ),
-                )
-            ),
+        init_db_items = dict(
+            most_voted_tx_hash="b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d90000000"
+            "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            "0000000000000000000000002625a000x77E9b2EF921253A171Fa0CB9ba80558648Ff7215b0e6add595e00477c"
+            "f347d09797b156719dc5233283ac76e4efce2a674fe72d9b0e6add595e00477cf347d09797b156719dc5233283"
+            "ac76e4efce2a674fe72d9",
         )
+        self.ffw_signature(init_db_items)
+
         assert (
             cast(
                 BaseBehaviour,

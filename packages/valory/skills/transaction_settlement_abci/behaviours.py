@@ -42,8 +42,12 @@ from typing import (
 from aea.protocols.base import Message
 from web3.types import Nonce, TxData, Wei
 
+from packages.open_aea.protocols.signing import SigningMessage
+from packages.open_aea.protocols.signing.custom_types import RawTransaction, Terms
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
+from packages.valory.protocols.ledger_api import LedgerApiMessage
+from packages.valory.skills.abstract_round_abci.base import LEDGER_API_ADDRESS
 from packages.valory.skills.abstract_round_abci.behaviour_utils import RPCResponseStatus
 from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
@@ -53,6 +57,11 @@ from packages.valory.skills.abstract_round_abci.common import (
     RandomnessBehaviour,
     SelectKeeperBehaviour,
 )
+from packages.valory.skills.abstract_round_abci.dialogues import (
+    LedgerApiDialogue,
+    LedgerApiDialogues,
+)
+from packages.valory.skills.abstract_round_abci.models import Requests
 from packages.valory.skills.abstract_round_abci.utils import VerifyDrand
 from packages.valory.skills.transaction_settlement_abci.models import TransactionParams
 from packages.valory.skills.transaction_settlement_abci.payload_tools import (
@@ -164,6 +173,137 @@ class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
                 return params
 
         return []
+
+    def _send_transaction_request(
+        self,
+        signing_msg: SigningMessage,
+        use_flashbots: bool = True,
+        target_block_numbers: Optional[List[int]] = None,
+    ) -> None:
+        """
+        Send transaction request.
+
+        Happy-path full flow of the messages.
+
+        AbstractRoundAbci skill -> (LedgerApiMessage | SEND_SIGNED_TRANSACTION) -> Ledger connection
+        Ledger connection -> (LedgerApiMessage | TRANSACTION_DIGEST) -> AbstractRoundAbci skill
+
+        :param signing_msg: signing message
+        :param use_flashbots: whether to use flashbots for the transaction or not
+        :param target_block_numbers: the target block numbers in case we are using flashbots
+        """
+        ledger_api_dialogues = cast(
+            LedgerApiDialogues, self.context.ledger_api_dialogues
+        )
+        ledger_api_msg, ledger_api_dialogue = ledger_api_dialogues.create(
+            counterparty=LEDGER_API_ADDRESS,
+            performative=LedgerApiMessage.Performative.SEND_SIGNED_TRANSACTION,
+            signed_transaction=signing_msg.signed_transaction,
+            kwargs=dict(
+                use_flashbots=use_flashbots,
+                target_block_numbers=target_block_numbers,
+            ),
+        )
+        ledger_api_dialogue = cast(LedgerApiDialogue, ledger_api_dialogue)
+        request_nonce = self._get_request_nonce_from_dialogue(ledger_api_dialogue)
+        cast(Requests, self.context.requests).request_id_to_callback[
+            request_nonce
+        ] = self.get_callback_request()
+        self.context.outbox.put_message(message=ledger_api_msg)
+        self.context.logger.info("sending transaction to ledger.")
+
+    @staticmethod
+    def __parse_rpc_error(error: str) -> RPCResponseStatus:
+        """Parse an RPC error and return an `RPCResponseStatus`"""
+        if "replacement transaction underpriced" in error:
+            return RPCResponseStatus.UNDERPRICED
+        if "nonce too low" in error:
+            return RPCResponseStatus.INCORRECT_NONCE
+        if "insufficient funds" in error:
+            return RPCResponseStatus.INSUFFICIENT_FUNDS
+        if "already known" in error:
+            return RPCResponseStatus.ALREADY_KNOWN
+        return RPCResponseStatus.UNCLASSIFIED_ERROR
+
+    def send_raw_transaction(
+        self,
+        transaction: RawTransaction,
+        use_flashbots: bool = True,
+        target_block_numbers: Optional[List[int]] = None,
+    ) -> Generator[
+        None,
+        Union[None, SigningMessage, LedgerApiMessage],
+        Tuple[Optional[str], RPCResponseStatus],
+    ]:
+        """
+        Send raw transactions to the ledger for mining.
+
+        Happy-path full flow of the messages.
+
+        _send_transaction_signing_request:
+                AbstractRoundAbci skill -> (SigningMessage | SIGN_TRANSACTION) -> DecisionMaker
+                DecisionMaker -> (SigningMessage | SIGNED_TRANSACTION) -> AbstractRoundAbci skill
+
+        _send_transaction_request:
+            AbstractRoundAbci skill -> (LedgerApiMessage | SEND_SIGNED_TRANSACTION) -> Ledger connection
+            Ledger connection -> (LedgerApiMessage | TRANSACTION_DIGEST) -> AbstractRoundAbci skill
+
+        :param transaction: transaction data
+        :param use_flashbots: whether to use flashbots for the transaction or not
+        :param target_block_numbers: the target block numbers in case we are using flashbots
+        :yield: SigningMessage object
+        :return: transaction hash
+        """
+        terms = Terms(
+            self.context.default_ledger_id,
+            self.context.agent_address,
+            counterparty_address="",
+            amount_by_currency_id={},
+            quantities_by_good_id={},
+            nonce="",
+        )
+        self.context.logger.info(
+            f"Sending signing request for transaction: {transaction}..."
+        )
+        self._send_transaction_signing_request(transaction, terms)
+        signature_response = yield from self.wait_for_message()
+        signature_response = cast(SigningMessage, signature_response)
+        tx_hash_backup = signature_response.signed_transaction.body.get("hash")
+        if (
+            signature_response.performative
+            != SigningMessage.Performative.SIGNED_TRANSACTION
+        ):
+            self.context.logger.error("Error when requesting transaction signature.")
+            return None, RPCResponseStatus.UNCLASSIFIED_ERROR
+        self.context.logger.info(
+            f"Received signature response: {signature_response}\n Sending transaction..."
+        )
+        self._send_transaction_request(
+            signature_response, use_flashbots, target_block_numbers
+        )
+        transaction_digest_msg = yield from self.wait_for_message()
+        transaction_digest_msg = cast(LedgerApiMessage, transaction_digest_msg)
+        if (
+            transaction_digest_msg.performative
+            != LedgerApiMessage.Performative.TRANSACTION_DIGEST
+        ):
+            error = f"Error when requesting transaction digest: {transaction_digest_msg.message}"
+            self.context.logger.error(error)
+            return tx_hash_backup, self.__parse_rpc_error(error)
+        self.context.logger.info(
+            f"Transaction sent! Received transaction digest: {transaction_digest_msg}"
+        )
+        tx_hash = transaction_digest_msg.transaction_digest.body
+
+        if tx_hash != tx_hash_backup:
+            # this should never happen
+            self.context.logger.error(
+                f"Unexpected error! The signature response's hash `{tx_hash_backup}` "
+                f"does not match the one received from the transaction response `{tx_hash}`!"
+            )
+            return None, RPCResponseStatus.UNCLASSIFIED_ERROR
+
+        return tx_hash, RPCResponseStatus.SUCCESS
 
     def _get_tx_data(
         self, message: ContractApiMessage
