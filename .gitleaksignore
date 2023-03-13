@@ -80,3 +80,8 @@ af5a8209b6f6dea7aff66af0693904601892fbb0:packages/keep3r_co/agents/keep3r_bot/te
 2eb1d8c72f914be014d53e429b9603797bde9c3d:packages/valory/skills/abstract_round_abci/tests/data/dummy_abci/skill.yaml:generic-api-key:73
 2eb1d8c72f914be014d53e429b9603797bde9c3d:packages/valory/skills/registration_abci/skill.yaml:generic-api-key:86
 2eb1d8c72f914be014d53e429b9603797bde9c3d:packages/valory/skills/reset_pause_abci/skill.yaml:generic-api-key:80
+1ec22170b8074929dff8aae25b52ad630999ca8a:packages/valory/protocols/ledger_api/protocol.yaml:generic-api-key:19
+1ec22170b8074929dff8aae25b52ad630999ca8a:packages/valory/protocols/ledger_api/protocol.yaml:generic-api-key:21
+72a0dcc25c1f9619942676c9bc272ad7e64ca4b5:packages/valory/protocols/ledger_api/protocol.yaml:generic-api-key:13
+72a0dcc25c1f9619942676c9bc272ad7e64ca4b5:packages/valory/protocols/ledger_api/protocol.yaml:generic-api-key:14
+72a0dcc25c1f9619942676c9bc272ad7e64ca4b5:packages/valory/protocols/ledger_api/protocol.yaml:generic-api-key:18
