@@ -19,6 +19,7 @@
 # ------------------------------------------------------------------------------
 
 """Scaffold connection and channel."""
+
 import asyncio
 from typing import Any, Dict, Optional
 

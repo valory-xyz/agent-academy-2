@@ -17,10 +17,12 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
+
 """This module contains the implementation of the ledger API request dispatcher."""
+
 import asyncio
 import logging
-from typing import Any, cast
+from typing import Any, cast, Optional
 
 from aea.connections.base import ConnectionStates
 from aea.crypto.base import LedgerApi
@@ -37,6 +39,8 @@ from packages.valory.protocols.ledger_api.dialogues import (
 )
 from packages.valory.protocols.ledger_api.message import LedgerApiMessage
 
+DEFAULT_USE_FLASHBOTS = False
+DEFAULT_NEXT_TARGET_BLOCKS = 25
 
 _default_logger = logging.getLogger(
     "aea.packages.valory.connections.ledger.ledger_dispatcher"
@@ -338,6 +342,32 @@ class LedgerApiRequestDispatcher(RequestDispatcher):
             )
         return response
 
+    @staticmethod
+    def _get_transaction_digest(
+        api: LedgerApi, message: LedgerApiMessage
+    ) -> Optional[str]:
+        """Send a signed transaction and get the transaction digest."""
+        if LedgerApiMessage.Kwargs(message.rpc_config).get(
+            "use_flashbots", DEFAULT_USE_FLASHBOTS
+        ):
+            target_blocks = LedgerApiMessage.Kwargs(message.rpc_config).get(
+                "target_block_numbers", None
+            )
+            if target_blocks is None:
+                current_block_number = api.api.eth.get_block_number()
+                target_blocks = range(
+                    current_block_number,
+                    current_block_number + DEFAULT_NEXT_TARGET_BLOCKS,
+                )
+
+            # at the moment we do not support multiple transactions, though flashbots can support this
+            return api.bundle_and_send([message.signed_transaction], target_blocks)[0]
+
+        return api.send_signed_transaction(
+            message.signed_transaction.body,
+            raise_on_try=True,
+        )
+
     def send_signed_transaction(
         self,
         api: LedgerApi,
@@ -353,10 +383,7 @@ class LedgerApiRequestDispatcher(RequestDispatcher):
         :return: response Ledger API message
         """
         try:
-            transaction_digest = api.send_signed_transaction(
-                message.signed_transaction.body,
-                raise_on_try=True,
-            )
+            transaction_digest = self._get_transaction_digest(api, message)
         except Exception as e:  # pylint: disable=broad-except  # pragma: nocover
             return self.get_error_message(e, api, message, dialogue)
 

@@ -6,12 +6,12 @@ description: A connection to interact with any ledger API and contract API.
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  README.md: bafybeifn5mj5hlqrttxsnwueac2wro4kttpirc6dlajgbyxh2vkjaojdbm
+  README.md: bafybeihkgodu7o7v6pfazm7u6orlspsfrae3cyz36yc46x67phfmw3l57e
   __init__.py: bafybeia3purd7y4b7tkdt2fcaxkdazos32criq5hx6fhufaislrdefe674
   base.py: bafybeicpyhus3h2t5urzldnjns2sfwae64uinethqnlunudclbdg4xftnq
-  connection.py: bafybeiehfn2chbgeat5mj23mcelfrfifiezvrwwucdpaz7ku2ygo7dxd5y
+  connection.py: bafybeifbvf2lswrrlzfrrcbj7grsfpm35sbyxqhhkj3amrayprcarkjm5i
   contract_dispatcher.py: bafybeigqgqe6zef335t2ygp4celx7445etwjsr42yroc2qmrynwfslgjhq
-  ledger_dispatcher.py: bafybeiaepuutrjihgwjul2zq6eusyjinud6sq7pmswmfhu4qyqqkfv26xa
+  ledger_dispatcher.py: bafybeif23parimfxo6dws2afllndvdbt6uja6enqlnplw2ysqod5jj5nwi
   tests/__init__.py: bafybeieyhttiwruutk6574yzj7dk2afamgdum5vktyv54gsax7dlkuqtc4
   tests/conftest.py: bafybeid7vo7e2m76ey5beeadtbxywxx5ukefd5slwbc362rwmhht6i45ou
   tests/test_contract_dispatcher.py: bafybeic7s2u4jprlwuo6i7y562o7vaah4jheqbjrd5xqhqaaq57mgmdt74
@@ -46,6 +46,8 @@ config:
           priority_fee_increase_boundary: 200
       is_gas_estimation_enabled: true
       poa_chain: false
+      authentication_private_key: null
+      flashbot_relayer_uri: null
   retry_attempts: 240
   retry_timeout: 3
 excluded_protocols: []
