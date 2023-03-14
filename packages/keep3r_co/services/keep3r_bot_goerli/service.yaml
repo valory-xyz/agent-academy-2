@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiblcg3qti2cyz4ytufdkmqzcm6svbo5cwgsu2srjovvljdi35iz6i
 fingerprint_ignore_patterns: []
-agent: keep3r_co/keep3r_bot:0.1.0:bafybeig3oo6i5ima6qozkikuf45n5gi7k6ugngzcnngcmrd5k3iq6s6m5e
+agent: keep3r_co/keep3r_bot:0.1.0:bafybeieahpi5lgfjwzlppl27mnbxggo3k3mzf3s5qf6nnfgnjua4ulx5hi
 number_of_agents: 1
 ---
 public_id: keep3r_co/keep3r_abci:0.1.0
