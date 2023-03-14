@@ -131,7 +131,7 @@ connections:
 - valory/abci:0.1.0:bafybeiedhipcrpx7sg7qwitwox6iqrbbb4vfnvqqyok2vc6wq6inrcszey
 - valory/http_client:0.23.0:bafybeidykl4elwbcjkqn32wt5h4h7tlpeqovrcq3c5bcplt6nhpznhgczi
 - valory/ipfs:0.1.0:bafybeia7kzgw4tmkl6k2vjbnss4egvhcf4fmt7cnmpjjjbjogz2bu2j3fu
-- valory/ledger:0.19.0:bafybeiehkqhvtxlkmaz2pmvwbvkof7ad4cp4lbjqygwtvpwh4m4yoota4e
+- valory/ledger:0.19.0:bafybeiedg2ogh7tqseftv445e6fqpgjj3nyyjb3slbjmxg7quc7o3j3bqi
 - valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeibzfhpib5fw3wady6dhq5bfgo37o437bi4s3hthbvvit7byvbalg4
@@ -146,13 +146,13 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeibl6bpfqdfzzxriagphf4czqgmr5fbcwyj5oq7tmmw24lcyryynxu
 - valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
-- keep3r_co/keep3r_abci:0.1.0:bafybeigy34odnhu3rmpk3o26qmacnjnzi5jmbyyeqk2txdnk5xwfq7yo2u
-- keep3r_co/keep3r_job:0.1.0:bafybeigtnnuuamahbnkig4gzkqfftx5eyui32xjp5vaz2adwyvuz5spen4
+- keep3r_co/keep3r_abci:0.1.0:bafybeicjz3rtodhxelpsdzclaz6hffybuwzbpoit2r2vtsovzj4p5jkvki
+- keep3r_co/keep3r_job:0.1.0:bafybeifgxgy5ybqluhkzyacwomthwtovijijpqa2yj5rxsp7xgzry7zjxy
 - valory/abstract_abci:0.1.0:bafybeihkrunmigvlcze7uxhafj2h3kvpf2kifggq7zqj42n2we4mcwuvou
-- valory/abstract_round_abci:0.1.0:bafybeifhvgkyztro44uig7b2ed7izj64msisqolvsvxdq7jitvpy7klm54
-- valory/registration_abci:0.1.0:bafybeidn6pwvbqe727bbvlz5jpxzz32gglweh37zlobat6xatgmbnlq67e
-- valory/reset_pause_abci:0.1.0:bafybeiawidtu6qksvq2turmjs2pfzawlfcyh374equ23wjfjvcdylddwy4
-- valory/transaction_settlement_abci:0.1.0:bafybeib5z5p4kyw6lpbpretagymfzhjgu6g7xcjhc5r6u6lauu4nodxs24
+- valory/abstract_round_abci:0.1.0:bafybeibpujqt4irrqa6cweq5wnt6ozzmcj7t63puwse4xvsbv7yiibgmaa
+- valory/registration_abci:0.1.0:bafybeih3tluarz6zvbnhbgogqjnquuz3dbtil36h46ziyvfy3h4g576ume
+- valory/reset_pause_abci:0.1.0:bafybeicam6tzgzhgoa52zrs5tcibku4ru2xeju3v6tyo5yvahtpkuxktbi
+- valory/transaction_settlement_abci:0.1.0:bafybeiaabuuomxbvj44fxwtsywn54qo4y5mikftfdnmct66d475gc563uu
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -184,6 +184,7 @@ logging_config:
       propagate: false
 dependencies:
   open-aea-ledger-ethereum: {}
+  open-aea-ledger-ethereum-flashbots: {}
 skill_exception_policy: just_log
 connection_exception_policy: just_log
 default_connection: null
@@ -215,6 +216,7 @@ models:
         all_participants: ${list:[["0x0000000000000000000000000000000000000000"]]}
         consensus_threshold: ${list:[null]}
       round_timeout_seconds: ${float:60.0}
+      finalize_timeout: ${float:300.0}
       tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
       tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
       sleep_time: ${int:15}
@@ -237,6 +239,13 @@ config:
       chain_id: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_CHAIN_ID:int:31337}
       poa_chain: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_POA_CHAIN:bool:false}
       default_gas_price_strategy: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_DEFAULT_GAS_PRICE_STRATEGY:str:eip1559}
+    ethereum_flashbots:
+      address: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_ADDRESS:str:http://localhost:8545}
+      chain_id: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_CHAIN_ID:int:31337}
+      poa_chain: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_POA_CHAIN:bool:false}
+      default_gas_price_strategy: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_DEFAULT_GAS_PRICE_STRATEGY:str:eip1559}
+      authentication_private_key: ${str:null}
+      flashbot_relayer_uri: ${str:null}
 ---
 public_id: valory/p2p_libp2p_client:0.1.0
 type: connection
