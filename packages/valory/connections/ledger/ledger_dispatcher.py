@@ -355,10 +355,10 @@ class LedgerApiRequestDispatcher(RequestDispatcher):
                 "target_block_numbers", None
             )
             if target_blocks is None:
-                current_block_numer = api.api.eth.get_block_number()
+                current_block_number = api.api.eth.get_block_number()
                 target_blocks = range(
-                    current_block_numer,
-                    current_block_numer + DEFAULT_NEXT_TARGET_BLOCKS,
+                    current_block_number,
+                    current_block_number + DEFAULT_NEXT_TARGET_BLOCKS,
                 )
 
             # at the moment we do not support multiple transactions, though flashbots can support this
