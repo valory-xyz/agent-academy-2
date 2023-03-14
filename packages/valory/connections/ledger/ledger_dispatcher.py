@@ -40,6 +40,7 @@ from packages.valory.protocols.ledger_api.dialogues import (
 )
 from packages.valory.protocols.ledger_api.message import LedgerApiMessage
 
+DEFAULT_USE_FLASHBOTS = False
 DEFAULT_NEXT_TARGET_BLOCKS = 25
 
 _default_logger = logging.getLogger(
@@ -347,7 +348,7 @@ class LedgerApiRequestDispatcher(RequestDispatcher):
         api: LedgerApi, message: LedgerApiMessage
     ) -> Optional[str]:
         """Send a signed transaction and get the transaction digest."""
-        if LedgerApiMessage.Kwargs(message.rpc_config).get("use_flashbots", True):
+        if LedgerApiMessage.Kwargs(message.rpc_config).get("use_flashbots", DEFAULT_USE_FLASHBOTS):
             api = cast(EthereumFlashbotApi, api)
 
             target_blocks = LedgerApiMessage.Kwargs(message.rpc_config).get(
