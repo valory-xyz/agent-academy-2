@@ -30,7 +30,6 @@ from aea.helpers.transaction.base import RawTransaction, State, TransactionDiges
 from aea.protocols.base import Address, Message
 from aea.protocols.dialogue.base import Dialogue as BaseDialogue
 from aea.protocols.dialogue.base import Dialogues as BaseDialogues
-from aea_ledger_ethereum_flashbots import EthereumFlashbotApi
 
 from packages.valory.connections.ledger.base import RequestDispatcher
 from packages.valory.protocols.ledger_api.custom_types import TransactionReceipt
@@ -348,9 +347,9 @@ class LedgerApiRequestDispatcher(RequestDispatcher):
         api: LedgerApi, message: LedgerApiMessage
     ) -> Optional[str]:
         """Send a signed transaction and get the transaction digest."""
-        if LedgerApiMessage.Kwargs(message.rpc_config).get("use_flashbots", DEFAULT_USE_FLASHBOTS):
-            api = cast(EthereumFlashbotApi, api)
-
+        if LedgerApiMessage.Kwargs(message.rpc_config).get(
+            "use_flashbots", DEFAULT_USE_FLASHBOTS
+        ):
             target_blocks = LedgerApiMessage.Kwargs(message.rpc_config).get(
                 "target_block_numbers", None
             )
