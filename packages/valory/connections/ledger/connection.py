@@ -19,6 +19,7 @@
 # ------------------------------------------------------------------------------
 
 """Scaffold connection and channel."""
+
 import asyncio
 from typing import Any, Dict, Optional
 
@@ -26,7 +27,6 @@ from aea.configurations.base import PublicId
 from aea.connections.base import Connection, ConnectionStates
 from aea.mail.base import Envelope
 from aea.protocols.base import Message
-from eth_account import Account
 
 from packages.valory.connections.ledger.base import RequestDispatcher
 from packages.valory.connections.ledger.contract_dispatcher import (
@@ -66,15 +66,6 @@ class LedgerConnection(Connection):
         )
         self.request_retry_timeout = self.configuration.config.get(
             "retry_timeout", self.TIMEOUT
-        )
-
-        # we need to create the account here instead of passing the key to the `EthereumFlashbotApi`,
-        # because a new plugin instance is created for every dispatch in `_schedule_request` method below
-        authentication_private_key = kwargs.pop("authentication_private_key", None)
-        self.api_configs["authentication_account"] = (
-            Account.create()
-            if authentication_private_key is None
-            else Account.from_key(private_key=authentication_private_key)
         )
 
     @property
