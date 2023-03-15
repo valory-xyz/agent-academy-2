@@ -167,7 +167,11 @@ class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBa
             "put_message",
             return_value=None,
         ):
-            self.behaviour.current_behaviour._send_transaction_request(MagicMock())
+            self.behaviour.current_behaviour._send_transaction_request(
+                MagicMock(
+                    signed_transaction=SignedTransaction(ledger_id="ethereum", body={})
+                )
+            )
 
     @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
     @mock.patch.object(BaseBehaviour, "_send_transaction_request")

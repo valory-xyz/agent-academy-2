@@ -347,12 +347,10 @@ class LedgerApiRequestDispatcher(RequestDispatcher):
         api: LedgerApi, message: LedgerApiMessage
     ) -> Optional[str]:
         """Send a signed transaction and get the transaction digest."""
-        if LedgerApiMessage.Kwargs(message.rpc_config).get(
+        if message.rpc_config and message.rpc_config.body.get(
             "use_flashbots", DEFAULT_USE_FLASHBOTS
         ):
-            target_blocks = LedgerApiMessage.Kwargs(message.rpc_config).get(
-                "target_block_numbers", None
-            )
+            target_blocks = message.rpc_config.body.get("target_block_numbers", None)
             if target_blocks is None:
                 current_block_number = api.api.eth.get_block_number()
                 target_blocks = range(

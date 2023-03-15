@@ -43,7 +43,11 @@ from aea.protocols.base import Message
 from web3.types import Nonce, TxData, Wei
 
 from packages.open_aea.protocols.signing import SigningMessage
-from packages.open_aea.protocols.signing.custom_types import RawTransaction, Terms
+from packages.open_aea.protocols.signing.custom_types import (
+    RawTransaction,
+    SignedTransaction,
+    Terms,
+)
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.protocols.ledger_api import LedgerApiMessage
@@ -134,6 +138,7 @@ REVERT_CODES_TO_REASONS: Dict[str, str] = {
     "GS205": "Invalid prevOwner, owner pair provided",
     "GS300": "Guard does not implement IERC165",
 }
+FLASHBOTS_LEDGER_ID = "ethereum_flashbots"
 
 
 class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
@@ -199,10 +204,19 @@ class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
             use_flashbots=use_flashbots,
             target_block_numbers=target_block_numbers,
         )
+        ledger_id = (
+            FLASHBOTS_LEDGER_ID
+            if use_flashbots
+            else signing_msg.signed_transaction.ledger_id
+        )
+        signed_transaction = SignedTransaction(
+            ledger_id=ledger_id,
+            body=signing_msg.signed_transaction.body,
+        )
         ledger_api_msg, ledger_api_dialogue = ledger_api_dialogues.create(
             counterparty=LEDGER_API_ADDRESS,
             performative=LedgerApiMessage.Performative.SEND_SIGNED_TRANSACTION,
-            signed_transaction=signing_msg.signed_transaction,
+            signed_transaction=signed_transaction,
             rpc_config=LedgerApiMessage.Kwargs(rpc_config),
         )
         ledger_api_dialogue = cast(LedgerApiDialogue, ledger_api_dialogue)

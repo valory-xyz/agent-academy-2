@@ -25,10 +25,11 @@ import logging
 from typing import Any, Dict, List, Optional, cast
 from uuid import uuid4
 
+from aea.helpers.transaction.base import SignedTransaction
 from aea_ledger_ethereum import EthereumApi
 from eth_account import Account
-from eth_account.datastructures import SignedTransaction
 from flashbots import flashbot
+from hexbytes import HexBytes
 from web3 import Web3
 from web3.exceptions import TransactionNotFound
 
@@ -66,7 +67,11 @@ class EthereumFlashbotApi(EthereumApi):
     ) -> List[Dict[str, Any]]:
         """Bundle transactions."""
         bundle = [
-            {"signed_transaction": signed_transaction.rawTransaction}
+            {
+                "signed_transaction": HexBytes(
+                    cast(str, signed_transaction.body.get("raw_transaction"))
+                )
+            }
             for signed_transaction in signed_transactions
         ]
         return bundle
@@ -132,7 +137,7 @@ class EthereumFlashbotApi(EthereumApi):
             response.wait()
             try:
                 receipts = response.receipts()
-                tx_hashes = [tx["hash"] for tx in response.bundle]
+                tx_hashes = [tx["hash"].hex() for tx in response.bundle]
                 logging.debug(
                     f"Bundle with replacement uuid {replacement_uuid} was mined in block {receipts[0]['blockNumber']}"
                     f"Tx hashes: {tx_hashes}"

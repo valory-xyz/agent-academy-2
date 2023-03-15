@@ -49,7 +49,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "aea.ledger_apis": [
-            "ethereum_flashbots = aea_ledger_ethereum_flashbots:EthereumApi"
+            "ethereum_flashbots = aea_ledger_ethereum_flashbots:EthereumFlashbotApi"
         ],
     },
     classifiers=[
