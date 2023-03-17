@@ -20,7 +20,8 @@
         "service/keep3r_co/keep3r_bot/0.1.0": "bafybeicwr6ch6vk4vcjgiuy5vs4pkww7d64zgvyy7r6wnv7uivneyvol7y",
         "service/keep3r_co/keep3r_bot_goerli/0.1.0": "bafybeib3brfj56obamgednjncwa2vocegukcay5baicip272lxi32ixomq",
         "protocol/valory/ledger_api/1.0.0": "bafybeibl6bpfqdfzzxriagphf4czqgmr5fbcwyj5oq7tmmw24lcyryynxu",
-        "connection/valory/ledger/0.19.0": "bafybeiedg2ogh7tqseftv445e6fqpgjj3nyyjb3slbjmxg7quc7o3j3bqi"
+        "connection/valory/ledger/0.19.0": "bafybeiedg2ogh7tqseftv445e6fqpgjj3nyyjb3slbjmxg7quc7o3j3bqi",
+        "contract/valory/yearn_factory_harvest_job/0.1.0": "bafybeielu427cbbmzfu5x4e3vkraxpqlyx4quqdyvcu7iengc2oxhlrqdq"
     },
     "third_party": {
         "protocol/valory/abci/0.1.0": "bafybeig3dj5jhsowlvg3t73kgobf6xn4nka7rkttakdb2gwsg5bp7rt7q4",

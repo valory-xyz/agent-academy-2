@@ -1,0 +1,22 @@
+name: yearn_factory_harvest_job
+author: valory
+version: 0.1.0
+type: contract
+description: Yearn Factory Harvest Job Contract
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  YearnFactoryHarvestJob.json: bafybeihgjjq6ttbccz3utl23gdvyige6bcdwwvi5wo2tuu3qv4wqxr4qra
+  __init__.py: bafybeiflwdigkqjdp33usxkaozixd5cwyq35jy6eyf2lcr2gtp5kjbs6re
+  contract.py: bafybeibmdrvznefraad7sk3d7bm6ell7hwlz7cvr7lsgakc4wcibqyubbm
+  test_contract.py: bafybeieoamixw4e5isuu6wn47rq77wirm75rt25f7rh3szubirqhjfuibq
+fingerprint_ignore_patterns: []
+contracts: []
+class_name: YearnFactoryHarvestJobContract
+contract_interface_paths:
+  ethereum: YearnFactoryHarvestJob.json
+dependencies:
+  open-aea-ledger-ethereum:
+    version: ==1.29.0
+  web3:
+    version: ==5.25.0
