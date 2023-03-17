@@ -59,8 +59,10 @@ jobs:
           sudo apt-get autoclean
           pip install tomte[tox]==0.2.2
           pip install --upgrade setuptools==60.10.0
-      - name: Check copyright
+      - name: Check copyright headers
         run: tox -e check-copyright
+      - name: License compatibility check
+        run: tox -e liccheck
 
   linter_checks:
     continue-on-error: False
@@ -307,7 +309,7 @@ jobs:
           docker pull node:16.7.0
           docker pull trufflesuite/ganache:beta
           docker pull valory/autonolas-registries:latest
-          docker pull valory/safe-contract-net:latest          
+          docker pull valory/safe-contract-net:latest
 
       - name: e2e tests
         run: |
