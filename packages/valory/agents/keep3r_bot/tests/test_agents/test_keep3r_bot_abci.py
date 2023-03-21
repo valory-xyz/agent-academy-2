@@ -192,6 +192,7 @@ class TestKeep3rABCITwoAgentsV2(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with two agents."""
 
 
+@pytest.mark.skip(reason="Flashbots cannot be used on the local net")
 @pytest.mark.parametrize("nb_nodes", (4,))
 class TestKeep3rABCIFourAgentsV2(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with four agents."""
@@ -199,6 +200,7 @@ class TestKeep3rABCIFourAgentsV2(BaseKeep3rABCITest):
     BLOCK_TO_FORK_FROM = 8420525
 
 
+@pytest.mark.skip(reason="Flashbots cannot be used on the local net")
 @pytest.mark.parametrize("nb_nodes", (4,))
 class TestKeep3rABCIFourAgentsV1(BaseKeep3rABCITest):
     """Test that the ABCI keep3r_abci skill with four agents."""
