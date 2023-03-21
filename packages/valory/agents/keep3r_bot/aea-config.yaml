@@ -1,0 +1,252 @@
+agent_name: keep3r_bot
+author: valory
+version: 0.1.0
+license: Apache-2.0
+description: Keep3r agent to work on Keep3r job contracts
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  README.md: bafybeiej7b3q37aiaatvyanbiehlfxztwwbefs2ivkg4h7ceyfutyf6cri
+  __init__.py: bafybeigz6lf3rhls73qcjyttuy7blsy3ayh4n2fz2syksrui7btjd4eowu
+  tests/__init__.py: bafybeibzjusr5ywmbxtzw4ps7jfeqnsegliwa55bvuifwxacheh2bfcp2y
+  tests/conftest.py: bafybeiayxugv54mr4nuwciw3hwtt63cb4kazdjevdyglo5pxp3imfbii6q
+  tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/abi.json: bafybeigyscfeaguwewu2iund2mvh4oirv3c7dwq5d3do6yduusxms4lloi
+  tests/data/keep3r/contracts/0x02027bDA2425204f152B8aa35Fb78687D65E1AF5/contract_details.json: bafybeib6pd3qnegmhal4aiyqskrtddtczxizyosltpw7be6jcr4tx3snha
+  tests/data/keep3r/contracts/0x054A87DdFdE3ccb5DDB03739375329BcC1b03203/abi.json: bafybeigczrkmmwyzglko2qiqfquuwp7sjzoeboctgkvpokkoyczsaikruq
+  tests/data/keep3r/contracts/0x054A87DdFdE3ccb5DDB03739375329BcC1b03203/contract_details.json: bafybeig3nafkl2gg6wvjsz7bkufcqbbkxnc4lkhvb7a74dxul3x5euh2f4
+  tests/data/keep3r/contracts/0x0bD1d668d8E83d14252F2e01D5873df77A6511f0/README.md: bafybeidn6how2dvohnboxazxkxuacu5e27272h7ebp2qwx2kbmnzimfp3q
+  tests/data/keep3r/contracts/0x0bD1d668d8E83d14252F2e01D5873df77A6511f0/abi.json: bafybeidgl7t2mvtxu5sm3c6277ba2vrb3w33fleglgtw4w2cw54z7texry
+  tests/data/keep3r/contracts/0x0bD1d668d8E83d14252F2e01D5873df77A6511f0/contract_details.json: bafybeif3dq7oijvqppqi7yeck43zfnyql7vmgyntatte7awkuseilefchi
+  tests/data/keep3r/contracts/0x127a2975c4E1c75f1ed4757a861bbd42523DB035/abi.json: bafybeieiihhyangvtazi727sjltill4pk6r2udddgvudwqdzqew3ldczem
+  tests/data/keep3r/contracts/0x127a2975c4E1c75f1ed4757a861bbd42523DB035/contract_details.json: bafybeifjxhwgzsxn577jkao5bansaqvtao5x2m5vvngm3ozpiwqumtjp24
+  tests/data/keep3r/contracts/0x13dAda6157Fee283723c0254F43FF1FdADe4EEd6/abi.json: bafybeiakkb2ca66lqzqd5jjl2o6lu6qlykgqyzlftaom2w3oquoupotoqi
+  tests/data/keep3r/contracts/0x13dAda6157Fee283723c0254F43FF1FdADe4EEd6/contract_details.json: bafybeibe74fgg6ormhgoc7g3tcndxizazjwfcvexn7aeuzchrdepynj62i
+  tests/data/keep3r/contracts/0x1EE5C83C4B43aaEd21613D5cc7835D36078ce03F/abi.json: bafybeiaylhjftylza4ild2wq6cldffv4hway425zq6e2h7mtfrj7s5cjvy
+  tests/data/keep3r/contracts/0x1EE5C83C4B43aaEd21613D5cc7835D36078ce03F/contract_details.json: bafybeig2nwf3ucgwp55pz3n5sn6356bjdlkxkz4ikeapwkzrimwyt66sq4
+  tests/data/keep3r/contracts/0x2150b45626199CFa5089368BDcA30cd0bfB152D6/README.md: bafybeidqeymfuhxm6zokggum2rn62kva4akwycftw3he5vlgilh5ryzw6y
+  tests/data/keep3r/contracts/0x2150b45626199CFa5089368BDcA30cd0bfB152D6/abi.json: bafybeign6lrkfsb5hicqvuyfqo43xtsotu4teqgp6iy6skagqdj7kcgrce
+  tests/data/keep3r/contracts/0x2150b45626199CFa5089368BDcA30cd0bfB152D6/contract_details.json: bafybeihwcapmenyu5cdfmg3i3ph2isivdyylsnu4qqozwlzurikk4rajfq
+  tests/data/keep3r/contracts/0x29E7D14062BB1BFFCA511d46F2e1A7591DD71e67/abi.json: bafybeidtnn7sk55mkppbhxgkftow4nm23x6jmwq24yjn5wtwcwvvg5pmjm
+  tests/data/keep3r/contracts/0x29E7D14062BB1BFFCA511d46F2e1A7591DD71e67/contract_details.json: bafybeid6l32ggclhmpn5lfj4uohsug5z5je23b5txzdtnbyme4u35iuxx4
+  tests/data/keep3r/contracts/0x2ef7801c6A9d451EF20d0F513c738CC012C57bC3/README.md: bafybeibwyyrlao7s5o2t4z3lf6tpk3wtyjt3iyrnwtycpvkpfdys3vop6y
+  tests/data/keep3r/contracts/0x2ef7801c6A9d451EF20d0F513c738CC012C57bC3/abi.json: bafybeiab7yvhcpuw2lyngyfy4mmnzdz4q2umujtjchxodwpeovduqcivam
+  tests/data/keep3r/contracts/0x2ef7801c6A9d451EF20d0F513c738CC012C57bC3/contract_details.json: bafybeibr5aqdhe2alaqkx6sz3buwsjbj6t2557qdo6m45aaxvjyr6y57ay
+  tests/data/keep3r/contracts/0x30084324619D9645019C3f2cb3a94611601a3078/abi.json: bafybeibxrlb5gf7jdty7hjlkt2ukh2ritkzu3zff22xarrofvl3h2kk3yq
+  tests/data/keep3r/contracts/0x30084324619D9645019C3f2cb3a94611601a3078/contract_details.json: bafybeigqxfbrpcuccpzqr6fyjo2jzpokybjmwakheibb36qtjxehrqmoni
+  tests/data/keep3r/contracts/0x31e43cEe5433945dBa82C09dFfe8aE29edbb27c3/abi.json: bafybeihr6abuc3pwrb636utsfi4kqvxjdzqh2c6o3ixjvy65577mf75zf4
+  tests/data/keep3r/contracts/0x31e43cEe5433945dBa82C09dFfe8aE29edbb27c3/contract_details.json: bafybeia3gco6tsv6wixekh7hu6wc6rz2musrmj4ghdz7y3j2qdb4s7h3re
+  tests/data/keep3r/contracts/0x3Da70a551C0F785580A291b7d8c7D0F3Dc4c6688/abi.json: bafybeigvvh3deddztuapk2eoukt3ks5igkfjhquu3osvvvmhhg2ysod5ge
+  tests/data/keep3r/contracts/0x3Da70a551C0F785580A291b7d8c7D0F3Dc4c6688/contract_details.json: bafybeihwapnfb572kzvngwpi77rbomkjdevzaimbspqbudcxintehfugsy
+  tests/data/keep3r/contracts/0x448E2f3b02dCC8A00c420b99Ae06a474A13275A1/abi.json: bafybeicqygokw6mddpeeml3ghakiduaaxuxtc5lz5lgstuzyohwzblshea
+  tests/data/keep3r/contracts/0x448E2f3b02dCC8A00c420b99Ae06a474A13275A1/contract_details.json: bafybeicg3brwbjqi2wpa2rsx6nv7hctqqbinmypes33lvc6fzhdt6jm5gm
+  tests/data/keep3r/contracts/0x4E504c6ca43cD1bBd9096A2c2E77A176D10910B1/abi.json: bafybeie4ffw75lcmp5ujkhb4s7xgajn4a6sq4efy45fzk4fsnsld53c4uq
+  tests/data/keep3r/contracts/0x4E504c6ca43cD1bBd9096A2c2E77A176D10910B1/contract_details.json: bafybeidsaixf355kdd46icepzfqfwjcatb2n2dfrzp5pfow4iutxadus3m
+  tests/data/keep3r/contracts/0x4a479E4457841D2D2Ff86e5A5389300963880C10/abi.json: bafybeigxocqm235i6bwylyz4cfii6u7cpvc6lm3r3ztkpzuq3oxv2fdh3i
+  tests/data/keep3r/contracts/0x4a479E4457841D2D2Ff86e5A5389300963880C10/contract_details.json: bafybeih6fgxsmpaohn6xddw7zup7k5wrangecpi7nu2sh36gftxrbyzq6a
+  tests/data/keep3r/contracts/0x5DDe926b0A31346f2485900C5e64c2577F43F774/README.md: bafybeibf3wr5rgbnmax6b6pzklahxmdabjtgksy2ug3pli2ac7m7f3dqim
+  tests/data/keep3r/contracts/0x5DDe926b0A31346f2485900C5e64c2577F43F774/abi.json: bafybeihdygcogr3xejqwtqncb7fqx25mqjrbogdiyecbofsecgexwec6au
+  tests/data/keep3r/contracts/0x5DDe926b0A31346f2485900C5e64c2577F43F774/contract_details.json: bafybeidntvrsjs4yjvdjeozdvjvlbzopdthjzsiwfe7humban4dumuopsy
+  tests/data/keep3r/contracts/0x5E6B1Ce8E608D4EEEFA7e403c6f4FfC7AEA022C1/abi.json: bafybeifivn72fbqoch75ceql35tiqx2ryiu7tzkp2rnwatpgzrvnfemjym
+  tests/data/keep3r/contracts/0x5E6B1Ce8E608D4EEEFA7e403c6f4FfC7AEA022C1/contract_details.json: bafybeignianyqzsx7hx2cjwr7gne2ru2awg3ealewn4dgpznsk5v5jr7hy
+  tests/data/keep3r/contracts/0x5efD850044Ba76b8ffE49437CB301be3568bA696/abi.json: bafybeieaotupfox6dmh2ocqp6xjtex6ucxcpn7wlnqv3plh7fj76tkmp2y
+  tests/data/keep3r/contracts/0x5efD850044Ba76b8ffE49437CB301be3568bA696/contract_details.json: bafybeiabwaupddmqts6utgup3e7bwne75rrh3xuu6g2b5xolz6hsbq5tbe
+  tests/data/keep3r/contracts/0x620bd1E1D1d845c8904aC03F6cd6b87706B7596b/abi.json: bafybeic5chhcbibdsxllg7hhjchbukz7mxbutqs7nrscp7eiwljfoqrpcu
+  tests/data/keep3r/contracts/0x620bd1E1D1d845c8904aC03F6cd6b87706B7596b/contract_details.json: bafybeifdnfjjidmpcnqtiwqbyblyzcj5dm3322c2nx2vdlhect53whj2xq
+  tests/data/keep3r/contracts/0x6947aA05A900153Ef4CC28D893484A4e7ad7EC77/README.md: bafybeiexfpgoeqlwpsstrv7femvsodauo6iwv3voks5pwamc3raq4yzldm
+  tests/data/keep3r/contracts/0x6947aA05A900153Ef4CC28D893484A4e7ad7EC77/abi.json: bafybeigij73wmqlp72c3pyq4k5syqtrlgkunw4fvbaawvsppp3x6jmsgcm
+  tests/data/keep3r/contracts/0x6947aA05A900153Ef4CC28D893484A4e7ad7EC77/contract_details.json: bafybeiasv6hakuiqbfxbx2uve5pgzoejc3zzf72s75e5g24mopeo7qp5le
+  tests/data/keep3r/contracts/0x6D5a780fe782E90B49a85926cc77ddAB0D024645/abi.json: bafybeibw6m3bzdwiadbo77wfurd347ujpxv7rfd2yoy6hzswlx4ylwzu6i
+  tests/data/keep3r/contracts/0x6D5a780fe782E90B49a85926cc77ddAB0D024645/contract_details.json: bafybeigqn3p32ptq55piw67b5sdi2im2ieyrdxlomkkb3yrlzxzl7jw4zu
+  tests/data/keep3r/contracts/0x6b405609B78241112a3030E8a85570F06fbd3aca/abi.json: bafybeidieekth5xpasrf4xfk5qhnehnh255nwh3pwdzuq7j76nihwf22iy
+  tests/data/keep3r/contracts/0x6b405609B78241112a3030E8a85570F06fbd3aca/contract_details.json: bafybeiefsbhezvgo77vebo3el4icprxe3bzr7z2cnxgxkizs5h6s7zshvq
+  tests/data/keep3r/contracts/0x73353801921417F465377c8d898c6f4C0270282C/abi.json: bafybeibtbbrekny7zxqcgmsbnkauzt5htiddqwverhwozo4wlun5fqoyma
+  tests/data/keep3r/contracts/0x73353801921417F465377c8d898c6f4C0270282C/contract_details.json: bafybeidzk7lc4u6kuy7rvgqxhqifeitwbpgdub4nakbf7bu5rbuydqxueu
+  tests/data/keep3r/contracts/0x78C992446a0272056c7f9c47e36b051D772486Dd/README.md: bafybeiazv735tqkb3qvznqvxupghqxpv5iqslhsjm7eza6bnagyya4qz5i
+  tests/data/keep3r/contracts/0x78C992446a0272056c7f9c47e36b051D772486Dd/abi.json: bafybeiavoawlfnkjiqj2exgvkhnqom4tdchmf6qi6lrajulmif3hlvc6uq
+  tests/data/keep3r/contracts/0x78C992446a0272056c7f9c47e36b051D772486Dd/contract_details.json: bafybeihtek6g5tse3oaqd2544rxeipj7j2ehx6hc2oa4vlake6osthc454
+  tests/data/keep3r/contracts/0x7E0Cc5edF2DD01FC543D698b7E00ff54c6c39085/abi.json: bafybeidgg4mwp7gmuihjaa3l4mdawaz5rt4wzkxb3zzwrvev5yg4mox2iy
+  tests/data/keep3r/contracts/0x7E0Cc5edF2DD01FC543D698b7E00ff54c6c39085/contract_details.json: bafybeib3dcq2673tceeg5dp3m6hocpxsbdukncdvu7ouak4o6rsfmkw664
+  tests/data/keep3r/contracts/0x7b28163e7a3db17eF2dba02BCf7250A8Dc505057/abi.json: bafybeicoxok3a4z7hsf74aucktq3nbz75qtzze62b76lzt5anvq6dgddwm
+  tests/data/keep3r/contracts/0x7b28163e7a3db17eF2dba02BCf7250A8Dc505057/contract_details.json: bafybeih3ys7pmatnf236jcis4ykfon5gz2e6rq7lkthylbrnmlxr6e7yxy
+  tests/data/keep3r/contracts/0x808E937a59D0264B0fcDb376aB1ebF5D47C25C2b/README.md: bafybeiexfpgoeqlwpsstrv7femvsodauo6iwv3voks5pwamc3raq4yzldm
+  tests/data/keep3r/contracts/0x808E937a59D0264B0fcDb376aB1ebF5D47C25C2b/abi.json: bafybeicwa5xicroaog7g5shttw4jjewzpdeqkn5f6jr3inogruixm6cmyy
+  tests/data/keep3r/contracts/0x808E937a59D0264B0fcDb376aB1ebF5D47C25C2b/contract_details.json: bafybeiekagvmngsnz56uaafb3hivh6hh326laies3wngvhd7yynktroyye
+  tests/data/keep3r/contracts/0x93Dfa873b15ad496BA8116Ce6CfEC52eF30a9372/README.md: bafybeiduddm5zkvzhia6m5myp4otp3mtki35ngs7czzbrmkzkw3lklv4mu
+  tests/data/keep3r/contracts/0x93Dfa873b15ad496BA8116Ce6CfEC52eF30a9372/abi.json: bafybeicvboyh4l66sc7o7w4jhgjvd6xljsjuhxvwqfwfmsfitwy4vtqq2e
+  tests/data/keep3r/contracts/0x93Dfa873b15ad496BA8116Ce6CfEC52eF30a9372/contract_details.json: bafybeiadgxyqylxze2ubfdkn3cik5afpttp7elikadwf4ys7q445a5x6gm
+  tests/data/keep3r/contracts/0x95603Fb36A68DE816c47078979f41FE65CCA02da/abi.json: bafybeib3i52luhghycc2bs55edzoc5uk2vi7ygkyfxyvcy5calfjyvixn4
+  tests/data/keep3r/contracts/0x95603Fb36A68DE816c47078979f41FE65CCA02da/contract_details.json: bafybeigazojejc7pps6e43ipbbpfnm42lrphzu3ewrjnsyt7zqpr5xfkeu
+  tests/data/keep3r/contracts/0xB1aCE96072654e3A2564A90D64Be99Dd3Ac195F4/abi.json: bafybeibi6nbp6yxxpy7evya65lhtwneqxm576lvkb75m2dzia46evtghwq
+  tests/data/keep3r/contracts/0xB1aCE96072654e3A2564A90D64Be99Dd3Ac195F4/contract_details.json: bafybeifvrykqis5tf3tlsyuxya436dafmimo3zfcqld2b5t34s7thgth2y
+  tests/data/keep3r/contracts/0xB59A6dCE95bc446aD098B4C4b415bbe766068cb8/abi.json: bafybeiexqwvvwhujomp2ybhepso3p3xxazwa7hkoxc37s26hmki5imaiki
+  tests/data/keep3r/contracts/0xB59A6dCE95bc446aD098B4C4b415bbe766068cb8/contract_details.json: bafybeib2iyoeiflf5bczn3zje4l3zs7m7vbbnc5k3uicp6v7l5ze4buxli
+  tests/data/keep3r/contracts/0xCA2E2df6A7a7Cf5bd19D112E8568910a6C2D3885/abi.json: bafybeidcpghcpipa7vrvpjzyr77n4heckznko2ja3cmppsulrry6p743gq
+  tests/data/keep3r/contracts/0xCA2E2df6A7a7Cf5bd19D112E8568910a6C2D3885/contract_details.json: bafybeibrh62toucnznxhag4tzioohdlagn65cbqjxwmyudjyexlu5vnhq4
+  tests/data/keep3r/contracts/0xD7De27e74f1Ca2Ce413E19a0B30Fcc95395BFcd9/abi.json: bafybeidy5fbmz7yawi3kojl37rp4cui6e2okqnrbiow3smbgipt5foup2u
+  tests/data/keep3r/contracts/0xD7De27e74f1Ca2Ce413E19a0B30Fcc95395BFcd9/contract_details.json: bafybeidvbghhaitiob6k723wn5bkitnmwrxixjftjbbqbj5jfvyhmb36km
+  tests/data/keep3r/contracts/0xE2B5D2F44946638Debe13C2E60E17Cb1dc80F666/abi.json: bafybeidtnn7sk55mkppbhxgkftow4nm23x6jmwq24yjn5wtwcwvvg5pmjm
+  tests/data/keep3r/contracts/0xE2B5D2F44946638Debe13C2E60E17Cb1dc80F666/contract_details.json: bafybeih2r4beuufkk7u4ok243v4u7azmz2nyzji3e73leodbalmewww7te
+  tests/data/keep3r/contracts/0xE5a7db399dEC2c5ddEfeBc52ea70f127284D118d/README.md: bafybeidiodlkitrbgkhyx7ff2esqp4bk6cr7eg26pephegd7zg5tog3xwq
+  tests/data/keep3r/contracts/0xE5a7db399dEC2c5ddEfeBc52ea70f127284D118d/abi.json: bafybeidkjyrxb4luygwd33r2smi2svdxrshncieyod6yrygcfwjtbybmny
+  tests/data/keep3r/contracts/0xE5a7db399dEC2c5ddEfeBc52ea70f127284D118d/contract_details.json: bafybeidbn7o37alnumqdmlk3obrs67rt5rncqn5z6awtddkeba5lnhcwgq
+  tests/data/keep3r/contracts/0xEcbA21E26466727d705d48cb0a8DE42B11767Bf7/abi.json: bafybeiahipfsj3oiev62pkpuvnfnpbyfa2hspkscbgbnv6gnhhve2lxvyi
+  tests/data/keep3r/contracts/0xEcbA21E26466727d705d48cb0a8DE42B11767Bf7/contract_details.json: bafybeifcznpnruce4vnxko2wnicnxrdezotthsrpnmd3ceb6nva7xarrdi
+  tests/data/keep3r/contracts/0xF8106d779246612FF7a6A623EF7026a9ccFaf709/abi.json: bafybeid34p7jiupgvozvltzwabfb2immeqjsedkqsakpj6rtq5eg7ke7yi
+  tests/data/keep3r/contracts/0xF8106d779246612FF7a6A623EF7026a9ccFaf709/contract_details.json: bafybeihr2564y5qavy7yvhjugjhxigpqb7a4kqeqqinl2qpngzmrfxjhxm
+  tests/data/keep3r/contracts/0xaed599AADfEE8e32Cedb59db2b1120d33A7bACFD/abi.json: bafybeidtnn7sk55mkppbhxgkftow4nm23x6jmwq24yjn5wtwcwvvg5pmjm
+  tests/data/keep3r/contracts/0xaed599AADfEE8e32Cedb59db2b1120d33A7bACFD/contract_details.json: bafybeiavqmurck6qxypttkb25zs4xc3tynsmqvcvwch2wjq3r4xj54v4ea
+  tests/data/keep3r/contracts/0xcEA967B693e89B1FFb08718c3106847616e95607/abi.json: bafybeidtnn7sk55mkppbhxgkftow4nm23x6jmwq24yjn5wtwcwvvg5pmjm
+  tests/data/keep3r/contracts/0xcEA967B693e89B1FFb08718c3106847616e95607/contract_details.json: bafybeihgu6q4auym5chtlf73vdou7iuwu55k5yst3i5waqi2kmmzohyml4
+  tests/data/keep3r/contracts/0xd0aC37E3524F295D141d3839d5ed5F26A40b589D/abi.json: bafybeigevab3lvv2eg6wgdnbumyd444fewrma2qrkxxzizk6ah7ekt3t7y
+  tests/data/keep3r/contracts/0xd0aC37E3524F295D141d3839d5ed5F26A40b589D/contract_details.json: bafybeieisnrbgav6236kkhdpcfjjryeqacrvmxekpp3s7gawsm5zasdbta
+  tests/data/keep3r/contracts/0xe7F4ab593aeC81EcA754Da1B3B7cE0C42a13Ec0C/README.md: bafybeia3iahsfl4g7f7puhdqcfuqqhs7wvrnvjdq6lld5z42iwswta5lje
+  tests/data/keep3r/contracts/0xe7F4ab593aeC81EcA754Da1B3B7cE0C42a13Ec0C/abi.json: bafybeid34p7jiupgvozvltzwabfb2immeqjsedkqsakpj6rtq5eg7ke7yi
+  tests/data/keep3r/contracts/0xe7F4ab593aeC81EcA754Da1B3B7cE0C42a13Ec0C/contract_details.json: bafybeihowfp2l3jdjvss2zf42lw2tmjcpr6ovmgiqxnzkh5pnwdn3k4m2u
+  tests/data/keep3r/contracts/0xeE15010105b9BB564CFDfdc5cee676485092AEDd/README.md: bafybeihgid2l6732t4v4frtuttk3tljidrmeoxequnvbv4zmumhajo2lv4
+  tests/data/keep3r/contracts/0xeE15010105b9BB564CFDfdc5cee676485092AEDd/abi.json: bafybeid2ellr4cy3nkpfmduzvsac5mr7veh2uuthpk3hedvm5w3nfza6fu
+  tests/data/keep3r/contracts/0xeE15010105b9BB564CFDfdc5cee676485092AEDd/contract_details.json: bafybeigjop2jxdmmqxii4dzmsqesl6srekm4vdh5bhzlqyneqvo6tpmjra
+  tests/data/keep3r/contracts/0xef9512E5F33e2d1c66f77Ad61b3434A2fc97d321/abi.json: bafybeihouy2qzekon4fkcp7yab4lj3igfsnp27ydkquvh6gpabkqnud7ky
+  tests/data/keep3r/contracts/0xef9512E5F33e2d1c66f77Ad61b3434A2fc97d321/contract_details.json: bafybeibvamzrp37m6wz5uo7oc7reijeai4np4owec2eecjxwgijl72mg2q
+  tests/data/keep3r/contracts/0xf35eE77197b8E222549A54D7A43fc4DC60eBbeeb/abi.json: bafybeifn3qipojgalt35m4ial4eyrq56hes6xnsukeq5wqkfejeymr5ji4
+  tests/data/keep3r/contracts/0xf35eE77197b8E222549A54D7A43fc4DC60eBbeeb/contract_details.json: bafybeicdrurixjbz44cof3nti572e7ic4uedvfuefrxjqeszg2crxz5mdq
+  tests/data/keep3r/contracts/0xf67Ab1c914deE06Ba0F264031885Ea7B276a7cDa/abi.json: bafybeiesqqh5fprmi7exgiogkw5hiv2czeoqhqeuxh4xnz7qc3wakfl63y
+  tests/data/keep3r/contracts/0xf67Ab1c914deE06Ba0F264031885Ea7B276a7cDa/contract_details.json: bafybeierpvldmckxo5hhnuhag7e7endij3bna5ks2qnuc3zxwh7outwfga
+  tests/data/keep3r/contracts/0xf72D7E44ec3F79379912B8d0f661bE954a101159/README.md: bafybeica6n2sbmybmqdcosxgj7rct6kyquxxyg3mrrjr6zdkinbce3vv5e
+  tests/data/keep3r/contracts/0xf72D7E44ec3F79379912B8d0f661bE954a101159/abi.json: bafybeidjwxqb5e6tuseob5mko5dgwkfobl3hubhmpscbjq76ua7uwdsvea
+  tests/data/keep3r/contracts/0xf72D7E44ec3F79379912B8d0f661bE954a101159/contract_details.json: bafybeigalocl4533wqplv7jdqhw66e37mngxfdwsrq2zzogjuhznwmg75m
+  tests/data/keep3r/jobs.csv: bafybeidvh6jo3hv5hi2zv3ocuqnzuvkktc643olwllt6zvofp4y67rrba4
+  tests/fixture_helpers.py: bafybeibvxjvwvahi3z562qw545cqj4xoxritrfofc5n2sqpwfnkfb7zw3m
+  tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
+  tests/helpers/constants.py: bafybeietvag5v6ox7sdzwqle42oifrz2zf7b6pcwy2prcgrtlq2q24k6ka
+  tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeiaosd5yvjxbpf4dhfjnnk24ymwzjgnsbjqyilsjarnykftzmvyazm
+  tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
+  tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
+  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeic3ai7aaaij7bwvvqr5xilt6gnv5didm7rupjsng3uvsnp5haqov4
+  tests/test_contracts/test_keep3r_test_job/__init__.py: bafybeihhopwpbkkx5vyab2mx3kjfpgnlj46nhzjnzcazrfyybetxvvfhva
+  tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeicv4reqhukf3skx3kimlfpeut34jxcqrjo2f5kbpwghmcftfq6jqi
+  tests/test_contracts/test_keeper_for_testnet/__init__.py: bafybeigug6razuooshb7admqddi4ghaist6gpitni5pb6ps54pstdbp7ye
+  tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeiaydsbdnjwffo7zil7c53xosppf753vzzlg6w3632765db6qzua2m
+fingerprint_ignore_patterns: []
+connections:
+- valory/abci:0.1.0:bafybeiedhipcrpx7sg7qwitwox6iqrbbb4vfnvqqyok2vc6wq6inrcszey
+- valory/http_client:0.23.0:bafybeidykl4elwbcjkqn32wt5h4h7tlpeqovrcq3c5bcplt6nhpznhgczi
+- valory/ipfs:0.1.0:bafybeia7kzgw4tmkl6k2vjbnss4egvhcf4fmt7cnmpjjjbjogz2bu2j3fu
+- valory/ledger:0.19.0:bafybeiedg2ogh7tqseftv445e6fqpgjj3nyyjb3slbjmxg7quc7o3j3bqi
+- valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
+contracts:
+- valory/gnosis_safe:0.1.0:bafybeibzfhpib5fw3wady6dhq5bfgo37o437bi4s3hthbvvit7byvbalg4
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeidzdv6zjst5likperhuqdzsb4yix6ey5ir45nwdcquw3asuqmqdlu
+protocols:
+- open_aea/signing:1.0.0:bafybeibqlfmikg5hk4phzak6gqzhpkt6akckx7xppbp53mvwt6r73h7tk4
+- valory/abci:0.1.0:bafybeig3dj5jhsowlvg3t73kgobf6xn4nka7rkttakdb2gwsg5bp7rt7q4
+- valory/acn:1.1.0:bafybeignmc5uh3vgpuckljcj2tgg7hdqyytkm6m5b6v6mxtazdcvubibva
+- valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
+- valory/http:1.0.0:bafybeifyoio7nlh5zzyn5yz7krkou56l22to3cwg7gw5v5o3vxwklibhty
+- valory/ipfs:0.1.0:bafybeihlgai5pbmkb6mjhvgy4gkql5uvpwvxbpdowczgz4ovxat6vajrq4
+- valory/ledger_api:1.0.0:bafybeibl6bpfqdfzzxriagphf4czqgmr5fbcwyj5oq7tmmw24lcyryynxu
+- valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
+skills:
+- valory/abstract_abci:0.1.0:bafybeihkrunmigvlcze7uxhafj2h3kvpf2kifggq7zqj42n2we4mcwuvou
+- valory/abstract_round_abci:0.1.0:bafybeibpujqt4irrqa6cweq5wnt6ozzmcj7t63puwse4xvsbv7yiibgmaa
+- valory/keep3r_abci:0.1.0:bafybeif7kgiuxl5gnagexvct5oapphamn2vda3r77o366pgi5k4fxftfau
+- valory/keep3r_job:0.1.0:bafybeig6c3r3uz3tlur5uqso4hh7dq5ki6su7oho4evgr2wjpq4t5is47q
+- valory/registration_abci:0.1.0:bafybeih3tluarz6zvbnhbgogqjnquuz3dbtil36h46ziyvfy3h4g576ume
+- valory/reset_pause_abci:0.1.0:bafybeicam6tzgzhgoa52zrs5tcibku4ru2xeju3v6tyo5yvahtpkuxktbi
+- valory/transaction_settlement_abci:0.1.0:bafybeidtxsweywtmxa5o5nbvbhmknjrptjzl3rgzzuhjzavd3wejd35aq4
+default_ledger: ethereum
+required_ledgers:
+- ethereum
+- cosmos
+default_routing: {}
+connection_private_key_paths: {}
+private_key_paths: {}
+logging_config:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    standard:
+      format: '[%(asctime)s] [%(levelname)s] %(message)s'
+  handlers:
+    logfile:
+      class: logging.FileHandler
+      formatter: standard
+      filename: ${LOG_FILE:str:log.txt}
+      level: INFO
+    console:
+      class: logging.StreamHandler
+      formatter: standard
+      stream: ext://sys.stdout
+  loggers:
+    aea:
+      handlers:
+      - logfile
+      - console
+      propagate: false
+dependencies:
+  open-aea-ledger-ethereum: {}
+  open-aea-ledger-ethereum-flashbots: {}
+skill_exception_policy: just_log
+connection_exception_policy: just_log
+default_connection: null
+---
+public_id: valory/abci:0.1.0
+type: connection
+config:
+  target_skill_id: valory/keep3r_abci:0.1.0
+  host: ${ABCI_HOST:str:localhost}
+  port: ${ABCI_PORT:int:26658}
+  use_tendermint: ${ABCI_USE_TENDERMINT:bool:false}
+---
+public_id: valory/keep3r_abci:0.1.0
+type: skill
+models:
+  benchmark_tool:
+    args:
+      log_dir: ${SKILL_KEEP3R_ABCI_MODELS_BENCHMARK_TOOL_ARGS_LOG_DIR:str:/benchmarks}
+  randomness_api:
+    args:
+      url: ${SKILL_KEEP3R_ABCI_MODELS_RANDOMNESS_API_ARGS_URL:str:https://drand.cloudflare.com/public/latest}
+      api_id: ${SKILL_KEEP3R_ABCI_MODELS_RANDOMNESS_API_ARGS_API_ID:str:cloudflare}
+  params:
+    args:
+      consensus:
+        max_participants: ${MAX_PARTICIPANTS:int:4}
+      setup:
+        safe_contract_address: ${list:["0x0000000000000000000000000000000000000000"]}
+        all_participants: ${list:[["0x0000000000000000000000000000000000000000"]]}
+        consensus_threshold: ${list:[null]}
+      round_timeout_seconds: ${float:60.0}
+      finalize_timeout: ${float:300.0}
+      tendermint_url: ${TENDERMINT_URL:str:http://localhost:26657}
+      tendermint_com_url: ${TENDERMINT_COM_URL:str:http://localhost:8080}
+      sleep_time: ${int:15}
+      reset_tendermint_after: ${int:10}
+      observation_interval: ${int:300}
+      max_healthcheck: ${int:1200}
+      use_v2: ${bool:true}
+      bonding_asset: ${str:0x0000000000000000000000000000000000000000}
+      bond_amount: ${int:1000}
+      keep3r_v1_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
+      keep3r_v2_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
+      supported_jobs_to_package_hash: ${list:[["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihaxl5l5ltmiius3bcr5pt3tqy6fgwn56hqm7zzm3uxupj6i2xfni"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeieedl2oblihpkugxwothabjpzgglxf6ignvjppw6i2mclvh6j2tny"]]}
+---
+public_id: valory/ledger:0.19.0
+type: connection
+config:
+  ledger_apis:
+    ethereum:
+      address: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_ADDRESS:str:http://localhost:8545}
+      chain_id: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_CHAIN_ID:int:31337}
+      poa_chain: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_POA_CHAIN:bool:false}
+      default_gas_price_strategy: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_DEFAULT_GAS_PRICE_STRATEGY:str:eip1559}
+    ethereum_flashbots:
+      address: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_ADDRESS:str:http://localhost:8545}
+      chain_id: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_CHAIN_ID:int:31337}
+      poa_chain: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_POA_CHAIN:bool:false}
+      default_gas_price_strategy: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_DEFAULT_GAS_PRICE_STRATEGY:str:eip1559}
+      authentication_private_key: ${str:null}
+      flashbot_relayer_uri: ${str:null}
+---
+public_id: valory/p2p_libp2p_client:0.1.0
+type: connection
+is_abstract: true

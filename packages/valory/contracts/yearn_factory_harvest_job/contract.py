@@ -28,6 +28,7 @@ from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
 from web3.types import RPCEndpoint
 
+
 PUBLIC_ID = PublicId.from_str("valory/yearn_factory_harvest_job:0.1.0")
 
 _logger = logging.getLogger(
