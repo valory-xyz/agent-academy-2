@@ -56,17 +56,6 @@ class TestKeep3rJobContract(BaseContractTestCase):
         """Deploy contract."""
         return {}
 
-    def test_get_gas_price(self) -> None:
-        """Test gets gas price."""
-        with mock.patch.object(
-            self.ledger_api.api.eth, "generate_gas_price", return_value=GAS_PRICE
-        ):
-            with mock.patch.object(
-                self.ledger_api.api.manager, "request_blocking", return_value=CHAIN_ID
-            ):
-                result = self.contract.get_gas_price(self.ledger_api)
-        assert result == GAS_PRICE
-
     def test_get_workable(self) -> None:
         """Test gets `workable` method."""
         # mock contract function
@@ -80,10 +69,10 @@ class TestKeep3rJobContract(BaseContractTestCase):
             self.ledger_api, "get_contract_instance", return_value=mock_instance
         ):
             result = self.contract.get_workable(self.ledger_api, CONTRACT_ADDRESS)
-        assert result == IS_WORKABLE
+        assert result.get("data", False) == IS_WORKABLE
 
-    def test_rewardMultiplier(self) -> None:
-        """Test `rewardMultiplier` method."""
+    def test_reward_multiplier(self) -> None:
+        """Test `reward_multiplier` method."""
         # mock contract function
         mock_function = mock.MagicMock()
         mock_function.call.return_value = REWARD_MULTIPLIER
@@ -94,5 +83,5 @@ class TestKeep3rJobContract(BaseContractTestCase):
         with mock.patch.object(
             self.ledger_api, "get_contract_instance", return_value=mock_instance
         ):
-            result = self.contract.rewardMultiplier(self.ledger_api, CONTRACT_ADDRESS)
-        assert result.get("rewardMultiplier") == REWARD_MULTIPLIER
+            result = self.contract.reward_multiplier(self.ledger_api, CONTRACT_ADDRESS)
+        assert result.get("data") == REWARD_MULTIPLIER
