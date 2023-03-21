@@ -241,7 +241,7 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
     def test_build_unbond_tx(self) -> None:
         """Test build_unbond_tx"""
 
-        kw = dict(address=self.empty_address, amount=ONE_ETH)
+        kw = dict(amount=ONE_ETH)
         raw_tx = self.contract.build_unbond_tx(**self.base_kw, **kw)  # type: ignore
         expected = "0xa5d059ca000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f05120000000000000000000000000000000000000000000000000de0b6b3a7640000"
         assert raw_tx["data"] == expected
@@ -249,8 +249,7 @@ class TestKeep3rV1Contract(BaseKeep3rV1ContractTest):
     def test_build_withdraw_tx(self) -> None:
         """Test build_withdraw_tx"""
 
-        kw = dict(address=self.deployer_crypto.address)
-        raw_tx = self.contract.build_withdraw_tx(**self.base_kw, **kw)
+        raw_tx = self.contract.build_withdraw_tx(**self.base_kw)
         expected = (
             "0x51cff8d9000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f0512"
         )
@@ -280,10 +279,26 @@ class TestKeep3rV1ContractWithTestJob(BaseKeep3rV1ContractTest):
     def test_add_and_get_jobs(self) -> None:
         """Test get_jobs after adding the test job contract."""
 
+        default_gas_params = {
+            "gas": DEFAULT_GAS,
+            "maxFeePerGas": 5_000_000_000,
+            "maxPriorityFeePerGas": 3_000_000_000,
+        }
         job = self.test_job_contract.address
-        kw = dict(address=self.deployer_crypto.address, job=job)
-        raw_tx = self.contract.build_add_job_tx(**self.base_kw, **kw)
-        raw_tx["gas"] = DEFAULT_GAS
+        kw = dict(job=job)
+        tx_data = self.contract.build_add_job_tx(**self.base_kw, **kw)
+        nonce = Nonce(
+            self.ledger_api.api.eth.get_transaction_count(self.deployer_crypto.address)
+        )
+        raw_tx = {
+            "from": self.deployer_crypto.address,
+            "to": self.contract_address,
+            "data": tx_data["data"],
+            "nonce": nonce,
+            "value": 0,
+            "chainId": self.ledger_api.api.eth.chain_id,
+        }
+        raw_tx.update(default_gas_params)
         self.perform_tx(raw_tx)
         expected = [self.test_job_contract.address]
         assert self.contract.get_jobs(**self.base_kw)["data"] == expected
