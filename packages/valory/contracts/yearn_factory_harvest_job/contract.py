@@ -113,9 +113,10 @@ class YearnFactoryHarvestJobContract(Contract):
         # it might happen that between the workable call,
         # and this one there are no more workable strategies
         if len(workable_strategies) > 0:
+            strategy = ledger_api.api.toChecksumAddress(workable_strategies[0])
             data = contract.encodeABI(
                 fn_name="work",
-                args=[workable_strategies[0]],
+                args=[strategy],
             )
         return dict(data=data)
 

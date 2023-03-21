@@ -66,21 +66,12 @@ class Keep3rJobContract(Contract):
         raise NotImplementedError
 
     @classmethod
-    def get_gas_price(cls, ledger_api: LedgerApi) -> Optional[Wei]:
-        """Get the gas price."""
-        ethereum_api = cast(EthereumApi, ledger_api)
-        gas_price = ethereum_api.api.eth.generate_gas_price()
-        return gas_price
-
-    @classmethod
-    def get_workable(
-        cls, ledger_api: LedgerApi, contract_address: str
-    ) -> Optional[bool]:
+    def get_workable(cls, ledger_api: LedgerApi, contract_address: str) -> JSONLike:
         """Get the workable flag from the contract."""
         ethereum_api = cast(EthereumApi, ledger_api)
         contract = cls.get_instance(ethereum_api, contract_address)
         workable = contract.functions.workable().call()
-        return workable
+        return dict(data=workable)
 
     @classmethod
     def work(  # pylint: disable=too-many-arguments,too-many-locals
@@ -149,10 +140,11 @@ class Keep3rJobContract(Contract):
         return result
 
     @classmethod
-    def rewardMultiplier(cls, ledger_api: LedgerApi, contract_address: str) -> dict:
+    def reward_multiplier(
+        cls, ledger_api: LedgerApi, contract_address: str
+    ) -> JSONLike:
         """Gets the reward multiplier for the specific job."""
         ethereum_api = cast(EthereumApi, ledger_api)
         contract = cls.get_instance(ethereum_api, contract_address)
         reward_multiplier = contract.functions.rewardMultiplier().call()
-        response_dict = {"rewardMultiplier": reward_multiplier}
-        return response_dict
+        return dict(data=reward_multiplier)

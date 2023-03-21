@@ -28,8 +28,8 @@ fingerprint_ignore_patterns: []
 connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeibzfhpib5fw3wady6dhq5bfgo37o437bi4s3hthbvvit7byvbalg4
-- valory/keep3r_for_testnet:0.1.0:bafybeibkqtgiqkhfrpaqeb5q47r52nntdbbpd4rc3hev32kiucrezbmvza
-- valory/keep3r_v1:0.1.0:bafybeifn6injspohprzaohqdkdseh736caaunk3xybhjaijahkfwtwac74
+- valory/keep3r_for_testnet:0.1.0:bafybeibbxo6ffkzxhjyk2t3g3gznsnticcmvs36rztsntjem3rv6pwp46e
+- valory/keep3r_v1:0.1.0:bafybeiefgujx2g7p5yhjdfnx2odqywxybg2uclisom2pu7ioalrjnzpgxm
 protocols:
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
 - valory/ledger_api:1.0.0:bafybeibl6bpfqdfzzxriagphf4czqgmr5fbcwyj5oq7tmmw24lcyryynxu
