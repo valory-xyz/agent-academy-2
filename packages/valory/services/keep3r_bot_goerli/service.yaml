@@ -1,0 +1,41 @@
+name: keep3r_bot_goerli
+author: valory
+version: 0.1.0
+description: A set of agents implementing the Keep3r Bot.
+aea_version: '>=1.0.0, <2.0.0'
+license: Apache-2.0
+fingerprint:
+  README.md: bafybeiblcg3qti2cyz4ytufdkmqzcm6svbo5cwgsu2srjovvljdi35iz6i
+fingerprint_ignore_patterns: []
+agent: valory/keep3r_bot:0.1.0:bafybeigi253fsuzeot724v5kbgpqpjsdyt6qu4emp4aimfxce4ygl4uxsy
+number_of_agents: 1
+---
+public_id: valory/keep3r_abci:0.1.0
+type: skill
+models:
+  params:
+    args:
+      setup:
+        all_participants: ${ALL_PARTICIPANTS:list:["0x0000000000000000000000000000000000000000"]}
+        safe_contract_address: ${SAFE_CONTRACT_ADDRESS:list:["0x0000000000000000000000000000000000000000"]}
+      bonding_asset: ${BONDING_ASSET:str:0x0000000000000000000000000000000000000000}
+      bond_amount: ${BOND_AMOUNT:int:1}
+      observation_interval: ${OBSERVATION_INTERVAL:int:60}
+      service_registry_address: '0x1cEe30D08943EB58EFF84DD1AB44a6ee6FEff63a'
+      on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
+      share_tm_config_on_startup: ${USE_ACN:bool:false}
+      supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[["0x87eA08A70C2b9e3AD4a7f4c633aD3f5B0AD679bf","bafybeifvyqw7zclk77szsyvenblfb76g55eykvcinwoabdgapbdoxnvjjy"]]}
+      keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x3364BF0a8DcB15E463E6659175c90A57ee3d4288}
+      keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0x145d364e193204f8Ff0A87b718938406595678Dd}
+      use_v2: ${USE_KEEPER_V2:bool:true}
+      consensus:
+        max_participants: 1
+---
+public_id: valory/ledger:0.19.0
+type: connection
+0:
+  config:
+    ledger_apis:
+      ethereum:
+        address: ${SERVICE_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: 5

@@ -21,13 +21,13 @@
 """Tests for the keep3r contract."""
 
 from pathlib import Path
-from typing import Any, Dict, cast, Generator
+from typing import Any, Dict, Generator, cast
 
 import docker
 import pytest
 from aea.test_tools.test_contract import BaseContractTestCase
 from aea_ledger_ethereum import EthereumCrypto
-from aea_test_autonomy.docker.base import skip_docker_tests, launch_image
+from aea_test_autonomy.docker.base import launch_image, skip_docker_tests
 from aea_test_autonomy.docker.ganache import (
     DEFAULT_GANACHE_ADDR,
     DEFAULT_GANACHE_PORT,
@@ -42,6 +42,7 @@ from aea_test_autonomy.fixture_helpers import (  # noqa
 from packages.valory.contracts.phuture_harvesting_job.contract import (
     PhutureHarvestingJobContract,
 )
+
 
 ENDPOINT_GANACHE_URI = f"{DEFAULT_GANACHE_ADDR}:{DEFAULT_GANACHE_PORT}"
 RECEIPT_TIMEOUT = 30

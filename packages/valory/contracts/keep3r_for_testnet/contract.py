@@ -161,14 +161,18 @@ class KeeperForTestnetContract(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-        address: str,
         job: str,
     ) -> RawTransaction:
         """Allows governance to add new job systems."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        function = contract.functions.addJob(job=job)
-        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+        data = contract.encodeABI(
+            fn_name="addJob",
+            args=[
+                ledger_api.api.toChecksumAddress(job),
+            ],
+        )
+        return dict(data=data)
 
     @classmethod
     def build_bond_tx(
@@ -183,7 +187,7 @@ class KeeperForTestnetContract(Contract):
         data = contract.encodeABI(
             fn_name="bond",
             args=[
-                address,
+                ledger_api.api.toChecksumAddress(address),
                 amount,
             ],
         )
@@ -204,7 +208,7 @@ class KeeperForTestnetContract(Contract):
         data = contract.encodeABI(
             fn_name="activate",
             args=[
-                address,
+                ledger_api.api.toChecksumAddress(address),
             ],
         )
         return dict(
@@ -216,24 +220,33 @@ class KeeperForTestnetContract(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-        address: str,
         amount: Union[Wei, int],
     ) -> RawTransaction:
         """Begin the unbonding process to stop being a keeper. Default unbonding period is 14 days."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        function = contract.functions.unbond(bonding=contract.address, amount=amount)
-        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+        data = contract.encodeABI(
+            fn_name="unbond",
+            args=[
+                ledger_api.api.toChecksumAddress(contract.address),
+                amount,
+            ],
+        )
+        return dict(data=data)
 
     @classmethod
     def build_withdraw_tx(
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-        address: str,
     ) -> RawTransaction:
         """Withdraw funds after unbonding has finished."""
 
         contract = cls.get_instance(ledger_api, contract_address)
-        function = contract.functions.withdraw(bonding=contract.address)
-        return function.buildTransaction(cls.get_tx_parameters(ledger_api, address))
+        data = contract.encodeABI(
+            fn_name="withdraw",
+            args=[
+                contract.address,
+            ],
+        )
+        return dict(data=data)

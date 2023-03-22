@@ -28,6 +28,7 @@ from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
 from web3.types import RPCEndpoint
 
+
 PUBLIC_ID = PublicId.from_str("valory/yearn_factory_harvest_job:0.1.0")
 
 _logger = logging.getLogger(
@@ -112,9 +113,10 @@ class YearnFactoryHarvestJobContract(Contract):
         # it might happen that between the workable call,
         # and this one there are no more workable strategies
         if len(workable_strategies) > 0:
+            strategy = ledger_api.api.toChecksumAddress(workable_strategies[0])
             data = contract.encodeABI(
                 fn_name="work",
-                args=[workable_strategies[0]],
+                args=[strategy],
             )
         return dict(data=data)
 
