@@ -13,18 +13,18 @@ fingerprint:
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   fsm_specification.yaml: bafybeiekzkcaea4ngjxeffyduy6gqb4e4qufrwykb5qlocvslx77vaz6jm
   handlers.py: bafybeihrnok2s2oztglt7on7g5icbugmibikb3y2kqz2imbe23yoij7a5y
-  models.py: bafybeiavswwbdmkau6hdo67dmnxvnqnjjhe6rui3vjho5izpupuf3ujkvq
+  models.py: bafybeid66pob3so4azlyqqdfpw2edxkjygs36ycrur3zu6hcd4hx6juji4
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeibpujqt4irrqa6cweq5wnt6ozzmcj7t63puwse4xvsbv7yiibgmaa
-- valory/keep3r_job:0.1.0:bafybeia7dug6r2elc6hdmyqp5omlk5q3b7hjm26nwxu6np3t4dp3ul5tay
-- valory/registration_abci:0.1.0:bafybeih3tluarz6zvbnhbgogqjnquuz3dbtil36h46ziyvfy3h4g576ume
-- valory/reset_pause_abci:0.1.0:bafybeicam6tzgzhgoa52zrs5tcibku4ru2xeju3v6tyo5yvahtpkuxktbi
-- valory/transaction_settlement_abci:0.1.0:bafybeidtxsweywtmxa5o5nbvbhmknjrptjzl3rgzzuhjzavd3wejd35aq4
+- valory/abstract_round_abci:0.1.0:bafybeibw7khdmdxinnugbjdirh5q4cb4rirf5aqzfj6ai6zbhe7aavr7gy
+- valory/keep3r_job:0.1.0:bafybeie7rtuzvntlo2loveqifbzfxbjzq4yco4wrwpohuw7rlk5v77sx7m
+- valory/registration_abci:0.1.0:bafybeigijk6tyixlbb3jhrlgxfzk7wqopegqbdbklflvor27n3ysu42zty
+- valory/reset_pause_abci:0.1.0:bafybeid4atrdi3mflnkg6hiylnmjbfqa323i3wkjhuj4jispxbchukwwiq
+- valory/transaction_settlement_abci:0.1.0:bafybeie6mefwzprsqd6n45aleswygs76oekvdlzblq72omjsjtmwdaqwly
 behaviours:
   main:
     args: {}
@@ -110,11 +110,11 @@ models:
       keeper_timeout: 30.0
       max_attempts: 10
       max_healthcheck: 120
-      observation_interval: 10
       on_chain_service_id: null
       profitability_threshold: 0
       request_retry_delay: 1.0
       request_timeout: 10.0
+      reset_pause_duration: 10
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3
@@ -123,11 +123,9 @@ models:
       service_registry_address: null
       setup:
         all_participants:
-        - - '0x0000000000000000000000000000000000000000'
-        safe_contract_address:
-        - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
-        consensus_threshold:
-        - null
+        - '0x0000000000000000000000000000000000000000'
+        safe_contract_address: '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+        consensus_threshold: null
       share_tm_config_on_startup: false
       sleep_time: 1
       supported_jobs_to_package_hash:
@@ -139,6 +137,8 @@ models:
       tendermint_p2p_url: localhost:26656
       tendermint_url: http://localhost:26657
       tx_timeout: 10.0
+      use_flashbots: false
+      use_termination: false
       use_v2: false
       validate_timeout: 1205
     class_name: Params

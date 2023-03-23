@@ -28,7 +28,6 @@ from typing import Deque, Dict, List, Mapping, Optional, Set, Tuple, cast
 from packages.valory.skills.abstract_round_abci.base import (
     ABCIAppInternalError,
     AbciApp,
-    AbciAppDB,
     AbciAppTransitionFunction,
     AppState,
     BaseSynchronizedData,
@@ -40,6 +39,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     DegenerateRound,
     OnlyKeeperSendsRound,
     TransactionNotValidError,
+    VALUE_NOT_PROVIDED,
     VotingRound,
     get_name,
 )
@@ -344,7 +344,7 @@ class RandomnessTransactionSubmissionRound(CollectSameUntilThresholdRound):
     )
 
 
-class SelectKeeperTransactionSubmissionRoundA(CollectSameUntilThresholdRound):
+class SelectKeeperTransactionSubmissionARound(CollectSameUntilThresholdRound):
     """A round in which a keeper is selected for transaction submission"""
 
     payload_class = SelectKeeperPayload
@@ -368,12 +368,12 @@ class SelectKeeperTransactionSubmissionRoundA(CollectSameUntilThresholdRound):
         return super().end_block()
 
 
-class SelectKeeperTransactionSubmissionRoundB(SelectKeeperTransactionSubmissionRoundA):
+class SelectKeeperTransactionSubmissionBRound(SelectKeeperTransactionSubmissionARound):
     """A round in which a new keeper is selected for transaction submission"""
 
 
-class SelectKeeperTransactionSubmissionRoundBAfterTimeout(
-    SelectKeeperTransactionSubmissionRoundB
+class SelectKeeperTransactionSubmissionBAfterTimeoutRound(
+    SelectKeeperTransactionSubmissionBRound
 ):
     """A round in which a new keeper is selected for tx submission after a round timeout of the previous keeper"""
 
@@ -597,12 +597,36 @@ class ResetRound(CollectSameUntilThresholdRound):
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            latest_data = self.synchronized_data.db.get_latest()
-            synchronized_data = self.synchronized_data.create(
-                synchronized_data_class=self.synchronized_data_class,
-                **AbciAppDB.data_to_lists(latest_data),
+            synchronized_data = cast(SynchronizedData, self.synchronized_data)
+            # we could have used the `synchronized_data.create()` here and set the `cross_period_persisted_keys`
+            # with the corresponding properties' keys. However, the cross period keys would get passed over
+            # for all the following periods, even those that the tx settlement succeeds.
+            # Therefore, we need to manually call the db's create method and pass the keys we want to keep only
+            # for the next period, which comes after a `NO_MAJORITY` event of the tx settlement skill.
+            # TODO investigate the following:
+            # This probably indicates an issue with the logic of this skill. We should not increase the period since
+            # we have a failure. We could instead just remove the `ResetRound` and transition to the
+            # `RandomnessTransactionSubmissionRound` directly. This would save us one round, would allow us to remove
+            # this hacky logic for the `create`, and would also not increase the period count in non-successful events
+            self.synchronized_data.db.create(
+                **{
+                    db_key: synchronized_data.db.get(db_key, default)
+                    for db_key, default in {
+                        "all_participants": VALUE_NOT_PROVIDED,
+                        "participants": VALUE_NOT_PROVIDED,
+                        "consensus_threshold": VALUE_NOT_PROVIDED,
+                        "safe_contract_address": VALUE_NOT_PROVIDED,
+                        "tx_hashes_history": "",
+                        "keepers": VALUE_NOT_PROVIDED,
+                        "missed_messages": dict.fromkeys(
+                            synchronized_data.all_participants, 0
+                        ),
+                        "late_arriving_tx_hashes": VALUE_NOT_PROVIDED,
+                        "suspects": tuple(),
+                    }.items()
+                }
             )
-            return synchronized_data, Event.DONE
+            return self.synchronized_data, Event.DONE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
@@ -622,7 +646,7 @@ class TransactionSubmissionAbciApp(AbciApp[Event]):
             - done: 1.
             - round timeout: 0.
             - no majority: 0.
-        1. SelectKeeperTransactionSubmissionRoundA
+        1. SelectKeeperTransactionSubmissionARound
             - done: 2.
             - round timeout: 1.
             - no majority: 10.
@@ -651,12 +675,12 @@ class TransactionSubmissionAbciApp(AbciApp[Event]):
             - check timeout: 5.
             - no majority: 5.
             - check late arriving message: 8.
-        6. SelectKeeperTransactionSubmissionRoundB
+        6. SelectKeeperTransactionSubmissionBRound
             - done: 3.
             - round timeout: 6.
             - no majority: 10.
             - incorrect serialization: 12.
-        7. SelectKeeperTransactionSubmissionRoundBAfterTimeout
+        7. SelectKeeperTransactionSubmissionBAfterTimeoutRound
             - done: 3.
             - check history: 5.
             - check late arriving message: 8.
@@ -696,13 +720,13 @@ class TransactionSubmissionAbciApp(AbciApp[Event]):
     initial_states: Set[AppState] = {RandomnessTransactionSubmissionRound}
     transition_function: AbciAppTransitionFunction = {
         RandomnessTransactionSubmissionRound: {
-            Event.DONE: SelectKeeperTransactionSubmissionRoundA,
+            Event.DONE: SelectKeeperTransactionSubmissionARound,
             Event.ROUND_TIMEOUT: RandomnessTransactionSubmissionRound,
             Event.NO_MAJORITY: RandomnessTransactionSubmissionRound,
         },
-        SelectKeeperTransactionSubmissionRoundA: {
+        SelectKeeperTransactionSubmissionARound: {
             Event.DONE: CollectSignatureRound,
-            Event.ROUND_TIMEOUT: SelectKeeperTransactionSubmissionRoundA,
+            Event.ROUND_TIMEOUT: SelectKeeperTransactionSubmissionARound,
             Event.NO_MAJORITY: ResetRound,
             Event.INCORRECT_SERIALIZATION: FailedRound,
         },
@@ -714,44 +738,44 @@ class TransactionSubmissionAbciApp(AbciApp[Event]):
         FinalizationRound: {
             Event.DONE: ValidateTransactionRound,
             Event.CHECK_HISTORY: CheckTransactionHistoryRound,
-            Event.FINALIZE_TIMEOUT: SelectKeeperTransactionSubmissionRoundBAfterTimeout,
-            Event.FINALIZATION_FAILED: SelectKeeperTransactionSubmissionRoundB,
+            Event.FINALIZE_TIMEOUT: SelectKeeperTransactionSubmissionBAfterTimeoutRound,
+            Event.FINALIZATION_FAILED: SelectKeeperTransactionSubmissionBRound,
             Event.CHECK_LATE_ARRIVING_MESSAGE: SynchronizeLateMessagesRound,
-            Event.INSUFFICIENT_FUNDS: SelectKeeperTransactionSubmissionRoundB,
+            Event.INSUFFICIENT_FUNDS: SelectKeeperTransactionSubmissionBRound,
         },
         ValidateTransactionRound: {
             Event.DONE: FinishedTransactionSubmissionRound,
             Event.NEGATIVE: CheckTransactionHistoryRound,
-            Event.NONE: SelectKeeperTransactionSubmissionRoundB,
-            Event.VALIDATE_TIMEOUT: SelectKeeperTransactionSubmissionRoundB,
+            Event.NONE: SelectKeeperTransactionSubmissionBRound,
+            Event.VALIDATE_TIMEOUT: SelectKeeperTransactionSubmissionBRound,
             Event.NO_MAJORITY: ValidateTransactionRound,
         },
         CheckTransactionHistoryRound: {
             Event.DONE: FinishedTransactionSubmissionRound,
-            Event.NEGATIVE: SelectKeeperTransactionSubmissionRoundB,
+            Event.NEGATIVE: SelectKeeperTransactionSubmissionBRound,
             Event.NONE: FailedRound,
             Event.CHECK_TIMEOUT: CheckTransactionHistoryRound,
             Event.NO_MAJORITY: CheckTransactionHistoryRound,
             Event.CHECK_LATE_ARRIVING_MESSAGE: SynchronizeLateMessagesRound,
         },
-        SelectKeeperTransactionSubmissionRoundB: {
+        SelectKeeperTransactionSubmissionBRound: {
             Event.DONE: FinalizationRound,
-            Event.ROUND_TIMEOUT: SelectKeeperTransactionSubmissionRoundB,
+            Event.ROUND_TIMEOUT: SelectKeeperTransactionSubmissionBRound,
             Event.NO_MAJORITY: ResetRound,
             Event.INCORRECT_SERIALIZATION: FailedRound,
         },
-        SelectKeeperTransactionSubmissionRoundBAfterTimeout: {
+        SelectKeeperTransactionSubmissionBAfterTimeoutRound: {
             Event.DONE: FinalizationRound,
             Event.CHECK_HISTORY: CheckTransactionHistoryRound,
             Event.CHECK_LATE_ARRIVING_MESSAGE: SynchronizeLateMessagesRound,
-            Event.ROUND_TIMEOUT: SelectKeeperTransactionSubmissionRoundBAfterTimeout,
+            Event.ROUND_TIMEOUT: SelectKeeperTransactionSubmissionBAfterTimeoutRound,
             Event.NO_MAJORITY: ResetRound,
             Event.INCORRECT_SERIALIZATION: FailedRound,
         },
         SynchronizeLateMessagesRound: {
             Event.DONE: CheckLateTxHashesRound,
             Event.ROUND_TIMEOUT: SynchronizeLateMessagesRound,
-            Event.NONE: SelectKeeperTransactionSubmissionRoundB,
+            Event.NONE: SelectKeeperTransactionSubmissionBRound,
             Event.SUSPICIOUS_ACTIVITY: FailedRound,
         },
         CheckLateTxHashesRound: {

@@ -21,6 +21,7 @@
 
 # pylint: skip-file
 
+import hashlib
 import logging  # noqa: F401
 from collections import deque
 from typing import (
@@ -84,9 +85,9 @@ from packages.valory.skills.transaction_settlement_abci.rounds import (
 from packages.valory.skills.transaction_settlement_abci.rounds import (
     FinalizationRound,
     ResetRound,
-    SelectKeeperTransactionSubmissionRoundA,
-    SelectKeeperTransactionSubmissionRoundB,
-    SelectKeeperTransactionSubmissionRoundBAfterTimeout,
+    SelectKeeperTransactionSubmissionARound,
+    SelectKeeperTransactionSubmissionBAfterTimeoutRound,
+    SelectKeeperTransactionSubmissionBRound,
     SynchronizeLateMessagesRound,
 )
 from packages.valory.skills.transaction_settlement_abci.rounds import (
@@ -100,7 +101,7 @@ from packages.valory.skills.transaction_settlement_abci.rounds import (
 
 MAX_PARTICIPANTS: int = 4
 RANDOMNESS: str = "d1c29dce46f979f9748210d24bce4eae8be91272f5ca1a6aea2832d3dd676f51"
-DUMMY_RANDOMNESS = 0.1  # for coverage purposes
+DUMMY_RANDOMNESS = hashlib.sha256("hash".encode() + str(0).encode()).hexdigest()
 
 
 def get_participants() -> FrozenSet[str]:
@@ -327,7 +328,7 @@ class BaseValidateRoundTest(BaseVotingRoundTest):
 
 
 class BaseSelectKeeperRoundTest(BaseCollectSameUntilThresholdRoundTest):
-    """Test SelectKeeperTransactionSubmissionRoundA"""
+    """Test SelectKeeperTransactionSubmissionARound"""
 
     test_class: Type[CollectSameUntilThresholdRound]
     test_payload: Type[BaseTxPayload]
@@ -378,10 +379,10 @@ class BaseSelectKeeperRoundTest(BaseCollectSameUntilThresholdRoundTest):
         )
 
 
-class TestSelectKeeperTransactionSubmissionRoundA(BaseSelectKeeperRoundTest):
-    """Test SelectKeeperTransactionSubmissionRoundA"""
+class TestSelectKeeperTransactionSubmissionARound(BaseSelectKeeperRoundTest):
+    """Test SelectKeeperTransactionSubmissionARound"""
 
-    test_class = SelectKeeperTransactionSubmissionRoundA
+    test_class = SelectKeeperTransactionSubmissionARound
     test_payload = SelectKeeperPayload
     _synchronized_data_class = TransactionSettlementSynchronizedSata
     _event_class = TransactionSettlementEvent
@@ -411,12 +412,12 @@ class TestSelectKeeperTransactionSubmissionRoundA(BaseSelectKeeperRoundTest):
         super().test_run(most_voted_payload, keepers, exit_event)
 
 
-class TestSelectKeeperTransactionSubmissionRoundB(
-    TestSelectKeeperTransactionSubmissionRoundA
+class TestSelectKeeperTransactionSubmissionBRound(
+    TestSelectKeeperTransactionSubmissionARound
 ):
-    """Test SelectKeeperTransactionSubmissionRoundB."""
+    """Test SelectKeeperTransactionSubmissionBRound."""
 
-    test_class = SelectKeeperTransactionSubmissionRoundB
+    test_class = SelectKeeperTransactionSubmissionBRound
 
     @pytest.mark.parametrize(
         "most_voted_payload, keepers, exit_event",
@@ -446,12 +447,12 @@ class TestSelectKeeperTransactionSubmissionRoundB(
         super().test_run(most_voted_payload, keepers, exit_event)
 
 
-class TestSelectKeeperTransactionSubmissionRoundBAfterTimeout(
-    TestSelectKeeperTransactionSubmissionRoundB
+class TestSelectKeeperTransactionSubmissionBAfterTimeoutRound(
+    TestSelectKeeperTransactionSubmissionBRound
 ):
-    """Test SelectKeeperTransactionSubmissionRoundBAfterTimeout."""
+    """Test SelectKeeperTransactionSubmissionBAfterTimeoutRound."""
 
-    test_class = SelectKeeperTransactionSubmissionRoundBAfterTimeout
+    test_class = SelectKeeperTransactionSubmissionBAfterTimeoutRound
 
     @mock.patch.object(
         TransactionSettlementSynchronizedSata,
@@ -497,7 +498,7 @@ class TestSelectKeeperTransactionSubmissionRoundBAfterTimeout(
         threshold_exceeded: bool,
         exit_event: TransactionSettlementEvent,
     ) -> None:
-        """Test `SelectKeeperTransactionSubmissionRoundBAfterTimeout`."""
+        """Test `SelectKeeperTransactionSubmissionBAfterTimeoutRound`."""
         self.synchronized_data.update(participant_to_selection=dict.fromkeys(self.participants), **attrs)  # type: ignore
         threshold_exceeded_mock.return_value = threshold_exceeded
         most_voted_payload = int(1).to_bytes(32, "big").hex() + "new_keeper" + "-" * 32
@@ -925,7 +926,9 @@ def test_synchronized_datas() -> None:
         AbciAppDB(
             setup_data=AbciAppDB.data_to_lists(
                 dict(
+                    all_participants=tuple(participants),
                     participants=tuple(participants),
+                    consensus_threshold=3,
                     participant_to_randomness=participant_to_randomness_serialized,
                     most_voted_randomness=most_voted_randomness,
                     participant_to_selection=participant_to_selection_serialized,
@@ -975,11 +978,15 @@ class TestResetRound(BaseCollectSameUntilThresholdRoundTest):
         self,
     ) -> None:
         """Runs tests."""
-
+        randomness = DUMMY_RANDOMNESS
         synchronized_data = self.synchronized_data.update(
-            keeper_randomness=DUMMY_RANDOMNESS,
+            most_voted_randomness=randomness,
+            late_arriving_tx_hashes={},
+            keepers="",
         )
-        synchronized_data._db._cross_period_persisted_keys = {"keeper_randomness"}
+        synchronized_data._db._cross_period_persisted_keys = frozenset(
+            {"most_voted_randomness"}
+        )
         test_round = ResetRound(synchronized_data=synchronized_data)
         next_period_count = 1
         self._complete_run(
@@ -988,11 +995,7 @@ class TestResetRound(BaseCollectSameUntilThresholdRoundTest):
                 round_payloads=get_participant_to_period_count(
                     self.participants, next_period_count
                 ),
-                synchronized_data_update_fn=lambda _synchronized_data, _: _synchronized_data.create(
-                    participants=[tuple(self.participants)],
-                    all_participants=[tuple(self.participants)],
-                    keeper_randomness=[DUMMY_RANDOMNESS],
-                ),
+                synchronized_data_update_fn=lambda _synchronized_data, _: _synchronized_data.create(),
                 synchronized_data_attr_checks=[],  # [lambda _synchronized_data: _synchronized_data.participants],
                 most_voted_payload=next_period_count,
                 exit_event=self._event_class.DONE,

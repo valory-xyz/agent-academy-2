@@ -62,7 +62,6 @@ from packages.valory.contracts.gnosis_safe.contract import (
 from packages.valory.protocols.abci import AbciMessage  # noqa: F401
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.protocols.ledger_api.message import LedgerApiMessage
-from packages.valory.skills.abstract_round_abci import behaviour_utils
 from packages.valory.skills.abstract_round_abci.base import AbciAppDB
 from packages.valory.skills.abstract_round_abci.behaviour_utils import (
     BaseBehaviour,
@@ -153,188 +152,6 @@ class TransactionSettlementFSMBehaviourBaseCase(FSMBehaviourBaseCase):
 
 class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBaseCase):
     """Test `TransactionSettlementBaseBehaviour`."""
-
-    def test_send_transaction_request(self) -> None:
-        """Test '_send_transaction_request'."""
-        self.ffw_signature()
-
-        with mock.patch.object(
-            self.behaviour.context.ledger_api_dialogues,
-            "create",
-            return_value=(MagicMock(), MagicMock()),
-        ), mock.patch.object(
-            self.behaviour.context.outbox,
-            "put_message",
-            return_value=None,
-        ):
-            self.behaviour.current_behaviour._send_transaction_request(
-                MagicMock(
-                    signed_transaction=SignedTransaction(ledger_id="ethereum", body={})
-                )
-            )
-
-    @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
-    @mock.patch.object(BaseBehaviour, "_send_transaction_request")
-    @mock.patch.object(BaseBehaviour, "_send_transaction_receipt_request")
-    @mock.patch.object(behaviour_utils, "Terms")
-    def test_send_raw_transaction(self, *_: Any) -> None:
-        """Test 'send_raw_transaction'."""
-        self.ffw_signature()
-        m = MagicMock()
-        gen = self.behaviour.current_behaviour.send_raw_transaction(m)
-        # trigger generator function
-        gen.send(None)
-        gen.send(
-            SigningMessage(
-                cast(
-                    SigningMessage.Performative,
-                    SigningMessage.Performative.SIGNED_TRANSACTION,
-                ),
-                ("", ""),
-                signed_transaction=SignedTransaction(
-                    "ledger_id", body={"hash": "test"}
-                ),
-            )
-        )
-        try:
-            gen.send(
-                LedgerApiMessage(
-                    cast(
-                        LedgerApiMessage.Performative,
-                        LedgerApiMessage.Performative.TRANSACTION_DIGEST,
-                    ),
-                    ("", ""),
-                    transaction_digest=TransactionDigest("ledger_id", body="test"),
-                )
-            )
-            raise ValueError("Generator was expected to have reached its end!")
-        except StopIteration as e:
-            tx_hash, status = e.value
-
-        assert tx_hash == "test"
-        assert status == RPCResponseStatus.SUCCESS
-
-    @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
-    @mock.patch.object(BaseBehaviour, "_send_transaction_request")
-    @mock.patch.object(BaseBehaviour, "_send_transaction_receipt_request")
-    @mock.patch.object(behaviour_utils, "Terms")
-    def test_send_raw_transaction_with_wrong_signing_performative(
-        self, *_: Any
-    ) -> None:
-        """Test 'send_raw_transaction'."""
-        self.ffw_signature()
-        m = MagicMock()
-        gen = self.behaviour.current_behaviour.send_raw_transaction(m)
-        # trigger generator function
-        gen.send(None)
-        try:
-            gen.send(MagicMock(performative=SigningMessage.Performative.ERROR))
-            raise ValueError("Generator was expected to have reached its end!")
-        except StopIteration as e:
-            tx_hash, status = e.value
-
-        assert tx_hash is None
-        assert status == RPCResponseStatus.UNCLASSIFIED_ERROR
-
-    @pytest.mark.parametrize(
-        "message, expected_rpc_status",
-        (
-            ("replacement transaction underpriced", RPCResponseStatus.UNDERPRICED),
-            ("nonce too low", RPCResponseStatus.INCORRECT_NONCE),
-            ("insufficient funds", RPCResponseStatus.INSUFFICIENT_FUNDS),
-            ("already known", RPCResponseStatus.ALREADY_KNOWN),
-            ("test", RPCResponseStatus.UNCLASSIFIED_ERROR),
-        ),
-    )
-    @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
-    @mock.patch.object(BaseBehaviour, "_send_transaction_request")
-    @mock.patch.object(BaseBehaviour, "_send_transaction_receipt_request")
-    @mock.patch.object(behaviour_utils, "Terms")
-    def test_send_raw_transaction_errors(
-        self,
-        _: Any,
-        __: Any,
-        ___: Any,
-        ____: Any,
-        message: str,
-        expected_rpc_status: RPCResponseStatus,
-    ) -> None:
-        """Test 'send_raw_transaction'."""
-        self.ffw_signature()
-        m = MagicMock()
-        gen = self.behaviour.current_behaviour.send_raw_transaction(m)
-        # trigger generator function
-        gen.send(None)
-        gen.send(
-            SigningMessage(
-                cast(
-                    SigningMessage.Performative,
-                    SigningMessage.Performative.SIGNED_TRANSACTION,
-                ),
-                ("", ""),
-                signed_transaction=SignedTransaction(
-                    "ledger_id", body={"hash": "test"}
-                ),
-            )
-        )
-        try:
-            gen.send(
-                LedgerApiMessage(
-                    cast(
-                        LedgerApiMessage.Performative,
-                        LedgerApiMessage.Performative.ERROR,
-                    ),
-                    ("", ""),
-                    message=message,
-                )
-            )
-            raise ValueError("Generator was expected to have reached its end!")
-        except StopIteration as e:
-            tx_hash, status = e.value
-
-        assert tx_hash == "test"
-        assert status == expected_rpc_status
-
-    @mock.patch.object(BaseBehaviour, "_send_transaction_signing_request")
-    @mock.patch.object(BaseBehaviour, "_send_transaction_request")
-    @mock.patch.object(BaseBehaviour, "_send_transaction_receipt_request")
-    @mock.patch.object(behaviour_utils, "Terms")
-    def test_send_raw_transaction_hashes_mismatch(self, *_: Any) -> None:
-        """Test 'send_raw_transaction' when signature and tx responses' hashes mismatch."""
-        self.ffw_signature()
-        m = MagicMock()
-        gen = self.behaviour.current_behaviour.send_raw_transaction(m)
-        # trigger generator function
-        gen.send(None)
-        gen.send(
-            SigningMessage(
-                cast(
-                    SigningMessage.Performative,
-                    SigningMessage.Performative.SIGNED_TRANSACTION,
-                ),
-                ("", ""),
-                signed_transaction=SignedTransaction(
-                    "ledger_id", body={"hash": "signed"}
-                ),
-            )
-        )
-        try:
-            gen.send(
-                LedgerApiMessage(
-                    cast(
-                        LedgerApiMessage.Performative,
-                        LedgerApiMessage.Performative.TRANSACTION_DIGEST,
-                    ),
-                    ("", ""),
-                    transaction_digest=TransactionDigest("ledger_id", body="tx"),
-                )
-            )
-            raise ValueError("Generator was expected to have reached its end!")
-        except StopIteration as e:
-            tx_hash, status = e.value
-
-        assert tx_hash is None
-        assert status == RPCResponseStatus.UNCLASSIFIED_ERROR
 
     @pytest.mark.parametrize(
         "message, tx_digest, rpc_status, expected_data, replacement",
@@ -536,7 +353,7 @@ class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBa
         # call `_get_tx_data`
         tx_data_iterator = cast(
             TransactionSettlementBaseBehaviour, self.behaviour.current_behaviour
-        )._get_tx_data(message)
+        )._get_tx_data(message, use_flashbots=False)
 
         if message.performative == ContractApiMessage.Performative.RAW_TRANSACTION:
             next(tx_data_iterator)
@@ -774,6 +591,7 @@ class TestSignatureBehaviour(TransactionSettlementFSMBehaviourBaseCase):
         self,
     ) -> None:
         """Test signature behaviour."""
+
         init_db_items = dict(
             most_voted_tx_hash="b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d90000000"
             "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
@@ -1436,6 +1254,16 @@ class TestSynchronizeLateMessagesBehaviour(TransactionSettlementFSMBehaviourBase
                         participants=[participants],
                         participant_to_signature=[{}],
                         safe_contract_address=["safe_contract_address"],
+                        most_voted_tx_hash=[
+                            hash_payload_to_hex(
+                                "b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9",
+                                1,
+                                1,
+                                "0x77E9b2EF921253A171Fa0CB9ba80558648Ff7215",
+                                b"b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9"
+                                b"b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9",
+                            )
+                        ],
                     ),
                 )
             ),
@@ -1452,7 +1280,8 @@ class TestSynchronizeLateMessagesBehaviour(TransactionSettlementFSMBehaviourBase
         else:
 
             def _dummy_get_tx_data(
-                _: ContractApiMessage,
+                _current_message: ContractApiMessage,
+                _use_flashbots: bool,
             ) -> Generator[None, None, TxDataType]:
                 yield
                 return {
@@ -1491,7 +1320,7 @@ class TestResetBehaviour(TransactionSettlementFSMBehaviourBaseCase):
             ).behaviour_id
             == self.behaviour_class.auto_behaviour_id()
         )
-        self.behaviour.context.params.__dict__["observation_interval"] = 0.1
+        self.behaviour.context.params.__dict__["reset_pause_duration"] = 0.1
         self.behaviour.act_wrapper()
         time.sleep(0.3)
         self.behaviour.act_wrapper()

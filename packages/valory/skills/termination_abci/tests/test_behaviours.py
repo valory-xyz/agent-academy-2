@@ -586,7 +586,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
 
             if not log_found:
                 raise AssertionError(
-                    f"Expected log message {test_case.expected_log!r} was not found in captured logs: "
+                    f'Expected log message "{test_case.expected_log}" was not found in captured logs: '
                     f"{mock_logger.call_args_list}."
                 )
 

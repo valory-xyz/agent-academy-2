@@ -29,7 +29,7 @@ import pytest
 from hypothesis import settings
 
 from packages.valory.skills.abstract_round_abci.io_.store import StoredJSONType
-from packages.valory.skills.abstract_round_abci.models import MIN_OBSERVATION_INTERVAL
+from packages.valory.skills.abstract_round_abci.models import MIN_RESET_PAUSE_DURATION
 
 
 # pylint: skip-file
@@ -88,7 +88,7 @@ irrelevant_config = {
     "retry_timeout": 0,
     "retry_attempts": 0,
     "keeper_timeout": 0.0,
-    "observation_interval": MIN_OBSERVATION_INTERVAL,
+    "reset_pause_duration": MIN_RESET_PAUSE_DURATION,
     "drand_public_key": "str",
     "tendermint_com_url": "str",
     "tendermint_max_retries": 0,
@@ -106,5 +106,6 @@ irrelevant_config = {
     "share_tm_config_on_startup": False,
     "tendermint_p2p_url": "str",
     "setup": {},
+    "genesis_config": irrelevant_genesis_config,
+    "use_termination": False,
 }
-irrelevant_config["genesis_config"] = irrelevant_genesis_config

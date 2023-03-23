@@ -78,6 +78,7 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         self.supported_jobs_to_package_hash = self._get_supported_jobs_to_package_hash(
             kwargs
         )
+        self.use_flashbots = self._ensure("use_flashbots", kwargs, bool)
         super().__init__(*args, **kwargs)
 
     def _get_supported_jobs_to_package_hash(self, kwargs: Dict) -> Dict[str, str]:

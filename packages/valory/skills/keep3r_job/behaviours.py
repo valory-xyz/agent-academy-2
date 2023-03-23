@@ -122,6 +122,11 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         return self.context.params.keep3r_v2_contract_address
 
     @property
+    def use_flashbots(self) -> bool:
+        """Return if we are using flashbots."""
+        return self.context.params.use_flashbots
+
+    @property
     def bond_spender(self) -> str:
         """Return the bond spender."""
         if self.context.params.use_v2:
@@ -423,6 +428,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             safe_tx_gas=SAFE_GAS,
             to_address=tx_params["to"],
             data=tx_params["data"],
+            use_flashbots=self.use_flashbots,
         )
         return payload_data
 

@@ -55,7 +55,7 @@ class SharedState(Keep3rJobSharedState):
         validate_timeout = self.context.params.validate_timeout
         finalize_timeout = self.context.params.finalize_timeout
         reset_timeout = round_timeout_seconds * MULTIPLIER
-        reset_and_pause_timeout = self.context.params.observation_interval + MARGIN
+        reset_and_pause_timeout = self.context.params.reset_pause_duration + MARGIN
 
         # ROUND_TIMEOUT
         for event in (
