@@ -147,13 +147,13 @@ protocols:
 - valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
-- valory/abstract_round_abci:0.1.0:bafybeibw7khdmdxinnugbjdirh5q4cb4rirf5aqzfj6ai6zbhe7aavr7gy
-- valory/keep3r_abci:0.1.0:bafybeied2zoz2x2svyw7daxxpemzjoi3vgenv3cdrk3s2q2qjgrkadehq4
-- valory/keep3r_job:0.1.0:bafybeie7rtuzvntlo2loveqifbzfxbjzq4yco4wrwpohuw7rlk5v77sx7m
-- valory/registration_abci:0.1.0:bafybeigijk6tyixlbb3jhrlgxfzk7wqopegqbdbklflvor27n3ysu42zty
-- valory/reset_pause_abci:0.1.0:bafybeid4atrdi3mflnkg6hiylnmjbfqa323i3wkjhuj4jispxbchukwwiq
-- valory/transaction_settlement_abci:0.1.0:bafybeie6mefwzprsqd6n45aleswygs76oekvdlzblq72omjsjtmwdaqwly
-default_ledger: ethereum_flashbots
+- valory/abstract_round_abci:0.1.0:bafybeie5wwgvfvea3y24n3ftoyxn3k7zowdcayrx7drx6yb2sivt5umpau
+- valory/keep3r_abci:0.1.0:bafybeig34owmvzygtyhce4dbhjix24ydpuhz4hetqpby3tcztpunwz6pya
+- valory/keep3r_job:0.1.0:bafybeieknankkuf4bi2ej725c6dt3dgewzyanwth6mz5pq74ozvfefe2qa
+- valory/registration_abci:0.1.0:bafybeicp26dbeniyw5an3elp45zqejkm4cu5vwaz6obyp4mpmjtookaogu
+- valory/reset_pause_abci:0.1.0:bafybeibaqtctjcpqgglaoaarbiwcbemveectd66au66hmiu5fmt7xsczmi
+- valory/transaction_settlement_abci:0.1.0:bafybeibjgx6uky76sqdzc6fsmquxb4j6cri5re66phviwcexlhbgfgeasa
+default_ledger: ethereum
 required_ledgers:
 - ethereum
 - cosmos

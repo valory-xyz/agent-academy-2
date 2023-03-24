@@ -40,7 +40,9 @@ class Keep3rMyJobContract(Contract):
     contract_id = PUBLIC_ID
 
     @classmethod
-    def workable(cls, ledger_api: EthereumApi, contract_address: str) -> JSONLike:
+    def workable(
+        cls, ledger_api: EthereumApi, contract_address: str, keep3r_address: str
+    ) -> JSONLike:
         """Get the workable flag from the contract."""
 
         contract = cls.get_instance(ledger_api, contract_address)

@@ -40,7 +40,9 @@ class Keep3rTestJobContract(Contract):
     contract_id = PUBLIC_ID
 
     @classmethod
-    def workable(cls, ledger_api: EthereumApi, contract_address: str) -> JSONLike:
+    def workable(
+        cls, ledger_api: EthereumApi, contract_address: str, keep3r_address: str
+    ) -> JSONLike:
         """Get the workable flag from the contract."""
 
         contract = cls.get_instance(ledger_api, contract_address)
@@ -49,15 +51,14 @@ class Keep3rTestJobContract(Contract):
 
     @classmethod
     def build_work_tx(  # pylint: disable=too-many-arguments,too-many-locals
-        cls,
-        ledger_api: EthereumApi,
-        contract_address: str,
+        cls, ledger_api: EthereumApi, contract_address: str, keep3r_address: str
     ) -> JSONLike:
         """
         Get the raw work transaction
 
         :param ledger_api: the ledger API object
         :param contract_address: the contract address
+        :param keep3r_address: the keep3r address
 
         :return: the raw transaction
         """

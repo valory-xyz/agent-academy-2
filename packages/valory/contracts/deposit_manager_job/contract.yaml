@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   DepositManager.json: bafybeigprsi6ehxjbhl7qu4c67c7pvkbyybpr5tgbokdpffawvhi36a25u
   __init__.py: bafybeihkofb3skgfaeylolyzstwqc35jjf6clolnxme354mxswpecs244y
-  contract.py: bafybeiayfdfrchjoi6z5i7xofysoi6jxzcyf5qs4oqiw27hr622drswb6u
+  contract.py: bafybeihr6fznhmcfnfvcoir26ob5pdh5smm67dveopkwgfwxqmrhy7aibm
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: DepositManagerJobContract
