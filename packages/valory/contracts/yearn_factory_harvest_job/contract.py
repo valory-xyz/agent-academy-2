@@ -20,7 +20,7 @@
 """This module contains a class for the Yearn FactoryHarvestV1 Job contract."""
 
 import logging
-from typing import List
+from typing import Any, List
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
@@ -82,9 +82,13 @@ class YearnFactoryHarvestJobContract(Contract):
 
     @classmethod
     def workable(
-        cls, ledger_api: EthereumApi, contract_address: str, keep3r_address: str
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        **kwargs: Any,
     ) -> JSONLike:
         """Check if there are any workable strategies."""
+        keep3r_address = kwargs.get("keep3r_address")
         strategies = cls.get_strategies(ledger_api)
         workable_strategies = cls.get_workable_strategies(
             ledger_api, contract_address, strategies, keep3r_address
@@ -94,18 +98,22 @@ class YearnFactoryHarvestJobContract(Contract):
 
     @classmethod
     def build_work_tx(  # pylint: disable=too-many-arguments,too-many-locals
-        cls, ledger_api: EthereumApi, contract_address: str, keep3r_address: str
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        **kwargs: Any,
     ) -> JSONLike:
         """
         Get the raw work transaction
 
         :param ledger_api: the ledger API object
         :param contract_address: the contract address
-        :param keep3r_address: the keep3r address
+        :param kwargs: keyword arguments
 
         :return: the raw transaction
         """
         contract = cls.get_instance(ledger_api, contract_address)
+        keep3r_address = kwargs.get("keep3r_address")
         strategies = cls.get_strategies(ledger_api)
         workable_strategies = cls.get_workable_strategies(
             ledger_api, contract_address, strategies, keep3r_address

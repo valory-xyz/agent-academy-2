@@ -83,13 +83,17 @@ class TestPhutureHarvestingJob(BaseContractTestCase):
         dummy_keep3r = self.contract_address
         contract = cast(PhutureHarvestingJobContract, self.contract)
         workable = contract.workable(
-            self.ledger_api, self.contract_address, dummy_keep3r
+            self.ledger_api,
+            self.contract_address,
+            keep3r_address=dummy_keep3r,
         )
         assert workable.get("data", False)
 
         # a work tx should be prepared succesfully
         work_tx = contract.build_work_tx(
-            self.ledger_api, self.contract_address, dummy_keep3r
+            self.ledger_api,
+            self.contract_address,
+            keep3r_address=dummy_keep3r,
         )
         assert work_tx.get("data", False)
 
