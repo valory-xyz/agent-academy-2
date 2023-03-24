@@ -27,7 +27,7 @@ models:
       on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
       share_tm_config_on_startup: ${USE_ACN:bool:false}
       use_flashbots: ${USE_FLASHBOTS:bool:true}
-      supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[["0xe854aF0dD7369bEBaAD3C862324DC0d28e035dd0","bafybeiboelt5zso2pxn7zprkyesal7gwykeecjz4sj7gaa2j4woiezgfoi"],["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihaxl5l5ltmiius3bcr5pt3tqy6fgwn56hqm7zzm3uxupj6i2xfni"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeihfqt6ygcondqrbwh245ps6u7af4za56d2drm5sufvamipewkb744"]]}
+      supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[["0xf4F748D45E03a70a9473394B28c3C7b5572DfA82","bafybeibl37g52dihlym32odv7ywdc2lhnar2cdes6qagp4ywirbpoteeb4"],["0xe854aF0dD7369bEBaAD3C862324DC0d28e035dd0","bafybeid5xb62ls2pkvpir44235wlzco3zptjerc4lsprjibmudmv74p5oi"],["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihqmqiqvkv6bavaatsajcid36zpyodjlio5q5kvpmf45pelfps7qe"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeihtfezzuqw7incmrh7qvbevapj7hm52c6max3gwcg4dsgp2cjb45y"]]}
       keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
       keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
       use_v2: ${USE_KEEPER_V2:bool:true}

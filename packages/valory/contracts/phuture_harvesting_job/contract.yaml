@@ -9,7 +9,7 @@ fingerprint:
   PhutureJob.json: bafybeidzaxpbdkn3cnxcdanxuoj7klp23u6spd6wsj4ogtfiofzhr3mhhi
   __init__.py: bafybeiflwdigkqjdp33usxkaozixd5cwyq35jy6eyf2lcr2gtp5kjbs6re
   contract.py: bafybeiancxfobnkb5iagytsgrd7nab55de6p5zm5a3546k2knamiof6tmu
-  test_contract.py: bafybeig7gby5qqikgwm7xdamw2p2stby4nlszr7wrm7y3yf6xc6qsxqfwi
+  test_contract.py: bafybeifkyfbk5rlrbnkybmeztposv4jwczdh7g33thz3zcncqafn2lpgga
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: PhutureHarvestingJobContract

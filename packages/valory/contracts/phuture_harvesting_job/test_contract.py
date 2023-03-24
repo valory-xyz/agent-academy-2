@@ -60,7 +60,7 @@ class TestPhutureHarvestingJob(BaseContractTestCase):
 
     # ganache fork configuration
     NETWORK_TO_FORK = "mainnet"
-    BLOCK_TO_FORK_FROM = 16712444
+    BLOCK_TO_FORK_FROM = 16893698
 
     @property
     def base_kw(self) -> Dict[str, Any]:
@@ -77,15 +77,20 @@ class TestPhutureHarvestingJob(BaseContractTestCase):
         """Deploy contract."""
         return {}
 
-    def test_become_keeper(self) -> None:
-        """Test become keeper"""
+    def test_run(self) -> None:
+        """Test workable and work tx preparation."""
         # the contract should be workable at the block that we are forking on
+        dummy_keep3r = self.contract_address
         contract = cast(PhutureHarvestingJobContract, self.contract)
-        workable = contract.workable(self.ledger_api, self.contract_address)
+        workable = contract.workable(
+            self.ledger_api, self.contract_address, dummy_keep3r
+        )
         assert workable.get("data", False)
 
         # a work tx should be prepared succesfully
-        work_tx = contract.build_work_tx(self.ledger_api, self.contract_address)
+        work_tx = contract.build_work_tx(
+            self.ledger_api, self.contract_address, dummy_keep3r
+        )
         assert work_tx.get("data", False)
 
     @classmethod
