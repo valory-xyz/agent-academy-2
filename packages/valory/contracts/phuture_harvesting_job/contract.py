@@ -20,6 +20,7 @@
 """This module contains a class for the Phuture (Harvesting) Job contract."""
 
 import logging
+from typing import Any
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
@@ -68,7 +69,12 @@ class PhutureHarvestingJobContract(Contract):
         return deposit_amount > 0
 
     @classmethod
-    def workable(cls, ledger_api: EthereumApi, contract_address: str) -> JSONLike:
+    def workable(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        **kwargs: Any,
+    ) -> JSONLike:
         """Get the workable flag from the contract."""
 
         contract = cls.get_instance(ledger_api, contract_address)
@@ -90,12 +96,14 @@ class PhutureHarvestingJobContract(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
+        **kwargs: Any,
     ) -> JSONLike:
         """
         Get the raw work transaction
 
         :param ledger_api: the ledger API object
         :param contract_address: the contract address
+        :param kwargs: keyword arguments
 
         :return: the raw transaction
         """

@@ -20,6 +20,7 @@
 """This module contains a contract wrapper for MyJob."""
 
 import logging
+from typing import Any
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
@@ -40,7 +41,12 @@ class Keep3rMyJobContract(Contract):
     contract_id = PUBLIC_ID
 
     @classmethod
-    def workable(cls, ledger_api: EthereumApi, contract_address: str) -> JSONLike:
+    def workable(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        **kwargs: Any,
+    ) -> JSONLike:
         """Get the workable flag from the contract."""
 
         contract = cls.get_instance(ledger_api, contract_address)
@@ -52,12 +58,14 @@ class Keep3rMyJobContract(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
+        **kwargs: Any,
     ) -> JSONLike:
         """
         Get the raw work transaction
 
         :param ledger_api: the ledger API object
         :param contract_address: the contract address
+        :param kwargs: keyword arguments
 
         :return: the raw transaction
         """

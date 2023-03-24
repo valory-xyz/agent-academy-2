@@ -123,7 +123,7 @@ fingerprint:
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeibjsmhuiflc3kqiif7vajawkiq3ogtzuvvar4bbjj55uya7le5aze
   tests/test_contracts/test_keep3r_test_job/__init__.py: bafybeihhopwpbkkx5vyab2mx3kjfpgnlj46nhzjnzcazrfyybetxvvfhva
-  tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeicv4reqhukf3skx3kimlfpeut34jxcqrjo2f5kbpwghmcftfq6jqi
+  tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeigqtsqysnjblg4fj324pcnhiixnzwquobkqqtyeercnyvw55hyyfi
   tests/test_contracts/test_keeper_for_testnet/__init__.py: bafybeigug6razuooshb7admqddi4ghaist6gpitni5pb6ps54pstdbp7ye
   tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeiaydsbdnjwffo7zil7c53xosppf753vzzlg6w3632765db6qzua2m
 fingerprint_ignore_patterns: []
@@ -148,12 +148,12 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
 - valory/abstract_round_abci:0.1.0:bafybeibw7khdmdxinnugbjdirh5q4cb4rirf5aqzfj6ai6zbhe7aavr7gy
-- valory/keep3r_abci:0.1.0:bafybeied2zoz2x2svyw7daxxpemzjoi3vgenv3cdrk3s2q2qjgrkadehq4
-- valory/keep3r_job:0.1.0:bafybeie7rtuzvntlo2loveqifbzfxbjzq4yco4wrwpohuw7rlk5v77sx7m
+- valory/keep3r_abci:0.1.0:bafybeidl4lrmteuk2ih4tu7ommmrgmi5duziq6fkwnf5qpsavvd33l6zpa
+- valory/keep3r_job:0.1.0:bafybeiflbm45r3gr2nv7pebwwq2vbapy7okoqj57nynfsq6m3yzghsbjka
 - valory/registration_abci:0.1.0:bafybeigijk6tyixlbb3jhrlgxfzk7wqopegqbdbklflvor27n3ysu42zty
 - valory/reset_pause_abci:0.1.0:bafybeid4atrdi3mflnkg6hiylnmjbfqa323i3wkjhuj4jispxbchukwwiq
 - valory/transaction_settlement_abci:0.1.0:bafybeie6mefwzprsqd6n45aleswygs76oekvdlzblq72omjsjtmwdaqwly
-default_ledger: ethereum_flashbots
+default_ledger: ethereum
 required_ledgers:
 - ethereum
 - cosmos

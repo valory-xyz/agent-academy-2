@@ -65,10 +65,18 @@ class TestKeep3rTestJobContract(BaseKeep3rTestJobContractTest):
 
     def test_workable(self) -> None:
         """Test workable, always true for test contract"""
-
-        assert self.contract.workable(self.ledger_api, self.contract_address)
+        keep3r_address = self.contract_address
+        assert self.contract.workable(
+            self.ledger_api,
+            self.contract_address,
+            keep3r_address=keep3r_address,
+        )
 
     def test_build_work_tx(self) -> None:
         """Test build work transaction"""
-
-        assert self.contract.build_work_tx(self.ledger_api, self.contract_address)
+        keep3r_address = self.contract_address
+        assert self.contract.build_work_tx(
+            self.ledger_api,
+            self.contract_address,
+            keep3r_address=keep3r_address,
+        )

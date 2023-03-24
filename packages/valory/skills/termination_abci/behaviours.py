@@ -127,6 +127,8 @@ class BackgroundBehaviour(BaseBehaviour):
 
         Note: we instantiate here, rather than cast, as this runs
         concurrently and so the instantiation needs to happen somewhere.
+
+        :return: the synchronized data
         """
         return SynchronizedData(db=super().synchronized_data.db)
 
@@ -146,6 +148,7 @@ class BackgroundBehaviour(BaseBehaviour):
             2. It MUST be 0 value tx.
 
         :returns: True if the termination signal is found, false otherwise
+        :yield: None
         """
         if self._service_owner_address is None:
             self._service_owner_address = yield from self._get_service_owner()
@@ -316,6 +319,7 @@ class BackgroundBehaviour(BaseBehaviour):
         :param owner: the owner to be removed.
         :param threshold: the new safe threshold to be set.
         :return: the tx data
+        :yield: None
         """
         response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
@@ -347,6 +351,7 @@ class BackgroundBehaviour(BaseBehaviour):
         :param old_owner: the owner to be removed.
         :param new_owner: the new safe threshold to be set.
         :return: the tx data
+        :yield: None
         """
         response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
@@ -375,6 +380,7 @@ class BackgroundBehaviour(BaseBehaviour):
 
         :param data: the safe tx data.
         :return: the tx hash
+        :yield: None
         """
         response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
@@ -526,6 +532,7 @@ class BackgroundBehaviour(BaseBehaviour):
         We consider the background round ended when we have majority on the termination transaction.
         Overriden to allow for the behaviour to send transactions at any time.
 
+        :param round_id: the id of the round.
         :return: the termination majority callable
         """
         return self._is_termination_majority

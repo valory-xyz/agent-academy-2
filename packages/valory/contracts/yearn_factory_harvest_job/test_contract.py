@@ -81,13 +81,22 @@ class TestYearnFactoryHarvestJobContract(BaseContractTestCase):
     def test_run(self) -> None:
         """Test the functionality of the contract."""
         # the contract should be workable at the block that we are forking on
+        dummy_keep3r = self.contract_address
 
         contract = cast(YearnFactoryHarvestJobContract, self.contract)
-        workable = contract.workable(self.ledger_api, self.contract_address)
+        workable = contract.workable(
+            self.ledger_api,
+            self.contract_address,
+            keep3r_address=dummy_keep3r,
+        )
         assert workable.get("data", False)
 
         # a work tx should be prepared successfully
-        work_tx = contract.build_work_tx(self.ledger_api, self.contract_address)
+        work_tx = contract.build_work_tx(
+            self.ledger_api,
+            self.contract_address,
+            keep3r_address=dummy_keep3r,
+        )
         assert work_tx.get("data", False)
 
     @classmethod

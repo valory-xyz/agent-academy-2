@@ -322,11 +322,13 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self,
         contract_address: str,
         contract_id: PublicId,
+        safe_address: str,
     ) -> Generator[None, None, Optional[bool]]:
         """Check if job contract is workable"""
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
             contract_address=contract_address,
+            keep3r_address=safe_address,
             contract_id=str(contract_id),
             contract_callable="workable",
         )
@@ -784,7 +786,9 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
                 current_job
             ]
             is_workable = yield from self.is_workable_job(
-                current_job, contract_public_id
+                current_job,
+                contract_public_id,
+                self.synchronized_data.safe_contract_address,
             )
             if is_workable is None:
                 # something went wrong
