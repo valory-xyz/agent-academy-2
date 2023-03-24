@@ -8,14 +8,14 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeigksusqhnsx4dupxnfwj663ofpnhgw7gtkc72iscf5blcczvz6fiq
-  behaviours.py: bafybeiazlzhdsvosa626t6nreaahavk636nxyp5xkhql6r3uvsaify3nmu
+  behaviours.py: bafybeihxbcqqchu3m6ebrk4iff2ml7364hfc5klsdjuie7jwmicbzfmiii
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
   fsm_specification.yaml: bafybeihno5san6zewjsmzpi2mdkud2whgohglaejcnbejblpfaa6nhnlhu
   handlers.py: bafybeig7pj6f2gadyirmwp6mu7bce6yqyn2gupdvqtcpnlbcr5wuat465y
   io_/__init__.py: bafybeifxgmmwjqzezzn3e6keh2bfo4cyo7y5dq2ept3stfmgglbrzfl5rq
   io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
-  models.py: bafybeigxduxgcumnvjokseg6vfyjgknlgofgj3t6trs2yo3gl7mi6jo4je
+  models.py: bafybeiatjdb5qmk552fpchzt5gwsuranm4v5tjgmnnffcazvculbgo2h6a
   payloads.py: bafybeid52iwsyzxpauezgr4rxxknjwxb673qqjxxytzlkqvxu3zpz7uonq
   rounds.py: bafybeigh6btqavg4cgtszev52xeitdev4opym66fym3p3k6j76uhru6qc4
   tests/__init__.py: bafybeihax7nv5wb5pb72cxwemjk5sz55ecsghh4zi3vbmziz2pacyqbrym
@@ -27,15 +27,15 @@ fingerprint:
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeibzfhpib5fw3wady6dhq5bfgo37o437bi4s3hthbvvit7byvbalg4
-- valory/keep3r_for_testnet:0.1.0:bafybeibbxo6ffkzxhjyk2t3g3gznsnticcmvs36rztsntjem3rv6pwp46e
-- valory/keep3r_v1:0.1.0:bafybeiefgujx2g7p5yhjdfnx2odqywxybg2uclisom2pu7ioalrjnzpgxm
+- valory/gnosis_safe:0.1.0:bafybeicwzsjalj4puagecus525fbdusaljccn4fi62nmr4zp5fhim6oyr4
+- valory/keep3r_for_testnet:0.1.0:bafybeifytr77v27emxwwoklkytt63h46z4ntedfrvop5tjdq2swxl2tkv4
+- valory/keep3r_v1:0.1.0:bafybeidbdfpmzxyw5n47nstnoxhwmtph7nysdiou5snabtpcjsykopwr24
 protocols:
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
-- valory/ledger_api:1.0.0:bafybeibl6bpfqdfzzxriagphf4czqgmr5fbcwyj5oq7tmmw24lcyryynxu
+- valory/ledger_api:1.0.0:bafybeieylbg4qb3dmjlm3zufqcwq4qbygsdgj3jzc53eyoqmd25mdz2pkq
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeibpujqt4irrqa6cweq5wnt6ozzmcj7t63puwse4xvsbv7yiibgmaa
-- valory/transaction_settlement_abci:0.1.0:bafybeidtxsweywtmxa5o5nbvbhmknjrptjzl3rgzzuhjzavd3wejd35aq4
+- valory/abstract_round_abci:0.1.0:bafybeibw7khdmdxinnugbjdirh5q4cb4rirf5aqzfj6ai6zbhe7aavr7gy
+- valory/transaction_settlement_abci:0.1.0:bafybeie6mefwzprsqd6n45aleswygs76oekvdlzblq72omjsjtmwdaqwly
 behaviours:
   main:
     args: {}
@@ -120,11 +120,11 @@ models:
       keeper_timeout: 30.0
       max_attempts: 10
       max_healthcheck: 120
-      observation_interval: 10
       on_chain_service_id: null
       profitability_threshold: 0
       request_retry_delay: 1.0
       request_timeout: 10.0
+      reset_pause_duration: 10
       reset_tendermint_after: 2
       retry_attempts: 400
       retry_timeout: 3
@@ -133,11 +133,9 @@ models:
       service_registry_address: null
       setup:
         all_participants:
-        - - '0x0000000000000000000000000000000000000000'
-        safe_contract_address:
         - '0x0000000000000000000000000000000000000000'
-        consensus_threshold:
-        - null
+        safe_contract_address: '0x0000000000000000000000000000000000000000'
+        consensus_threshold: null
       share_tm_config_on_startup: false
       sleep_time: 1
       supported_jobs_to_package_hash:
@@ -149,6 +147,8 @@ models:
       tendermint_p2p_url: localhost:26656
       tendermint_url: http://localhost:26657
       tx_timeout: 10.0
+      use_flashbots: false
+      use_termination: false
       use_v2: false
       validate_timeout: 1205
     class_name: Params

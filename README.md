@@ -42,3 +42,8 @@ To run the end-to-end tests with four agents against V2 fork of Goerli
 ``` bash
 pytest packages/keep3r_co/agents/keep3r_bot/tests/test_agents/test_keep3r_bot_abci.py::TestKeep3rABCIFourAgentsV2
 ```
+
+## Custom jobs
+
+The jobs directory contains jobs developed by us. It currently contains `veOLAS` job. 
+This job is supported by our keep3r service, among other jobs from third parties. 
