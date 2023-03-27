@@ -35,7 +35,6 @@ default_start_state: RegistrationStartupRound
 final_states:
 - BlacklistedRound
 - DegenerateRound
-- FailedRound
 label: Keep3rAbciApp
 start_states:
 - RegistrationRound
@@ -50,7 +49,6 @@ states:
 - CheckTransactionHistoryRound
 - CollectSignatureRound
 - DegenerateRound
-- FailedRound
 - FinalizationRound
 - GetJobsRound
 - IsProfitableRound
@@ -86,14 +84,14 @@ transition_func:
     (CheckLateTxHashesRound, CHECK_LATE_ARRIVING_MESSAGE): SynchronizeLateMessagesRound
     (CheckLateTxHashesRound, CHECK_TIMEOUT): CheckLateTxHashesRound
     (CheckLateTxHashesRound, DONE): ResetAndPauseRound
-    (CheckLateTxHashesRound, NEGATIVE): FailedRound
-    (CheckLateTxHashesRound, NONE): FailedRound
-    (CheckLateTxHashesRound, NO_MAJORITY): FailedRound
+    (CheckLateTxHashesRound, NEGATIVE): ResetAndPauseRound
+    (CheckLateTxHashesRound, NONE): ResetAndPauseRound
+    (CheckLateTxHashesRound, NO_MAJORITY): ResetAndPauseRound
     (CheckTransactionHistoryRound, CHECK_LATE_ARRIVING_MESSAGE): SynchronizeLateMessagesRound
     (CheckTransactionHistoryRound, CHECK_TIMEOUT): CheckTransactionHistoryRound
     (CheckTransactionHistoryRound, DONE): ResetAndPauseRound
     (CheckTransactionHistoryRound, NEGATIVE): SelectKeeperTransactionSubmissionBRound
-    (CheckTransactionHistoryRound, NONE): FailedRound
+    (CheckTransactionHistoryRound, NONE): ResetAndPauseRound
     (CheckTransactionHistoryRound, NO_MAJORITY): CheckTransactionHistoryRound
     (CollectSignatureRound, DONE): FinalizationRound
     (CollectSignatureRound, NO_MAJORITY): ResetRound
@@ -142,26 +140,26 @@ transition_func:
     (ResetAndPauseRound, NO_MAJORITY): RegistrationStartupRound
     (ResetAndPauseRound, RESET_AND_PAUSE_TIMEOUT): RegistrationStartupRound
     (ResetRound, DONE): RandomnessTransactionSubmissionRound
-    (ResetRound, NO_MAJORITY): FailedRound
-    (ResetRound, RESET_TIMEOUT): FailedRound
+    (ResetRound, NO_MAJORITY): ResetAndPauseRound
+    (ResetRound, RESET_TIMEOUT): ResetAndPauseRound
     (SelectKeeperTransactionSubmissionARound, DONE): CollectSignatureRound
-    (SelectKeeperTransactionSubmissionARound, INCORRECT_SERIALIZATION): FailedRound
+    (SelectKeeperTransactionSubmissionARound, INCORRECT_SERIALIZATION): ResetAndPauseRound
     (SelectKeeperTransactionSubmissionARound, NO_MAJORITY): ResetRound
     (SelectKeeperTransactionSubmissionARound, ROUND_TIMEOUT): SelectKeeperTransactionSubmissionARound
     (SelectKeeperTransactionSubmissionBAfterTimeoutRound, CHECK_HISTORY): CheckTransactionHistoryRound
     (SelectKeeperTransactionSubmissionBAfterTimeoutRound, CHECK_LATE_ARRIVING_MESSAGE): SynchronizeLateMessagesRound
     (SelectKeeperTransactionSubmissionBAfterTimeoutRound, DONE): FinalizationRound
-    (SelectKeeperTransactionSubmissionBAfterTimeoutRound, INCORRECT_SERIALIZATION): FailedRound
+    (SelectKeeperTransactionSubmissionBAfterTimeoutRound, INCORRECT_SERIALIZATION): ResetAndPauseRound
     (SelectKeeperTransactionSubmissionBAfterTimeoutRound, NO_MAJORITY): ResetRound
     (SelectKeeperTransactionSubmissionBAfterTimeoutRound, ROUND_TIMEOUT): SelectKeeperTransactionSubmissionBAfterTimeoutRound
     (SelectKeeperTransactionSubmissionBRound, DONE): FinalizationRound
-    (SelectKeeperTransactionSubmissionBRound, INCORRECT_SERIALIZATION): FailedRound
+    (SelectKeeperTransactionSubmissionBRound, INCORRECT_SERIALIZATION): ResetAndPauseRound
     (SelectKeeperTransactionSubmissionBRound, NO_MAJORITY): ResetRound
     (SelectKeeperTransactionSubmissionBRound, ROUND_TIMEOUT): SelectKeeperTransactionSubmissionBRound
     (SynchronizeLateMessagesRound, DONE): CheckLateTxHashesRound
     (SynchronizeLateMessagesRound, NONE): SelectKeeperTransactionSubmissionBRound
     (SynchronizeLateMessagesRound, ROUND_TIMEOUT): SynchronizeLateMessagesRound
-    (SynchronizeLateMessagesRound, SUSPICIOUS_ACTIVITY): FailedRound
+    (SynchronizeLateMessagesRound, SUSPICIOUS_ACTIVITY): ResetAndPauseRound
     (ValidateTransactionRound, DONE): ResetAndPauseRound
     (ValidateTransactionRound, NEGATIVE): CheckTransactionHistoryRound
     (ValidateTransactionRound, NONE): SelectKeeperTransactionSubmissionBRound
