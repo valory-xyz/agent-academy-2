@@ -376,6 +376,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self,
         job_address: str,
         contract_id: PublicId,
+        safe_address: str,
     ) -> Generator[None, None, Optional[SafeTx]]:
         """Build raw work transaction for a job contract"""
         contract_api_response = yield from self.get_contract_api_response(
@@ -383,6 +384,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             contract_id=str(contract_id),
             contract_callable="build_work_tx",
             contract_address=job_address,
+            keep3r_address=safe_address,
         )
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
             self.context.logger.error(
@@ -845,7 +847,10 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             contract_public_id = self.context.state.job_address_to_public_id[
                 current_job
             ]
-            raw_tx = yield from self.build_work_raw_tx(current_job, contract_public_id)
+            safe_address = self.synchronized_data.safe_contract_address
+            raw_tx = yield from self.build_work_raw_tx(
+                current_job, contract_public_id, safe_address
+            )
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
