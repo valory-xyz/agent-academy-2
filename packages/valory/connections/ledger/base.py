@@ -143,7 +143,8 @@ class RequestDispatcher(ABC):
             raise ValueError("Ledger connection expects non-serialized messages.")
         message = envelope.message
         ledger_id = self.get_ledger_id(message)
-        api = self.ledger_api_registry.make(ledger_id, **self.api_config(ledger_id))
+        chain_id = self.get_chain_id(message)
+        api = self.ledger_api_registry.make(ledger_id, **self.api_config(chain_id))
         dialogue = self.dialogues.update(message)
         if dialogue is None:
             raise ValueError(  # pragma: nocover
@@ -196,3 +197,7 @@ class RequestDispatcher(ABC):
     @abstractmethod
     def get_ledger_id(self, message: Message) -> str:
         """Extract the ledger id from the message."""
+
+    @abstractmethod
+    def get_chain_id(self, message: Message) -> str:
+        """Extract the chain id from the message."""

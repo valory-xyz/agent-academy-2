@@ -247,6 +247,11 @@ config:
       default_gas_price_strategy: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_DEFAULT_GAS_PRICE_STRATEGY:str:eip1559}
       authentication_private_key: ${str:null}
       flashbot_relayer_uri: ${str:null}
+    arbitrum:
+      address: ${str:https://rinkeby.arbitrum.io/rpc}
+      chain_id: ${int:421611}
+      poa_chain: ${bool:false}
+      default_gas_price_strategy: ${str:eip1559}
 ---
 public_id: valory/p2p_libp2p_client:0.1.0
 type: connection
