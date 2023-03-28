@@ -43,6 +43,19 @@ class PhutureHarvestingJobContract(Contract):
 
     contract_id = PUBLIC_ID
 
+    def get_off_chain_data(self, ledger_api: EthereumApi, contract_address: str, **kwargs: Any) -> JSONLike:
+        """
+        Get the off chain data from the contract.
+
+        This contract doesn't have any off-chain data.
+
+        :param ledger_api: the ledger API object
+        :param contract_address: the contract address
+        :param kwargs: other keyword arguments
+        :return: the off chain data
+        """
+        return dict()
+
     @classmethod
     def _has_deposits(cls, ledger_api: EthereumApi, config_address: str) -> bool:
         """Check if there are depoists in the vault."""

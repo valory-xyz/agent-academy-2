@@ -318,11 +318,34 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             return None
         return pending_bond > 0
 
+    def get_off_chain_data(
+        self,
+        contract_address: str,
+        contract_id: PublicId,
+
+    ) -> Generator[None, None, Optional[Dict[str, Any]]]:
+        """Get off-chain data"""
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=contract_address,
+            contract_id=str(contract_id),
+            contract_callable="get_off_chain_data",
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(
+                f"Failed get_off_chain_data: {contract_api_response}"
+            )
+            return None
+        log_msg = f"`get_off_chain_data` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        return cast(Dict[str, Any], contract_api_response.state.body)
+
     def is_workable_job(
         self,
         contract_address: str,
         contract_id: PublicId,
         safe_address: str,
+        **kwargs: Any,
     ) -> Generator[None, None, Optional[bool]]:
         """Check if job contract is workable"""
         contract_api_response = yield from self.get_contract_api_response(
@@ -331,12 +354,13 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             keep3r_address=safe_address,
             contract_id=str(contract_id),
             contract_callable="workable",
+            **kwargs,
         )
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
             self.context.logger.error(
                 f"Failed is_workable_job: {contract_api_response}"
             )
-            return True
+            return False
         log_msg = f"`workable` contract api response on {contract_api_response}"
         self.context.logger.info(f"{log_msg}: {contract_api_response}")
         return cast(bool, contract_api_response.state.body.get("data"))
@@ -377,6 +401,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         job_address: str,
         contract_id: PublicId,
         safe_address: str,
+        **kwargs: Any,
     ) -> Generator[None, None, Optional[SafeTx]]:
         """Build raw work transaction for a job contract"""
         contract_api_response = yield from self.get_contract_api_response(
@@ -385,6 +410,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             contract_callable="build_work_tx",
             contract_address=job_address,
             keep3r_address=safe_address,
+            **kwargs,
         )
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
             self.context.logger.error(
@@ -787,10 +813,19 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
             contract_public_id = self.context.state.job_address_to_public_id[
                 current_job
             ]
+            off_chain_data = yield from self.get_off_chain_data(
+                current_job,
+                contract_public_id,
+            )
+            if off_chain_data is None:
+                # something went wrong
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             is_workable = yield from self.is_workable_job(
                 current_job,
                 contract_public_id,
                 self.synchronized_data.safe_contract_address,
+                **off_chain_data
             )
             if is_workable is None:
                 # something went wrong
@@ -847,9 +882,17 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             contract_public_id = self.context.state.job_address_to_public_id[
                 current_job
             ]
+            off_chain_data = yield from self.get_off_chain_data(
+                current_job,
+                contract_public_id,
+            )
+            if off_chain_data is None:
+                # something went wrong
+                yield from self.sleep(self.context.params.sleep_time)
+                return
             safe_address = self.synchronized_data.safe_contract_address
             raw_tx = yield from self.build_work_raw_tx(
-                current_job, contract_public_id, safe_address
+                current_job, contract_public_id, safe_address, **off_chain_data,
             )
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
