@@ -1,0 +1,21 @@
+name: connext_propagate_goerli_job
+author: valory
+version: 0.1.0
+type: contract
+description: Connext Propagate (Keep3r) Job Contract
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  DepositManager.json: bafybeigprsi6ehxjbhl7qu4c67c7pvkbyybpr5tgbokdpffawvhi36a25u
+  __init__.py: bafybeihkofb3skgfaeylolyzstwqc35jjf6clolnxme354mxswpecs244y
+  contract.py: bafybeieoeuxmpzctf4chj6iznsd56a6aqcrfhmcsdmdmfi3o5jubk4ogpq
+fingerprint_ignore_patterns: []
+contracts: []
+class_name: ConnextPropagateJobContract
+contract_interface_paths:
+  ethereum: RelayerProxyHub.json
+dependencies:
+  open-aea-ledger-ethereum:
+    version: ==1.31.0
+  web3:
+    version: ==5.25.0

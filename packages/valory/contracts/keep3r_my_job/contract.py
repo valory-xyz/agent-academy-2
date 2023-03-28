@@ -40,7 +40,9 @@ class Keep3rMyJobContract(Contract):
 
     contract_id = PUBLIC_ID
 
-    def get_off_chain_data(self, ledger_api: EthereumApi, contract_address: str, **kwargs: Any) -> JSONLike:
+    def get_off_chain_data(
+        self, ledger_api: EthereumApi, contract_address: str, **kwargs: Any
+    ) -> JSONLike:
         """
         Get the off chain data from the contract.
 
