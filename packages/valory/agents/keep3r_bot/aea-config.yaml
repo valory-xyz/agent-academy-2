@@ -148,8 +148,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
 - valory/abstract_round_abci:0.1.0:bafybeigohwrgvhx3fatbkt3ikx7purz6pbhvgchpg3wnldhtqtedffgqve
-- valory/keep3r_abci:0.1.0:bafybeifcvm5vv5fvwzsuohna7pi2uckzlffijtkxa3xkgxlxeogvdd6c2a
-- valory/keep3r_job:0.1.0:bafybeici45gai4bvglkzjfhzoclp5eif7tfqy3wqzmefsi3lz2givmoxwi
+- valory/keep3r_abci:0.1.0:bafybeibeb7cqrt7vjrzhwih3nbaotf4genkqmuiddpa7oaiezjew6yugem
+- valory/keep3r_job:0.1.0:bafybeicv353tqeyvc5icta2guhttivv7nn7m66up4elrw23dpru5itvuxy
 - valory/registration_abci:0.1.0:bafybeiah6ncitmutpn2m6bxymtrlnjokw62hqki37ssoloxib5nk4ghcji
 - valory/reset_pause_abci:0.1.0:bafybeif6tbsxqgm4tc6h6dlgbw4mkllrlrythnkq7htvpexyupwzv54eim
 - valory/transaction_settlement_abci:0.1.0:bafybeifcgxt7izfefook3nr6e7adgoggr4qrwuztuhzo4xhgaor6jxovre
@@ -248,7 +248,7 @@ config:
       authentication_private_key: ${str:null}
       flashbot_relayer_uri: ${str:null}
     arbitrum:
-      address: ${str:https://rinkeby.arbitrum.io/rpc}
+      address: ${str:http://localhost:8545}
       chain_id: ${int:421611}
       poa_chain: ${bool:false}
       default_gas_price_strategy: ${str:eip1559}

@@ -72,6 +72,7 @@ class Event(Enum):
     TOP_UP = "top_up"
     NO_MAJORITY = "no_majority"
     ROUND_TIMEOUT = "round_timeout"
+    SIMULATION_FAILED = "simulation_failed"
 
 
 class SynchronizedData(BaseSynchronizedData):
@@ -341,12 +342,18 @@ class PerformWorkRound(Keep3rJobAbstractRound):
     payload_class = WorkTxPayload
     payload_attribute: str = "work_tx"
 
+    SIMULATION_FAILED_PAYLOAD = "simulation_failed"
+
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
 
         _ = (Event.INSUFFICIENT_FUNDS,)
         if self.threshold_reached and self.most_voted_payload:
             work_tx = self.most_voted_payload
+            if work_tx == self.SIMULATION_FAILED_PAYLOAD:
+                # if the simulation failed for this job, we go back to job selection
+                return self.synchronized_data, Event.SIMULATION_FAILED
+
             state = self.synchronized_data.update(
                 **{
                     get_name(SynchronizedData.most_voted_tx_hash): work_tx,
@@ -538,6 +545,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.INSUFFICIENT_FUNDS: PathSelectionRound,
             Event.NO_MAJORITY: PerformWorkRound,
             Event.ROUND_TIMEOUT: PerformWorkRound,
+            Event.SIMULATION_FAILED: JobSelectionRound,
         },
         AwaitTopUpRound: {
             Event.TOP_UP: PathSelectionRound,

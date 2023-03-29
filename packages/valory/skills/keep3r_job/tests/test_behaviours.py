@@ -225,6 +225,46 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             ),
         )
 
+    def mock_get_off_chain_data(self) -> None:
+        """Mock "get_off_chain_data" contract call"""
+
+        contract_callable = "get_off_chain_data"
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=contract_callable,
+            ),
+            contract_id=str(TEST_JOB_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=contract_callable,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": {}},
+                ),
+            ),
+        )
+
+    def mock_simulate_tx(self, simulation_ok: bool) -> None:
+        """Mock "get_off_chain_data" contract call"""
+
+        contract_callable = "simulate_tx"
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=contract_callable,
+            ),
+            contract_id=str(TEST_JOB_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=contract_callable,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": simulation_ok},
+                ),
+            ),
+        )
+
     def mock_build_work_tx_call(self, data: str) -> None:
         """Mock build work transaction"""
 
@@ -495,14 +535,26 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
 
     behaviour_class: Type[BaseBehaviour] = PerformWorkBehaviour
 
-    def test_run(self) -> None:
+    @pytest.mark.parametrize(
+        "simulation_ok, event, next_round",
+        [
+            (True, Event.WORK_TX, IsProfitableRound),
+            (False, Event.SIMULATION_FAILED, JobSelectionRound),
+        ],
+    )
+    def test_run(
+        self, simulation_ok: bool, event: Event, next_round: Keep3rJobAbstractRound
+    ) -> None:
         """Test perform work."""
         self.behaviour.context.state.job_address_to_public_id[
             DUMMY_CONTRACT
         ] = TEST_JOB_CONTRACT_ID
         self.behaviour.act_wrapper()
+        self.mock_get_off_chain_data()
         self.mock_build_work_tx_call(DUMMY_DATA)
-        self.mock_build_safe_raw_tx()
+        self.mock_simulate_tx(simulation_ok)
+        if simulation_ok:
+            self.mock_build_safe_raw_tx()
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.WORK_TX)
@@ -556,6 +608,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
                 DUMMY_CONTRACT
             ] = TEST_JOB_CONTRACT_ID
             self.behaviour.act_wrapper()
+            self.mock_get_off_chain_data()
             self.mock_workable_call(is_workable)
             self.behaviour.act_wrapper()
             self.mock_a2a_transaction()

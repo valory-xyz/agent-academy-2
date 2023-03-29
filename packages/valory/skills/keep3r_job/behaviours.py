@@ -341,6 +341,29 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self.context.logger.info(f"{log_msg}: {contract_api_response}")
         return cast(Dict[str, Any], contract_api_response.state.body)
 
+    def simulate_tx(
+        self,
+        contract_address: str,
+        contract_id: PublicId,
+        data: bytes,
+        safe_address: str,
+    ) -> Generator[None, None, Optional[bool]]:
+        """Get off-chain data"""
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=contract_address,
+            contract_id=str(contract_id),
+            contract_callable="simulate_tx",
+            keep3r_address=safe_address,
+            data=data,
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(f"Failed simulate_tx: {contract_api_response}")
+            return None
+        log_msg = f"`simulate_tx` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        return cast(bool, contract_api_response.state.body.get("data", False))
+
     def is_workable_job(
         self,
         contract_address: str,
@@ -901,10 +924,30 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
-            work_tx = yield from self.build_safe_raw_tx(raw_tx)
-            if work_tx is None:
+
+            simulation_ok = yield from self.simulate_tx(
+                current_job,
+                contract_public_id,
+                raw_tx.get("data"),
+                safe_address,
+            )
+            if simulation_ok is None:
+                # something went wrong while simulating
                 yield from self.sleep(self.context.params.sleep_time)
                 return
+            if not simulation_ok:
+                # simulation failed, i.e. a bad tx
+                self.context.logger.info(
+                    f"Simulating a work tx for job {current_job} failed."
+                )
+                work_tx = cast(
+                    PerformWorkRound, self.matching_round
+                ).SIMULATION_FAILED_PAYLOAD
+            else:
+                work_tx = yield from self.build_safe_raw_tx(raw_tx)
+                if work_tx is None:
+                    yield from self.sleep(self.context.params.sleep_time)
+                    return
             payload = WorkTxPayload(self.context.agent_address, work_tx)
 
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():

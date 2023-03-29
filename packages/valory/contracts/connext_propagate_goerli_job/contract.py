@@ -18,17 +18,16 @@
 # ------------------------------------------------------------------------------
 
 """This module contains a class for the ConnextPropagateJob contract."""
-
+import json
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Optional, List, Tuple, Type
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
-
 
 PUBLIC_ID = PublicId.from_str("valory/connext_propagate_goerli_job:0.1.0")
 
@@ -42,13 +41,16 @@ ZERO_ETH = 0
 
 @dataclass
 class CallData:
-
     encoded_data: bytes
     fee: int
 
 
 class L2Network(ABC):
     """A class to represent a L2 network."""
+
+    def __init__(self, ledger_api: EthereumApi) -> None:
+        """Instantiate a L2 network."""
+        self._ledger_api = ledger_api
 
     @abstractmethod
     def get_call_data(self, **kwargs: Any) -> CallData:
@@ -120,18 +122,13 @@ class Arbitrum(L2Network):
         max_fee_per_gas: int
         total_l2_gas_costs: int
 
-    def __init__(
-        self,
-        ledger_api: EthereumApi,
-        node_interface_address: str,
-        node_interface_abi: Dict[str, Any],
-    ):
+    def __init__(self, ledger_api: EthereumApi):
         """Setup an arbitrum instance."""
-        self._ledger_api = ledger_api
+        super().__init__(ledger_api)
         self._node_interface_address = self._ledger_api.api.toChecksumAddress(
-            node_interface_address
+            self.NODE_INTERFACE_ADDRESS
         )
-        self._node_interface_abi = node_interface_abi
+        self._node_interface_abi = json.loads(self.NODE_INTERFACE_ABI)
 
     def l2_get_gas_price(self) -> int:
         """Returns the l2 gas price"""
@@ -263,14 +260,35 @@ class Arbitrum(L2Network):
 
 
 CHAIN_ID = "arbitrum"
-CONNECTOR_ADDRESSES = [
-    "0xd045f03686575f042b21d0b3d20ffae4d3a3482f",
-    "0x9060e2b92a4e8d4ead05b7f3d736e3da33955fa5",
-    "0xe9c7095c956f9f75e21dd99027adf6bfffa9ba9a",
-    "0x58d3464e5aab9c598a7059d182720a04ad59b01f",
-    "0x9f02b394d8f0e2df3f6913f375cd1f919c03987d",
-    "0x80231092091d752e1506d4aab393675ebe388e9e",
-    "0x49174424e29950ad18d07b4d9ad2f77d0cbdda2a",
+CONNECTOR_ADDRESS_TO_L2: List[Tuple[str, Optional[Type[L2Network]]]] = [
+    (
+        "0xd045f03686575f042b21d0b3d20ffae4d3a3482f",
+        None,
+    ),
+    (
+        "0x9060e2b92a4e8d4ead05b7f3d736e3da33955fa5",
+        None,
+    ),
+    (
+        "0xe9c7095c956f9f75e21dd99027adf6bfffa9ba9a",
+        None,
+    ),
+    (
+        "0x58d3464e5aab9c598a7059d182720a04ad59b01f",
+        Arbitrum,
+    ),
+    (
+        "0x9f02b394d8f0e2df3f6913f375cd1f919c03987d",
+        None,
+    ),
+    (
+        "0x80231092091d752e1506d4aab393675ebe388e9e",
+        None,
+    ),
+    (
+        "0x49174424e29950ad18d07b4d9ad2f77d0cbdda2a",
+        None,
+    ),
 ]
 
 
@@ -278,6 +296,16 @@ class ConnextPropagateJobContract(Contract):
     """Class for the ConnextPropagateJob contract."""
 
     contract_id = PUBLIC_ID
+
+    def _get_base_fee(self, ledger_api: EthereumApi) -> int:  # noqa
+        """Return the base fee for the current block."""
+        last_block = ledger_api.api.eth.get_block("latest")
+        return last_block["baseFeePerGas"]
+
+    def _get_gas_price(self, ledger_api: EthereumApi) -> int:  # noqa
+        """Return the gas price for the current block."""
+        gas_price = ledger_api.api.eth.gas_price
+        return gas_price
 
     def get_off_chain_data(
         self, ledger_api: EthereumApi, contract_address: str, **kwargs: Any
@@ -290,16 +318,31 @@ class ConnextPropagateJobContract(Contract):
         :param kwargs: other keyword arguments
         :return: the off chain data
         """
-        base_fee = self.get_base_fee(ledger_api)
+        base_fee = self._get_base_fee(ledger_api)
+        gas_price = self._get_gas_price(ledger_api)
         return dict(
             chain_id=CHAIN_ID,
-            base_fee=base_fee,
+            l1_base_fee=base_fee,
+            gas_price_bid=gas_price,
         )
 
-    def get_base_fee(self, ledger_api: EthereumApi) -> int:
-        """Return the base fee for the current block."""
-        last_block = ledger_api.api.eth.get_block("latest")
-        return last_block["baseFeePerGas"]
+    @staticmethod
+    def _get_call_data(
+        ledger_api: EthereumApi, **kwargs: Any
+    ) -> Tuple[List[str], List[bytes], List[int]]:
+        """Get the call data"""
+        connectors, encoded_data, fees = [], [], []
+        for connector, l2_network in CONNECTOR_ADDRESS_TO_L2:
+            single_encoded_data, fee = b"0x", 0
+            if l2_network is not None:
+                l2_network_instance = l2_network(ledger_api)
+                call_data = l2_network_instance.get_call_data(**kwargs)
+                single_encoded_data = call_data.encoded_data
+                fee = call_data.fee
+            connectors.append(ledger_api.api.toChecksumAddress(connector))
+            encoded_data.append(single_encoded_data)
+            fees.append(fee)
+        return connectors, encoded_data, fees
 
     @classmethod
     def workable(
@@ -309,7 +352,10 @@ class ConnextPropagateJobContract(Contract):
         **kwargs: Any,
     ) -> JSONLike:
         """Get the workable flag from the contract."""
-        raise NotImplementedError()
+        # this job is always assumed workable
+        # whether its actually workable or not is determined by the simulation
+        is_workable = True
+        return dict(data=is_workable)
 
     @classmethod
     def build_work_tx(  # pylint: disable=too-many-arguments,too-many-locals
@@ -327,4 +373,37 @@ class ConnextPropagateJobContract(Contract):
 
         :return: the raw transaction
         """
-        raise NotImplementedError()
+        contract = cls.get_instance(ledger_api, contract_address)
+        connectors, encoded_data, fees = cls._get_call_data(ledger_api, **kwargs)
+        data = contract.encodeABI(
+            fn_name="propagateKeep3r",
+            args=[connectors, fees, encoded_data],
+        )
+        return dict(data=data)
+
+    @classmethod
+    def simulate_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        data: bytes,
+        **kwargs: Any,
+    ) -> JSONLike:
+        """Simulate the transaction."""
+        keep3r_address = kwargs.get("keep3r_address", None)
+        if keep3r_address is None:
+            raise ValueError("'keep3r_address' is required.")
+        try:
+            ledger_api.api.eth.call(
+                {
+                    "from": ledger_api.api.toChecksumAddress(keep3r_address),
+                    "to": ledger_api.api.toChecksumAddress(contract_address),
+                    "data": data.hex(),
+                }
+            )
+            simulation_ok = True
+        except ValueError as e:
+            _logger.info(f"Simulation failed: {str(e)}")
+            simulation_ok = False
+
+        return dict(data=simulation_ok)

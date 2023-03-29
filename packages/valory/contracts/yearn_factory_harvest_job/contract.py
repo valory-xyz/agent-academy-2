@@ -266,3 +266,30 @@ class YearnFactoryHarvestJobContract(Contract):
             if static_work(strategy)
         ]
         return workable_strategies
+
+    @classmethod
+    def simulate_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        data: bytes,
+        **kwargs: Any,
+    ) -> JSONLike:
+        """Simulate the transaction."""
+        keep3r_address = kwargs.get("keep3r_address", None)
+        if keep3r_address is None:
+            raise ValueError("'keep3r_address' is required.")
+        try:
+            ledger_api.api.eth.call(
+                {
+                    "from": ledger_api.api.toChecksumAddress(keep3r_address),
+                    "to": ledger_api.api.toChecksumAddress(contract_address),
+                    "data": data.hex(),
+                }
+            )
+            simulation_ok = True
+        except ValueError as e:
+            _logger.info(f"Simulation failed: {str(e)}")
+            simulation_ok = False
+
+        return dict(data=simulation_ok)
