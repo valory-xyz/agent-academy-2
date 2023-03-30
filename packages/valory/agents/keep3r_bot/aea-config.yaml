@@ -131,7 +131,7 @@ connections:
 - valory/abci:0.1.0:bafybeienpqzsym3rg7nnomd6mxgbt4didwd4wfj72oadde27trdmcgsu5y
 - valory/http_client:0.23.0:bafybeidykl4elwbcjkqn32wt5h4h7tlpeqovrcq3c5bcplt6nhpznhgczi
 - valory/ipfs:0.1.0:bafybeie46fu7mv64q72dwzoxg77zbiv3pzsigzjk3rehjpm47cf3y77mha
-- valory/ledger:0.19.0:bafybeiadtldvd2sjnsxhowtohae6yqgkzvijrn44wcmtz2jokbro7ro3q4
+- valory/ledger:0.19.0:bafybeih4yf73bwvn3cn44b7on2riqe2lbvixcgw3nze63asvwbmyfqyrc4
 - valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeicwzsjalj4puagecus525fbdusaljccn4fi62nmr4zp5fhim6oyr4
@@ -147,12 +147,12 @@ protocols:
 - valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
-- valory/abstract_round_abci:0.1.0:bafybeigohwrgvhx3fatbkt3ikx7purz6pbhvgchpg3wnldhtqtedffgqve
-- valory/keep3r_abci:0.1.0:bafybeibeb7cqrt7vjrzhwih3nbaotf4genkqmuiddpa7oaiezjew6yugem
-- valory/keep3r_job:0.1.0:bafybeicv353tqeyvc5icta2guhttivv7nn7m66up4elrw23dpru5itvuxy
-- valory/registration_abci:0.1.0:bafybeiah6ncitmutpn2m6bxymtrlnjokw62hqki37ssoloxib5nk4ghcji
-- valory/reset_pause_abci:0.1.0:bafybeif6tbsxqgm4tc6h6dlgbw4mkllrlrythnkq7htvpexyupwzv54eim
-- valory/transaction_settlement_abci:0.1.0:bafybeifcgxt7izfefook3nr6e7adgoggr4qrwuztuhzo4xhgaor6jxovre
+- valory/abstract_round_abci:0.1.0:bafybeibbxka2c4mvlo2msxi3wtk654fczkfcnbopftyskmd727pjpbty3e
+- valory/keep3r_abci:0.1.0:bafybeifm6xhwi47zkqxdtsoh2ich2xtdioqpx6jj3hgskoljo6q4zxaqzm
+- valory/keep3r_job:0.1.0:bafybeiezok7h2j7tjkzxpm4qk35rnszretvrkv3dzpqn3kuvbymlvstoua
+- valory/registration_abci:0.1.0:bafybeicjvmdle7qkrid6hpr4nepnvt6pl7oznntfhxy2ftrrciu5vb6sqm
+- valory/reset_pause_abci:0.1.0:bafybeiay3qgd7jp5xtxqxmbe2net2tm762av42nobosx4atxfjlbe665mi
+- valory/transaction_settlement_abci:0.1.0:bafybeie5lp57jwtum4uyq4rdkmoue442l6ssdjabi5rbc2di7wtzixw64i
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -250,6 +250,26 @@ config:
     arbitrum:
       address: ${str:http://localhost:8545}
       chain_id: ${int:421611}
+      poa_chain: ${bool:false}
+      default_gas_price_strategy: ${str:eip1559}
+    consensys:
+      address: ${str:http://localhost:8545}
+      chain_id: ${int:1337}
+      default_gas_price_strategy: eip1559
+      poa_chain: false
+    bnb:
+      address: ${str:http://localhost:8545}
+      chain_id: ${int:1337}
+      poa_chain: ${bool:false}
+      default_gas_price_strategy: ${str:eip1559}
+    gnosis:
+      address: ${str:http://localhost:8545}
+      chain_id: ${int:1337}
+      poa_chain: ${bool:false}
+      default_gas_price_strategy: ${str:eip1559}
+    zksync:
+      address: ${str:http://localhost:8545}
+      chain_id: ${int:1337}
       poa_chain: ${bool:false}
       default_gas_price_strategy: ${str:eip1559}
 ---

@@ -8,9 +8,9 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeihkgodu7o7v6pfazm7u6orlspsfrae3cyz36yc46x67phfmw3l57e
   __init__.py: bafybeierqitcqk7oy6m3qp7jgs67lcg55mzt3arltkwimuii2ynfejccwi
-  base.py: bafybeif6vpvb44q77xxoy5pxkq44n3ajhdbkq6s2gmooxutn3tcgqtbo6m
+  base.py: bafybeifxma5dyzyiodirigplulj736ydtexd4kxyjchjiax4nssbfnugei
   connection.py: bafybeicydkymhz2feqmihtkiwdfg7pp4pww2elqv4tijuhjcplyvawdk74
-  contract_dispatcher.py: bafybeihvr4ejlfq3zftb7do4q7vcugb7fpsuq6hciwhxzlz4ncnq5dudy4
+  contract_dispatcher.py: bafybeifgtj3ovcu4i7vsanbn5xwntd5eij7i6vgau5tfiycbrftgimkasi
   ledger_dispatcher.py: bafybeibx46iad5xvbvo4p7tmwmfwdyscpuwgni262iwrqf5kc46xvs2fiq
   tests/__init__.py: bafybeieyhttiwruutk6574yzj7dk2afamgdum5vktyv54gsax7dlkuqtc4
   tests/conftest.py: bafybeid7vo7e2m76ey5beeadtbxywxx5ukefd5slwbc362rwmhht6i45ou
@@ -63,6 +63,34 @@ config:
       is_gas_estimation_enabled: true
       poa_chain: false
     arbitrum:
+      address: http://127.0.0.1:8545
+      chain_id: 1337
+      default_gas_price_strategy: eip1559
+      gas_price_strategies: *id001
+      is_gas_estimation_enabled: true
+      poa_chain: false
+    zksync:
+      address: http://127.0.0.1:8545
+      chain_id: 1337
+      default_gas_price_strategy: eip1559
+      gas_price_strategies: *id001
+      is_gas_estimation_enabled: true
+      poa_chain: false
+    bnb:
+      address: http://127.0.0.1:8545
+      chain_id: 1337
+      default_gas_price_strategy: eip1559
+      gas_price_strategies: *id001
+      is_gas_estimation_enabled: true
+      poa_chain: false
+    gnosis:
+      address: http://127.0.0.1:8545
+      chain_id: 1337
+      default_gas_price_strategy: eip1559
+      gas_price_strategies: *id001
+      is_gas_estimation_enabled: true
+      poa_chain: false
+    consensys:
       address: http://127.0.0.1:8545
       chain_id: 1337
       default_gas_price_strategy: eip1559
