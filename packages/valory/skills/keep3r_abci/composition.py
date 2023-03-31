@@ -22,7 +22,7 @@ from packages.valory.skills.abstract_round_abci.abci_app_chain import (
     AbciAppTransitionMapping,
     chain,
 )
-from packages.valory.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job_abci.rounds import (
     FinalizeActivationRound,
     FinalizeApproveBondRound,
     FinalizeBondingRound,

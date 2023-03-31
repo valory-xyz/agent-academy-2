@@ -40,7 +40,7 @@ from packages.valory.agents.keep3r_bot.tests.conftest import (
     WETH_ADDRESS,
     get_ipfs_hash_from_contract_id,
 )
-from packages.valory.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job_abci.rounds import (
     ActivationRound,
     ApproveBondRound,
     BondingRound,

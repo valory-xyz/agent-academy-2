@@ -26,7 +26,7 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
     BaseBehaviour,
 )
 from packages.valory.skills.keep3r_abci.composition import Keep3rAbciApp
-from packages.valory.skills.keep3r_job.behaviours import Keep3rJobRoundBehaviour
+from packages.valory.skills.keep3r_job_abci.behaviours import Keep3rJobRoundBehaviour
 from packages.valory.skills.registration_abci.behaviours import (
     AgentRegistrationRoundBehaviour,
     RegistrationStartupBehaviour,

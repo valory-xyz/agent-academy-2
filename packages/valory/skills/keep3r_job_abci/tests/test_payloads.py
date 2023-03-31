@@ -23,7 +23,7 @@ from typing import List
 
 import pytest
 
-from packages.valory.skills.keep3r_job.payloads import (
+from packages.valory.skills.keep3r_job_abci.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
     BondingTxPayload,
@@ -34,7 +34,7 @@ from packages.valory.skills.keep3r_job.payloads import (
     WaitingPayload,
     WorkTxPayload,
 )
-from packages.valory.skills.keep3r_job.rounds import PathSelectionRound
+from packages.valory.skills.keep3r_job_abci.rounds import PathSelectionRound
 
 
 @pytest.mark.parametrize("path_selection", PathSelectionRound.transitions)

@@ -154,7 +154,7 @@ skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
 - valory/abstract_round_abci:0.1.0:bafybeiao4oawiwnqwfkeacfojwbwzqiwdmbqyq4xtwu26p66mss4db343e
 - valory/keep3r_abci:0.1.0:bafybeiglrwmmn3dkikxlqk3ifkka427i2wyqflwuom2w3e32c7esxgqfwm
-- valory/keep3r_job:0.1.0:bafybeib75jkb5ugqb6kzxrcp4jayyufudfni2ke65ujtepmjpnqz5fo6qe
+- valory/keep3r_job_abci:0.1.0:bafybeib75jkb5ugqb6kzxrcp4jayyufudfni2ke65ujtepmjpnqz5fo6qe
 - valory/registration_abci:0.1.0:bafybeignjit3gocxamsvdmaue62mmj6wu43pcftsv673zcy6wopwx2qsuy
 - valory/reset_pause_abci:0.1.0:bafybeidqbydl5dbfvn4inns7pgg5t5v6patndna5ntq33vtk2htt5ez444
 - valory/termination_abci:0.1.0:bafybeie3fguldaf3ekznno65zyr2qrr4mrc2n2jv2kvs3tlafgcxq7v7ia

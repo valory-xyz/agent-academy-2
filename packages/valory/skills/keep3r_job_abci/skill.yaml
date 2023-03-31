@@ -1,4 +1,4 @@
-name: keep3r_job
+name: keep3r_job_abci
 author: valory
 version: 0.1.0
 type: skill
@@ -129,7 +129,7 @@ models:
       retry_attempts: 400
       retry_timeout: 3
       round_timeout_seconds: 30.0
-      service_id: keep3r_job
+      service_id: keep3r_job_abci
       service_registry_address: null
       setup:
         all_participants:

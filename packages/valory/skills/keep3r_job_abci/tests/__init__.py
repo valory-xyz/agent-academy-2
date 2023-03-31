@@ -17,13 +17,8 @@
 #
 # ------------------------------------------------------------------------------
 
-"""
-This module contains the ABCI cryptocurrency oracle skill for an AEA.
-
-It does so through aggregation of observations from different sources.
-"""
-
-from aea.configurations.base import PublicId
+"""Tests for valory/keep3r_job_abci skill."""
+from pathlib import Path
 
 
-PUBLIC_ID = PublicId.from_str("valory/keep3r_job:0.1.0")
+PACKAGE_DIR = Path(__file__).parent.parent

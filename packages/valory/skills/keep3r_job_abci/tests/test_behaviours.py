@@ -17,7 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests for valory/keep3r_job skill's behaviours."""
+"""Tests for valory/keep3r_job_abci skill's behaviours."""
 
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, Optional, Type, cast
@@ -42,7 +42,7 @@ from packages.valory.skills.abstract_round_abci.behaviour_utils import (
 from packages.valory.skills.abstract_round_abci.test_tools.base import (
     FSMBehaviourBaseCase,
 )
-from packages.valory.skills.keep3r_job.behaviours import (
+from packages.valory.skills.keep3r_job_abci.behaviours import (
     ActivationBehaviour,
     ApproveBondBehaviour,
     AwaitTopUpBehaviour,
@@ -59,13 +59,13 @@ from packages.valory.skills.keep3r_job.behaviours import (
     WaitingBehaviour,
     ZERO_ETH,
 )
-from packages.valory.skills.keep3r_job.handlers import (
+from packages.valory.skills.keep3r_job_abci.handlers import (
     ContractApiHandler,
     HttpHandler,
     LedgerApiHandler,
     SigningHandler,
 )
-from packages.valory.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job_abci.rounds import (
     ActivationRound,
     ApproveBondRound,
     AwaitTopUpRound,
@@ -86,8 +86,8 @@ from packages.valory.skills.keep3r_job.rounds import (
     SynchronizedData,
     WaitingRound,
 )
-from packages.valory.skills.keep3r_job.tests import PACKAGE_DIR
-from packages.valory.skills.keep3r_job.tests.helpers import (
+from packages.valory.skills.keep3r_job_abci.tests import PACKAGE_DIR
+from packages.valory.skills.keep3r_job_abci.tests.helpers import (
     DUMMY_CONTRACT_PACKAGE,
     wrap_dummy_get_from_ipfs,
     wrap_dummy_sleep,

@@ -17,7 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the transaction payloads for the keep3r_job app."""
+"""This module contains the transaction payloads for the keep3r_job_abci app."""
 
 from dataclasses import dataclass
 from typing import Optional
