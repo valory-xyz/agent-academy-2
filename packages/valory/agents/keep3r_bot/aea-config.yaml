@@ -153,7 +153,7 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
 - valory/abstract_round_abci:0.1.0:bafybeiao4oawiwnqwfkeacfojwbwzqiwdmbqyq4xtwu26p66mss4db343e
-- valory/keep3r_abci:0.1.0:bafybeieinhivcfysszfjz6tda5k62dgoln6dp4eqtciddynpmimltzjxyi
+- valory/keep3r_abci:0.1.0:bafybeie6v74kcqzs4onwp5jpbfo5w553d2ebxnkfq357tmnkgyjv5wkgha
 - valory/keep3r_job_abci:0.1.0:bafybeidchjmq2g7f5uyiytxfr7yjwiprrnmoeh3uoy5fwbgq2x62vcgtxu
 - valory/registration_abci:0.1.0:bafybeignjit3gocxamsvdmaue62mmj6wu43pcftsv673zcy6wopwx2qsuy
 - valory/reset_pause_abci:0.1.0:bafybeidqbydl5dbfvn4inns7pgg5t5v6patndna5ntq33vtk2htt5ez444

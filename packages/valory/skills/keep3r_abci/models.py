@@ -25,8 +25,12 @@ from packages.valory.skills.abstract_round_abci.models import (
 from packages.valory.skills.abstract_round_abci.models import Requests as BaseRequests
 from packages.valory.skills.keep3r_abci.composition import Keep3rAbciApp
 from packages.valory.skills.keep3r_job_abci.models import Params as Keep3rJobParams
-from packages.valory.skills.keep3r_job_abci.models import RandomnessApi as BaseRandomnessApi
-from packages.valory.skills.keep3r_job_abci.models import SharedState as Keep3rJobSharedState
+from packages.valory.skills.keep3r_job_abci.models import (
+    RandomnessApi as BaseRandomnessApi,
+)
+from packages.valory.skills.keep3r_job_abci.models import (
+    SharedState as Keep3rJobSharedState,
+)
 from packages.valory.skills.keep3r_job_abci.rounds import Event as Keep3rJobEvent
 from packages.valory.skills.registration_abci.rounds import Event as RegistrationEvent
 from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
