@@ -1,0 +1,21 @@
+name: keep3r_v2
+author: valory
+version: 0.1.0
+type: contract
+description: Keep3rV2 contract
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  __init__.py: bafybeihbklrajavaowaugrzilvxpqajlf6yrb2ow2oyfizuxumpzav35xm
+  build/Keep3rV2.json: bafybeih2ve5z3keyoa3waokjnqap4mpiuuwe4axfzgpg2loeveievtmoq4
+  contract.py: bafybeicjqpjfsgox7pabcumvb74a2tghipskuz4n2jlifieefqyzvfgkvq
+fingerprint_ignore_patterns: []
+contracts: []
+class_name: KeeperV2
+contract_interface_paths:
+  ethereum: build/Keep3rV2.json
+dependencies:
+  open-aea-ledger-ethereum:
+    version: ==1.31.0
+  web3:
+    version: ==5.25.0

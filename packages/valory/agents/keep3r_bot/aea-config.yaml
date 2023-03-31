@@ -125,7 +125,7 @@ fingerprint:
   tests/test_contracts/test_keep3r_test_job/__init__.py: bafybeihhopwpbkkx5vyab2mx3kjfpgnlj46nhzjnzcazrfyybetxvvfhva
   tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeigqtsqysnjblg4fj324pcnhiixnzwquobkqqtyeercnyvw55hyyfi
   tests/test_contracts/test_keeper_for_testnet/__init__.py: bafybeigug6razuooshb7admqddi4ghaist6gpitni5pb6ps54pstdbp7ye
-  tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeiaydsbdnjwffo7zil7c53xosppf753vzzlg6w3632765db6qzua2m
+  tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeihpnx5554swjwo2nsixjs2l76ries442vayot4zq77z3lkyzxqhey
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeienpqzsym3rg7nnomd6mxgbt4didwd4wfj72oadde27trdmcgsu5y
@@ -136,9 +136,9 @@ connections:
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeicwzsjalj4puagecus525fbdusaljccn4fi62nmr4zp5fhim6oyr4
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeifbgcgjd2gbwmsm42o3yc4253apxjadcwdljh7x73hgf5w653lvym
-- valory/keep3r_for_testnet:0.1.0:bafybeifytr77v27emxwwoklkytt63h46z4ntedfrvop5tjdq2swxl2tkv4
 - valory/keep3r_v1:0.1.0:bafybeidbdfpmzxyw5n47nstnoxhwmtph7nysdiou5snabtpcjsykopwr24
 - valory/keep3r_v1_library:0.1.0:bafybeiguyavczsaebbh5docth3o6e36b24s46jynhvysewnk3hqim3a4qe
+- valory/keep3r_v2:0.1.0:bafybeicphuic45hxwri3jlvwvagjj75mannkyw63rnqxrwnlux4h2i27sm
 - valory/multisend:0.1.0:bafybeigjywkl7hydjsrkogob3xebj2ifhqwmfhhxoeyrndzhhxi5u6amey
 - valory/service_registry:0.1.0:bafybeigvob5pgz527goh2cgibjejnmbu6xz2e3knjsocjq533m3xe5uzti
 protocols:
@@ -153,8 +153,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
 - valory/abstract_round_abci:0.1.0:bafybeiao4oawiwnqwfkeacfojwbwzqiwdmbqyq4xtwu26p66mss4db343e
-- valory/keep3r_abci:0.1.0:bafybeihtbgtbebnt676nknwm3jf3lk3e5gbdkmmnixmc7kcmocoa77n53m
-- valory/keep3r_job:0.1.0:bafybeidk5vzcwxci3i2andd5sxaw3cwpq5cgnriflxrc4vn5ep6lnt2eyi
+- valory/keep3r_abci:0.1.0:bafybeiglrwmmn3dkikxlqk3ifkka427i2wyqflwuom2w3e32c7esxgqfwm
+- valory/keep3r_job:0.1.0:bafybeib75jkb5ugqb6kzxrcp4jayyufudfni2ke65ujtepmjpnqz5fo6qe
 - valory/registration_abci:0.1.0:bafybeignjit3gocxamsvdmaue62mmj6wu43pcftsv673zcy6wopwx2qsuy
 - valory/reset_pause_abci:0.1.0:bafybeidqbydl5dbfvn4inns7pgg5t5v6patndna5ntq33vtk2htt5ez444
 - valory/termination_abci:0.1.0:bafybeie3fguldaf3ekznno65zyr2qrr4mrc2n2jv2kvs3tlafgcxq7v7ia

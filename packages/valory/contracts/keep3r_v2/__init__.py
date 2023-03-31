@@ -17,7 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the support resources for the Keep3rForTestnet contract."""
+"""This module contains the support resources for the Keep3rV2 contract."""
 from pathlib import Path
 
 

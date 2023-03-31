@@ -31,10 +31,8 @@ except ImportError:
     from mypy_extensions import TypedDict  # <=py3.7
 
 from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
-from packages.valory.contracts.keep3r_for_testnet.contract import (
-    KeeperForTestnetContract,
-)
 from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
+from packages.valory.contracts.keep3r_v2.contract import KeeperV2
 from packages.valory.protocols.contract_api.message import ContractApiMessage
 from packages.valory.protocols.ledger_api.message import LedgerApiMessage
 from packages.valory.skills.abstract_round_abci.base import AbstractRound
@@ -152,7 +150,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         """Helper method"""
         kwargs = {
             "contract_address": self.keep3r_v2_contract_address,
-            "contract_id": str(KeeperForTestnetContract.contract_id),
+            "contract_id": str(KeeperV2.contract_id),
             **kwargs,
         }
         contract_api_response = yield from self.get_contract_api_response(**kwargs)
