@@ -43,6 +43,21 @@ class PhutureHarvestingJobContract(Contract):
 
     contract_id = PUBLIC_ID
 
+    def get_off_chain_data(
+        self, ledger_api: EthereumApi, contract_address: str, **kwargs: Any
+    ) -> JSONLike:
+        """
+        Get the off chain data from the contract.
+
+        This contract doesn't have any off-chain data.
+
+        :param ledger_api: the ledger API object
+        :param contract_address: the contract address
+        :param kwargs: other keyword arguments
+        :return: the off chain data
+        """
+        return dict()
+
     @classmethod
     def _has_deposits(cls, ledger_api: EthereumApi, config_address: str) -> bool:
         """Check if there are depoists in the vault."""
@@ -125,3 +140,30 @@ class PhutureHarvestingJobContract(Contract):
         return dict(
             data=data,
         )
+
+    @classmethod
+    def simulate_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        data: bytes,
+        **kwargs: Any,
+    ) -> JSONLike:
+        """Simulate the transaction."""
+        keep3r_address = kwargs.get("keep3r_address", None)
+        if keep3r_address is None:
+            raise ValueError("'keep3r_address' is required.")
+        try:
+            ledger_api.api.eth.call(
+                {
+                    "from": ledger_api.api.toChecksumAddress(keep3r_address),
+                    "to": ledger_api.api.toChecksumAddress(contract_address),
+                    "data": data.hex(),
+                }
+            )
+            simulation_ok = True
+        except ValueError as e:
+            _logger.info(f"Simulation failed: {str(e)}")
+            simulation_ok = False
+
+        return dict(data=simulation_ok)

@@ -25,6 +25,7 @@ alphabet_in:
 - RESET_AND_PAUSE_TIMEOUT
 - RESET_TIMEOUT
 - ROUND_TIMEOUT
+- SIMULATION_FAILED
 - SUSPICIOUS_ACTIVITY
 - TOP_UP
 - UNKNOWN_HEALTH_ISSUE
@@ -129,6 +130,7 @@ transition_func:
     (PerformWorkRound, INSUFFICIENT_FUNDS): PathSelectionRound
     (PerformWorkRound, NO_MAJORITY): PerformWorkRound
     (PerformWorkRound, ROUND_TIMEOUT): PerformWorkRound
+    (PerformWorkRound, SIMULATION_FAILED): JobSelectionRound
     (PerformWorkRound, WORK_TX): RandomnessTransactionSubmissionRound
     (RandomnessTransactionSubmissionRound, DONE): SelectKeeperTransactionSubmissionARound
     (RandomnessTransactionSubmissionRound, NO_MAJORITY): RandomnessTransactionSubmissionRound

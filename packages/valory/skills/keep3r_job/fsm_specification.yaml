@@ -15,6 +15,7 @@ alphabet_in:
 - NO_MAJORITY
 - PROFITABLE
 - ROUND_TIMEOUT
+- SIMULATION_FAILED
 - TOP_UP
 - UNKNOWN_HEALTH_ISSUE
 - WORKABLE
@@ -89,6 +90,7 @@ transition_func:
     (PerformWorkRound, INSUFFICIENT_FUNDS): PathSelectionRound
     (PerformWorkRound, NO_MAJORITY): PerformWorkRound
     (PerformWorkRound, ROUND_TIMEOUT): PerformWorkRound
+    (PerformWorkRound, SIMULATION_FAILED): JobSelectionRound
     (PerformWorkRound, WORK_TX): FinalizeWorkRound
     (WaitingRound, DONE): ActivationRound
     (WaitingRound, NO_MAJORITY): WaitingRound
