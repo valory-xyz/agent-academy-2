@@ -8,23 +8,24 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
   __init__.py: bafybeihzcsfqn6zggjwunxo3x5xjclhvmnkn4t4rblurlj7new37leorua
-  behaviours.py: bafybeicqbpkfy2oevhj64rwmfujlxawr3rqbfcw7anzb5p7a35rygzz4qm
-  composition.py: bafybeicjcwhyzaosx5fcvlit4fxbr3i54z2as2kcbdorilqje3obybhviy
+  behaviours.py: bafybeia5gmarghbmjblyvkjk626bk7u4ej6u52ybiyxjei7wqwtxx7rnii
+  composition.py: bafybeifmcjwk46zbhhrk66uae3qxdm4gvix4mvcmetpte4keuhfjl7tphq
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   fsm_specification.yaml: bafybeiglxtz2wcczhyl2zirrrc7aq6recrvkwzczvzujvapjdsm556kwbu
   handlers.py: bafybeihrnok2s2oztglt7on7g5icbugmibikb3y2kqz2imbe23yoij7a5y
-  models.py: bafybeid66pob3so4azlyqqdfpw2edxkjygs36ycrur3zu6hcd4hx6juji4
+  models.py: bafybeic2tfoksbegroktzowfe4mq5i6kbxx4tszityr2wuq5axbecjjtpa
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeibbxka2c4mvlo2msxi3wtk654fczkfcnbopftyskmd727pjpbty3e
-- valory/keep3r_job:0.1.0:bafybeiezok7h2j7tjkzxpm4qk35rnszretvrkv3dzpqn3kuvbymlvstoua
-- valory/registration_abci:0.1.0:bafybeicjvmdle7qkrid6hpr4nepnvt6pl7oznntfhxy2ftrrciu5vb6sqm
-- valory/reset_pause_abci:0.1.0:bafybeiay3qgd7jp5xtxqxmbe2net2tm762av42nobosx4atxfjlbe665mi
-- valory/transaction_settlement_abci:0.1.0:bafybeie5lp57jwtum4uyq4rdkmoue442l6ssdjabi5rbc2di7wtzixw64i
+- valory/abstract_round_abci:0.1.0:bafybeiao4oawiwnqwfkeacfojwbwzqiwdmbqyq4xtwu26p66mss4db343e
+- valory/keep3r_job:0.1.0:bafybeib75jkb5ugqb6kzxrcp4jayyufudfni2ke65ujtepmjpnqz5fo6qe
+- valory/registration_abci:0.1.0:bafybeignjit3gocxamsvdmaue62mmj6wu43pcftsv673zcy6wopwx2qsuy
+- valory/reset_pause_abci:0.1.0:bafybeidqbydl5dbfvn4inns7pgg5t5v6patndna5ntq33vtk2htt5ez444
+- valory/termination_abci:0.1.0:bafybeie3fguldaf3ekznno65zyr2qrr4mrc2n2jv2kvs3tlafgcxq7v7ia
+- valory/transaction_settlement_abci:0.1.0:bafybeifhxageak53xdkpnurcdyaatpih6wjxc2u3t3kxuld62oz5oam5jm
 behaviours:
   main:
     args: {}
@@ -110,6 +111,7 @@ models:
       keeper_timeout: 30.0
       max_attempts: 10
       max_healthcheck: 120
+      multisend_address: '0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761'
       on_chain_service_id: null
       profitability_threshold: 0
       request_retry_delay: 1.0
@@ -136,6 +138,7 @@ models:
       tendermint_max_retries: 5
       tendermint_p2p_url: localhost:26656
       tendermint_url: http://localhost:26657
+      termination_sleep: 900
       tx_timeout: 10.0
       use_flashbots: false
       use_termination: false

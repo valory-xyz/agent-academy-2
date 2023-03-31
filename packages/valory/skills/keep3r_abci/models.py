@@ -30,7 +30,7 @@ from packages.valory.skills.keep3r_job.models import SharedState as Keep3rJobSha
 from packages.valory.skills.keep3r_job.rounds import Event as Keep3rJobEvent
 from packages.valory.skills.registration_abci.rounds import Event as RegistrationEvent
 from packages.valory.skills.reset_pause_abci.rounds import Event as ResetPauseEvent
-from packages.valory.skills.transaction_settlement_abci.models import TransactionParams
+from packages.valory.skills.termination_abci.models import TerminationParams
 from packages.valory.skills.transaction_settlement_abci.rounds import Event as TSEvent
 
 
@@ -80,5 +80,5 @@ class SharedState(Keep3rJobSharedState):
         timeouts[ResetPauseEvent.RESET_AND_PAUSE_TIMEOUT] = reset_and_pause_timeout
 
 
-class Params(Keep3rJobParams, TransactionParams):
+class Params(Keep3rJobParams, TerminationParams):
     """Parameters for the skill."""

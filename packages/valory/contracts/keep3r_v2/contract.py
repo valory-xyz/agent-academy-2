@@ -30,7 +30,7 @@ from web3.types import Nonce, TxParams, Wei
 
 
 ENCODING = "utf-8"
-PUBLIC_ID = PublicId.from_str("valory/keep3r_for_testnet:0.1.0")
+PUBLIC_ID = PublicId.from_str("valory/keep3r_v2:0.1.0")
 
 _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"
@@ -40,7 +40,7 @@ _logger = logging.getLogger(
 RawTransaction = Dict[str, Union[int, str]]
 
 
-class KeeperForTestnetContract(Contract):
+class KeeperV2(Contract):
     """
     Keep3r V2 contract interface. Covers existing contract methods only partially.
 

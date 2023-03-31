@@ -1054,10 +1054,11 @@ class BaseBehaviour(
                 dict(
                     performative=LedgerApiMessage.Performative.SEND_SIGNED_TRANSACTIONS,
                     # we do not support sending multiple signed txs and receiving multiple tx hashes yet
-                    signed_transactions=[signing_msg.signed_transaction],
-                    kwargs=LedgerApiMessage.Kwargs(
-                        {"target_blocks": target_block_numbers}
+                    signed_transactions=LedgerApiMessage.SignedTransactions(
+                        ledger_id="ethereum_flashbots",
+                        signed_transactions=[signing_msg.signed_transaction.body],
                     ),
+                    kwargs=LedgerApiMessage.Kwargs({}),
                 )
             )
         else:

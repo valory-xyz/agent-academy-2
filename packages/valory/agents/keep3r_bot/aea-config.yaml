@@ -125,7 +125,7 @@ fingerprint:
   tests/test_contracts/test_keep3r_test_job/__init__.py: bafybeihhopwpbkkx5vyab2mx3kjfpgnlj46nhzjnzcazrfyybetxvvfhva
   tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeigqtsqysnjblg4fj324pcnhiixnzwquobkqqtyeercnyvw55hyyfi
   tests/test_contracts/test_keeper_for_testnet/__init__.py: bafybeigug6razuooshb7admqddi4ghaist6gpitni5pb6ps54pstdbp7ye
-  tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeiaydsbdnjwffo7zil7c53xosppf753vzzlg6w3632765db6qzua2m
+  tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeihpnx5554swjwo2nsixjs2l76ries442vayot4zq77z3lkyzxqhey
 fingerprint_ignore_patterns: []
 connections:
 - valory/abci:0.1.0:bafybeienpqzsym3rg7nnomd6mxgbt4didwd4wfj72oadde27trdmcgsu5y
@@ -136,6 +136,11 @@ connections:
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeicwzsjalj4puagecus525fbdusaljccn4fi62nmr4zp5fhim6oyr4
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeifbgcgjd2gbwmsm42o3yc4253apxjadcwdljh7x73hgf5w653lvym
+- valory/keep3r_v1:0.1.0:bafybeidbdfpmzxyw5n47nstnoxhwmtph7nysdiou5snabtpcjsykopwr24
+- valory/keep3r_v1_library:0.1.0:bafybeiguyavczsaebbh5docth3o6e36b24s46jynhvysewnk3hqim3a4qe
+- valory/keep3r_v2:0.1.0:bafybeicphuic45hxwri3jlvwvagjj75mannkyw63rnqxrwnlux4h2i27sm
+- valory/multisend:0.1.0:bafybeigjywkl7hydjsrkogob3xebj2ifhqwmfhhxoeyrndzhhxi5u6amey
+- valory/service_registry:0.1.0:bafybeigvob5pgz527goh2cgibjejnmbu6xz2e3knjsocjq533m3xe5uzti
 protocols:
 - open_aea/signing:1.0.0:bafybeibqlfmikg5hk4phzak6gqzhpkt6akckx7xppbp53mvwt6r73h7tk4
 - valory/abci:0.1.0:bafybeig3dj5jhsowlvg3t73kgobf6xn4nka7rkttakdb2gwsg5bp7rt7q4
@@ -147,12 +152,13 @@ protocols:
 - valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
-- valory/abstract_round_abci:0.1.0:bafybeibbxka2c4mvlo2msxi3wtk654fczkfcnbopftyskmd727pjpbty3e
-- valory/keep3r_abci:0.1.0:bafybeifm6xhwi47zkqxdtsoh2ich2xtdioqpx6jj3hgskoljo6q4zxaqzm
-- valory/keep3r_job:0.1.0:bafybeiezok7h2j7tjkzxpm4qk35rnszretvrkv3dzpqn3kuvbymlvstoua
-- valory/registration_abci:0.1.0:bafybeicjvmdle7qkrid6hpr4nepnvt6pl7oznntfhxy2ftrrciu5vb6sqm
-- valory/reset_pause_abci:0.1.0:bafybeiay3qgd7jp5xtxqxmbe2net2tm762av42nobosx4atxfjlbe665mi
-- valory/transaction_settlement_abci:0.1.0:bafybeie5lp57jwtum4uyq4rdkmoue442l6ssdjabi5rbc2di7wtzixw64i
+- valory/abstract_round_abci:0.1.0:bafybeiao4oawiwnqwfkeacfojwbwzqiwdmbqyq4xtwu26p66mss4db343e
+- valory/keep3r_abci:0.1.0:bafybeiglrwmmn3dkikxlqk3ifkka427i2wyqflwuom2w3e32c7esxgqfwm
+- valory/keep3r_job:0.1.0:bafybeib75jkb5ugqb6kzxrcp4jayyufudfni2ke65ujtepmjpnqz5fo6qe
+- valory/registration_abci:0.1.0:bafybeignjit3gocxamsvdmaue62mmj6wu43pcftsv673zcy6wopwx2qsuy
+- valory/reset_pause_abci:0.1.0:bafybeidqbydl5dbfvn4inns7pgg5t5v6patndna5ntq33vtk2htt5ez444
+- valory/termination_abci:0.1.0:bafybeie3fguldaf3ekznno65zyr2qrr4mrc2n2jv2kvs3tlafgcxq7v7ia
+- valory/transaction_settlement_abci:0.1.0:bafybeifhxageak53xdkpnurcdyaatpih6wjxc2u3t3kxuld62oz5oam5jm
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -219,6 +225,7 @@ models:
       tendermint_url: ${str:http://localhost:26657}
       tendermint_com_url: ${str:http://localhost:8080}
       sleep_time: ${int:15}
+      on_chain_service_id: ${int:1}
       reset_tendermint_after: ${int:10}
       reset_pause_duration: ${int:300}
       use_termination: ${bool:false}
@@ -226,7 +233,9 @@ models:
       use_v2: ${bool:true}
       bonding_asset: ${str:0x0000000000000000000000000000000000000000}
       bond_amount: ${int:1000}
+      multisend_address: ${str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
       use_flashbots: ${bool:false}
+      termination_sleep: 900
       keep3r_v1_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
       keep3r_v2_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
       supported_jobs_to_package_hash: ${list:[["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihaxl5l5ltmiius3bcr5pt3tqy6fgwn56hqm7zzm3uxupj6i2xfni"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeieedl2oblihpkugxwothabjpzgglxf6ignvjppw6i2mclvh6j2tny"]]}
@@ -275,4 +284,4 @@ config:
 ---
 public_id: valory/p2p_libp2p_client:0.1.0
 type: connection
-is_abstract: true
+is_abstract: false

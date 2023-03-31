@@ -1,5 +1,5 @@
 {
-  "contractName": "Keep3rForTestnet",
+  "contractName": "Keep3rV2",
   "abi": [
     {
       "inputs": [

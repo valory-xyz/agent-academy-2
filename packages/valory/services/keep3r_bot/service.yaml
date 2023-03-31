@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeiaudehe2roq4yauufe7x5lyy3t3h2db4cxkum4iy7g5bznf5mqn4y
+agent: valory/keep3r_bot:0.1.0:bafybeigaopcdo27bjff5x7h7kmybb4ys2yh6ycnntt7kjylm6c7wm72bse
 number_of_agents: 1
 deployment: {}
 ---
@@ -25,6 +25,7 @@ models:
       service_registry_address: '0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA'
       sleep_time: ${SLEEP_TIME:int:3}
       on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
+      use_termination: ${USE_TERMINATION:bool:false}
       share_tm_config_on_startup: ${USE_ACN:bool:false}
       use_flashbots: ${USE_FLASHBOTS:bool:true}
       supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[["0xf4F748D45E03a70a9473394B28c3C7b5572DfA82","bafybeibl37g52dihlym32odv7ywdc2lhnar2cdes6qagp4ywirbpoteeb4"],["0xe854aF0dD7369bEBaAD3C862324DC0d28e035dd0","bafybeid5xb62ls2pkvpir44235wlzco3zptjerc4lsprjibmudmv74p5oi"],["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihqmqiqvkv6bavaatsajcid36zpyodjlio5q5kvpmf45pelfps7qe"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeihtfezzuqw7incmrh7qvbevapj7hm52c6max3gwcg4dsgp2cjb45y"]]}
@@ -42,3 +43,18 @@ type: connection
       ethereum:
         address: ${SERVICE_RPC_0:str:http://127.0.0.1:8545}
         chain_id: 1
+      arbitrum:
+        address: ${ARBITRUM_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${ARBITRUM_CHAIN_ID:int:42161}
+      consensys:
+        address: ${CONSENSYS_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${CONSENSYS_CHAIN_ID:int:1337}
+      bnb:
+        address: ${BNB_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${BNB_CHAIN_ID:int:56}
+      gnosis:
+        address: ${GNOSIS_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${GNOSIS_CHAIN_ID:int:100}
+      zksync:
+        address: ${ZKSYNC_RPC_O:str:http://127.0.0.1:8545}
+        chain_id: ${ZKSYNC_CHAIN_ID:int:324}

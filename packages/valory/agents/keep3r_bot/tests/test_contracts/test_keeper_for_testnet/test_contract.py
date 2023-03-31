@@ -50,11 +50,11 @@ from packages.valory.agents.keep3r_bot.tests.helpers.constants import (
     HALF_A_SECOND,
     SECONDS_PER_DAY,
 )
-from packages.valory.contracts.keep3r_for_testnet import (
+from packages.valory.contracts.keep3r_v2 import (
     PACKAGE_DIR as KEEPER_FOR_TESTNET_DIR,
 )
-from packages.valory.contracts.keep3r_for_testnet.contract import (
-    KeeperForTestnetContract,
+from packages.valory.contracts.keep3r_v2.contract import (
+    KeeperV2,
 )
 from packages.valory.contracts.keep3r_v1 import PACKAGE_DIR as KEEP3R_V1_DIR
 from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
@@ -71,7 +71,7 @@ class TestKeep3rV1ContractWithTestJob(BaseContractTestCase, UseGanacheFork):
     contract_address = KEEP3R_V2_FOR_TEST
     path_to_contract = KEEPER_FOR_TESTNET_DIR
     ledger_identifier = EthereumCrypto.identifier
-    contract: KeeperForTestnetContract
+    contract: KeeperV2
     keep3rv1_contract: Keep3rV1Contract
     keep3rv1_path = KEEP3R_V1_DIR
     BLOCK_TO_FORK_FROM = 8378981
