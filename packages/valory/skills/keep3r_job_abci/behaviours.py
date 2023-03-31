@@ -17,7 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 
-"""This module contains the behaviours for the 'keep3r_job' skill."""
+"""This module contains the behaviours for the 'keep3r_job_abci' skill."""
 import json
 from abc import ABC
 from typing import Any, Dict, Generator, Optional, Set, Tuple, Type, cast
@@ -40,10 +40,10 @@ from packages.valory.skills.abstract_round_abci.behaviours import (
     AbstractRoundBehaviour,
     BaseBehaviour,
 )
-from packages.valory.skills.keep3r_job.dynamic_package_loader import load_contract
-from packages.valory.skills.keep3r_job.io_.loader import ContractPackageLoader
-from packages.valory.skills.keep3r_job.models import Params, SharedState
-from packages.valory.skills.keep3r_job.payloads import (
+from packages.valory.skills.keep3r_job_abci.dynamic_package_loader import load_contract
+from packages.valory.skills.keep3r_job_abci.io_.loader import ContractPackageLoader
+from packages.valory.skills.keep3r_job_abci.models import Params, SharedState
+from packages.valory.skills.keep3r_job_abci.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
     BondingTxPayload,
@@ -56,7 +56,7 @@ from packages.valory.skills.keep3r_job.payloads import (
     WaitingPayload,
     WorkTxPayload,
 )
-from packages.valory.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job_abci.rounds import (
     ActivationRound,
     ApproveBondRound,
     AwaitTopUpRound,

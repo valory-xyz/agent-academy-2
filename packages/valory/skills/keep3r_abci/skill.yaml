@@ -2,18 +2,18 @@ name: keep3r_abci
 author: valory
 version: 0.1.0
 type: skill
-description: ABCI application for keep3r ABCI
+description: Chained keep3r ABCI application
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
   __init__.py: bafybeihzcsfqn6zggjwunxo3x5xjclhvmnkn4t4rblurlj7new37leorua
-  behaviours.py: bafybeia5gmarghbmjblyvkjk626bk7u4ej6u52ybiyxjei7wqwtxx7rnii
-  composition.py: bafybeifmcjwk46zbhhrk66uae3qxdm4gvix4mvcmetpte4keuhfjl7tphq
+  behaviours.py: bafybeigmpji7ljrhhfklytnjxpsfwesx3h4ltmq5atbgi6dweh5gxybhpa
+  composition.py: bafybeifayvvpjqanxpxc6qqy3kvrlxq4gk3gffcmjnp7omek6hogiozg2m
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   fsm_specification.yaml: bafybeiglxtz2wcczhyl2zirrrc7aq6recrvkwzczvzujvapjdsm556kwbu
   handlers.py: bafybeihrnok2s2oztglt7on7g5icbugmibikb3y2kqz2imbe23yoij7a5y
-  models.py: bafybeic2tfoksbegroktzowfe4mq5i6kbxx4tszityr2wuq5axbecjjtpa
+  models.py: bafybeihd33rgyt5tmpct2fotsli5ep5bco4nnwf2vwksmy3lfn7qme6rbm
   payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
 fingerprint_ignore_patterns: []
 connections: []
@@ -21,7 +21,7 @@ contracts: []
 protocols: []
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeiao4oawiwnqwfkeacfojwbwzqiwdmbqyq4xtwu26p66mss4db343e
-- valory/keep3r_job:0.1.0:bafybeib75jkb5ugqb6kzxrcp4jayyufudfni2ke65ujtepmjpnqz5fo6qe
+- valory/keep3r_job_abci:0.1.0:bafybeidchjmq2g7f5uyiytxfr7yjwiprrnmoeh3uoy5fwbgq2x62vcgtxu
 - valory/registration_abci:0.1.0:bafybeignjit3gocxamsvdmaue62mmj6wu43pcftsv673zcy6wopwx2qsuy
 - valory/reset_pause_abci:0.1.0:bafybeidqbydl5dbfvn4inns7pgg5t5v6patndna5ntq33vtk2htt5ez444
 - valory/termination_abci:0.1.0:bafybeie3fguldaf3ekznno65zyr2qrr4mrc2n2jv2kvs3tlafgcxq7v7ia

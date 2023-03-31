@@ -1,4 +1,4 @@
-name: keep3r_job
+name: keep3r_job_abci
 author: valory
 version: 0.1.0
 type: skill
@@ -7,23 +7,23 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
-  __init__.py: bafybeigksusqhnsx4dupxnfwj663ofpnhgw7gtkc72iscf5blcczvz6fiq
-  behaviours.py: bafybeicj7wty2km5wfskwyahmttymfurgu7njcdpidv6lk5pdi6le47tyi
+  __init__.py: bafybeigcupldnvdbqoxvfhx6vn4dgqmbhwddwpmrwoalru7vthppjtpdry
+  behaviours.py: bafybeibzh4uhjud3wzwgz36hpzmrjgf6foea4e4lkjvmazdetnyutqieea
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
   fsm_specification.yaml: bafybeibir4dmfv37ileg54lr7mpr7deq6ex5yy5xf5i2jllhlbauxejkp4
-  handlers.py: bafybeig7pj6f2gadyirmwp6mu7bce6yqyn2gupdvqtcpnlbcr5wuat465y
+  handlers.py: bafybeiflkitcwl4b4glto7xaf7oykdsutbsyr62fwzh4ycy6grvblnypya
   io_/__init__.py: bafybeifxgmmwjqzezzn3e6keh2bfo4cyo7y5dq2ept3stfmgglbrzfl5rq
   io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
-  models.py: bafybeiatjdb5qmk552fpchzt5gwsuranm4v5tjgmnnffcazvculbgo2h6a
-  payloads.py: bafybeid52iwsyzxpauezgr4rxxknjwxb673qqjxxytzlkqvxu3zpz7uonq
-  rounds.py: bafybeig4tl5fypo7oy6deuj5vkl2tfva6fty5asl5eoixq5fgckxf66yii
-  tests/__init__.py: bafybeihax7nv5wb5pb72cxwemjk5sz55ecsghh4zi3vbmziz2pacyqbrym
+  models.py: bafybeifdvfsvjq4ihvtmygh6mpu3wx7kyx4odarf7sm45wvl2jpt2ppfs4
+  payloads.py: bafybeig25ks5zcqk6elj5neof553n24w2hbdl3ogqm5koxyrahjn7ke33i
+  rounds.py: bafybeifmngjhsvyjhakvw3oanlq4w5zbutay723aca3yrmswnrlgvybqtm
+  tests/__init__.py: bafybeid4o4ftcie2ldsupmo3atv547afr5hycq25evvbhwqgres7lvq4vu
   tests/helpers.py: bafybeigwnsg3r4mqo2rrai56ju4yknd6tvi3edkterbvbnptst5uwz6oa4
-  tests/test_behaviours.py: bafybeicqfgdlqvq6ufeymx6vklfqamemlddia46nii2otiqowfgrnctisu
-  tests/test_dialogues.py: bafybeig6ifm5xslmj2k5leitgxeah3wow6vfb7w6zqnckzbxvgdxsc3oae
-  tests/test_payloads.py: bafybeig7xcopncbirln7dzbpsm44cvmmh2iqbh7qaiosfg7gpnqkdmfpna
-  tests/test_rounds.py: bafybeihujqsizzft66trlhgvzgd337pzy6xhjy632bztmr443d456l5qzm
+  tests/test_behaviours.py: bafybeiagczaj7z7pgpwlrqp4izi3cvhldulwgcm4b2q4dttbkggebyjfxm
+  tests/test_dialogues.py: bafybeiei7iv44yrb2ebchbjpzdyc2tgcsamiiw2jwnu2j4mx2caug2isrq
+  tests/test_payloads.py: bafybeiam5acjf6ixa44qp5ip7injy43wskh5leponqsrbysnkfwczw7p4i
+  tests/test_rounds.py: bafybeid4g2b63vgpdrjqi42nf76rhexdpvlpduybl4xqo7njvbud3di6fi
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
@@ -129,7 +129,7 @@ models:
       retry_attempts: 400
       retry_timeout: 3
       round_timeout_seconds: 30.0
-      service_id: keep3r_job
+      service_id: keep3r_job_abci
       service_registry_address: null
       setup:
         all_participants:

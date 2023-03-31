@@ -17,4 +17,4 @@
 #
 # ------------------------------------------------------------------------------
 
-"""Tests package for the 'keep3r_job' library."""
+"""Tests package for the 'keep3r_bot' agent."""

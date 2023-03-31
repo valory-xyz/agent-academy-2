@@ -16,7 +16,7 @@
 #   limitations under the License.
 #
 # ------------------------------------------------------------------------------
-"""This module contains the shared state for the 'keep3r_job' application."""
+"""This module contains the shared state for the 'keep3r_job_abci' application."""
 
 from typing import Any, Dict, List, Type
 
@@ -31,7 +31,7 @@ from packages.valory.skills.abstract_round_abci.models import Requests as BaseRe
 from packages.valory.skills.abstract_round_abci.models import (
     SharedState as BaseSharedState,
 )
-from packages.valory.skills.keep3r_job.rounds import Keep3rJobAbciApp
+from packages.valory.skills.keep3r_job_abci.rounds import Keep3rJobAbciApp
 
 
 MARGIN = 5

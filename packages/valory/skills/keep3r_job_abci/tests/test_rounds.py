@@ -29,7 +29,7 @@ from packages.valory.skills.abstract_round_abci.base import (
     AbstractRound,
     BaseTxPayload,
 )
-from packages.valory.skills.keep3r_job.payloads import (
+from packages.valory.skills.keep3r_job_abci.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
     BondingTxPayload,
@@ -42,7 +42,7 @@ from packages.valory.skills.keep3r_job.payloads import (
     WaitingPayload,
     WorkTxPayload,
 )
-from packages.valory.skills.keep3r_job.rounds import (
+from packages.valory.skills.keep3r_job_abci.rounds import (
     ActivationRound,
     ApproveBondRound,
     AwaitTopUpRound,
