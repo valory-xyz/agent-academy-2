@@ -1,0 +1,12 @@
+token_id-"component_id"
+X-"contract/valory/keep3r_v1_library/0.1.0"
+X-"contract/valory/keep3r_v1/0.1.0"
+X-"contract/valory/keep3r_v2/0.1.0"
+X-"skill/valory/keep3r_job/0.1.0"
+X-"skill/valory/keep3r_abci/0.1.0"
+---
+token_id-"agent_id"
+X-"agent/valory/keep3r_bot/0.1.0"
+---
+token_id-"service_id"
+X-"service/valory/keep3r_bot/0.1.0"
