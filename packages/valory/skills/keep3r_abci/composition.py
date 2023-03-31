@@ -42,6 +42,9 @@ from packages.valory.skills.reset_pause_abci.rounds import (
     ResetAndPauseRound,
     ResetPauseAbciApp,
 )
+from packages.valory.skills.termination_abci.rounds import BackgroundRound
+from packages.valory.skills.termination_abci.rounds import Event as TerminationEvent
+from packages.valory.skills.termination_abci.rounds import TerminationAbciApp
 from packages.valory.skills.transaction_settlement_abci.rounds import (
     FailedRound as FailedTransactionSubmissionRound,
 )
@@ -72,4 +75,8 @@ Keep3rAbciApp = chain(
         ResetPauseAbciApp,
     ),
     abci_app_transition_mapping,
+).add_termination(
+    background_round_cls=BackgroundRound,
+    termination_event=TerminationEvent.TERMINATE,
+    termination_abci_app=TerminationAbciApp,
 )

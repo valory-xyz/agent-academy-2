@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiblcg3qti2cyz4ytufdkmqzcm6svbo5cwgsu2srjovvljdi35iz6i
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeiaudehe2roq4yauufe7x5lyy3t3h2db4cxkum4iy7g5bznf5mqn4y
+agent: valory/keep3r_bot:0.1.0:bafybeifjpjezugwmtgn3wr5yzjsmepw24jjr2u535uflfsrd2qdfxitklm
 number_of_agents: 1
 deployment: {}
 ---
@@ -41,3 +41,18 @@ type: connection
       ethereum_flashbots:
         address: ${SERVICE_RPC_0:str:http://127.0.0.1:8545}
         chain_id: 5
+      arbitrum:
+        address: ${ARBITRUM_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${ARBITRUM_CHAIN_ID:int:42161}
+      consensys:
+        address: ${CONSENSYS_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${CONSENSYS_CHAIN_ID:int:1337}
+      bnb:
+        address: ${BNB_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${BNB_CHAIN_ID:int:56}
+      gnosis:
+        address: ${GNOSIS_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${GNOSIS_CHAIN_ID:int:100}
+      zksync:
+        address: ${ZKSYNC_RPC_O:str:http://127.0.0.1:8545}
+        chain_id: ${ZKSYNC_CHAIN_ID:int:324}
