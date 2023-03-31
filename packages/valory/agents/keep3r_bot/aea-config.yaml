@@ -225,7 +225,7 @@ models:
       tendermint_url: ${str:http://localhost:26657}
       tendermint_com_url: ${str:http://localhost:8080}
       sleep_time: ${int:15}
-      on_chain_service_id: ${str:keep3r}
+      on_chain_service_id: ${int:1}
       reset_tendermint_after: ${int:10}
       reset_pause_duration: ${int:300}
       use_termination: ${bool:false}
