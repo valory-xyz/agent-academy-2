@@ -1269,7 +1269,9 @@ class TestBaseBehaviour:
                 dict(
                     counterparty=LEDGER_API_ADDRESS,
                     performative=LedgerApiMessage.Performative.SEND_SIGNED_TRANSACTION,
-                    signed_transaction="test_tx",
+                    signed_transaction=SignedTransaction(
+                        ledger_id="ethereum", body={"test_tx": "test_tx"}
+                    ),
                 ),
             ),
         ),
@@ -1285,7 +1287,11 @@ class TestBaseBehaviour:
         ) as create_mock:
             target_block_numbers = None
             self.behaviour._send_transaction_request(
-                MagicMock(signed_transaction=MagicMock(body={"test_tx": "test_tx"})),
+                MagicMock(
+                    signed_transaction=SignedTransaction(
+                        ledger_id="ethereum", body={"test_tx": "test_tx"}
+                    )
+                ),
                 use_flashbots,
                 target_block_numbers,
             )
