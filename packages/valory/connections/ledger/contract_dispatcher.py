@@ -431,3 +431,18 @@ class ContractApiRequestDispatcher(RequestDispatcher):
         # otherwise, use the ledger id.
         chain_id = kwargs.get("chain_id", self.get_ledger_id(message))
         return chain_id
+
+    def set_extra_kwargs(self, message: Message) -> None:
+        """
+        Set extra kwargs for the contract api message.
+
+        :param message: the message
+        :return: None
+        """
+        if not isinstance(message, ContractApiMessage):
+            raise ValueError("argument is not a ContractApiMessage instance.")
+        message = cast(ContractApiMessage, message)
+        if message.kwargs.body is not None and message.kwargs.body.get(
+            "set_ledger_api_configs", False
+        ):
+            message.kwargs.body.update({"ledger_api_configs": self._api_configs.copy()})

@@ -1,4 +1,4 @@
-name: connext_propagate_goerli_job
+name: connext_propagate_job
 author: valory
 version: 0.1.0
 type: contract
@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   RelayerProxyHub.json: bafybeiemclag3uctrlaq4vzfqnbf4zgeiolkeo2ntc4vyjo7gcztcy3gim
   __init__.py: bafybeihk6gcwr2k35nlz3jmhsuassxkwswvgiwf44bc3s7kqq55ga5vjgu
-  contract.py: bafybeiceqicueqevl7vqaex3gf7lyxvjjpjtep63m2e27ehu4vbqsp3iiq
+  contract.py: bafybeiedewfjoxe7oueydqkc5rbhyipev5fborqpc5mm3tleam3ltlie2e
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: ConnextPropagateJobContract

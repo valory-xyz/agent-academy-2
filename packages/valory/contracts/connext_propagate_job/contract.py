@@ -22,14 +22,17 @@ import json
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Optional, List, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type, cast
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
+from aea.crypto.registries import ledger_apis_registry
 from aea_ledger_ethereum import EthereumApi
+from web3.types import RPCEndpoint
 
-PUBLIC_ID = PublicId.from_str("valory/connext_propagate_goerli_job:0.1.0")
+
+PUBLIC_ID = PublicId.from_str("valory/connext_propagate_job:0.1.0")
 
 _logger = logging.getLogger(
     f"aea.packages.{PUBLIC_ID.author}.contracts.{PUBLIC_ID.name}.contract"
@@ -37,10 +40,20 @@ _logger = logging.getLogger(
 
 ONE_ETH = 10**18
 ZERO_ETH = 0
+ETHEREUM_L1 = "ethereum"
+ARBITRUM = "arbitrum"
+ZKSYNC = "zksync"
+REQUIRED_LEDGER_APIS = [
+    ETHEREUM_L1,
+    ARBITRUM,
+    ZKSYNC,
+]
 
 
 @dataclass
 class CallData:
+    """A class to represent call data for a given connector."""
+
     encoded_data: bytes
     fee: int
 
@@ -48,22 +61,42 @@ class CallData:
 class L2Network(ABC):
     """A class to represent a L2 network."""
 
-    def __init__(self, ledger_api: EthereumApi) -> None:
+    def __init__(self, ledger_apis: Dict[str, EthereumApi]) -> None:
         """Instantiate a L2 network."""
-        self._ledger_api = ledger_api
+        self._ledger_apis = ledger_apis
+
+    @property
+    def l1(self) -> EthereumApi:
+        """Get the L1 ledger api."""
+        return self._ledger_apis[ETHEREUM_L1]
+
+    @property
+    def l2(self) -> EthereumApi:
+        """Get the L2 ledger api."""
+        raise NotImplementedError
+
+    def _get_base_fee(self, ledger_api: EthereumApi) -> int:  # noqa
+        """Return the base fee for the current block."""
+        last_block = ledger_api.api.eth.get_block("latest")
+        return last_block["baseFeePerGas"]
+
+    def _get_gas_price(self, ledger_api: EthereumApi) -> int:  # noqa
+        """Return the gas price for the current block."""
+        gas_price = ledger_api.api.eth.gas_price
+        return gas_price
 
     @abstractmethod
-    def get_call_data(self, **kwargs: Any) -> CallData:
+    def get_call_data(self) -> CallData:
         """Get the call data for an L2 network."""
 
 
 class Arbitrum(L2Network):
     """A class that represents arbitrum."""
 
-    DEFAULT_GAS_PRICE_PERCENT_INCREASE = 2  # 200%
-    DEFAULT_SUBMISSION_FEE_PERCENT_INCREASE = 3  # 300%
-    NODE_INTERFACE_ADDRESS = "0x00000000000000000000000000000000000000C8"
-    NODE_INTERFACE_ABI = """[{
+    gas_price_percent_increase = 2  # 200%
+    submission_fee_percent_increase = 3  # 300%
+    node_interface_address = "0x00000000000000000000000000000000000000C8"
+    node_interface_abi = """[{
           "inputs": [
              {
                 "internalType":"address",
@@ -106,12 +139,12 @@ class Arbitrum(L2Network):
           "stateMutability":"nonpayable",
           "type":"function"
        }]"""
-    ARBITRUM_HUB_CONNECTOR = "0xd151C9ef49cE2d30B829a98A07767E3280F70961"
-    ARBITRUM_SPOKE_CONNECTOR = "0xFD81392229b6252cF761459d370C239Be3aFc54F"
-    SPOKE_CONNECTOR_CALL_DATA = bytes.fromhex(
+    arbitrum_hub_connector = "0xd151C9ef49cE2d30B829a98A07767E3280F70961"
+    arbitrum_spoke_connector = "0xFD81392229b6252cF761459d370C239Be3aFc54F"
+    spoke_connector_call_data = bytes.fromhex(
         "4ff746f6000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001"
     )
-    MULTIPLIER = 5
+    multiplier = 5
 
     @dataclass
     class L1ToL2Estimate:
@@ -122,17 +155,18 @@ class Arbitrum(L2Network):
         max_fee_per_gas: int
         total_l2_gas_costs: int
 
-    def __init__(self, ledger_api: EthereumApi):
+    def __init__(self, ledger_apis: Dict[str, EthereumApi]):
         """Setup an arbitrum instance."""
-        super().__init__(ledger_api)
-        self._node_interface_address = self._ledger_api.api.toChecksumAddress(
-            self.NODE_INTERFACE_ADDRESS
+        super().__init__(ledger_apis)
+        self._node_interface_address = self.l1.api.toChecksumAddress(
+            self.node_interface_address
         )
-        self._node_interface_abi = json.loads(self.NODE_INTERFACE_ABI)
+        self._node_interface_abi = json.loads(self.node_interface_abi)
 
-    def l2_get_gas_price(self) -> int:
-        """Returns the l2 gas price"""
-        return self._ledger_api.api.eth.gas_price
+    @property
+    def l2(self) -> EthereumApi:
+        """Get the L2 ledger api."""
+        return self._ledger_apis[ARBITRUM]
 
     def estimate_submission_fee(
         self, data_length: int, base_fee: int
@@ -141,6 +175,9 @@ class Arbitrum(L2Network):
         Estimates the submission fee.
 
         Imitates the logic here (https://etherscan.io/address/0x5aed5f8a1e3607476f1f81c3d8fe126deb0afe94#code#F1#L361).
+        :param data_length: the length of the data
+        :param base_fee: the base fee
+        :return: the submission fee
         """
         return (1400 + 6 * data_length) * base_fee
 
@@ -167,7 +204,7 @@ class Arbitrum(L2Network):
         :returns: the gas limit
         """
         sender_deposit = ONE_ETH + l2_call_value
-        contract = self._ledger_api.api.eth.contract(
+        contract = self.l2.api.eth.contract(
             self._node_interface_address, abi=self._node_interface_abi
         )
         estimated_gas = contract.functions.estimateRetryableTicket(
@@ -203,13 +240,11 @@ class Arbitrum(L2Network):
         :param call_value_refund_address: The address to send the call value
         :returns: the estimates for an L1->L2 message.
         """
-        l2_gas_price = self.l2_get_gas_price()
-        max_fee_per_gas = l2_gas_price * (1 + self.DEFAULT_GAS_PRICE_PERCENT_INCREASE)
+        l2_gas_price = self._get_gas_price(self.l2)
+        max_fee_per_gas = l2_gas_price * (1 + self.gas_price_percent_increase)
         data_length = len(l2_call_data)
         submission_fee = self.estimate_submission_fee(data_length, l1_base_fee)
-        max_submission_fee = submission_fee * (
-            1 + self.DEFAULT_SUBMISSION_FEE_PERCENT_INCREASE
-        )
+        max_submission_fee = submission_fee * (1 + self.submission_fee_percent_increase)
         gas_limit = self.estimate_retryable_ticket_gas_limit(
             sender,
             l2_call_to,
@@ -226,30 +261,26 @@ class Arbitrum(L2Network):
             total_l2_gas_costs,
         )
 
-    def get_call_data(self, **kwargs: Any) -> CallData:
+    def get_call_data(self) -> CallData:
         """Get call data for Arbitrum."""
-        l1_base_fee = kwargs.get("l1_base_fee", None)
-        gas_price_bid = kwargs.get("gas_price_bid", None)
-        if l1_base_fee is None or gas_price_bid is None:
-            raise ValueError(
-                "'l1_base_fee' and 'gas_price_bid' are required for Arbitrum."
-            )
+        l1_base_fee = self._get_base_fee(self.l1)
+        gas_price_bid = self._get_gas_price(self.l1)
         estimation = self.estimate_all(
-            self.ARBITRUM_HUB_CONNECTOR,
-            self.ARBITRUM_SPOKE_CONNECTOR,
-            self.SPOKE_CONNECTOR_CALL_DATA,
+            self.arbitrum_hub_connector,
+            self.arbitrum_spoke_connector,
+            self.spoke_connector_call_data,
             ZERO_ETH,
             l1_base_fee,
-            self.ARBITRUM_SPOKE_CONNECTOR,
-            self.ARBITRUM_SPOKE_CONNECTOR,
+            self.arbitrum_spoke_connector,
+            self.arbitrum_spoke_connector,
         )
 
         # multiply gas_limit by 5 to be successful in auto-redeem
-        max_gas = estimation.gas_limit * self.MULTIPLIER
-        submission_price_wei = estimation.max_submission_fee * self.MULTIPLIER
+        max_gas = estimation.gas_limit * self.multiplier
+        submission_price_wei = estimation.max_submission_fee * self.multiplier
         fee = submission_price_wei + (max_gas * gas_price_bid)
 
-        encoded_data = self._ledger_api.api.codec.encode_abi(
+        encoded_data = self.l2.api.codec.encode_abi(
             ["uint256", "uint256", "uint256"],
             [submission_price_wei, max_gas, gas_price_bid],
         )
@@ -259,8 +290,176 @@ class Arbitrum(L2Network):
         )
 
 
-CHAIN_ID = "arbitrum"
-CONNECTOR_ADDRESS_TO_L2: List[Tuple[str, Optional[Type[L2Network]]]] = [
+class ZkSync(L2Network):
+    """ZkSync network."""
+
+    gas_limit = 10_000_000
+    gas_per_pubdata_byte = 800
+    zksync_abi = [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_gasPrice",
+                    "type": "uint256",
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_l2GasLimit",
+                    "type": "uint256",
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_l2GasPerPubdataByteLimit",
+                    "type": "uint256",
+                },
+            ],
+            "name": "l2TransactionBaseCost",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256",
+                },
+            ],
+            "stateMutability": "view",
+            "type": "function",
+        },
+    ]
+
+    @property
+    def l2(self) -> EthereumApi:
+        """Get the L2 ledger api."""
+        return self._ledger_apis[ZKSYNC]
+
+    def _get_mainnet_contract_address(self) -> str:
+        """Get ZkSync mainnet contract."""
+        get_main_contract = RPCEndpoint("zks_getMainContract")
+        res = self.l2.api.provider.make_request(get_main_contract, [])
+        contract = res.get("result", None)
+        if contract is None:
+            raise ValueError("ZkSync mainnet contract not found.")
+        return contract
+
+    def _get_tx_cost_price(self) -> int:
+        """Get the transaction cost price."""
+        contract_address = self._get_mainnet_contract_address()
+        contract = self.l1.api.eth.contract(
+            address=self.l1.api.toChecksumAddress(contract_address),
+            abi=self.zksync_abi,
+        )
+        l1_gas_price = self._get_gas_price(self.l1)
+        tx_cost_price = contract.functions.l2TransactionBaseCost(
+            l1_gas_price,
+            self.gas_limit,
+            self.gas_per_pubdata_byte,
+        ).call()
+        return tx_cost_price
+
+    def get_call_data(self) -> CallData:
+        """Get call data for ZkSync."""
+        encoded_data = self.l1.api.codec.encode_abi(["uint256"], [self.gas_limit])
+        fee = self._get_tx_cost_price()
+        return CallData(
+            encoded_data,
+            fee,
+        )
+
+
+class Consensys(L2Network):
+    """Consensys L2 network."""
+
+    fee = 10**16  # 0.01ETH
+    encoded_data = b""
+
+    def get_call_data(self) -> CallData:
+        """Get call data for Consensys."""
+        return CallData(
+            self.encoded_data,
+            self.fee,
+        )
+
+
+class Bnb(L2Network):
+    """BnB L2 network."""
+
+    amb_address = "0xC10Ef9F491C9B59f936957026020C321651ac078"
+    encoded_data = b""
+    app_id = ""
+    target_chain_id = 56
+    data_length = 32
+    amb_partial_abi = [
+        {
+            "inputs": [
+                {"internalType": "string", "name": "_appID", "type": "string"},
+                {"internalType": "uint256", "name": "_toChainID", "type": "uint256"},
+                {"internalType": "uint256", "name": "_dataLength", "type": "uint256"},
+            ],
+            "name": "calcSrcFees",
+            "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+            "stateMutability": "view",
+            "type": "function",
+        }
+    ]
+
+    def _get_fee(self) -> int:
+        """Get the transaction cost price."""
+        amb_contract = self.l1.api.eth.contract(
+            self.l1.api.toChecksumAddress(self.amb_address),
+            abi=self.amb_partial_abi,
+        )
+        fee = amb_contract.functions.calcSrcFees(
+            self.app_id, self.target_chain_id, self.data_length
+        ).call()
+        return fee
+
+    def get_call_data(self) -> CallData:
+        """Get call data for BnB."""
+        fee = self._get_fee()
+        return CallData(
+            self.encoded_data,
+            fee,
+        )
+
+
+class Gnosis(L2Network):
+    """Gnosis L2 network."""
+
+    fee = 0
+    amb_address = "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
+    amb_partial_abi = [
+        {
+            "constant": True,
+            "inputs": [],
+            "name": "maxGasPerTx",
+            "outputs": [{"name": "", "type": "uint256"}],
+            "payable": False,
+            "stateMutability": "view",
+            "type": "function",
+        }
+    ]
+    encoded_data = b""
+
+    def _get_fee(self) -> int:
+        """Get the transaction cost price."""
+        amb_contract = self.l1.api.eth.contract(
+            self.l1.api.toChecksumAddress(self.amb_address),
+            abi=self.amb_partial_abi,
+        )
+        fee = amb_contract.functions.maxGasPerTx().call()
+        return fee
+
+    def get_call_data(self) -> CallData:
+        """Get call data for Gnosis."""
+        fee = self._get_fee()
+        encoded_data = self.l1.api.codec.encode_abi(["uint256"], [fee])
+        return CallData(
+            encoded_data,
+            self.fee,
+        )
+
+
+GOERLI_CONFIG = [
     (
         "0xd045f03686575f042b21d0b3d20ffae4d3a3482f",
         None,
@@ -279,33 +478,39 @@ CONNECTOR_ADDRESS_TO_L2: List[Tuple[str, Optional[Type[L2Network]]]] = [
     ),
     (
         "0x9f02b394d8f0e2df3f6913f375cd1f919c03987d",
-        None,
+        Consensys,
     ),
     (
         "0x80231092091d752e1506d4aab393675ebe388e9e",
-        None,
+        ZkSync,
     ),
     (
         "0x49174424e29950ad18d07b4d9ad2f77d0cbdda2a",
         None,
     ),
 ]
+MAINNET_CONFIG = [
+    ("0xfaf539a73659feaec96ec7242f075be0445526a8", Bnb),
+    ("0x245F757d660C3ec65416168690431076d58d6413", Gnosis),
+    ("0x4a0126ee88018393b1ad2455060bc350ead9908a", None),
+    ("0xb01bc38909413f5dbb8f18a9b5787a62ce1282ae", None),
+    ("0xf7c4d7dcec2c09a15f2db5831d6d25eaef0a296c", None),
+    ("0xd151c9ef49ce2d30b829a98a07767e3280f70961", Arbitrum),
+]
+MAINNET_ID = 1
+GOERLI_ID = 5
+
+
+CONNECTOR_CONFIGS: Dict[int, List[Tuple[str, Optional[Type[L2Network]]]]] = {
+    MAINNET_ID: MAINNET_CONFIG,
+    GOERLI_ID: GOERLI_CONFIG,
+}
 
 
 class ConnextPropagateJobContract(Contract):
     """Class for the ConnextPropagateJob contract."""
 
     contract_id = PUBLIC_ID
-
-    def _get_base_fee(self, ledger_api: EthereumApi) -> int:  # noqa
-        """Return the base fee for the current block."""
-        last_block = ledger_api.api.eth.get_block("latest")
-        return last_block["baseFeePerGas"]
-
-    def _get_gas_price(self, ledger_api: EthereumApi) -> int:  # noqa
-        """Return the gas price for the current block."""
-        gas_price = ledger_api.api.eth.gas_price
-        return gas_price
 
     def get_off_chain_data(
         self, ledger_api: EthereumApi, contract_address: str, **kwargs: Any
@@ -318,31 +523,42 @@ class ConnextPropagateJobContract(Contract):
         :param kwargs: other keyword arguments
         :return: the off chain data
         """
-        base_fee = self._get_base_fee(ledger_api)
-        gas_price = self._get_gas_price(ledger_api)
-        return dict(
-            chain_id=CHAIN_ID,
-            l1_base_fee=base_fee,
-            gas_price_bid=gas_price,
-        )
+        return dict(set_ledger_api_configs=True)
 
     @staticmethod
     def _get_call_data(
-        ledger_api: EthereumApi, **kwargs: Any
+        ledger_apis: Dict[str, EthereumApi],
+        chain_id: int,
     ) -> Tuple[List[str], List[bytes], List[int]]:
         """Get the call data"""
+        connector_config = CONNECTOR_CONFIGS[chain_id]
         connectors, encoded_data, fees = [], [], []
-        for connector, l2_network in CONNECTOR_ADDRESS_TO_L2:
-            single_encoded_data, fee = b"0x", 0
+        for connector, l2_network in connector_config:
+            single_encoded_data, fee = b"", 0
             if l2_network is not None:
-                l2_network_instance = l2_network(ledger_api)
-                call_data = l2_network_instance.get_call_data(**kwargs)
+                l2_network_instance = l2_network(ledger_apis)
+                call_data = l2_network_instance.get_call_data()
                 single_encoded_data = call_data.encoded_data
                 fee = call_data.fee
-            connectors.append(ledger_api.api.toChecksumAddress(connector))
+            connectors.append(ledger_apis[ETHEREUM_L1].api.toChecksumAddress(connector))
             encoded_data.append(single_encoded_data)
             fees.append(fee)
         return connectors, encoded_data, fees
+
+    @classmethod
+    def _get_ledger_apis(
+        cls, api_configs: Dict[str, Dict[str, Any]]
+    ) -> Dict[str, EthereumApi]:
+        """Get the ledger APIs."""
+        ledgers: Dict[str, EthereumApi] = {}
+        for ledger_api_id in REQUIRED_LEDGER_APIS:
+            if ledger_api_id not in api_configs:
+                raise ValueError(f"Ledger API '{ledger_api_id}' not found in configs.")
+            ledger_api = ledger_apis_registry.make(
+                ETHEREUM_L1, **api_configs[ledger_api_id]
+            )
+            ledgers[ledger_api_id] = cast(EthereumApi, ledger_api)
+        return ledgers
 
     @classmethod
     def workable(
@@ -374,7 +590,12 @@ class ConnextPropagateJobContract(Contract):
         :return: the raw transaction
         """
         contract = cls.get_instance(ledger_api, contract_address)
-        connectors, encoded_data, fees = cls._get_call_data(ledger_api, **kwargs)
+        ledger_api_configs = kwargs.get("ledger_api_configs", None)
+        if ledger_api_configs is None:
+            raise ValueError("'ledger_api_configs' is required.")
+        ledger_apis = cls._get_ledger_apis(ledger_api_configs)
+        chain_id = ledger_api.api.eth.chainId
+        connectors, encoded_data, fees = cls._get_call_data(ledger_apis, chain_id)
         data = contract.encodeABI(
             fn_name="propagateKeep3r",
             args=[connectors, fees, encoded_data],
