@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   MyJob.json: bafybeificactlkmcctad2xh5zj2j5tevjz64uzzhcp6epcubajzhto5ppy
   __init__.py: bafybeibrrtb3cxckcos5bjl3kff7rzdbal2rtibntjvwhchwyu3m3p72ti
-  contract.py: bafybeidewku7ksfx45yw6axskfkfakqtseg33znwzzjosmrrvtaxkgu4lm
+  contract.py: bafybeig3i5ewamiz6oa5dlqm6f3u5gaic3fdtdiyy744vtxmrte5fnrm7m
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: Keep3rMyJobContract
