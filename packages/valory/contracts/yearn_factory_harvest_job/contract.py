@@ -93,7 +93,7 @@ class YearnFactoryHarvestJobContract(Contract):
         :param kwargs: other keyword arguments
         :return: the off chain data
         """
-        return dict(chain_id="arbitrum")
+        return dict()
 
     @classmethod
     def workable(

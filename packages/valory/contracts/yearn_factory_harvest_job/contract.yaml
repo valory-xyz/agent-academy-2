@@ -8,8 +8,8 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   YearnFactoryHarvestJob.json: bafybeihgjjq6ttbccz3utl23gdvyige6bcdwwvi5wo2tuu3qv4wqxr4qra
   __init__.py: bafybeiflwdigkqjdp33usxkaozixd5cwyq35jy6eyf2lcr2gtp5kjbs6re
-  contract.py: bafybeiazxzufydrzph4at5mqqg2bh4hoxikocp7fhm7rxn4kog2urcldfm
-  test_contract.py: bafybeihue7ijmrxyxhq3wkch5cxrwwhn6kwo47avelyrzld345fws6ntfm
+  contract.py: bafybeieqlouh6hmcej3w3pvfpaijxhuilbcmk6s657jydbqrfccnxjm4bu
+  test_contract.py: bafybeihgfcsuvickfcek3oordz2wxpyujkywev7efr5bacwh7vylmwpu4a
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: YearnFactoryHarvestJobContract

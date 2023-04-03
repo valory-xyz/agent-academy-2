@@ -84,10 +84,16 @@ class TestYearnFactoryHarvestJobContract(BaseContractTestCase):
         dummy_keep3r = self.contract_address
 
         contract = cast(YearnFactoryHarvestJobContract, self.contract)
+        off_chain_data = contract.get_off_chain_data(
+            self.ledger_api,
+            self.contract_address,
+        )
+        assert off_chain_data == dict()
         workable = contract.workable(
             self.ledger_api,
             self.contract_address,
             keep3r_address=dummy_keep3r,
+            **off_chain_data,
         )
         assert workable.get("data", False)
 
@@ -96,6 +102,7 @@ class TestYearnFactoryHarvestJobContract(BaseContractTestCase):
             self.ledger_api,
             self.contract_address,
             keep3r_address=dummy_keep3r,
+            **off_chain_data,
         )
         assert work_tx.get("data", False)
 
