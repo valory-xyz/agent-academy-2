@@ -1,5 +1,11 @@
 # Release History - `agent-academy-2`
 
+## v0.3.0 (03.04.2023)
+- Add service termination.
+- Add mint data for the components from the autonolas on-chain protocol.
+- Renamed `keep3r_job` skill to `keep3r_job_abci`. 
+- Remove `arbitrum` from yearn harvest job.
+
 ## v0.2.0 (31.03.2023)
 - Add support for goerli.
 - Add `PhutureHarvestingJobContract`.
