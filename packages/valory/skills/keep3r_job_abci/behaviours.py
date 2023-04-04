@@ -94,6 +94,8 @@ SAFE_GAS = 0
 
 ZERO_ETH = 0
 
+AUTO_GAS_LIMIT = 0
+
 
 class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     """Base state behaviour for the simple abci skill."""
@@ -219,6 +221,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             to=self.bond_spender,
             value=ZERO_ETH,
             gas=SAFE_GAS,
+            gas_limit=AUTO_GAS_LIMIT,
         )
         return safe_tx
 
@@ -421,6 +424,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             to=bonding_asset,
             value=ZERO_ETH,
             gas=SAFE_GAS,
+            gas_limit=AUTO_GAS_LIMIT,
         )
         return safe_tx
 
@@ -705,6 +709,7 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
             to=self.bond_spender,
             value=ZERO_ETH,
             gas=SAFE_GAS,
+            gas_limit=AUTO_GAS_LIMIT,
         )
         return safe_tx
 

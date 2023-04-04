@@ -675,7 +675,6 @@ class SynchronizeLateMessagesBehaviour(TransactionSettlementBaseBehaviour):
                 tx_data = yield from self._get_tx_data(
                     current_message,
                     self.use_flashbots,
-                    self.gas_limit,
                 )
                 self.context.logger.info(
                     f"Found a late arriving message {current_message}. Result data: {tx_data}"

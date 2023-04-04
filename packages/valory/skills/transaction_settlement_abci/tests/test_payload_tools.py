@@ -93,6 +93,7 @@ def test_payload_to_hex_and_back(use_flashbots: bool) -> None:
         gas_token=NULL_ADDRESS,
         use_flashbots=use_flashbots,
         refund_receiver=NULL_ADDRESS,
+        gas_limit=0,
     )
 
     intermediate = hash_payload_to_hex(**tx_params)  # type: ignore
