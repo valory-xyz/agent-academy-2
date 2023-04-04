@@ -166,7 +166,10 @@ class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
         return []
 
     def _get_tx_data(
-        self, message: ContractApiMessage, use_flashbots: bool
+        self,
+        message: ContractApiMessage,
+        use_flashbots: bool,
+        manual_gas_limit: int = 0,
     ) -> Generator[None, None, TxDataType]:
         """Get the transaction data from a `ContractApiMessage`."""
         tx_data: TxDataType = {
@@ -195,6 +198,9 @@ class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
                 f"get_raw_safe_transaction unsuccessful! Received: {message}"
             )
             return tx_data
+
+        if manual_gas_limit > 0:
+            message.raw_transaction.body["gas"] = manual_gas_limit
 
         # Send transaction
         tx_digest, rpc_status = yield from self.send_raw_transaction(
@@ -667,7 +673,9 @@ class SynchronizeLateMessagesBehaviour(TransactionSettlementBaseBehaviour):
             current_message = next(self._messages_iterator, None)
             if current_message is not None:
                 tx_data = yield from self._get_tx_data(
-                    current_message, self.use_flashbots
+                    current_message,
+                    self.use_flashbots,
+                    self.gas_limit,
                 )
                 self.context.logger.info(
                     f"Found a late arriving message {current_message}. Result data: {tx_data}"
@@ -859,7 +867,7 @@ class FinalizeBehaviour(TransactionSettlementBaseBehaviour):
         )
 
         tx_data = yield from self._get_tx_data(
-            contract_api_msg, tx_params["use_flashbots"]
+            contract_api_msg, tx_params["use_flashbots"], tx_params["gas_limit"]
         )
         return tx_data
 

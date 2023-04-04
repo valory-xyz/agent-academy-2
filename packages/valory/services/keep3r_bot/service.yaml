@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeicrpi5z7lmh3enbnvicdmhd6kfebhdhtgxdb5iuvunaejuniyxv3m
+agent: valory/keep3r_bot:0.1.0:bafybeif7imiby7slklbjrnzn7xhualuxyt5wpzsj74ms3psphdpdfy4ggu
 number_of_agents: 1
 deployment: {}
 ---
@@ -32,8 +32,7 @@ models:
       keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
       keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
       use_v2: ${USE_KEEPER_V2:bool:true}
-      consensus:
-        max_participants: 1
+      manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
 ---
 public_id: valory/ledger:0.19.0
 type: connection
@@ -43,6 +42,9 @@ type: connection
       ethereum:
         address: ${SERVICE_RPC_0:str:http://127.0.0.1:8545}
         chain_id: 1
+      ethereum_flashbots:
+        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI:str:https://relay.flashbots.net}
+        authentication_private_key: ${FLASHBOTS_PRIVATE_KEY:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_0:str:http://127.0.0.1:8545}
         chain_id: ${ARBITRUM_CHAIN_ID:int:42161}
