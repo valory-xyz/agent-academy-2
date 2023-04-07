@@ -131,7 +131,7 @@ connections:
 - valory/abci:0.1.0:bafybeienpqzsym3rg7nnomd6mxgbt4didwd4wfj72oadde27trdmcgsu5y
 - valory/http_client:0.23.0:bafybeidykl4elwbcjkqn32wt5h4h7tlpeqovrcq3c5bcplt6nhpznhgczi
 - valory/ipfs:0.1.0:bafybeie46fu7mv64q72dwzoxg77zbiv3pzsigzjk3rehjpm47cf3y77mha
-- valory/ledger:0.19.0:bafybeih4yf73bwvn3cn44b7on2riqe2lbvixcgw3nze63asvwbmyfqyrc4
+- valory/ledger:0.19.0:bafybeicdddd2btmvwosfnrc3eauqhakckz4kc7cx36m3lpupsi33ezeycu
 - valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeicwzsjalj4puagecus525fbdusaljccn4fi62nmr4zp5fhim6oyr4
@@ -152,13 +152,13 @@ protocols:
 - valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
 - valory/abstract_abci:0.1.0:bafybeigg5ofide2gxwgjvljjgpyy6ombby7ph6pg7erj3h6itduwpn6pqu
-- valory/abstract_round_abci:0.1.0:bafybeiao4oawiwnqwfkeacfojwbwzqiwdmbqyq4xtwu26p66mss4db343e
-- valory/keep3r_abci:0.1.0:bafybeie6v74kcqzs4onwp5jpbfo5w553d2ebxnkfq357tmnkgyjv5wkgha
-- valory/keep3r_job_abci:0.1.0:bafybeidchjmq2g7f5uyiytxfr7yjwiprrnmoeh3uoy5fwbgq2x62vcgtxu
-- valory/registration_abci:0.1.0:bafybeignjit3gocxamsvdmaue62mmj6wu43pcftsv673zcy6wopwx2qsuy
-- valory/reset_pause_abci:0.1.0:bafybeidqbydl5dbfvn4inns7pgg5t5v6patndna5ntq33vtk2htt5ez444
-- valory/termination_abci:0.1.0:bafybeie3fguldaf3ekznno65zyr2qrr4mrc2n2jv2kvs3tlafgcxq7v7ia
-- valory/transaction_settlement_abci:0.1.0:bafybeifhxageak53xdkpnurcdyaatpih6wjxc2u3t3kxuld62oz5oam5jm
+- valory/abstract_round_abci:0.1.0:bafybeibsxqjtgquerkbwpbow7mvlmbjbethnzieqinfp3lr226kdzgv6we
+- valory/keep3r_abci:0.1.0:bafybeie7zscn4hqa34bavilonvu3wv2jzdgqythvl7j4l7atoqf5mfbypi
+- valory/keep3r_job_abci:0.1.0:bafybeih3cvv64eeryd6zfv2sxv322y72oduw7imro4idpo6zn4vxmly7uu
+- valory/registration_abci:0.1.0:bafybeiagzkm34jy4r74akkmyxllp2ppwmntztla3frlqhtigt2yfygnrnq
+- valory/reset_pause_abci:0.1.0:bafybeibyb7fa33kpyokfmonk2igawvhnn3jvsdcpoghjxgz4m46j3zrs3u
+- valory/termination_abci:0.1.0:bafybeihqod3hae5vfg4nfxnvejy6r2vhw454ul5mhpbcdcc57ny7l3uo4e
+- valory/transaction_settlement_abci:0.1.0:bafybeidkrwngjpblsfh6v2p33mdbo4nu7wybejljcwpgzk55cfag5lhnom
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -230,9 +230,13 @@ models:
       reset_pause_duration: ${int:300}
       use_termination: ${bool:false}
       max_healthcheck: ${int:1200}
+      service_registry_address: ${str:0x9Ab4D43e5C4AD67C109716B716062F78eecb7995}
+      share_tm_config_on_startup: ${bool:false}
+      tendermint_p2p_url: ${str:localhost:26656}
       use_v2: ${bool:true}
       bonding_asset: ${str:0x0000000000000000000000000000000000000000}
       bond_amount: ${int:1000}
+      manual_gas_limit: ${int:5000000}
       multisend_address: ${str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
       use_flashbots: ${bool:false}
       termination_sleep: 900
@@ -284,4 +288,16 @@ config:
 ---
 public_id: valory/p2p_libp2p_client:0.1.0
 type: connection
+config:
+  nodes:
+  - uri: ${str:acn.staging.autonolas.tech:9005}
+    public_key: ${str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
+cert_requests:
+- identifier: acn
+  ledger_id: ethereum
+  message_format: '{public_key}'
+  not_after: '2024-01-01'
+  not_before: '2023-01-01'
+  public_key: ${str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
+  save_path: .certs/acn_cosmos_9005.txt
 is_abstract: false

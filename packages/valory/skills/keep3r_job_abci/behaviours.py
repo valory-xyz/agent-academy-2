@@ -83,6 +83,7 @@ SafeTx = TypedDict(
         "gas": int,
         "to": str,
         "value": int,
+        "gas_limit": int,
     },
 )
 
@@ -92,6 +93,8 @@ SafeTx = TypedDict(
 SAFE_GAS = 0
 
 ZERO_ETH = 0
+
+AUTO_GAS_LIMIT = 0
 
 
 class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
@@ -130,6 +133,11 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         if self.context.params.use_v2:
             return self.keep3r_v2_contract_address
         return self.keep3r_v1_contract_address
+
+    @property
+    def manual_gas_limit(self) -> int:
+        """Return the manual gas limit."""
+        return self.context.params.manual_gas_limit
 
     def _call_keep3r_v1(
         self, **kwargs: Any
@@ -213,6 +221,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             to=self.bond_spender,
             value=ZERO_ETH,
             gas=SAFE_GAS,
+            gas_limit=AUTO_GAS_LIMIT,
         )
         return safe_tx
 
@@ -415,6 +424,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             to=bonding_asset,
             value=ZERO_ETH,
             gas=SAFE_GAS,
+            gas_limit=AUTO_GAS_LIMIT,
         )
         return safe_tx
 
@@ -449,6 +459,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             to=job_address,
             value=ZERO_ETH,
             gas=SAFE_GAS,
+            gas_limit=self.manual_gas_limit,
         )
         return safe_tx
 
@@ -481,6 +492,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             to_address=tx_params["to"],
             data=tx_params["data"],
             use_flashbots=self.use_flashbots,
+            gas_limit=tx_params["gas_limit"],
         )
         return payload_data
 
@@ -697,6 +709,7 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
             to=self.bond_spender,
             value=ZERO_ETH,
             gas=SAFE_GAS,
+            gas_limit=AUTO_GAS_LIMIT,
         )
         return safe_tx
 
