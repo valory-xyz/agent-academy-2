@@ -50,7 +50,6 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
-    JobSelectionPayload,
     PathSelectionPayload,
     TopUpPayload,
     WaitingPayload,
@@ -64,7 +63,6 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     GetJobsRound,
     IsProfitableRound,
     IsWorkableRound,
-    JobSelectionRound,
     Keep3rJobAbciApp,
     PathSelectionRound,
     PerformWorkRound,
@@ -802,39 +800,6 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
         self.set_done()
 
 
-class JobSelectionBehaviour(Keep3rJobBaseBehaviour):
-    """JobSelectionBehaviour"""
-
-    matching_round: Type[AbstractRound] = JobSelectionRound
-
-    def async_act(self) -> Generator:
-        """
-        Behaviour to get whether job is selected.
-
-        job selection payload is shared between participants.
-        """
-        with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            if (
-                not self.synchronized_data.job_list
-                or len(self.synchronized_data.job_list) == 0
-            ):
-                current_job = None
-            else:
-                addresses = self.synchronized_data.job_list
-                self.context.logger.info(f"addresses: {addresses}")
-                # TODO: add job selection algorithm
-                job_ix = self.synchronized_data.job_index % len(addresses)
-                current_job = addresses[job_ix]
-            payload = JobSelectionPayload(self.context.agent_address, current_job)
-            self.context.logger.info(f"Job contract selected: {current_job}")
-
-        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            yield from self.send_a2a_transaction(payload)
-            yield from self.wait_until_round_end()
-
-        self.set_done()
-
-
 class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
     """IsWorkableBehaviour"""
 
@@ -844,39 +809,48 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
         """Behaviour to get whether job is workable."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            current_job = cast(str, self.synchronized_data.current_job)
-            contract_public_id = self.context.state.job_address_to_public_id[
-                current_job
-            ]
-            off_chain_data = yield from self.get_off_chain_data(
-                current_job,
-                contract_public_id,
-            )
-            if off_chain_data is None:
-                # something went wrong
-                yield from self.sleep(self.context.params.sleep_time)
-                return
-            is_workable = yield from self.is_workable_job(
-                current_job,
-                contract_public_id,
-                self.synchronized_data.safe_contract_address,
-                **off_chain_data,
-            )
-            if is_workable is None:
-                # something went wrong
-                yield from self.sleep(self.context.params.sleep_time)
-                return
-            if not is_workable:
-                self.context.logger.info(f"Job {current_job} is not workable.")
-                yield from self.sleep(self.context.params.sleep_time)
-
-            payload = IsWorkablePayload(self.context.agent_address, is_workable)
-
+            workable_job = yield from self._get_workable_job()
+            if workable_job is None:
+                # no workable job
+                workable_job = IsWorkableRound.NO_WORKABLE_JOB_PAYLOAD
+            payload = IsWorkablePayload(self.context.agent_address, workable_job)
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
         self.set_done()
+
+    def _is_workable(self, job: str) -> Generator[None, None, bool]:
+        """Check if job is workable."""
+        contract_public_id = self.context.state.job_address_to_public_id[job]
+        off_chain_data = yield from self.get_off_chain_data(
+            job,
+            contract_public_id,
+        )
+        if off_chain_data is None:
+            # something went wrong, assume this job is not workable
+            return False
+        is_workable = yield from self.is_workable_job(
+            job,
+            contract_public_id,
+            self.synchronized_data.safe_contract_address,
+            **off_chain_data,
+        )
+        if is_workable is None:
+            # something went wrong, assume this job is not workable
+            return False
+
+        return is_workable
+
+    def _get_workable_job(self) -> Optional[str]:
+        """Get the workable jobs."""
+        job_list = self.synchronized_data.job_list
+        job_list.sort()
+        for job in job_list:
+            is_workable = yield from self._is_workable(job)
+            if is_workable:
+                return job
+        return None
 
 
 class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
@@ -888,8 +862,8 @@ class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            current_job = self.synchronized_data.current_job
-            reward = yield from self.read_keep3r("credits", address=current_job)
+            job_address = self.synchronized_data.workable_job
+            reward = yield from self.read_keep3r("credits", address=job_address)
             if reward is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
@@ -913,12 +887,12 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
         """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            current_job = cast(str, self.synchronized_data.current_job)
+            job_address = cast(str, self.synchronized_data.workable_job)
             contract_public_id = self.context.state.job_address_to_public_id[
-                current_job
+                job_address
             ]
             off_chain_data = yield from self.get_off_chain_data(
-                current_job,
+                job_address,
                 contract_public_id,
             )
             if off_chain_data is None:
@@ -927,7 +901,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
                 return
             safe_address = self.synchronized_data.safe_contract_address
             raw_tx = yield from self.build_work_raw_tx(
-                current_job,
+                job_address,
                 contract_public_id,
                 safe_address,
                 **off_chain_data,
@@ -937,7 +911,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
                 return
 
             simulation_ok = yield from self.simulate_tx(
-                current_job,
+                job_address,
                 contract_public_id,
                 raw_tx.get("data"),
                 safe_address,
@@ -949,7 +923,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             if not simulation_ok:
                 # simulation failed, i.e. a bad tx
                 self.context.logger.info(
-                    f"Simulating a work tx for job {current_job} failed."
+                    f"Simulating a work tx for job {job_address} failed."
                 )
                 work_tx = cast(
                     PerformWorkRound, self.matching_round
@@ -1001,7 +975,6 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
         WaitingBehaviour,  # type: ignore
         ActivationBehaviour,  # type: ignore
         GetJobsBehaviour,  # type: ignore
-        JobSelectionBehaviour,  # type: ignore
         IsWorkableBehaviour,  # type: ignore
         IsProfitableBehaviour,  # type: ignore
         PerformWorkBehaviour,  # type: ignore
