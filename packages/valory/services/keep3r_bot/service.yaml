@@ -7,32 +7,112 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeihykgwckksg64vz7yqezp4sewxiewizjmcoq5bnuyfu5pgumgsi3m
+agent: valory/keep3r_bot:0.1.0:bafybeig2h3gppyx4iuqwoljqyzz6bzxycnf2cba4ihlce5g37ixqbyymy4
 number_of_agents: 1
 deployment: {}
 ---
 public_id: valory/keep3r_abci:0.1.0
 type: skill
-models:
-  params:
+extra:
+  params_args:
     args:
-      setup:
+      setup: &id001
         all_participants: ${ALL_PARTICIPANTS:list:["0x0000000000000000000000000000000000000000"]}
         safe_contract_address: ${SAFE_CONTRACT_ADDRESS:str:0x0000000000000000000000000000000000000000}
       bonding_asset: ${BONDING_ASSET:str:0x0000000000000000000000000000000000000000}
       bond_amount: ${BOND_AMOUNT:int:1}
       reset_pause_duration: ${RESET_PAUSE_DURATION:int:15}
       service_registry_address: '0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA'
-      sleep_time: ${SLEEP_TIME:int:3}
       on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
-      use_termination: ${USE_TERMINATION:bool:false}
       share_tm_config_on_startup: ${USE_ACN:bool:false}
+      sleep_time: ${SLEEP_TIME:int:3}
+      use_termination: ${USE_TERMINATION:bool:false}
       use_flashbots: ${USE_FLASHBOTS:bool:true}
-      supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[["0xf4F748D45E03a70a9473394B28c3C7b5572DfA82","bafybeibl37g52dihlym32odv7ywdc2lhnar2cdes6qagp4ywirbpoteeb4"],["0xe854aF0dD7369bEBaAD3C862324DC0d28e035dd0","bafybeid5xb62ls2pkvpir44235wlzco3zptjerc4lsprjibmudmv74p5oi"],["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihqmqiqvkv6bavaatsajcid36zpyodjlio5q5kvpmf45pelfps7qe"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeihtfezzuqw7incmrh7qvbevapj7hm52c6max3gwcg4dsgp2cjb45y"]]}
+      supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
       keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
       keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
       use_v2: ${USE_KEEPER_V2:bool:true}
       manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+0:
+  models:
+    params:
+      args:
+        setup: *id001
+        bonding_asset: ${BONDING_ASSET:str:0x0000000000000000000000000000000000000000}
+        bond_amount: ${BOND_AMOUNT:int:1}
+        reset_pause_duration: ${RESET_PAUSE_DURATION:int:15}
+        service_registry_address: '0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA'
+        on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
+        share_tm_config_on_startup: ${USE_ACN:bool:true}
+        sleep_time: ${SLEEP_TIME:int:3}
+        use_termination: ${USE_TERMINATION:bool:false}
+        use_flashbots: ${USE_FLASHBOTS:bool:true}
+        supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
+        keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+        keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
+        use_v2: ${USE_KEEPER_V2:bool:true}
+        tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:node0:26656}
+        manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+1:
+  models:
+    params:
+      args:
+        setup: *id001
+        bonding_asset: ${BONDING_ASSET:str:0x0000000000000000000000000000000000000000}
+        bond_amount: ${BOND_AMOUNT:int:1}
+        reset_pause_duration: ${RESET_PAUSE_DURATION:int:15}
+        service_registry_address: '0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA'
+        on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
+        use_termination: ${USE_TERMINATION:bool:false}
+        sleep_time: ${SLEEP_TIME:int:3}
+        share_tm_config_on_startup: ${USE_ACN:bool:true}
+        use_flashbots: ${USE_FLASHBOTS:bool:true}
+        supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
+        keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+        keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
+        use_v2: ${USE_KEEPER_V2:bool:true}
+        tendermint_p2p_url: ${TENDERMINT_P2P_URL_1:str:node1:26656}
+        manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+2:
+  models:
+    params:
+      args:
+        setup: *id001
+        bonding_asset: ${BONDING_ASSET:str:0x0000000000000000000000000000000000000000}
+        bond_amount: ${BOND_AMOUNT:int:1}
+        reset_pause_duration: ${RESET_PAUSE_DURATION:int:15}
+        service_registry_address: '0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA'
+        on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
+        share_tm_config_on_startup: ${USE_ACN:bool:true}
+        use_flashbots: ${USE_FLASHBOTS:bool:true}
+        sleep_time: ${SLEEP_TIME:int:3}
+        use_termination: ${USE_TERMINATION:bool:false}
+        supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
+        keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+        keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
+        use_v2: ${USE_KEEPER_V2:bool:true}
+        tendermint_p2p_url: ${TENDERMINT_P2P_URL_2:str:node2:26656}
+        manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+3:
+  models:
+    params:
+      args:
+        setup: *id001
+        bonding_asset: ${BONDING_ASSET:str:0x0000000000000000000000000000000000000000}
+        bond_amount: ${BOND_AMOUNT:int:1}
+        reset_pause_duration: ${RESET_PAUSE_DURATION:int:15}
+        service_registry_address: '0x48b6af7B12C71f09e2fC8aF4855De4Ff54e775cA'
+        on_chain_service_id: ${ON_CHAIN_SERVICE_ID:int:null}
+        share_tm_config_on_startup: ${USE_ACN:bool:true}
+        use_termination: ${USE_TERMINATION:bool:false}
+        use_flashbots: ${USE_FLASHBOTS:bool:true}
+        sleep_time: ${SLEEP_TIME:int:3}
+        supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
+        keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+        keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
+        use_v2: ${USE_KEEPER_V2:bool:true}
+        tendermint_p2p_url: ${TENDERMINT_P2P_URL_3:str:node3:26656}
+        manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
 ---
 public_id: valory/ledger:0.19.0
 type: connection
@@ -43,8 +123,8 @@ type: connection
         address: ${SERVICE_RPC_0:str:http://127.0.0.1:8545}
         chain_id: 1
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI:str:https://relay.flashbots.net}
-        authentication_private_key: ${FLASHBOTS_PRIVATE_KEY:str:null}
+        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_0:str:https://relay.flashbots.net}
+        authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_0:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_0:str:http://127.0.0.1:8545}
         chain_id: ${ARBITRUM_CHAIN_ID:int:42161}
@@ -58,5 +138,77 @@ type: connection
         address: ${GNOSIS_RPC_0:str:http://127.0.0.1:8545}
         chain_id: ${GNOSIS_CHAIN_ID:int:100}
       zksync:
-        address: ${ZKSYNC_RPC_O:str:http://127.0.0.1:8545}
+        address: ${ZKSYNC_RPC_0:str:http://127.0.0.1:8545}
+        chain_id: ${ZKSYNC_CHAIN_ID:int:324}
+1:
+  config:
+    ledger_apis:
+      ethereum:
+        address: ${SERVICE_RPC_1:str:http://127.0.0.1:8545}
+        chain_id: 5
+      ethereum_flashbots:
+        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_1:str:https://relay-goerli.flashbots.net}
+        authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_1:str:null}
+      arbitrum:
+        address: ${ARBITRUM_RPC_1:str:http://127.0.0.1:8545}
+        chain_id: ${ARBITRUM_CHAIN_ID:int:42161}
+      consensys:
+        address: ${CONSENSYS_RPC_1:str:http://127.0.0.1:8545}
+        chain_id: ${CONSENSYS_CHAIN_ID:int:1337}
+      bnb:
+        address: ${BNB_RPC_1:str:http://127.0.0.1:8545}
+        chain_id: ${BNB_CHAIN_ID:int:56}
+      gnosis:
+        address: ${GNOSIS_RPC_1:str:http://127.0.0.1:8545}
+        chain_id: ${GNOSIS_CHAIN_ID:int:100}
+      zksync:
+        address: ${ZKSYNC_RPC_1:str:http://127.0.0.1:8545}
+        chain_id: ${ZKSYNC_CHAIN_ID:int:324}
+2:
+  config:
+    ledger_apis:
+      ethereum:
+        address: ${SERVICE_RPC_2:str:http://127.0.0.1:8545}
+        chain_id: 5
+      ethereum_flashbots:
+        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_2:str:https://relay-goerli.flashbots.net}
+        authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_2:str:null}
+      arbitrum:
+        address: ${ARBITRUM_RPC_2:str:http://127.0.0.1:8545}
+        chain_id: ${ARBITRUM_CHAIN_ID:int:42161}
+      consensys:
+        address: ${CONSENSYS_RPC_2:str:http://127.0.0.1:8545}
+        chain_id: ${CONSENSYS_CHAIN_ID:int:1337}
+      bnb:
+        address: ${BNB_RPC_2:str:http://127.0.0.1:8545}
+        chain_id: ${BNB_CHAIN_ID:int:56}
+      gnosis:
+        address: ${GNOSIS_RPC_2:str:http://127.0.0.1:8545}
+        chain_id: ${GNOSIS_CHAIN_ID:int:100}
+      zksync:
+        address: ${ZKSYNC_RPC_2:str:http://127.0.0.1:8545}
+        chain_id: ${ZKSYNC_CHAIN_ID:int:324}
+3:
+  config:
+    ledger_apis:
+      ethereum:
+        address: ${SERVICE_RPC_3:str:http://127.0.0.1:8545}
+        chain_id: 5
+      ethereum_flashbots:
+        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_3:str:https://relay-goerli.flashbots.net}
+        authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_3:str:null}
+      arbitrum:
+        address: ${ARBITRUM_RPC_3:str:http://127.0.0.1:8545}
+        chain_id: ${ARBITRUM_CHAIN_ID:int:42161}
+      consensys:
+        address: ${CONSENSYS_RPC_3:str:http://127.0.0.1:8545}
+        chain_id: ${CONSENSYS_CHAIN_ID:int:1337}
+      bnb:
+        address: ${BNB_RPC_3:str:http://127.0.0.1:8545}
+        chain_id: ${BNB_CHAIN_ID:int:56}
+      gnosis:
+        address: ${GNOSIS_RPC_3:str:http://127.0.0.1:8545}
+        chain_id: ${GNOSIS_CHAIN_ID:int:100}
+      zksync:
+        address: ${ZKSYNC_RPC_3:str:http://127.0.0.1:8545}
         chain_id: ${ZKSYNC_CHAIN_ID:int:324}

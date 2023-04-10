@@ -1718,6 +1718,7 @@ class BaseBehaviour(
             return RPCResponseStatus.INSUFFICIENT_FUNDS
         if "already known" in error:
             return RPCResponseStatus.ALREADY_KNOWN
+        # TODO: add SIMULATION_FAILED case
         return RPCResponseStatus.UNCLASSIFIED_ERROR
 
     def _acn_request_from_pending(

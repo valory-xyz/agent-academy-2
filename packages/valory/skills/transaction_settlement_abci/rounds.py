@@ -658,8 +658,8 @@ class TransactionSubmissionAbciApp(AbciApp[Event]):
         3. FinalizationRound
             - done: 4.
             - check history: 5.
-            - finalize timeout: 7.
-            - finalization failed: 6.
+            - finalize timeout: 12.
+            - finalization failed: 12.
             - check late arriving message: 8.
             - insufficient funds: 6.
         4. ValidateTransactionRound
@@ -738,8 +738,9 @@ class TransactionSubmissionAbciApp(AbciApp[Event]):
         FinalizationRound: {
             Event.DONE: ValidateTransactionRound,
             Event.CHECK_HISTORY: CheckTransactionHistoryRound,
-            Event.FINALIZE_TIMEOUT: SelectKeeperTransactionSubmissionBAfterTimeoutRound,
-            Event.FINALIZATION_FAILED: SelectKeeperTransactionSubmissionBRound,
+            # TODO: add BAD_TX event when open-aea-ethereum-flashbots supports simulation errors
+            Event.FINALIZE_TIMEOUT: FailedRound,
+            Event.FINALIZATION_FAILED: FailedRound,
             Event.CHECK_LATE_ARRIVING_MESSAGE: SynchronizeLateMessagesRound,
             Event.INSUFFICIENT_FUNDS: SelectKeeperTransactionSubmissionBRound,
         },
