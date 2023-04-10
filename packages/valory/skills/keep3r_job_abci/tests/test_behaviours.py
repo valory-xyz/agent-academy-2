@@ -43,6 +43,7 @@ from packages.valory.skills.abstract_round_abci.test_tools.base import (
     FSMBehaviourBaseCase,
 )
 from packages.valory.skills.keep3r_job_abci.behaviours import (
+    AUTO_GAS_LIMIT,
     ActivationBehaviour,
     ApproveBondBehaviour,
     AwaitTopUpBehaviour,
@@ -50,7 +51,6 @@ from packages.valory.skills.keep3r_job_abci.behaviours import (
     GetJobsBehaviour,
     IsProfitableBehaviour,
     IsWorkableBehaviour,
-    JobSelectionBehaviour,
     Keep3rJobRoundBehaviour,
     PathSelectionBehaviour,
     PerformWorkBehaviour,
@@ -79,7 +79,6 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     GetJobsRound,
     IsProfitableRound,
     IsWorkableRound,
-    JobSelectionRound,
     Keep3rJobAbstractRound,
     PathSelectionRound,
     PerformWorkRound,
@@ -105,6 +104,7 @@ DUMMY_SAFE_TX: SafeTx = {
     "data": bytes.fromhex(DUMMY_DATA[2:]),
     "value": ZERO_ETH,
     "gas": SAFE_GAS,
+    "gas_limit": AUTO_GAS_LIMIT,
 }
 TEST_JOB_CONTRACT_ID = "test_job_contract_id"
 DUMMY_CONTRACT = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
@@ -144,7 +144,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             keep3r_v1_contract_address=SOME_CONTRACT_ADDRESS,
             safe_contract_address=SOME_CONTRACT_ADDRESS,
             job_list=[SOME_CONTRACT_ADDRESS],
-            current_job=SOME_CONTRACT_ADDRESS,
+            workable_job=SOME_CONTRACT_ADDRESS,
         )
         self.fast_forward(data)
 
@@ -526,7 +526,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.end_round(done_event=Event.DONE)
         assert (
             self.current_behaviour.matching_round.auto_round_id()
-            == JobSelectionRound.auto_round_id()
+            == IsWorkableRound.auto_round_id()
         )
 
 
@@ -539,7 +539,7 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
         "simulation_ok, event, next_round",
         [
             (True, Event.WORK_TX, IsProfitableRound),
-            (False, Event.SIMULATION_FAILED, JobSelectionRound),
+            (False, Event.SIMULATION_FAILED, IsWorkableRound),
         ],
     )
     def test_run(
@@ -565,28 +565,6 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
         )
 
 
-class TestJobSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
-    """Test case to test JobSelectionBehaviour."""
-
-    behaviour_class: Type[BaseBehaviour] = JobSelectionBehaviour
-
-    @pytest.mark.parametrize(
-        "event, next_round",
-        [(Event.NO_JOBS, PathSelectionRound), (Event.DONE, IsWorkableRound)],
-    )
-    def test_get_jobs(self, event: Event, next_round: Keep3rJobAbstractRound) -> None:
-        """Test no jobs."""
-
-        self.behaviour.act_wrapper()
-        self.mock_a2a_transaction()
-        self._test_done_flag_set()
-        self.end_round(done_event=event)
-        assert (
-            self.current_behaviour.matching_round.auto_round_id()
-            == next_round.auto_round_id()
-        )
-
-
 class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
     """Test case to test IsWorkableBehaviour."""
 
@@ -596,7 +574,7 @@ class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
         "is_workable, event, next_round",
         [
             (True, Event.WORKABLE, IsProfitableRound),
-            (False, Event.NOT_WORKABLE, JobSelectionRound),
+            (False, Event.NOT_WORKABLE, IsWorkableRound),
         ],
     )
     def test_is_workable(
@@ -628,7 +606,7 @@ class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
     @pytest.mark.parametrize(
         "credits, event, next_round",
         [
-            (-1, Event.NOT_PROFITABLE, JobSelectionRound),
+            (-1, Event.NOT_PROFITABLE, IsWorkableRound),
             (1, Event.PROFITABLE, PerformWorkRound),
         ],
     )

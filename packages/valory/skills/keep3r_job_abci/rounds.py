@@ -21,7 +21,7 @@
 import json
 from abc import ABC
 from enum import Enum
-from typing import Dict, Optional, Set, Tuple, Type, cast
+from typing import Dict, List, Optional, Set, Tuple, Type, cast
 
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -41,7 +41,6 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
-    JobSelectionPayload,
     PathSelectionPayload,
     TopUpPayload,
     WaitingPayload,
@@ -89,24 +88,19 @@ class SynchronizedData(BaseSynchronizedData):
         return cast(str, self.db.get_strict("most_voted_tx_hash"))
 
     @property
-    def job_list(self) -> str:
+    def job_list(self) -> List[str]:
         """Get the job_list."""
-        return cast(str, self.db.get_strict("job_list"))
+        return cast(List[str], self.db.get_strict("job_list"))
 
     @property
-    def current_job(self) -> Optional[str]:
+    def workable_job(self) -> Optional[str]:
         """Get the current_job."""
-        return cast(str, self.db.get_strict("current_job"))
+        return cast(str, self.db.get_strict("workable_job"))
 
     @property
     def tx_submitter(self) -> str:
         """Get the round that submitted a tx to transaction_settlement_abci."""
         return cast(str, self.db.get_strict("tx_submitter"))
-
-    @property
-    def job_index(self) -> int:
-        """Get the job_index."""
-        return cast(int, self.db.get("job_index", 0))
 
 
 class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
@@ -268,46 +262,26 @@ class GetJobsRound(Keep3rJobAbstractRound):
         return None
 
 
-class JobSelectionRound(Keep3rJobAbstractRound):
-    """JobSelectionRound"""
-
-    payload_class = JobSelectionPayload
-    payload_attribute = "current_job"
-
-    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
-        """Process the end of the block."""
-        if self.threshold_reached:
-            current_job = self.most_voted_payload
-            state = self.synchronized_data.update(current_job=current_job)
-            return state, Event.DONE if current_job else Event.NO_JOBS
-        if not self.is_majority_possible(
-            self.collection, self.synchronized_data.nb_participants
-        ):
-            return self.synchronized_data, Event.NO_MAJORITY
-        return None
-
-
 class IsWorkableRound(Keep3rJobAbstractRound):
     """IsWorkableRound"""
 
     payload_class = IsWorkablePayload
-    payload_attribute = "is_workable"
+    payload_attribute = "workable_job"
+
+    NO_WORKABLE_JOB_PAYLOAD = "no_job"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
         if self.threshold_reached:
-            is_workable = self.most_voted_payload
-            if is_workable:
-                # we reset the index when we find a workable job
+            workable_job = self.most_voted_payload
+            if workable_job != self.NO_WORKABLE_JOB_PAYLOAD:
                 state = self.synchronized_data.update(
-                    is_workable=is_workable, job_index=0
+                    workable_job=workable_job,
                 )
                 return state, Event.WORKABLE
-            job_index = self.synchronized_data.job_index
-            state = self.synchronized_data.update(
-                job_index=job_index + 1,
-            )
-            return state, Event.NOT_WORKABLE
+
+            # no workable job
+            return self.synchronized_data, Event.NOT_WORKABLE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
@@ -518,25 +492,19 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.ROUND_TIMEOUT: ActivationRound,
         },
         GetJobsRound: {
-            Event.DONE: JobSelectionRound,
+            Event.DONE: IsWorkableRound,
             Event.NO_MAJORITY: GetJobsRound,
             Event.ROUND_TIMEOUT: GetJobsRound,
         },
-        JobSelectionRound: {
-            Event.DONE: IsWorkableRound,
-            Event.NO_JOBS: PathSelectionRound,
-            Event.NO_MAJORITY: JobSelectionRound,
-            Event.ROUND_TIMEOUT: JobSelectionRound,
-        },
         IsWorkableRound: {
             Event.WORKABLE: IsProfitableRound,
-            Event.NOT_WORKABLE: JobSelectionRound,
+            Event.NOT_WORKABLE: IsWorkableRound,
             Event.NO_MAJORITY: IsWorkableRound,
             Event.ROUND_TIMEOUT: IsWorkableRound,
         },
         IsProfitableRound: {
             Event.PROFITABLE: PerformWorkRound,
-            Event.NOT_PROFITABLE: JobSelectionRound,
+            Event.NOT_PROFITABLE: IsWorkableRound,
             Event.NO_MAJORITY: IsProfitableRound,
             Event.ROUND_TIMEOUT: IsProfitableRound,
         },
@@ -545,7 +513,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.INSUFFICIENT_FUNDS: PathSelectionRound,
             Event.NO_MAJORITY: PerformWorkRound,
             Event.ROUND_TIMEOUT: PerformWorkRound,
-            Event.SIMULATION_FAILED: JobSelectionRound,
+            Event.SIMULATION_FAILED: IsWorkableRound,
         },
         AwaitTopUpRound: {
             Event.TOP_UP: PathSelectionRound,

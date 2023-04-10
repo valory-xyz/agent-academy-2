@@ -28,7 +28,6 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     ApproveBondTxPayload,
     BondingTxPayload,
     GetJobsPayload,
-    IsProfitablePayload,
     IsWorkablePayload,
     PathSelectionPayload,
     WaitingPayload,
@@ -97,23 +96,13 @@ def test_get_jobs_payload(job_list: List[str]) -> None:
     assert payload.from_json(payload.json) == payload
 
 
-@pytest.mark.parametrize("is_workable", [True, False])
-def test_is_workable_payload(is_workable: bool) -> None:
+@pytest.mark.parametrize("workable_job", ["0x0", "0x1"])
+def test_is_workable_payload(workable_job: str) -> None:
     """Test IsWorkablePayload"""
 
-    payload = IsWorkablePayload(sender="sender", is_workable=is_workable)
+    payload = IsWorkablePayload(sender="sender", workable_job=workable_job)
     assert payload.sender == "sender"
-    assert payload.is_workable == is_workable
-    assert payload.from_json(payload.json) == payload
-
-
-@pytest.mark.parametrize("is_profitable", [True, False])
-def test_is_profitable_payload(is_profitable: bool) -> None:
-    """Test IsProfitablePayload"""
-
-    payload = IsProfitablePayload(sender="sender", is_profitable=is_profitable)
-    assert payload.sender == "sender"
-    assert payload.is_profitable == is_profitable
+    assert payload.workable_job == workable_job
     assert payload.from_json(payload.json) == payload
 
 
