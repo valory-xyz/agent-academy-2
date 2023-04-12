@@ -19,7 +19,7 @@
 
 """Test the base.py module of the skill."""
 import json
-from typing import Any, Optional, Tuple, Type, cast
+from typing import Any, Tuple, Type, cast
 from unittest import mock
 
 import pytest
@@ -36,7 +36,6 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     GetJobsPayload,
     IsProfitablePayload,
     IsWorkablePayload,
-    JobSelectionPayload,
     PathSelectionPayload,
     TopUpPayload,
     WaitingPayload,
@@ -51,7 +50,6 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     GetJobsRound,
     IsProfitableRound,
     IsWorkableRound,
-    JobSelectionRound,
     Keep3rJobAbstractRound,
     PathSelectionRound,
     PerformWorkRound,
@@ -223,21 +221,6 @@ class TestGetJobsRound(BaseRoundTestClass):
         assert event == Event.DONE
 
 
-class TestJobSelectionRound(BaseRoundTestClass):
-    """Tests for JobSelectionRound."""
-
-    round_class = JobSelectionRound
-    payload_class = JobSelectionPayload
-
-    @pytest.mark.parametrize("current_job", [None, "some_job_address"])
-    def test_selects_job(self, current_job: Optional[str]) -> None:
-        """Run tests."""
-
-        next_state = self.deliver_payloads(current_job=current_job)
-        event = self.complete_round(next_state)
-        assert event == Event.DONE if current_job else Event.NO_JOBS
-
-
 class TestIsWorkableRound(BaseRoundTestClass):
     """Tests for IsWorkableRound."""
 
@@ -251,13 +234,19 @@ class TestIsWorkableRound(BaseRoundTestClass):
         kwargs.update(job_list=job_list, current_job=job_list)
         super().setup(**kwargs)
 
-    @pytest.mark.parametrize("is_workable", [True, False])
-    def test_run(self, is_workable: bool) -> None:
+    @pytest.mark.parametrize(
+        "workable_job", ["0x0", IsWorkableRound.NO_WORKABLE_JOB_PAYLOAD]
+    )
+    def test_run(self, workable_job: str) -> None:
         """Run tests"""
 
-        next_state = self.deliver_payloads(is_workable=is_workable)
+        next_state = self.deliver_payloads(workable_job=workable_job)
         event = self.complete_round(next_state)
-        assert event == Event.WORKABLE if is_workable else Event.NOT_WORKABLE
+        assert (
+            event == Event.WORKABLE
+            if workable_job != IsWorkableRound.NO_WORKABLE_JOB_PAYLOAD
+            else Event.NOT_WORKABLE
+        )
 
 
 class TestIsProfitableRound(BaseRoundTestClass):

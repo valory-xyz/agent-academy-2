@@ -11,7 +11,6 @@ alphabet_in:
 - NOT_BONDED
 - NOT_PROFITABLE
 - NOT_WORKABLE
-- NO_JOBS
 - NO_MAJORITY
 - PROFITABLE
 - ROUND_TIMEOUT
@@ -45,7 +44,6 @@ states:
 - GetJobsRound
 - IsProfitableRound
 - IsWorkableRound
-- JobSelectionRound
 - PathSelectionRound
 - PerformWorkRound
 - WaitingRound
@@ -63,21 +61,17 @@ transition_func:
     (BondingRound, BONDING_TX): FinalizeBondingRound
     (BondingRound, NO_MAJORITY): BondingRound
     (BondingRound, ROUND_TIMEOUT): BondingRound
-    (GetJobsRound, DONE): JobSelectionRound
+    (GetJobsRound, DONE): IsWorkableRound
     (GetJobsRound, NO_MAJORITY): GetJobsRound
     (GetJobsRound, ROUND_TIMEOUT): GetJobsRound
-    (IsProfitableRound, NOT_PROFITABLE): JobSelectionRound
+    (IsProfitableRound, NOT_PROFITABLE): IsWorkableRound
     (IsProfitableRound, NO_MAJORITY): IsProfitableRound
     (IsProfitableRound, PROFITABLE): PerformWorkRound
     (IsProfitableRound, ROUND_TIMEOUT): IsProfitableRound
-    (IsWorkableRound, NOT_WORKABLE): JobSelectionRound
+    (IsWorkableRound, NOT_WORKABLE): IsWorkableRound
     (IsWorkableRound, NO_MAJORITY): IsWorkableRound
     (IsWorkableRound, ROUND_TIMEOUT): IsWorkableRound
     (IsWorkableRound, WORKABLE): IsProfitableRound
-    (JobSelectionRound, DONE): IsWorkableRound
-    (JobSelectionRound, NO_JOBS): PathSelectionRound
-    (JobSelectionRound, NO_MAJORITY): JobSelectionRound
-    (JobSelectionRound, ROUND_TIMEOUT): JobSelectionRound
     (PathSelectionRound, APPROVE_BOND): ApproveBondRound
     (PathSelectionRound, BLACKLISTED): BlacklistedRound
     (PathSelectionRound, HEALTHY): GetJobsRound
@@ -90,7 +84,7 @@ transition_func:
     (PerformWorkRound, INSUFFICIENT_FUNDS): PathSelectionRound
     (PerformWorkRound, NO_MAJORITY): PerformWorkRound
     (PerformWorkRound, ROUND_TIMEOUT): PerformWorkRound
-    (PerformWorkRound, SIMULATION_FAILED): JobSelectionRound
+    (PerformWorkRound, SIMULATION_FAILED): IsWorkableRound
     (PerformWorkRound, WORK_TX): FinalizeWorkRound
     (WaitingRound, DONE): ActivationRound
     (WaitingRound, NO_MAJORITY): WaitingRound

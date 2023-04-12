@@ -20,7 +20,6 @@
 """This module contains the transaction payloads for the keep3r_job_abci app."""
 
 from dataclasses import dataclass
-from typing import Optional
 
 from packages.valory.skills.abstract_round_abci.base import BaseTxPayload
 
@@ -75,17 +74,10 @@ class GetJobsPayload(BaseTxPayload):
 
 
 @dataclass(frozen=True)
-class JobSelectionPayload(BaseTxPayload):
-    """Represent a transaction payload of type 'job_selection'."""
-
-    current_job: Optional[str]
-
-
-@dataclass(frozen=True)
 class IsWorkablePayload(BaseTxPayload):
     """Represent a transaction payload of type 'is_workable'."""
 
-    is_workable: bool
+    workable_job: str
 
 
 @dataclass(frozen=True)
