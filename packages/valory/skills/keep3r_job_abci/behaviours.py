@@ -98,6 +98,10 @@ AUTO_GAS_LIMIT = 0
 class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     """Base state behaviour for the simple abci skill."""
 
+    def __init__(self, **kwargs: Any) -> None:
+        """Init behaviour"""
+        super().__init__(**kwargs, loader_cls=ContractPackageLoader)
+
     job_to_contract_id: Dict[str, PublicId] = {}
 
     @property
@@ -541,10 +545,6 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
 
 class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     """PathSelectionBehaviour"""
-
-    def __init__(self, **kwargs: Any) -> None:
-        """Init behaviour"""
-        super().__init__(**kwargs, loader_cls=ContractPackageLoader)
 
     matching_round: Type[AbstractRound] = PathSelectionRound
     transitions = PathSelectionRound.transitions
