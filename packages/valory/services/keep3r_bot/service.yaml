@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeieqgmeifztvg62zyv54cbnmv46s5l2yzyckvih424qdjk2w4ibxqe
+agent: valory/keep3r_bot:0.1.0:bafybeiegjuul5zsiqabotegzaqodh7cr3pybseay2c2eqyfvb7e7jj35hq
 number_of_agents: 1
 deployment: {}
 ---
@@ -28,6 +28,7 @@ extra:
       sleep_time: ${SLEEP_TIME:int:3}
       use_termination: ${USE_TERMINATION:bool:false}
       use_flashbots: ${USE_FLASHBOTS:bool:true}
+      reset_tendermint_after: ${RESET_TENDERMINT_AFTER:int:2}
       supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
       keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
       keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
@@ -47,6 +48,7 @@ extra:
         sleep_time: ${SLEEP_TIME:int:3}
         use_termination: ${USE_TERMINATION:bool:false}
         use_flashbots: ${USE_FLASHBOTS:bool:true}
+        reset_tendermint_after: ${RESET_TENDERMINT_AFTER:int:2}
         supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
         keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
@@ -68,6 +70,7 @@ extra:
         share_tm_config_on_startup: ${USE_ACN:bool:true}
         use_flashbots: ${USE_FLASHBOTS:bool:true}
         supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
+        reset_tendermint_after: ${RESET_TENDERMINT_AFTER:int:2}
         keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
         use_v2: ${USE_KEEPER_V2:bool:true}
@@ -88,6 +91,7 @@ extra:
         sleep_time: ${SLEEP_TIME:int:3}
         use_termination: ${USE_TERMINATION:bool:false}
         supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
+        reset_tendermint_after: ${RESET_TENDERMINT_AFTER:int:2}
         keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
         use_v2: ${USE_KEEPER_V2:bool:true}
@@ -107,6 +111,7 @@ extra:
         use_termination: ${USE_TERMINATION:bool:false}
         use_flashbots: ${USE_FLASHBOTS:bool:true}
         sleep_time: ${SLEEP_TIME:int:3}
+        reset_tendermint_after: ${RESET_TENDERMINT_AFTER:int:2}
         supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
         keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}

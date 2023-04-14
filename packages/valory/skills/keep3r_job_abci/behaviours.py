@@ -98,6 +98,10 @@ AUTO_GAS_LIMIT = 0
 class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
     """Base state behaviour for the simple abci skill."""
 
+    def __init__(self, **kwargs: Any) -> None:
+        """Init behaviour"""
+        super().__init__(**kwargs, loader_cls=ContractPackageLoader)
+
     job_to_contract_id: Dict[str, PublicId] = {}
 
     @property
@@ -494,7 +498,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         )
         return payload_data
 
-    def load_contract_package(
+    def _load_contract_package(
         self, ipfs_hash: str
     ) -> Generator[None, None, Optional[PublicId]]:
         """Fetch & load a contract package from IPFS."""
@@ -510,13 +514,13 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             return None
         return contract_id
 
-    def load_contract_packages(
+    def _load_contract_packages(
         self, address_to_hash: Dict[str, str]
     ) -> Generator[None, None, Dict[str, PublicId]]:
         """Load contract packages from IPFS"""
         address_to_public_id: Dict[str, PublicId] = {}
         for address, ipfs_hash in address_to_hash.items():
-            contract_id = yield from self.load_contract_package(ipfs_hash)
+            contract_id = yield from self._load_contract_package(ipfs_hash)
             if contract_id is None:
                 self.context.logger.error(
                     f"Failed to load contract package with ipfs hash {ipfs_hash}!"
@@ -526,13 +530,21 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             address_to_public_id[address] = contract_id
         return address_to_public_id
 
+    def dynamically_load_contracts(
+        self, address_to_hash: Dict[str, str]
+    ) -> Generator[None, None, None]:
+        """Dynamically load contract packages from IPFS"""
+        address_to_public_id = yield from self._load_contract_packages(address_to_hash)
+        shared_state = cast(SharedState, self.context.state)
+        # extend the shared state with the just loaded contracts
+        shared_state.job_address_to_public_id = {
+            **shared_state.job_address_to_public_id,
+            **address_to_public_id,
+        }
+
 
 class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
     """PathSelectionBehaviour"""
-
-    def __init__(self, **kwargs: Any) -> None:
-        """Init behaviour"""
-        super().__init__(**kwargs, loader_cls=ContractPackageLoader)
 
     matching_round: Type[AbstractRound] = PathSelectionRound
     transitions = PathSelectionRound.transitions
@@ -544,12 +556,12 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
 
         # check if job contract packages are loaded
         shared_state = cast(SharedState, self.context.state)
-        if len(shared_state.job_address_to_public_id) == 0:
+        loaded_contracts = shared_state.job_address_to_public_id
+        supported_contracts = self.params.supported_jobs_to_package_hash
+        if len(loaded_contracts) < len(supported_contracts):
             # if not, load them
-            address_to_public_id = yield from self.load_contract_packages(
-                self.params.supported_jobs_to_package_hash
-            )
-            shared_state.job_address_to_public_id = address_to_public_id
+            all_supported_jobs = self.params.supported_jobs_to_package_hash
+            yield from self.dynamically_load_contracts(all_supported_jobs)
 
         safe_address = self.synchronized_data.safe_contract_address
         if not self.context.params.use_v2:
@@ -820,18 +832,22 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
 
         self.set_done()
 
-    def _is_workable(self, job: str) -> Generator[None, None, bool]:
+    def _is_workable(self, job_address: str) -> Generator[None, None, bool]:
         """Check if job is workable."""
-        contract_public_id = self.context.state.job_address_to_public_id[job]
+        if job_address not in self.context.state.job_address_to_public_id:
+            # if this contract is not loaded yet, load it this can happen if this agent is restarted
+            job_hash = self.params.supported_jobs_to_package_hash[job_address]
+            yield from self.dynamically_load_contracts({job_address: job_hash})
+        contract_public_id = self.context.state.job_address_to_public_id[job_address]
         off_chain_data = yield from self.get_off_chain_data(
-            job,
+            job_address,
             contract_public_id,
         )
         if off_chain_data is None:
             # something went wrong, assume this job is not workable
             return False
         is_workable = yield from self.is_workable_job(
-            job,
+            job_address,
             contract_public_id,
             self.synchronized_data.safe_contract_address,
             **off_chain_data,
@@ -888,6 +904,11 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
             job_address = cast(str, self.synchronized_data.workable_job)
+            if job_address not in self.context.state.job_address_to_public_id:
+                # if this contract is not loaded yet, load it this can happen if this agent is restarted
+                job_hash = self.params.supported_jobs_to_package_hash[job_address]
+                yield from self.dynamically_load_contracts({job_address: job_hash})
+
             contract_public_id = self.context.state.job_address_to_public_id[
                 job_address
             ]
