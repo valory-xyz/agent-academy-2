@@ -930,11 +930,11 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             if raw_tx is None:
                 yield from self.sleep(self.context.params.sleep_time)
                 return
-
+            tx_data = raw_tx.get("data")
             simulation_ok = yield from self.simulate_tx(
                 job_address,
                 contract_public_id,
-                raw_tx.get("data"),
+                tx_data,
                 safe_address,
             )
             if simulation_ok is None:
@@ -944,7 +944,8 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             if not simulation_ok:
                 # simulation failed, i.e. a bad tx
                 self.context.logger.info(
-                    f"Simulating a work tx for job {job_address} failed."
+                    f"Simulating a work tx for job {job_address} failed. "
+                    f"Tx data: {tx_data.hex()}."
                 )
                 work_tx = cast(
                     PerformWorkRound, self.matching_round
