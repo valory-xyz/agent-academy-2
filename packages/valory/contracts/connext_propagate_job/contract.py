@@ -568,9 +568,13 @@ class ConnextPropagateJobContract(Contract):
         **kwargs: Any,
     ) -> JSONLike:
         """Get the workable flag from the contract."""
-        # this job is always assumed workable
-        # whether its actually workable or not is determined by the simulation
-        is_workable = True
+        try:
+            contract = cls.get_instance(ledger_api, contract_address)
+            # static call to propagateWorkable()
+            is_workable = contract.functions.propagateWorkable().call()
+        except ValueError as e:
+            _logger.info(f"propagateWorkable call failed: {str(e)}")
+            is_workable = False
         return dict(data=is_workable)
 
     @classmethod
@@ -614,17 +618,18 @@ class ConnextPropagateJobContract(Contract):
         keep3r_address = kwargs.get("keep3r_address", None)
         if keep3r_address is None:
             raise ValueError("'keep3r_address' is required.")
+        call_data = {
+            "from": ledger_api.api.toChecksumAddress(keep3r_address),
+            "to": ledger_api.api.toChecksumAddress(contract_address),
+            "data": data.hex(),
+        }
         try:
-            ledger_api.api.eth.call(
-                {
-                    "from": ledger_api.api.toChecksumAddress(keep3r_address),
-                    "to": ledger_api.api.toChecksumAddress(contract_address),
-                    "data": data.hex(),
-                }
-            )
+            ledger_api.api.eth.call(call_data)
             simulation_ok = True
         except ValueError as e:
-            _logger.info(f"Simulation failed: {str(e)}")
+            _logger.info(
+                f"Simulation failed for tx with call data {call_data}: {str(e)}"
+            )
             simulation_ok = False
 
         return dict(data=simulation_ok)

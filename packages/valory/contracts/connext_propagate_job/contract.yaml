@@ -6,9 +6,9 @@ description: Connext Propagate (Keep3r) Job Contract
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  RelayerProxyHub.json: bafybeiemclag3uctrlaq4vzfqnbf4zgeiolkeo2ntc4vyjo7gcztcy3gim
+  RelayerProxyHub.json: bafybeiehw2rld42nsrvkyibruvs4mmywriht6znbd4dkg4qke5xv4mwbea
   __init__.py: bafybeihk6gcwr2k35nlz3jmhsuassxkwswvgiwf44bc3s7kqq55ga5vjgu
-  contract.py: bafybeiedewfjoxe7oueydqkc5rbhyipev5fborqpc5mm3tleam3ltlie2e
+  contract.py: bafybeihyi3lapwzrxo6nvynld3qenf3am4hsare4d2stlcgcrctgqo5db4
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: ConnextPropagateJobContract
