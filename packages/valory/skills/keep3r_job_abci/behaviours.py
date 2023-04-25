@@ -48,8 +48,6 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     ApproveBondTxPayload,
     BondingTxPayload,
     GetJobsPayload,
-    IsProfitablePayload,
-    IsWorkablePayload,
     PathSelectionPayload,
     TopUpPayload,
     WaitingPayload,
@@ -61,8 +59,6 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     AwaitTopUpRound,
     BondingRound,
     GetJobsRound,
-    IsProfitableRound,
-    IsWorkableRound,
     Keep3rJobAbciApp,
     PathSelectionRound,
     PerformWorkRound,
@@ -812,25 +808,92 @@ class GetJobsBehaviour(Keep3rJobBaseBehaviour):
         self.set_done()
 
 
-class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
-    """IsWorkableBehaviour"""
+class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
+    """PerformWorkBehaviour"""
 
-    matching_round: Type[AbstractRound] = IsWorkableRound
+    matching_round: Type[AbstractRound] = PerformWorkRound
 
     def async_act(self) -> Generator:
-        """Behaviour to get whether job is workable."""
+        """Do the act, supporting asynchronous execution."""
 
         with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            workable_job = yield from self._get_workable_job()
-            if workable_job is None:
-                # no workable job
-                workable_job = IsWorkableRound.NO_WORKABLE_JOB_PAYLOAD
-            payload = IsWorkablePayload(self.context.agent_address, workable_job)
+            work_tx = yield from self._get_work_tx()
+            if work_tx is None:
+                # something went wrong, just return to repeat
+                return
+            payload = WorkTxPayload(self.context.agent_address, work_tx)
+
         with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
             yield from self.send_a2a_transaction(payload)
             yield from self.wait_until_round_end()
 
         self.set_done()
+
+    def _get_work_tx(self) -> Generator[None, None, Optional[str]]:
+        """
+        Get the work tx payload.
+
+        :returns: the work tx payload or a special payload if no workable job is found.
+        :yield: None
+        """
+        job_address = yield from self._get_workable_job()
+        if job_address is None:
+            # no workable job
+            self.context.logger.info("No workable job found.")
+            return PerformWorkRound.NO_WORKABLE_JOB_PAYLOAD
+
+        self.context.logger.info(f"{job_address} is workable.")
+        if job_address not in self.context.state.job_address_to_public_id:
+            # if this contract is not loaded yet, load it this can happen if this agent is restarted
+            job_hash = self.params.supported_jobs_to_package_hash[job_address]
+            yield from self.dynamically_load_contracts({job_address: job_hash})
+
+        contract_public_id = self.context.state.job_address_to_public_id[job_address]
+        off_chain_data = yield from self.get_off_chain_data(
+            job_address,
+            contract_public_id,
+        )
+        if off_chain_data is None:
+            # something went wrong
+            yield from self.sleep(self.context.params.sleep_time)
+            return None
+        safe_address = self.synchronized_data.safe_contract_address
+        raw_tx = yield from self.build_work_raw_tx(
+            job_address,
+            contract_public_id,
+            safe_address,
+            **off_chain_data,
+        )
+        if raw_tx is None:
+            # something went wrong
+            yield from self.sleep(self.context.params.sleep_time)
+            return None
+        tx_data = raw_tx.get("data")
+        simulation_ok = yield from self.simulate_tx(
+            job_address,
+            contract_public_id,
+            tx_data,
+            safe_address,
+        )
+        if simulation_ok is None:
+            # something went wrong while simulating
+            yield from self.sleep(self.context.params.sleep_time)
+            return None
+        if not simulation_ok:
+            # simulation failed, i.e. a bad tx
+            self.context.logger.info(
+                f"Simulating a work tx for job {job_address} failed. "
+                f"Tx data: {tx_data.hex()}."
+            )
+            return PerformWorkRound.SIMULATION_FAILED_PAYLOAD
+
+        work_tx = yield from self.build_safe_raw_tx(raw_tx)
+        if work_tx is None:
+            # something went wrong
+            yield from self.sleep(self.context.params.sleep_time)
+            return None
+
+        return work_tx
 
     def _is_workable(self, job_address: str) -> Generator[None, None, bool]:
         """Check if job is workable."""
@@ -858,7 +921,7 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
 
         return is_workable
 
-    def _get_workable_job(self) -> Optional[str]:
+    def _get_workable_job(self) -> Generator[None, None, Optional[str]]:
         """Get the workable jobs."""
         job_list = self.synchronized_data.job_list
         job_list.sort()
@@ -867,101 +930,6 @@ class IsWorkableBehaviour(Keep3rJobBaseBehaviour):
             if is_workable:
                 return job
         return None
-
-
-class IsProfitableBehaviour(Keep3rJobBaseBehaviour):
-    """IsProfitableBehaviour"""
-
-    matching_round: Type[AbstractRound] = IsProfitableRound
-
-    def async_act(self) -> Generator:
-        """Do the act, supporting asynchronous execution."""
-
-        with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            job_address = self.synchronized_data.workable_job
-            reward = yield from self.read_keep3r("credits", address=job_address)
-            if reward is None:
-                yield from self.sleep(self.context.params.sleep_time)
-                return
-            is_profitable = reward >= self.context.params.profitability_threshold
-            self.context.logger.info(f"reward: {reward}, profitable: {is_profitable}")
-            payload = IsProfitablePayload(self.context.agent_address, is_profitable)
-
-        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            yield from self.send_a2a_transaction(payload)
-            yield from self.wait_until_round_end()
-
-        self.set_done()
-
-
-class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
-    """PerformWorkBehaviour"""
-
-    matching_round: Type[AbstractRound] = PerformWorkRound
-
-    def async_act(self) -> Generator:
-        """Do the act, supporting asynchronous execution."""
-
-        with self.context.benchmark_tool.measure(self.behaviour_id).local():
-            job_address = cast(str, self.synchronized_data.workable_job)
-            if job_address not in self.context.state.job_address_to_public_id:
-                # if this contract is not loaded yet, load it this can happen if this agent is restarted
-                job_hash = self.params.supported_jobs_to_package_hash[job_address]
-                yield from self.dynamically_load_contracts({job_address: job_hash})
-
-            contract_public_id = self.context.state.job_address_to_public_id[
-                job_address
-            ]
-            off_chain_data = yield from self.get_off_chain_data(
-                job_address,
-                contract_public_id,
-            )
-            if off_chain_data is None:
-                # something went wrong
-                yield from self.sleep(self.context.params.sleep_time)
-                return
-            safe_address = self.synchronized_data.safe_contract_address
-            raw_tx = yield from self.build_work_raw_tx(
-                job_address,
-                contract_public_id,
-                safe_address,
-                **off_chain_data,
-            )
-            if raw_tx is None:
-                yield from self.sleep(self.context.params.sleep_time)
-                return
-            tx_data = raw_tx.get("data")
-            simulation_ok = yield from self.simulate_tx(
-                job_address,
-                contract_public_id,
-                tx_data,
-                safe_address,
-            )
-            if simulation_ok is None:
-                # something went wrong while simulating
-                yield from self.sleep(self.context.params.sleep_time)
-                return
-            if not simulation_ok:
-                # simulation failed, i.e. a bad tx
-                self.context.logger.info(
-                    f"Simulating a work tx for job {job_address} failed. "
-                    f"Tx data: {tx_data.hex()}."
-                )
-                work_tx = cast(
-                    PerformWorkRound, self.matching_round
-                ).SIMULATION_FAILED_PAYLOAD
-            else:
-                work_tx = yield from self.build_safe_raw_tx(raw_tx)
-                if work_tx is None:
-                    yield from self.sleep(self.context.params.sleep_time)
-                    return
-            payload = WorkTxPayload(self.context.agent_address, work_tx)
-
-        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
-            yield from self.send_a2a_transaction(payload)
-            yield from self.wait_until_round_end()
-
-        self.set_done()
 
 
 class AwaitTopUpBehaviour(Keep3rJobBaseBehaviour):
@@ -997,8 +965,6 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
         WaitingBehaviour,  # type: ignore
         ActivationBehaviour,  # type: ignore
         GetJobsBehaviour,  # type: ignore
-        IsWorkableBehaviour,  # type: ignore
-        IsProfitableBehaviour,  # type: ignore
         PerformWorkBehaviour,  # type: ignore
         AwaitTopUpBehaviour,  # type: ignore
     }

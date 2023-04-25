@@ -39,8 +39,6 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     ApproveBondTxPayload,
     BondingTxPayload,
     GetJobsPayload,
-    IsProfitablePayload,
-    IsWorkablePayload,
     PathSelectionPayload,
     TopUpPayload,
     WaitingPayload,
@@ -262,54 +260,6 @@ class GetJobsRound(Keep3rJobAbstractRound):
         return None
 
 
-class IsWorkableRound(Keep3rJobAbstractRound):
-    """IsWorkableRound"""
-
-    payload_class = IsWorkablePayload
-    payload_attribute = "workable_job"
-
-    NO_WORKABLE_JOB_PAYLOAD = "no_job"
-
-    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
-        """Process the end of the block."""
-        if self.threshold_reached:
-            workable_job = self.most_voted_payload
-            if workable_job != self.NO_WORKABLE_JOB_PAYLOAD:
-                state = self.synchronized_data.update(
-                    workable_job=workable_job,
-                )
-                return state, Event.WORKABLE
-
-            # no workable job
-            return self.synchronized_data, Event.NOT_WORKABLE
-        if not self.is_majority_possible(
-            self.collection, self.synchronized_data.nb_participants
-        ):
-            return self.synchronized_data, Event.NO_MAJORITY
-        return None
-
-
-class IsProfitableRound(Keep3rJobAbstractRound):
-    """IsProfitableRound"""
-
-    payload_class = IsProfitablePayload
-    payload_attribute = "is_profitable"
-
-    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
-        """Process the end of the block."""
-
-        if self.threshold_reached:
-            is_profitable = self.most_voted_payload
-            state = self.synchronized_data.update(is_profitable=is_profitable)
-            return state, Event.PROFITABLE if is_profitable else Event.NOT_PROFITABLE
-
-        if not self.is_majority_possible(
-            self.collection, self.synchronized_data.nb_participants
-        ):
-            return self.synchronized_data, Event.NO_MAJORITY
-        return None
-
-
 class PerformWorkRound(Keep3rJobAbstractRound):
     """PerformWorkRound"""
 
@@ -317,6 +267,7 @@ class PerformWorkRound(Keep3rJobAbstractRound):
     payload_attribute: str = "work_tx"
 
     SIMULATION_FAILED_PAYLOAD = "simulation_failed"
+    NO_WORKABLE_JOB_PAYLOAD = "no_job"
 
     def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
         """Process the end of the block."""
@@ -327,7 +278,9 @@ class PerformWorkRound(Keep3rJobAbstractRound):
             if work_tx == self.SIMULATION_FAILED_PAYLOAD:
                 # if the simulation failed for this job, we go back to job selection
                 return self.synchronized_data, Event.SIMULATION_FAILED
-
+            if work_tx == self.NO_WORKABLE_JOB_PAYLOAD:
+                # if there is no workable job, we go back to job selection
+                return self.synchronized_data, Event.NOT_WORKABLE
             state = self.synchronized_data.update(
                 **{
                     get_name(SynchronizedData.most_voted_tx_hash): work_tx,
@@ -492,28 +445,17 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.ROUND_TIMEOUT: ActivationRound,
         },
         GetJobsRound: {
-            Event.DONE: IsWorkableRound,
+            Event.DONE: PerformWorkRound,
             Event.NO_MAJORITY: GetJobsRound,
             Event.ROUND_TIMEOUT: GetJobsRound,
-        },
-        IsWorkableRound: {
-            Event.WORKABLE: IsProfitableRound,
-            Event.NOT_WORKABLE: IsWorkableRound,
-            Event.NO_MAJORITY: IsWorkableRound,
-            Event.ROUND_TIMEOUT: IsWorkableRound,
-        },
-        IsProfitableRound: {
-            Event.PROFITABLE: PerformWorkRound,
-            Event.NOT_PROFITABLE: IsWorkableRound,
-            Event.NO_MAJORITY: IsProfitableRound,
-            Event.ROUND_TIMEOUT: IsProfitableRound,
         },
         PerformWorkRound: {
             Event.WORK_TX: FinalizeWorkRound,
             Event.INSUFFICIENT_FUNDS: PathSelectionRound,
             Event.NO_MAJORITY: PerformWorkRound,
             Event.ROUND_TIMEOUT: PerformWorkRound,
-            Event.SIMULATION_FAILED: IsWorkableRound,
+            Event.SIMULATION_FAILED: PerformWorkRound,
+            Event.NOT_WORKABLE: PerformWorkRound,
         },
         AwaitTopUpRound: {
             Event.TOP_UP: PathSelectionRound,
