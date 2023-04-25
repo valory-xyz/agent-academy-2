@@ -34,8 +34,6 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     ApproveBondTxPayload,
     BondingTxPayload,
     GetJobsPayload,
-    IsProfitablePayload,
-    IsWorkablePayload,
     PathSelectionPayload,
     TopUpPayload,
     WaitingPayload,
@@ -48,8 +46,6 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     BondingRound,
     Event,
     GetJobsRound,
-    IsProfitableRound,
-    IsWorkableRound,
     Keep3rJobAbstractRound,
     PathSelectionRound,
     PerformWorkRound,
@@ -219,49 +215,6 @@ class TestGetJobsRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(job_list=job_list)
         event = self.complete_round(next_state)
         assert event == Event.DONE
-
-
-class TestIsWorkableRound(BaseRoundTestClass):
-    """Tests for IsWorkableRound."""
-
-    round_class = IsWorkableRound
-    payload_class = IsWorkablePayload
-
-    def setup(self, **kwargs: Any) -> None:
-        """Setup"""
-
-        job_list = "some_job_address"
-        kwargs.update(job_list=job_list, current_job=job_list)
-        super().setup(**kwargs)
-
-    @pytest.mark.parametrize(
-        "workable_job", ["0x0", IsWorkableRound.NO_WORKABLE_JOB_PAYLOAD]
-    )
-    def test_run(self, workable_job: str) -> None:
-        """Run tests"""
-
-        next_state = self.deliver_payloads(workable_job=workable_job)
-        event = self.complete_round(next_state)
-        assert (
-            event == Event.WORKABLE
-            if workable_job != IsWorkableRound.NO_WORKABLE_JOB_PAYLOAD
-            else Event.NOT_WORKABLE
-        )
-
-
-class TestIsProfitableRound(BaseRoundTestClass):
-    """Tests for ProfitabilityRound."""
-
-    round_class = IsProfitableRound
-    payload_class = IsProfitablePayload
-
-    @pytest.mark.parametrize("is_profitable", [True, False])
-    def test_run(self, is_profitable: bool) -> None:
-        """Run tests"""
-
-        next_state = self.deliver_payloads(is_profitable=is_profitable)
-        event = self.complete_round(next_state)
-        assert event == Event.PROFITABLE if is_profitable else Event.NOT_PROFITABLE
 
 
 class TestPerformWorkRound(BaseRoundTestClass):

@@ -15,6 +15,7 @@ class_name: ConnextPropagateJobContract
 contract_interface_paths:
   ethereum: RelayerProxyHub.json
 dependencies:
+  eth_typing: {}
   open-aea-ledger-ethereum:
     version: ==1.32.0
   web3:
