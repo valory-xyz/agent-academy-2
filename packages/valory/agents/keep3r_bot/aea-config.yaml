@@ -118,7 +118,7 @@ fingerprint:
   tests/helpers/__init__.py: bafybeidhqebuwilwahsoq4eanf57mxhtr5ppfd62b52xcoh23rkytm5waa
   tests/helpers/constants.py: bafybeietvag5v6ox7sdzwqle42oifrz2zf7b6pcwy2prcgrtlq2q24k6ka
   tests/test_agents/__init__.py: bafybeifocm5xbm4nryrzkmzot4bzfnrcnc7nggepgsywterkgw4f44awfi
-  tests/test_agents/test_keep3r_bot_abci.py: bafybeidaph4arlvvtqiw6z5zdeyi6c75lnkzhs54tqk5sp2pzgvmkkxhfm
+  tests/test_agents/test_keep3r_bot_abci.py: bafybeihk7zdsdk2lvhx72kv5qeiv65ja7iw3wqhyiqv72o42idwsnumjbe
   tests/test_contracts/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeihmo6d2o4fddio6kr7xgxqfe33iisgmubi44vds6ybhywucohsg4e
   tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeibjsmhuiflc3kqiif7vajawkiq3ogtzuvvar4bbjj55uya7le5aze
@@ -153,8 +153,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeicujajnqzbndtndrndj53znohemihludifuyc5dazfbz6fltyj5ci
 - valory/abstract_round_abci:0.1.0:bafybeicf6ilt6eknq2ne7rhziubbcpojgs55j4btdim2uctfnbn4mawsxe
-- valory/keep3r_abci:0.1.0:bafybeigw6fblu35cnidnvpckdrtuf4tww6ako4jp6vehqgmxjyoepjvcqe
-- valory/keep3r_job_abci:0.1.0:bafybeib3ormrnchykii7f7ovb3khsdcuuicdstmw22i47q47lhzsusqthq
+- valory/keep3r_abci:0.1.0:bafybeibeoh7vez5pgh77aerv3gexhn3jp3o3iz5j4oejidmsigtak6guju
+- valory/keep3r_job_abci:0.1.0:bafybeicqliwxua5gh5w4m6z4jfz2oltcd5p7bflefguiegpgjr5ojasree
 - valory/registration_abci:0.1.0:bafybeihn6xtduowkkvaz5jcd46ycdc2cogmpre65n7wtqycnpdkb2pwnli
 - valory/reset_pause_abci:0.1.0:bafybeigdop7he7wzit44dhqzul2kmy362otlp7q6gjfqwhkstvftoxqk4q
 - valory/termination_abci:0.1.0:bafybeifqpsnk3bmzwykfztto3ov2plm5424yadahqphvhcxr3kgoqwry3m

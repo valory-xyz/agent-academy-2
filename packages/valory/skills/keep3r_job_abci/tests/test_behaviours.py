@@ -49,8 +49,6 @@ from packages.valory.skills.keep3r_job_abci.behaviours import (
     AwaitTopUpBehaviour,
     BondingBehaviour,
     GetJobsBehaviour,
-    IsProfitableBehaviour,
-    IsWorkableBehaviour,
     Keep3rJobRoundBehaviour,
     PathSelectionBehaviour,
     PerformWorkBehaviour,
@@ -77,8 +75,6 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     FinalizeBondingRound,
     FinalizeWorkRound,
     GetJobsRound,
-    IsProfitableRound,
-    IsWorkableRound,
     Keep3rJobAbstractRound,
     PathSelectionRound,
     PerformWorkRound,
@@ -89,7 +85,6 @@ from packages.valory.skills.keep3r_job_abci.tests import PACKAGE_DIR
 from packages.valory.skills.keep3r_job_abci.tests.helpers import (
     DUMMY_CONTRACT_PACKAGE,
     wrap_dummy_get_from_ipfs,
-    wrap_dummy_sleep,
 )
 
 
@@ -526,7 +521,7 @@ class TestGetJobsBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.end_round(done_event=Event.DONE)
         assert (
             self.current_behaviour.matching_round.auto_round_id()
-            == IsWorkableRound.auto_round_id()
+            == PerformWorkRound.auto_round_id()
         )
 
 
@@ -538,8 +533,8 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
     @pytest.mark.parametrize(
         "simulation_ok, event, next_round",
         [
-            (True, Event.WORK_TX, IsProfitableRound),
-            (False, Event.SIMULATION_FAILED, IsWorkableRound),
+            (True, Event.WORK_TX, PerformWorkRound),
+            (False, Event.SIMULATION_FAILED, PerformWorkRound),
         ],
     )
     def test_run(
@@ -550,6 +545,8 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
             DUMMY_CONTRACT
         ] = TEST_JOB_CONTRACT_ID
         self.behaviour.act_wrapper()
+        self.mock_get_off_chain_data()
+        self.mock_workable_call(True)
         self.mock_get_off_chain_data()
         self.mock_build_work_tx_call(DUMMY_DATA)
         self.mock_simulate_tx(simulation_ok)
@@ -562,67 +559,6 @@ class TestPerformWorkBehaviour(Keep3rJobFSMBehaviourBaseCase):
         assert (
             self.current_behaviour.auto_behaviour_id()
             == degenerate_state.auto_behaviour_id()
-        )
-
-
-class TestIsWorkableBehaviour(Keep3rJobFSMBehaviourBaseCase):
-    """Test case to test IsWorkableBehaviour."""
-
-    behaviour_class: Type[BaseBehaviour] = IsWorkableBehaviour
-
-    @pytest.mark.parametrize(
-        "is_workable, event, next_round",
-        [
-            (True, Event.WORKABLE, IsProfitableRound),
-            (False, Event.NOT_WORKABLE, IsWorkableRound),
-        ],
-    )
-    def test_is_workable(
-        self, is_workable: bool, event: Event, next_round: Keep3rJobAbstractRound
-    ) -> None:
-        """Test is_workable."""
-        with mock.patch.object(BaseBehaviour, "sleep", side_effects=wrap_dummy_sleep()):
-            self.behaviour.context.state.job_address_to_public_id[
-                DUMMY_CONTRACT
-            ] = TEST_JOB_CONTRACT_ID
-            self.behaviour.act_wrapper()
-            self.mock_get_off_chain_data()
-            self.mock_workable_call(is_workable)
-            self.behaviour.act_wrapper()
-            self.mock_a2a_transaction()
-            self._test_done_flag_set()
-            self.end_round(done_event=event)
-            assert (
-                self.current_behaviour.matching_round.auto_round_id()
-                == next_round.auto_round_id()
-            )
-
-
-class TestIsProfitableBehaviour(Keep3rJobFSMBehaviourBaseCase):
-    """Test case to test IsProfitableBehaviour."""
-
-    behaviour_class: Type[BaseBehaviour] = IsProfitableBehaviour
-
-    @pytest.mark.parametrize(
-        "credits, event, next_round",
-        [
-            (-1, Event.NOT_PROFITABLE, IsWorkableRound),
-            (1, Event.PROFITABLE, PerformWorkRound),
-        ],
-    )
-    def test_is_profitable(  # pylint: disable=redefined-builtin
-        self, credits: bool, event: Event, next_round: Keep3rJobAbstractRound
-    ) -> None:
-        """Test is_profitable."""
-        self.behaviour.act_wrapper()
-        self.mock_read_keep3r_v1("credits", credits)
-        self.behaviour.act_wrapper()
-        self.mock_a2a_transaction()
-        self._test_done_flag_set()
-        self.end_round(done_event=event)
-        assert (
-            self.current_behaviour.matching_round.auto_round_id()
-            == next_round.auto_round_id()
         )
 
 

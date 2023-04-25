@@ -74,20 +74,6 @@ class GetJobsPayload(BaseTxPayload):
 
 
 @dataclass(frozen=True)
-class IsWorkablePayload(BaseTxPayload):
-    """Represent a transaction payload of type 'is_workable'."""
-
-    workable_job: str
-
-
-@dataclass(frozen=True)
-class IsProfitablePayload(BaseTxPayload):
-    """Represent a transaction payload of type 'is_profitable'."""
-
-    is_profitable: bool
-
-
-@dataclass(frozen=True)
 class WorkTxPayload(BaseTxPayload):
     """Represent a transaction payload of type 'randomness'."""
 

@@ -6,15 +6,16 @@ description: Connext Propagate (Keep3r) Job Contract
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  RelayerProxyHub.json: bafybeiemclag3uctrlaq4vzfqnbf4zgeiolkeo2ntc4vyjo7gcztcy3gim
+  RelayerProxyHub.json: bafybeiehw2rld42nsrvkyibruvs4mmywriht6znbd4dkg4qke5xv4mwbea
   __init__.py: bafybeihk6gcwr2k35nlz3jmhsuassxkwswvgiwf44bc3s7kqq55ga5vjgu
-  contract.py: bafybeiedewfjoxe7oueydqkc5rbhyipev5fborqpc5mm3tleam3ltlie2e
+  contract.py: bafybeien4iohhofxbvfhfoewlyolpvfx54z63frhx3sahnyfj3vcjtj4oa
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: ConnextPropagateJobContract
 contract_interface_paths:
   ethereum: RelayerProxyHub.json
 dependencies:
+  eth_typing: {}
   open-aea-ledger-ethereum:
     version: ==1.32.0
   web3:

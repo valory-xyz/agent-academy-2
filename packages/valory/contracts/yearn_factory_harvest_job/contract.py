@@ -258,6 +258,9 @@ class YearnFactoryHarvestJobContract(Contract):
                 return True
             except ValueError:
                 # If the call fails, the strategy is not workable
+                _logger.info(
+                    f"Strategy {strategy} is not workable for job {job_address}"
+                )
                 return False
 
         workable_strategies = [
