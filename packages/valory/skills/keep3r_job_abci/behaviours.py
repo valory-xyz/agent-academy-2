@@ -126,6 +126,11 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         return self.context.params.use_flashbots
 
     @property
+    def raise_on_failed_simulation(self) -> bool:
+        """Return if we are raising on failed simulation, only applies if use_flashbots is True."""
+        return self.context.params.raise_on_failed_simulation
+
+    @property
     def bond_spender(self) -> str:
         """Return the bond spender."""
         if self.context.params.use_v2:
@@ -491,6 +496,7 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             data=tx_params["data"],
             use_flashbots=self.use_flashbots,
             gas_limit=tx_params["gas_limit"],
+            raise_on_failed_simulation=self.raise_on_failed_simulation,
         )
         return payload_data
 

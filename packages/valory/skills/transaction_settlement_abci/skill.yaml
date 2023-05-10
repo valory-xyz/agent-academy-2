@@ -8,22 +8,22 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeihvqvbj2tiiyimz3e27gqhb7ku5rut7hycfahi4qle732kvj5fs7q
   __init__.py: bafybeicjpkpig4jkeivjcf6apm3cclz5iktrockzce7hfwqrmz5nwu2txq
-  behaviours.py: bafybeidnhq6hetyvapb6lxpcvsqjeipxkporftqrfifhbrgoyl6xgqppoe
+  behaviours.py: bafybeibxfdmvqdfaocqg4ru23bwnwxvyeatntdfu6mi5hnkk2w7g5qy75y
   dialogues.py: bafybeigabhaykiyzbluu4mk6bbrmqhzld2kyp32pg24bvjmzrrb74einwm
   fsm_specification.yaml: bafybeih5w3uwshxzpslvv6zccw6a5lq6fiypgr6alhabytcketwnxrzfem
   handlers.py: bafybeie42qa3csgy6oompuqs2qnkat5mnslepbbwmgoxv6ljme4jofa5pe
   models.py: bafybeieziji7agfrod5hoj62j34psjawmbma2r6cl57bqy7yxyb7m45ygy
-  payload_tools.py: bafybeidvsveqntjbtlqucewz2x7kwfkg7ihc4utpwprxdmsewib6uq3hxq
+  payload_tools.py: bafybeifx5o74jpmsx6mg66m3mq42lppkr7rpvlqlpcwbpf65rpundngc5i
   payloads.py: bafybeiclhjnsgylqzfnu2azlqxor3vyldaoof757dnfwz5xbwejk2ro2cm
   rounds.py: bafybeifqxs6ccwkj3lyaatv2kvq6m2dcsz75kyffkv3ozn2hhg2tgadtye
   test_tools/__init__.py: bafybeiem2vlegbcgfhwiveaolh6ullo3julroro5lz5u6bpchrihu3gdvy
   test_tools/integration.py: bafybeictb7ym4xsbo3ti5y2a2fpg344graa4d7352oozsea5rbab3kq4ae
   tests/__init__.py: bafybeibp5xj3jzh7qn7lvu4s7fdty33qbcznb4tolew4mu2erufzxszhoa
-  tests/test_behaviours.py: bafybeici37gttvhpcufar457oky4opaql2nwqj6lwlsnbg52uapg2fcobm
+  tests/test_behaviours.py: bafybeic5hsn6ne62vlxjgal6msbyqp7g23m2kkq5w4ffkjomnn4juytdlm
   tests/test_dialogues.py: bafybeic74l3ublxy5km7q5ruzthjd3dvonra7ttfdmh45ysbrulsnnto2u
   tests/test_handlers.py: bafybeign3gzk5sdmrqxqpbmadibzw4yctu4maofasu334wof5g72tzkk2q
   tests/test_models.py: bafybeigwbcqvwu3ho6cwxwmfcrk53ttqugug5jyukogkoqd42yjedjug7i
-  tests/test_payload_tools.py: bafybeiewgmksarq6upzmbgwobxvmkda5idokfzwr2vlq5xxgcwx55ieuoy
+  tests/test_payload_tools.py: bafybeidozlax4gizwskefyummgftxdnnja2jfaktyzidrfgft6z33qfle4
   tests/test_payloads.py: bafybeidvjqvjvnuw5vt4zgnqwzopvprznmefosqy3wcxukvobaiishygze
   tests/test_rounds.py: bafybeicx644a742mnebxkxufuhmbcc4zasyol6daycnmfdpbawfvbc6rfu
   tests/test_tools/__init__.py: bafybeiaq2ftmklvu5vqq6vdfa7mrlmrnusluki35jm5n2yzf57ox5dif74
@@ -38,7 +38,7 @@ protocols:
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
 - valory/ledger_api:1.0.0:bafybeieylbg4qb3dmjlm3zufqcwq4qbygsdgj3jzc53eyoqmd25mdz2pkq
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeiaawhyd23436b6rmp3z4qztud63ujynpjogvxmfv4gxpktxulafgi
+- valory/abstract_round_abci:0.1.0:bafybeidpnfgodfx2ww7dcfcxcdo35nsod62rrwkqnyuu3ifhmivkeokgwi
 behaviours:
   main:
     args: {}

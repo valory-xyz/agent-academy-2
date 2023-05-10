@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeie7snicjkmva24axlya4uxiliyreiw7psnreyddvbxnu34medgbhu
+agent: valory/keep3r_bot:0.1.0:bafybeibbwyw35kuoqiy73jkuvyvvgh2fowztwx7pxcrzw6ljvuaww6atki
 number_of_agents: 1
 deployment: {}
 ---
@@ -34,6 +34,7 @@ extra:
       keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
       use_v2: ${USE_KEEPER_V2:bool:true}
       manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+      raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
 0:
   models:
     params:
@@ -55,6 +56,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:node0:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+        raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
 1:
   models:
     params:
@@ -76,6 +78,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_1:str:node1:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+        raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
 2:
   models:
     params:
@@ -97,6 +100,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_2:str:node2:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+        raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
 3:
   models:
     params:
@@ -118,6 +122,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_3:str:node3:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+        raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

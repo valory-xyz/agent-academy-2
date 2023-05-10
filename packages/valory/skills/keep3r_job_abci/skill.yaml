@@ -8,14 +8,14 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeigcupldnvdbqoxvfhx6vn4dgqmbhwddwpmrwoalru7vthppjtpdry
-  behaviours.py: bafybeicu4r67gqawpccrwkf34stmnxclsr2eeuix7t6rbjl7kmn5yyq62q
+  behaviours.py: bafybeigdyv5jpzyziqsdks2lafomkzxwz3pc55b4hilwvwg7ej6ejla5ci
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
   fsm_specification.yaml: bafybeihjvacl6sclfyrntgqoxexfxjq2kfjeyc6whpo4wciynrs3plclxm
   handlers.py: bafybeiflkitcwl4b4glto7xaf7oykdsutbsyr62fwzh4ycy6grvblnypya
   io_/__init__.py: bafybeifxgmmwjqzezzn3e6keh2bfo4cyo7y5dq2ept3stfmgglbrzfl5rq
   io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
-  models.py: bafybeibuk7yiugqfrnenxhlqrcmufs6uedqfofq3ghcli2byq7c3uxb2ou
+  models.py: bafybeih5rc63afwhliuyj2hycxrjqu2hcxrob4rucm4r4gvnyfdmhtug7i
   payloads.py: bafybeigyczc7stvwjxmya3ey4bm3hwuph5huqj7me5ziqc4uce5wnlncze
   rounds.py: bafybeiaqpab4a4b2pwg6wdf5llik65aqibxnoodewvpk7lnjbv5e246dly
   tests/__init__.py: bafybeid4o4ftcie2ldsupmo3atv547afr5hycq25evvbhwqgres7lvq4vu
@@ -34,8 +34,8 @@ protocols:
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
 - valory/ledger_api:1.0.0:bafybeieylbg4qb3dmjlm3zufqcwq4qbygsdgj3jzc53eyoqmd25mdz2pkq
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeiaawhyd23436b6rmp3z4qztud63ujynpjogvxmfv4gxpktxulafgi
-- valory/transaction_settlement_abci:0.1.0:bafybeihjswp3vqr74nqte7xtmppjclqbpbiq3vjgwpijlfxooigciwp33q
+- valory/abstract_round_abci:0.1.0:bafybeidpnfgodfx2ww7dcfcxcdo35nsod62rrwkqnyuu3ifhmivkeokgwi
+- valory/transaction_settlement_abci:0.1.0:bafybeicrconnrmanpmneypcwc2vwjuoqoimw5t5ge3qb7wmbx2vseiby6y
 behaviours:
   main:
     args: {}
@@ -123,6 +123,7 @@ models:
       max_healthcheck: 120
       on_chain_service_id: null
       profitability_threshold: 0
+      raise_on_failed_simulation: false
       request_retry_delay: 1.0
       request_timeout: 10.0
       reset_pause_duration: 10

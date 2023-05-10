@@ -76,7 +76,10 @@ class TestTxHistPayloadEncodingDecoding:
 
 
 @pytest.mark.parametrize("use_flashbots", (True, False))
-def test_payload_to_hex_and_back(use_flashbots: bool) -> None:
+@pytest.mark.parametrize("raise_on_failed_simulation", (True, False))
+def test_payload_to_hex_and_back(
+    use_flashbots: bool, raise_on_failed_simulation: bool
+) -> None:
     """Test `payload_to_hex` function."""
     tx_params = dict(
         safe_tx_hash="b0e6add595e00477cf347d09797b156719dc5233283ac76e4efce2a674fe72d9",
@@ -94,6 +97,7 @@ def test_payload_to_hex_and_back(use_flashbots: bool) -> None:
         use_flashbots=use_flashbots,
         refund_receiver=NULL_ADDRESS,
         gas_limit=0,
+        raise_on_failed_simulation=raise_on_failed_simulation,
     )
 
     intermediate = hash_payload_to_hex(**tx_params)  # type: ignore
