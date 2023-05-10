@@ -170,6 +170,7 @@ class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
         message: ContractApiMessage,
         use_flashbots: bool,
         manual_gas_limit: int = 0,
+        raise_on_failed_simulation: bool = False,
     ) -> Generator[None, None, TxDataType]:
         """Get the transaction data from a `ContractApiMessage`."""
         tx_data: TxDataType = {
@@ -204,7 +205,9 @@ class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
 
         # Send transaction
         tx_digest, rpc_status = yield from self.send_raw_transaction(
-            message.raw_transaction, use_flashbots
+            message.raw_transaction,
+            use_flashbots,
+            raise_on_failed_simulation=raise_on_failed_simulation,
         )
 
         # Handle transaction results
@@ -866,7 +869,10 @@ class FinalizeBehaviour(TransactionSettlementBaseBehaviour):
         )
 
         tx_data = yield from self._get_tx_data(
-            contract_api_msg, tx_params["use_flashbots"], tx_params["gas_limit"]
+            contract_api_msg,
+            tx_params["use_flashbots"],
+            tx_params["gas_limit"],
+            tx_params["raise_on_failed_simulation"],
         )
         return tx_data
 

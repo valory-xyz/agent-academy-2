@@ -1026,6 +1026,7 @@ class BaseBehaviour(
         signing_msg: SigningMessage,
         use_flashbots: bool = False,
         target_block_numbers: Optional[List[int]] = None,
+        raise_on_failed_simulation: bool = False,
     ) -> None:
         """
         Send transaction request.
@@ -1038,6 +1039,7 @@ class BaseBehaviour(
         :param signing_msg: signing message
         :param use_flashbots: whether to use flashbots for the transaction or not
         :param target_block_numbers: the target block numbers in case we are using flashbots
+        :param raise_on_failed_simulation: whether to raise an exception if the simulation fails or not.
         """
         ledger_api_dialogues = cast(
             LedgerApiDialogues, self.context.ledger_api_dialogues
@@ -1058,7 +1060,11 @@ class BaseBehaviour(
                         ledger_id="ethereum_flashbots",
                         signed_transactions=[signing_msg.signed_transaction.body],
                     ),
-                    kwargs=LedgerApiMessage.Kwargs({}),
+                    kwargs=LedgerApiMessage.Kwargs(
+                        {
+                            "raise_on_failed_simulation": raise_on_failed_simulation,
+                        }
+                    ),
                 )
             )
         else:
@@ -1493,6 +1499,7 @@ class BaseBehaviour(
         transaction: RawTransaction,
         use_flashbots: bool = False,
         target_block_numbers: Optional[List[int]] = None,
+        raise_on_failed_simulation: bool = False,
     ) -> Generator[
         None,
         Union[None, SigningMessage, LedgerApiMessage],
@@ -1514,6 +1521,7 @@ class BaseBehaviour(
         :param transaction: transaction data
         :param use_flashbots: whether to use flashbots for the transaction or not
         :param target_block_numbers: the target block numbers in case we are using flashbots
+        :param raise_on_failed_simulation: whether to raise an exception if the transaction fails the simulation or not
         :yield: SigningMessage object
         :return: transaction hash
         """
@@ -1542,7 +1550,10 @@ class BaseBehaviour(
             f"Received signature response: {signature_response}\n Sending transaction..."
         )
         self._send_transaction_request(
-            signature_response, use_flashbots, target_block_numbers
+            signature_response,
+            use_flashbots,
+            target_block_numbers,
+            raise_on_failed_simulation,
         )
         transaction_digest_msg = yield from self.wait_for_message()
         transaction_digest_msg = cast(LedgerApiMessage, transaction_digest_msg)
