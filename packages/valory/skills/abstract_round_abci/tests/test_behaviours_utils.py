@@ -1261,7 +1261,9 @@ class TestBaseBehaviour:
                         ledger_id="ethereum_flashbots",
                         signed_transactions=[{"test_tx": "test_tx"}],
                     ),
-                    kwargs=LedgerApiMessage.Kwargs({}),
+                    kwargs=LedgerApiMessage.Kwargs(
+                        {"raise_on_failed_simulation": False}
+                    ),
                 ),
             ),
             (
