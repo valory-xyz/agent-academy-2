@@ -28,8 +28,8 @@ open-aea-ledger-ethereum = "==1.33.0"
 open-aea-ledger-ethereum-flashbots = "==1.33.0"
 open-aea-ledger-cosmos = "==1.33.0"
 open-aea-cli-ipfs = "==1.33.0"
-open-aea-test-autonomy = "==0.10.3"
-open-autonomy = {version = "==0.10.3", extras = ["all"]}
+open-aea-test-autonomy = "==0.10.4"
+open-autonomy = {version = "==0.10.4", extras = ["all"]}
 tomte = {version = "==0.2.4", extras = ["tox", "tests"]}
 
 [requires]

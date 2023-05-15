@@ -7,9 +7,19 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeigsm5r7ie7impaagd5yiazgbz7tq65jred7cpiuezwb4idril3spq
+agent: valory/keep3r_bot:0.1.0:bafybeick4lpdlgjymoaosrcq7o3m3wzxjboiahiu33ekk7ebolq7nipaui
 number_of_agents: 1
-deployment: {}
+deployment:
+  tendermint:
+    ports:
+      0:
+        26656: ${TM_NODE_0_P2P_PORT:int:26656}
+      1:
+        26656: ${TM_NODE_1_P2P_PORT:int:27656}
+      2:
+        26656: ${TM_NODE_2_P2P_PORT:int:28656}
+      3:
+        26656: ${TM_NODE_3_P2P_PORT:int:29656}
 ---
 public_id: valory/keep3r_abci:0.1.0
 type: skill
