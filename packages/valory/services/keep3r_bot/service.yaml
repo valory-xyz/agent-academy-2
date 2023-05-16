@@ -13,13 +13,13 @@ deployment:
   tendermint:
     ports:
       0:
-        26656: ${TM_NODE_0_P2P_PORT:int:26656}
+        26656: 26656
       1:
-        26666: ${TM_NODE_1_P2P_PORT:int:26666}
+        26666: 26656
       2:
-        26676: ${TM_NODE_2_P2P_PORT:int:26676}
+        26676: 26656
       3:
-        26686: ${TM_NODE_3_P2P_PORT:int:26686}
+        26686: 26656
 ---
 public_id: valory/keep3r_abci:0.1.0
 type: skill
