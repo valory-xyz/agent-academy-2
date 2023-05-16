@@ -15,11 +15,11 @@ deployment:
       0:
         26656: ${TM_NODE_0_P2P_PORT:int:26656}
       1:
-        26656: ${TM_NODE_1_P2P_PORT:int:27656}
+        26666: ${TM_NODE_1_P2P_PORT:int:26666}
       2:
-        26656: ${TM_NODE_2_P2P_PORT:int:28656}
+        26676: ${TM_NODE_2_P2P_PORT:int:26676}
       3:
-        26656: ${TM_NODE_3_P2P_PORT:int:29656}
+        26686: ${TM_NODE_3_P2P_PORT:int:26686}
 ---
 public_id: valory/keep3r_abci:0.1.0
 type: skill
