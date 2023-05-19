@@ -2153,56 +2153,23 @@ class TmManager(BaseBehaviour):
             not_ok_code = 1
             sys.exit(not_ok_code)
 
+    def _gentle_reset(self) -> Generator[None, None, None]:
+        """
+        This method performs a gentle reset of the Tendermint node.
+
+        It first stops the Tendermint node, then waits for a specified amount of time, and then starts the Tendermint node again.
+        """
+        self.context.logger.info("Performing a gentle reset.")
+        request_message, http_dialogue = self._build_http_request_message(
+            "GET",
+            self.params.tendermint_com_url + "/gentle_reset",
+        )
+        yield from self._do_request(request_message, http_dialogue)
+
     def _handle_unhealthy_tm(self) -> Generator:
         """This method handles the case when the tendermint node is unhealthy."""
-        self.context.logger.warning(
-            "The local deadline for the next `begin_block` request from the Tendermint node has expired! "
-            "Trying to reset local Tendermint node as there could be something wrong with the communication."
-        )
-
-        # we first check whether the reason why we haven't received blocks for more than we allow is because
-        # there are not enough peers in the network to reach majority.
-        yield from self._kill_if_no_majority_peers()
-
-        # since we have reached this point that means that the cause of blocks not being received
-        # cannot be attributed to a lack of peers in the network
-        # therefore, we request the recovery parameters via the ACN, and if we succeed, we use them to recover
-        acn_communication_success = yield from self.request_recovery_params()
-        if not acn_communication_success:
-            self.context.logger.error(
-                "Failed to get the recovery parameters via the ACN. Cannot reset Tendermint."
-            )
-            return
-
-        shared_state = cast(SharedState, self.context.state)
-        recovery_params = shared_state.tm_recovery_params
-        shared_state.round_sequence.reset_state(
-            restart_from_round=recovery_params.reset_from_round,
-            round_count=recovery_params.round_count,
-            serialized_db_state=recovery_params.serialized_db_state,
-        )
-
-        for _ in range(self._max_reset_retry):
-            reset_successfully = yield from self.reset_tendermint_with_wait(
-                on_startup=True,
-                is_recovery=True,
-            )
-            if reset_successfully:
-                self.context.logger.info(
-                    "Tendermint reset was successfully performed. "
-                )
-                # we sleep to give some time for tendermint to start sending us blocks
-                # otherwise we might end-up assuming that tendermint is still not working.
-                # Note that the wait_from_last_timestamp() in reset_tendermint_with_wait()
-                # doesn't guarantee us this, since the block stall deadline is greater than the
-                # hard_reset_sleep, 60s vs 20s. In other words, we haven't received a block for at
-                # least 60s, so wait_from_last_timestamp() will return immediately.
-                # By setting "on_startup" to True in the reset_tendermint_with_wait() call above,
-                # wait_from_last_timestamp() will not be called at all.
-                yield from self.sleep(self.hard_reset_sleep)
-                return
-
-        self.context.logger.info("Failed to reset tendermint.")
+        yield from self._gentle_reset()
+        yield from self.sleep(30)
 
     def _get_reset_params(self, default: bool) -> Optional[Dict[str, str]]:
         """
