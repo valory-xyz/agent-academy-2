@@ -29,6 +29,7 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     BondingTxPayload,
     GetJobsPayload,
     PathSelectionPayload,
+    UnbondingTxPayload,
     WaitingPayload,
     WorkTxPayload,
 )
@@ -55,9 +56,19 @@ def test_bonding_tx_payload(bonding_tx: str) -> None:
     assert payload.from_json(payload.json) == payload
 
 
+@pytest.mark.parametrize("unbonding_tx", ["tx_hash"])
+def test_unbonding_tx_payload(unbonding_tx: str) -> None:
+    """Test UnbondingTxPayload"""
+
+    payload = UnbondingTxPayload(sender="sender", unbonding_tx=unbonding_tx)
+    assert payload.sender == "sender"
+    assert payload.unbonding_tx == unbonding_tx
+    assert payload.from_json(payload.json) == payload
+
+
 @pytest.mark.parametrize("approval_tx", ["tx_hash"])
 def test_approve_bond_tx_payload(approval_tx: str) -> None:
-    """Test ApproveBondTxPayload"""
+    """Test UnbondTxPayload"""
 
     payload = ApproveBondTxPayload(sender="sender", approval_tx=approval_tx)
     assert payload.sender == "sender"

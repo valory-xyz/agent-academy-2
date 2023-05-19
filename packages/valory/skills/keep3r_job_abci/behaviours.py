@@ -50,6 +50,7 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     GetJobsPayload,
     PathSelectionPayload,
     TopUpPayload,
+    UnbondingTxPayload,
     WaitingPayload,
     WorkTxPayload,
 )
@@ -63,6 +64,7 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     PathSelectionRound,
     PerformWorkRound,
     SynchronizedData,
+    UnbondingRound,
     WaitingRound,
 )
 from packages.valory.skills.transaction_settlement_abci.payload_tools import (
@@ -89,6 +91,8 @@ SAFE_GAS = 0
 ZERO_ETH = 0
 
 AUTO_GAS_LIMIT = 0
+
+TO_WEI = 10**18
 
 
 class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
@@ -327,6 +331,31 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
             # something went wrong
             return None
         return pending_bond > 0
+
+    def get_bonded_amount(
+        self, keeper_address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[int]]:
+        """Get bonded amount"""
+        bonded_amount = yield from self.read_keep3r(
+            "bondings",
+            address=keeper_address,
+            bonding_asset=bonding_asset,
+        )
+        if bonded_amount is None:
+            # something went wrong
+            return None
+        return bonded_amount
+
+    def should_unbond_k3pr(
+        self, keeper_address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[bool]]:
+        """Check if we should unbond our k3pr."""
+        bonded_amount = yield from self.get_bonded_amount(keeper_address, bonding_asset)
+        if bonded_amount is None:
+            # something went wrong
+            return None
+        wei_threshold = self.params.unbonding_threshold * TO_WEI
+        return bonded_amount >= wei_threshold
 
     def get_off_chain_data(
         self,
@@ -606,6 +635,16 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
                 return self.transitions["APPROVE_BOND"].name
             return self.transitions["NOT_BONDED"].name
 
+        should_unbond = yield from self.should_unbond_k3pr(
+            safe_address, self.params.k3pr_address
+        )
+        if should_unbond is None:
+            # something went wrong
+            return None
+        # only if true we unbond, if false we continue with the rest of the logic
+        if should_unbond:
+            return self.transitions["UNBOND"].name
+
         bonded_keeper = yield from self.is_ready_to_activate(
             safe_address, self.context.params.bonding_asset
         )
@@ -719,6 +758,63 @@ class BondingBehaviour(Keep3rJobBaseBehaviour):
         safe_tx = SafeTx(
             data=data,
             to=self.bond_spender,
+            value=ZERO_ETH,
+            gas=SAFE_GAS,
+            gas_limit=AUTO_GAS_LIMIT,
+        )
+        return safe_tx
+
+
+class UnbondingBehaviour(Keep3rJobBaseBehaviour):
+    """A behaviour to unbond the rewarded K3PR."""
+
+    matching_round: Type[AbstractRound] = UnbondingRound
+
+    def async_act(self) -> Generator:
+        """Do the act, supporting asynchronous execution."""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            raw_tx = yield from self._build_unbond_tx()
+            if raw_tx is None:
+                yield from self.sleep(self.context.params.sleep_time)
+                return
+            unbonding_tx = yield from self.build_safe_raw_tx(cast(SafeTx, raw_tx))
+            if not unbonding_tx:
+                # something went wrong
+                return
+            self.context.logger.info(f"Unbonding tx: {unbonding_tx}")
+            payload = UnbondingTxPayload(
+                self.context.agent_address, unbonding_tx=unbonding_tx
+            )
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def _build_unbond_tx(self) -> Generator[None, None, Optional[SafeTx]]:
+        """Build unbond tx. This will unbond all the bonded K3PR amount."""
+        safe_address = self.synchronized_data.safe_contract_address
+        bonding_asset_address = self.context.params.k3pr_address
+        bonded_amount = yield from self.get_bonded_amount(
+            safe_address, bonding_asset_address
+        )
+        if bonded_amount is None:
+            # something went wrong
+            return None
+        data_str = yield from self.read_keep3r(
+            method="build_unbond_tx",
+            bonded_asset_address=bonding_asset_address,
+            amount=bonded_amount,
+        )
+        if data_str is None:
+            # something went wrong
+            return None
+        data = bytes.fromhex(data_str[2:])
+        safe_tx = SafeTx(
+            data=data,
+            to=self.keep3r_v2_contract_address,
             value=ZERO_ETH,
             gas=SAFE_GAS,
             gas_limit=AUTO_GAS_LIMIT,
@@ -968,6 +1064,7 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
         ApproveBondBehaviour,  # type: ignore
         PathSelectionBehaviour,  # type: ignore
         BondingBehaviour,  # type: ignore
+        UnbondingBehaviour,  # type: ignore
         WaitingBehaviour,  # type: ignore
         ActivationBehaviour,  # type: ignore
         GetJobsBehaviour,  # type: ignore
