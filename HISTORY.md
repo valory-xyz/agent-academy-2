@@ -1,5 +1,14 @@
 # Release History - `agent-academy-2`
 
+## v0.3.0 (19.05.2023)
+- Add `manual_gas_limit`.
+- Add 4-agent mainnet service.
+- Collapse IsWorkable and PerformWork rounds.
+- Add `propagateWorkable` to connext propagate job contract.
+- Dont try to send a tx with failing sim.
+- Add unbonding round.
+- Add gentle reset for recovery.
+
 ## v0.2.1 (03.04.2023)
 - Add service termination.
 - Add mint data for the components from the autonolas on-chain protocol.
