@@ -41,6 +41,7 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     GetJobsPayload,
     PathSelectionPayload,
     TopUpPayload,
+    UnbondingTxPayload,
     WaitingPayload,
     WorkTxPayload,
 )
@@ -51,7 +52,9 @@ class Event(Enum):
 
     APPROVE_BOND = "approve_bond"
     NOT_BONDED = "not_bonded"
+    UNBOND = "unbond"
     BONDING_TX = "bonding_tx"
+    UNBONDING_TX = "unbonding_tx"
     NOT_ACTIVATED = "not_activated"
     ACTIVATION_TX = "activation_tx"
     AWAITING_BONDING = "awaiting_bonding"
@@ -122,6 +125,7 @@ class PathSelectionRound(Keep3rJobAbstractRound):
     transitions: Dict[str, Event] = {
         "APPROVE_BOND": Event.APPROVE_BOND,
         "NOT_BONDED": Event.NOT_BONDED,
+        "UNBOND": Event.UNBOND,
         "NOT_ACTIVATED": Event.NOT_ACTIVATED,
         "HEALTHY": Event.HEALTHY,
         "INSUFFICIENT_FUNDS": Event.INSUFFICIENT_FUNDS,
@@ -186,6 +190,31 @@ class BondingRound(Keep3rJobAbstractRound):
                 }
             )
             return state, Event.BONDING_TX
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
+
+
+class UnbondingRound(Keep3rJobAbstractRound):
+    """UnbondingRound"""
+
+    payload_class = UnbondingTxPayload
+    payload_attribute: str = "unbonding_tx"
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+        """Process the end of the block."""
+
+        if self.threshold_reached and self.most_voted_payload:
+            unbonding_tx = self.most_voted_payload
+            state = self.synchronized_data.update(
+                **{
+                    get_name(SynchronizedData.most_voted_tx_hash): unbonding_tx,
+                    get_name(SynchronizedData.tx_submitter): self.auto_round_id(),
+                }
+            )
+            return state, Event.UNBONDING_TX
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
@@ -417,6 +446,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.NOT_ACTIVATED: WaitingRound,
             Event.HEALTHY: GetJobsRound,
             Event.INSUFFICIENT_FUNDS: AwaitTopUpRound,
+            Event.UNBOND: UnbondingRound,
             Event.BLACKLISTED: BlacklistedRound,
             Event.APPROVE_BOND: ApproveBondRound,
             Event.UNKNOWN_HEALTH_ISSUE: DegenerateRound,
@@ -432,6 +462,11 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.BONDING_TX: FinalizeBondingRound,
             Event.NO_MAJORITY: BondingRound,
             Event.ROUND_TIMEOUT: BondingRound,
+        },
+        UnbondingRound: {
+            Event.UNBONDING_TX: FinalizeBondingRound,
+            Event.NO_MAJORITY: UnbondingRound,
+            Event.ROUND_TIMEOUT: UnbondingRound,
         },
         WaitingRound: {
             Event.DONE: ActivationRound,

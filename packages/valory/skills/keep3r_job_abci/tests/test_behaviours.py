@@ -54,6 +54,8 @@ from packages.valory.skills.keep3r_job_abci.behaviours import (
     PerformWorkBehaviour,
     SAFE_GAS,
     SafeTx,
+    TO_WEI,
+    UnbondingBehaviour,
     WaitingBehaviour,
     ZERO_ETH,
 )
@@ -79,6 +81,7 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     PathSelectionRound,
     PerformWorkRound,
     SynchronizedData,
+    UnbondingRound,
     WaitingRound,
 )
 from packages.valory.skills.keep3r_job_abci.tests import PACKAGE_DIR
@@ -395,6 +398,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 0})
         self.mock_read_keep3r_v1("is_keeper", False)
@@ -406,11 +410,31 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             == WaitingRound.auto_round_id()
         )
 
+    def test_unbond(self, *_: Any) -> None:
+        """Test path_selection to unbond."""
+        self.behaviour.act_wrapper()
+        self.mock_read_keep3r_v1("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("bondings", 51 * TO_WEI)
+        self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
+        self.mock_get_latest_block(block={"timestamp": 0})
+        self.mock_read_keep3r_v1("is_keeper", False)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.UNBOND)
+        assert (
+            self.current_behaviour.matching_round.auto_round_id()
+            == UnbondingRound.auto_round_id()
+        )
+
     def test_healthy(self, *_: Any) -> None:
         """Test path_selection to healthy."""
         self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
+        self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
@@ -438,6 +462,27 @@ class TestBondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_a2a_transaction()
         self._test_done_flag_set()
         self.end_round(done_event=Event.BONDING_TX)
+        degenerate_state = make_degenerate_behaviour(FinalizeBondingRound)
+        assert (
+            self.current_behaviour.auto_behaviour_id()
+            == degenerate_state.auto_behaviour_id()
+        )
+
+
+class TestUnbondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test UnbondingBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = UnbondingBehaviour
+
+    def test_bonding_tx(self) -> None:
+        """Test bonding tx"""
+        self.behaviour.act_wrapper()
+        self.mock_keep3r_v1_raw_tx("bondings", 100)
+        self.mock_keep3r_v1_raw_tx("build_unbond_tx", DUMMY_DATA)
+        self.mock_build_safe_raw_tx()
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.UNBONDING_TX)
         degenerate_state = make_degenerate_behaviour(FinalizeBondingRound)
         assert (
             self.current_behaviour.auto_behaviour_id()

@@ -220,6 +220,7 @@ class KeeperV2(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
+        bonded_asset_address: str,
         amount: Union[Wei, int],
     ) -> RawTransaction:
         """Begin the unbonding process to stop being a keeper. Default unbonding period is 14 days."""
@@ -228,7 +229,7 @@ class KeeperV2(Contract):
         data = contract.encodeABI(
             fn_name="unbond",
             args=[
-                ledger_api.api.toChecksumAddress(contract.address),
+                ledger_api.api.toChecksumAddress(bonded_asset_address),
                 amount,
             ],
         )

@@ -83,6 +83,8 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         self.raise_on_failed_simulation = self._ensure(
             "raise_on_failed_simulation", kwargs, bool
         )
+        self.k3pr_address = self._ensure("k3pr_address", kwargs, str)
+        self.unbonding_threshold = self._ensure("unbonding_threshold", kwargs, int)
         super().__init__(*args, **kwargs)
 
     def _get_supported_jobs_to_package_hash(self, kwargs: Dict) -> Dict[str, str]:

@@ -36,6 +36,7 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     GetJobsPayload,
     PathSelectionPayload,
     TopUpPayload,
+    UnbondingTxPayload,
     WaitingPayload,
     WorkTxPayload,
 )
@@ -50,6 +51,7 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     PathSelectionRound,
     PerformWorkRound,
     SynchronizedData,
+    UnbondingRound,
     WaitingRound,
 )
 
@@ -155,6 +157,21 @@ class TestBondingRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(bonding_tx=bonding_tx)
         event = self.complete_round(next_state)
         assert event == Event.BONDING_TX
+
+
+class TestUnbondingRound(BaseRoundTestClass):
+    """Tests for UnbondingRound."""
+
+    round_class = UnbondingRound
+    payload_class = UnbondingTxPayload
+
+    @pytest.mark.parametrize("unbonding_tx", ["some_raw_tx_hash"])
+    def test_run(self, unbonding_tx: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(unbonding_tx=unbonding_tx)
+        event = self.complete_round(next_state)
+        assert event == Event.UNBONDING_TX
 
 
 class TestApproveBondRound(BaseRoundTestClass):

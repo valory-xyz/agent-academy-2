@@ -21,7 +21,7 @@ contracts: []
 protocols: []
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeifdwjqufy57a2n2v7xz3ayhfc3kh6vbczprnsjnye2v452kax4h7u
-- valory/keep3r_job_abci:0.1.0:bafybeibiivxu2kjcgd53slpxmempryp6d5afwwjuajl535yv6zrqq4kuo4
+- valory/keep3r_job_abci:0.1.0:bafybeig562h4clobil7c7h5ibafgxkxrog2y4j4csghyitq2ngzjvdknfe
 - valory/registration_abci:0.1.0:bafybeic5csrqcd23ku4x5rpd7taeohoao3ca6zuj54qkuo75kdm2iqxar4
 - valory/reset_pause_abci:0.1.0:bafybeigzw4vo2hxourrto2ghhfg4em3djxnpp2cfj2agsp5uo7g76tbmay
 - valory/termination_abci:0.1.0:bafybeihgepym6cskupgw3smsm43s6br67x5bg4pthtowtk3nz5xkc3c2ce
@@ -105,6 +105,7 @@ models:
       insufficient_funds_threshold: 0
       job_contract_addresses:
       - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      k3pr_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
       keep3r_v1_contract_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
       keep3r_v2_contract_address: '0x85063437C02Ba7F4f82F898859e4992380DEd3bb'
       keeper_allowed_retries: 3
@@ -142,6 +143,7 @@ models:
       tendermint_url: http://localhost:26657
       termination_sleep: 900
       tx_timeout: 10.0
+      unbonding_threshold: 50
       use_flashbots: false
       use_termination: false
       use_v2: false

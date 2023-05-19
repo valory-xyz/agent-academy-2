@@ -8,28 +8,28 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeigcupldnvdbqoxvfhx6vn4dgqmbhwddwpmrwoalru7vthppjtpdry
-  behaviours.py: bafybeigdyv5jpzyziqsdks2lafomkzxwz3pc55b4hilwvwg7ej6ejla5ci
+  behaviours.py: bafybeib5a42yyhriiwjyunafomn5ovmlj3gprj5pn53jnd5mnc34wv44xy
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
   fsm_specification.yaml: bafybeihjvacl6sclfyrntgqoxexfxjq2kfjeyc6whpo4wciynrs3plclxm
   handlers.py: bafybeiflkitcwl4b4glto7xaf7oykdsutbsyr62fwzh4ycy6grvblnypya
   io_/__init__.py: bafybeifxgmmwjqzezzn3e6keh2bfo4cyo7y5dq2ept3stfmgglbrzfl5rq
   io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
-  models.py: bafybeih5rc63afwhliuyj2hycxrjqu2hcxrob4rucm4r4gvnyfdmhtug7i
-  payloads.py: bafybeigyczc7stvwjxmya3ey4bm3hwuph5huqj7me5ziqc4uce5wnlncze
-  rounds.py: bafybeiaqpab4a4b2pwg6wdf5llik65aqibxnoodewvpk7lnjbv5e246dly
+  models.py: bafybeicmjfaokpvass5wv7vthhnyicjdwmirtdgn7ug5gpqgfyrwrllbua
+  payloads.py: bafybeiafefdwdmziqjbmbq6x2lutbbre6bs6hqek4p75rnqk7q65w3ymjm
+  rounds.py: bafybeic7chukdyokukjfpnynzh6dzefvkr4pxa5eum3y72duzuweo2rmnm
   tests/__init__.py: bafybeid4o4ftcie2ldsupmo3atv547afr5hycq25evvbhwqgres7lvq4vu
   tests/helpers.py: bafybeigwnsg3r4mqo2rrai56ju4yknd6tvi3edkterbvbnptst5uwz6oa4
-  tests/test_behaviours.py: bafybeih2lrgulxuk2nk2pnvwfbpslly5u4zmx2shuvgzo5ojoztgekwyey
+  tests/test_behaviours.py: bafybeiampb666oqjzqskhnxn2digrmnmbxeq7nuh5u772irnagnamy64ey
   tests/test_dialogues.py: bafybeiei7iv44yrb2ebchbjpzdyc2tgcsamiiw2jwnu2j4mx2caug2isrq
-  tests/test_payloads.py: bafybeihof5mqk33jrmyx2fl2nxmt7dddutnrrfyycowlgdrsp4amsymlh4
-  tests/test_rounds.py: bafybeihoxbooj443ebbuzxeftkd4uggj53ipghy7krrkv3zkjvylmx4wra
+  tests/test_payloads.py: bafybeiboerzkr7gzru6chwqi6qhvueoduq5ica5t7tuojp2zoi4git4w2y
+  tests/test_rounds.py: bafybeie4cjlnkakouxn4p6wjxfjllhec77l4rt3z44wurqmoulzf7rvwvq
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeig2dobzlupi4twn3lv2avfajslgjukkmkdd4qzf37cbfv7ojupv54
 - valory/keep3r_v1:0.1.0:bafybeibtmwyixk5h6ochkeuvecazzyj7qznoe3yoqwazypqdxovey2ar2e
-- valory/keep3r_v2:0.1.0:bafybeifx2twur2ddpv5zdelez3g7h4qtmhh4v2d7mhbxpkaon2ufwskwuy
+- valory/keep3r_v2:0.1.0:bafybeifllwgx5mmh4qjnviex2hmgznxzde4vlm7bw5fgnwl3z2cgbgdot4
 protocols:
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
 - valory/ledger_api:1.0.0:bafybeieylbg4qb3dmjlm3zufqcwq4qbygsdgj3jzc53eyoqmd25mdz2pkq
@@ -114,6 +114,7 @@ models:
       insufficient_funds_threshold: 0
       job_contract_addresses:
       - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      k3pr_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
       keep3r_v1_contract_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
       keep3r_v2_contract_address: '0x85063437C02Ba7F4f82F898859e4992380DEd3bb'
       keeper_allowed_retries: 3
@@ -149,6 +150,7 @@ models:
       tendermint_p2p_url: localhost:26656
       tendermint_url: http://localhost:26657
       tx_timeout: 10.0
+      unbonding_threshold: 50
       use_flashbots: false
       use_termination: false
       use_v2: false

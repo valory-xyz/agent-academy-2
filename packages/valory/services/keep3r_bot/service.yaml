@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeihu42nbnlusu26cbb2q2u6abnxrvfnjezm2xmy4q3md3wynekuv5q
+agent: valory/keep3r_bot:0.1.0:bafybeievoy2z2u2ipe5v2hbzvjb3wr5ni5jbp3qf3hj6qvnqogyqls56wa
 number_of_agents: 1
 deployment:
   tendermint:
@@ -43,6 +43,8 @@ extra:
       keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
       keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
       use_v2: ${USE_KEEPER_V2:bool:true}
+      k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+      unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
       manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
       raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
 0:
@@ -64,6 +66,8 @@ extra:
         keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
         use_v2: ${USE_KEEPER_V2:bool:true}
+        k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+        unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:node0:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
@@ -86,6 +90,8 @@ extra:
         keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
         use_v2: ${USE_KEEPER_V2:bool:true}
+        k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+        unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_1:str:node1:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
@@ -108,6 +114,8 @@ extra:
         keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
         use_v2: ${USE_KEEPER_V2:bool:true}
+        k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+        unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_2:str:node2:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
@@ -130,6 +138,8 @@ extra:
         keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
         use_v2: ${USE_KEEPER_V2:bool:true}
+        k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+        unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_3:str:node3:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
@@ -165,9 +175,9 @@ type: connection
     ledger_apis:
       ethereum:
         address: ${SERVICE_RPC_1:str:http://127.0.0.1:8545}
-        chain_id: 5
+        chain_id: 1
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_1:str:https://relay-goerli.flashbots.net}
+        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_1:str:https://relay.flashbots.net}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_1:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_1:str:http://127.0.0.1:8545}
@@ -189,9 +199,9 @@ type: connection
     ledger_apis:
       ethereum:
         address: ${SERVICE_RPC_2:str:http://127.0.0.1:8545}
-        chain_id: 5
+        chain_id: 1
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_2:str:https://relay-goerli.flashbots.net}
+        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_2:str:https://relay.flashbots.net}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_2:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_2:str:http://127.0.0.1:8545}
@@ -213,9 +223,9 @@ type: connection
     ledger_apis:
       ethereum:
         address: ${SERVICE_RPC_3:str:http://127.0.0.1:8545}
-        chain_id: 5
+        chain_id: 1
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_3:str:https://relay-goerli.flashbots.net}
+        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_3:str:https://relay.flashbots.net}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_3:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_3:str:http://127.0.0.1:8545}

@@ -46,6 +46,13 @@ class BondingTxPayload(BaseTxPayload):
 
 
 @dataclass(frozen=True)
+class UnbondingTxPayload(BaseTxPayload):
+    """UnbondingTxPayload"""
+
+    unbonding_tx: str
+
+
+@dataclass(frozen=True)
 class WaitingPayload(BaseTxPayload):
     """WaitingPayload"""
 
