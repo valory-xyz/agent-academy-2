@@ -1,12 +1,12 @@
 # Release History - `agent-academy-2`
 
-## v0.3.0 (19.05.2023)
-- Add `manual_gas_limit`.
+## v0.3.0 (22.05.2023)
+- Add support for manually setting the gas limit via `manual_gas_limit`.
 - Add 4-agent mainnet service.
-- Collapse IsWorkable and PerformWork rounds.
+- Collapse `IsWorkable` and `PerformWork` rounds.
 - Add `propagateWorkable` to connext propagate job contract.
-- Dont try to send a tx with failing sim.
-- Add unbonding round.
+- Don't try to send a transaction with a failing simulation.
+- Add support for unbonding the K3PR we get rewarded for woking jobs.
 - Add gentle reset for recovery.
 
 ## v0.2.1 (03.04.2023)
