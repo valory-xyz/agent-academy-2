@@ -7,7 +7,7 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   DepositManager.json: bafybeigprsi6ehxjbhl7qu4c67c7pvkbyybpr5tgbokdpffawvhi36a25u
-  __init__.py: bafybeihkofb3skgfaeylolyzstwqc35jjf6clolnxme354mxswpecs244y
+  __init__.py: bafybeiewsrqaxe5uwxbbafzhx6d5rdwvmvqouz6cgvesuno5iuh444mhiu
   contract.py: bafybeicnfwkpst55hg2eqipp5cilwpfkno5lvvc32aelnilnatbt2tiwje
 fingerprint_ignore_patterns: []
 contracts: []

@@ -402,7 +402,7 @@ class TestSelectKeeperTransactionSubmissionARound(BaseSelectKeeperRoundTest):
             ),
         ),
     )
-    def test_run(
+    def test_run(  # type: ignore
         self,
         most_voted_payload: str,
         keepers: str,
@@ -437,7 +437,7 @@ class TestSelectKeeperTransactionSubmissionBRound(
             ),
         ),
     )
-    def test_run(
+    def test_run(  # type: ignore
         self,
         most_voted_payload: str,
         keepers: str,

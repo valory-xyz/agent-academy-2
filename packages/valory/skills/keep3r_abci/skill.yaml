@@ -7,25 +7,25 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeicg5eg7f4fhaxflzaz6h73xklax6cfggg6d4sjl27tcs3rjqgflza
-  __init__.py: bafybeihzcsfqn6zggjwunxo3x5xjclhvmnkn4t4rblurlj7new37leorua
+  __init__.py: bafybeidxdxexvwnkfj6ajmwabinzgim4okecfzc4eflrbjgbeavcyxmsn4
   behaviours.py: bafybeigmpji7ljrhhfklytnjxpsfwesx3h4ltmq5atbgi6dweh5gxybhpa
   composition.py: bafybeiemid5ug3sx2lxmcoa3dl6b74m24assbqnyefjemprtdwohc2ppz4
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   fsm_specification.yaml: bafybeiglxtz2wcczhyl2zirrrc7aq6recrvkwzczvzujvapjdsm556kwbu
   handlers.py: bafybeihrnok2s2oztglt7on7g5icbugmibikb3y2kqz2imbe23yoij7a5y
   models.py: bafybeihd33rgyt5tmpct2fotsli5ep5bco4nnwf2vwksmy3lfn7qme6rbm
-  payloads.py: bafybeifumkl5b5sns5x2freipdoe4yvymr3gbfhcjrv5vawas42qht2ygy
+  payloads.py: bafybeihcmvruwttq5vtzwzli22kntuqb43remqfzgi3vrt7ijel52ichua
 fingerprint_ignore_patterns: []
 connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeif4qyydg4yitng7zao323xyb7indciwse4zpwgppwlenpnz5cvdfm
-- valory/keep3r_job_abci:0.1.0:bafybeia4a4tniwazzu2jfhrwl4hxbx5skfuudiddfkzjwy34bpoiqbewvq
-- valory/registration_abci:0.1.0:bafybeib4jyawlobr25sz3fnbpuprjdafpldguovdqzsexajr5lgq72vgue
-- valory/reset_pause_abci:0.1.0:bafybeidfx4vnemji7dlijtaddkqlflyafukit6isuao4hk3tr4qut3ntxq
-- valory/termination_abci:0.1.0:bafybeigpbi3l756zs2i5f6vmylqn3jnmleo6q5vb6aibzubfdsfrfnzqv4
-- valory/transaction_settlement_abci:0.1.0:bafybeifktawgukwmhyqqebsref4ikxx4rcjhh662n626pvkekfzi2i7gpu
+- valory/abstract_round_abci:0.1.0:bafybeiaf3twqpqguqmqmqhl4sjd2i2nh5jspzghs3cmhp2co7lb5hkr5yy
+- valory/keep3r_job_abci:0.1.0:bafybeid6jnfjq4qnw4tf2dqymtoibaml27r66w3svsve6u3fovuap2u6ju
+- valory/registration_abci:0.1.0:bafybeic5uibumxihx7qvx2457sqo6d2dzj6u73tywffgamrb54dzvpzraq
+- valory/reset_pause_abci:0.1.0:bafybeifgatypd7xp7ng3zcszpintfxaqgf6blapgsjejy42nr5u4dfseg4
+- valory/termination_abci:0.1.0:bafybeiasehtl7rj62trkulyxtqna37nrrwvhwhthdkri2dihw53lky2txi
+- valory/transaction_settlement_abci:0.1.0:bafybeie3pn44j5mqg6r4zxdsr3fhxsy2imk64nxhnsw33ac6wyg2g2f2sy
 behaviours:
   main:
     args: {}

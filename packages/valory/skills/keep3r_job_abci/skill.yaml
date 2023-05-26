@@ -7,8 +7,8 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
-  __init__.py: bafybeigcupldnvdbqoxvfhx6vn4dgqmbhwddwpmrwoalru7vthppjtpdry
-  behaviours.py: bafybeib5a42yyhriiwjyunafomn5ovmlj3gprj5pn53jnd5mnc34wv44xy
+  __init__.py: bafybeifr6ekniqkhuvkyfw3xktsntjvjjye5vfyir2i5zrzc3bcud5vvqa
+  behaviours.py: bafybeibjz7amkg6mapnbqjutszhykwkpnmycajjnwdhq4cwppdboinhkyq
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
   fsm_specification.yaml: bafybeihjvacl6sclfyrntgqoxexfxjq2kfjeyc6whpo4wciynrs3plclxm
@@ -17,11 +17,11 @@ fingerprint:
   io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
   models.py: bafybeicmjfaokpvass5wv7vthhnyicjdwmirtdgn7ug5gpqgfyrwrllbua
   payloads.py: bafybeiafefdwdmziqjbmbq6x2lutbbre6bs6hqek4p75rnqk7q65w3ymjm
-  rounds.py: bafybeic7chukdyokukjfpnynzh6dzefvkr4pxa5eum3y72duzuweo2rmnm
-  tests/__init__.py: bafybeid4o4ftcie2ldsupmo3atv547afr5hycq25evvbhwqgres7lvq4vu
+  rounds.py: bafybeigt74daiqwdyzbhpevqmqkrey5bsdbg2qtnpkrrc7rwhkmk6zx3im
+  tests/__init__.py: bafybeicw6vp5sxxwr5p3dns6of2px4qizw4q2s55ozf5cu5uamfh3tlrby
   tests/helpers.py: bafybeigwnsg3r4mqo2rrai56ju4yknd6tvi3edkterbvbnptst5uwz6oa4
   tests/test_behaviours.py: bafybeiampb666oqjzqskhnxn2digrmnmbxeq7nuh5u772irnagnamy64ey
-  tests/test_dialogues.py: bafybeiei7iv44yrb2ebchbjpzdyc2tgcsamiiw2jwnu2j4mx2caug2isrq
+  tests/test_dialogues.py: bafybeia6fxfnwbuubvsz5722upwyliokikwtlizhujpfglxva43wxcyfsm
   tests/test_payloads.py: bafybeiboerzkr7gzru6chwqi6qhvueoduq5ica5t7tuojp2zoi4git4w2y
   tests/test_rounds.py: bafybeie4cjlnkakouxn4p6wjxfjllhec77l4rt3z44wurqmoulzf7rvwvq
 fingerprint_ignore_patterns: []
@@ -32,10 +32,10 @@ contracts:
 - valory/keep3r_v2:0.1.0:bafybeifllwgx5mmh4qjnviex2hmgznxzde4vlm7bw5fgnwl3z2cgbgdot4
 protocols:
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
-- valory/ledger_api:1.0.0:bafybeieylbg4qb3dmjlm3zufqcwq4qbygsdgj3jzc53eyoqmd25mdz2pkq
+- valory/ledger_api:1.0.0:bafybeigpn6ysm53qkcllkzgdwc5xxpxz32xn2zoux3phdm2i3yty2i3thu
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeif4qyydg4yitng7zao323xyb7indciwse4zpwgppwlenpnz5cvdfm
-- valory/transaction_settlement_abci:0.1.0:bafybeifktawgukwmhyqqebsref4ikxx4rcjhh662n626pvkekfzi2i7gpu
+- valory/abstract_round_abci:0.1.0:bafybeiaf3twqpqguqmqmqhl4sjd2i2nh5jspzghs3cmhp2co7lb5hkr5yy
+- valory/transaction_settlement_abci:0.1.0:bafybeie3pn44j5mqg6r4zxdsr3fhxsy2imk64nxhnsw33ac6wyg2g2f2sy
 behaviours:
   main:
     args: {}

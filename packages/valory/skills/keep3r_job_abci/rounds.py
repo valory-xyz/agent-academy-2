@@ -21,7 +21,7 @@
 import json
 from abc import ABC
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple, Type, cast
+from typing import Dict, FrozenSet, List, Optional, Set, Tuple, Type, cast
 
 from packages.valory.skills.abstract_round_abci.base import (
     AbciApp,
@@ -527,4 +527,4 @@ class Keep3rJobAbciApp(AbciApp[Event]):
         DegenerateRound: set(),
     }
 
-    cross_period_persisted_keys: Set[str] = {"safe_contract_address"}
+    cross_period_persisted_keys: FrozenSet[str] = frozenset({"safe_contract_address"})

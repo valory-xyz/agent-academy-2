@@ -203,7 +203,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
                 performative=response_performative,
                 state=State(
                     ledger_id="ethereum",
-                    body=response_body,
+                    body=response_body,  # type: ignore
                 ),
             ),
         )
@@ -230,7 +230,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
                 performative=response_performative,
                 state=State(
                     ledger_id="ethereum",
-                    body=response_body,
+                    body=response_body,  # type: ignore
                 ),
             ),
         )
@@ -258,7 +258,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
                 performative=response_performative,
                 state=State(
                     ledger_id="ethereum",
-                    body=response_body,
+                    body=response_body,  # type: ignore
                 ),
             ),
         )
@@ -284,7 +284,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
                 performative=response_performative,
                 state=State(
                     ledger_id="ethereum",
-                    body=response_body,
+                    body=response_body,  # type: ignore
                 ),
             ),
         )
@@ -307,7 +307,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
                 performative=response_performative,
                 state=State(
                     ledger_id="ethereum",
-                    body=response_body,
+                    body=response_body,  # type: ignore
                 ),
             ),
         )
@@ -333,7 +333,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
                 performative=response_performative,
                 state=State(
                     ledger_id="ethereum",
-                    body=response_body,
+                    body=response_body,  # type: ignore
                 ),
             ),
         )
@@ -359,7 +359,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
                 performative=response_performative,
                 state=State(
                     ledger_id="ethereum",
-                    body=response_body,
+                    body=response_body,  # type: ignore
                 ),
             ),
         )
@@ -385,7 +385,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
                 performative=response_performative,
                 raw_transaction=RawTransaction(
                     ledger_id="ethereum",
-                    body=response_body,
+                    body=response_body,  # type: ignore
                 ),
             ),
         )
@@ -396,7 +396,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
     ) -> None:
         """Mock a MultiSendContract.get_tx_data() request."""
         assert self.behaviour.current_behaviour is not None
-        self.behaviour.current_behaviour._AsyncBehaviour__stopped = True
+        self.behaviour.current_behaviour._AsyncBehaviour__stopped = True  # type: ignore
 
     def _mock_state_is_not_waiting_message(  # pylint: disable=unused-argument, disable=protected-access
         self,
@@ -404,7 +404,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
     ) -> None:
         """Mock a MultiSendContract.get_tx_data() request."""
         assert self.behaviour.current_behaviour is not None
-        self.behaviour.current_behaviour._AsyncBehaviour__state = (
+        self.behaviour.current_behaviour._AsyncBehaviour__state = (  # type: ignore
             AsyncBehaviour.AsyncState.RUNNING
         )
 
@@ -586,7 +586,7 @@ class TestBackgroundBehaviour(BaseTerminationTest):
 
             if not log_found:
                 raise AssertionError(
-                    f'Expected log message "{test_case.expected_log}" was not found in captured logs: '
+                    f"Expected log message {test_case.expected_log!r} was not found in captured logs: "
                     f"{mock_logger.call_args_list}."
                 )
 
