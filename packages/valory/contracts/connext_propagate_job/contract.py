@@ -554,7 +554,7 @@ class ConnextPropagateJobContract(Contract):
         ledgers: Dict[str, EthereumApi] = {}
         for ledger_api_id in REQUIRED_LEDGER_APIS:
             if ledger_api_id not in api_configs:
-                raise ValueError(f"Ledger API '{ledger_api_id}' not found in configs.")
+                raise ValueError(f"Ledger API {ledger_api_id!r} not found in configs.")
             ledger_api = ledger_apis_registry.make(
                 ETHEREUM_L1, **api_configs[ledger_api_id]
             )

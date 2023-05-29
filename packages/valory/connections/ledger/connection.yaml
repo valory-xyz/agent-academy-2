@@ -7,21 +7,21 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeihkgodu7o7v6pfazm7u6orlspsfrae3cyz36yc46x67phfmw3l57e
-  __init__.py: bafybeierqitcqk7oy6m3qp7jgs67lcg55mzt3arltkwimuii2ynfejccwi
-  base.py: bafybeifxma5dyzyiodirigplulj736ydtexd4kxyjchjiax4nssbfnugei
-  connection.py: bafybeicydkymhz2feqmihtkiwdfg7pp4pww2elqv4tijuhjcplyvawdk74
-  contract_dispatcher.py: bafybeifgtj3ovcu4i7vsanbn5xwntd5eij7i6vgau5tfiycbrftgimkasi
-  ledger_dispatcher.py: bafybeidx6rptiwba4ctv3ndpn2duke2lzpjp6w5cqnbrvr5nsiqnwcjjuy
-  tests/__init__.py: bafybeieyhttiwruutk6574yzj7dk2afamgdum5vktyv54gsax7dlkuqtc4
+  __init__.py: bafybeia3purd7y4b7tkdt2fcaxkdazos32criq5hx6fhufaislrdefe674
+  base.py: bafybeiglcnxf5v4n2crmadrqiqtnxy5suznzplc63owt72jitmagujqyoq
+  connection.py: bafybeihvepxi747326ilv6frgqzg24m5oft2r4brjfo74por4ni4f7dksy
+  contract_dispatcher.py: bafybeiecnpivhxhuvy3sbnsb7a52cvnzgemswoguaf3n7w4tvdi2ilww2u
+  ledger_dispatcher.py: bafybeig2pjm4y4umzd3dbv2gjnklfy2zb6rb3taxs27jctkl773yf6vhbm
+  tests/__init__.py: bafybeieu5ampzjr5fpe7ktkkgw2zlc5gbbcuz55wcsxo2kibttezsh6suy
   tests/conftest.py: bafybeid7vo7e2m76ey5beeadtbxywxx5ukefd5slwbc362rwmhht6i45ou
-  tests/test_contract_dispatcher.py: bafybeidpwcnitn5gzgmbtaur3mevme72rsdaax27nu4bs3aqxwixyn4cvy
+  tests/test_contract_dispatcher.py: bafybeic7s2u4jprlwuo6i7y562o7vaah4jheqbjrd5xqhqaaq57mgmdt74
   tests/test_ledger.py: bafybeib5q7ypsuumitcsai3mpnjsrzxijtuj7ut5xcsbvpwnllkfozhsk4
-  tests/test_ledger_api.py: bafybeic3nqb43ebpinbjgqfcvub3enndoam6vndki3gikmpmno7pzq4r5y
+  tests/test_ledger_api.py: bafybeiavmh67g5vpgzkgqdjli4tsizpedolfvyia7c23mdnzldt3ez5mja
 fingerprint_ignore_patterns: []
 connections: []
 protocols:
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
-- valory/ledger_api:1.0.0:bafybeieylbg4qb3dmjlm3zufqcwq4qbygsdgj3jzc53eyoqmd25mdz2pkq
+- valory/ledger_api:1.0.0:bafybeigpn6ysm53qkcllkzgdwc5xxpxz32xn2zoux3phdm2i3yty2i3thu
 class_name: LedgerConnection
 config:
   ledger_apis:

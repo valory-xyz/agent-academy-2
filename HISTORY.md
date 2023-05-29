@@ -1,5 +1,8 @@
 # Release History - `agent-academy-2`
 
+## (TBD)
+- Bumps to `tomte@v0.2.12` and cleans up the repo #178
+
 ## v0.3.0 (22.05.2023)
 - Add support for manually setting the gas limit via `manual_gas_limit`.
 - Add 4-agent mainnet service.

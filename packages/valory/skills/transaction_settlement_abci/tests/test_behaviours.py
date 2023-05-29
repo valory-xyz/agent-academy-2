@@ -367,6 +367,7 @@ class TestTransactionSettlementBaseBehaviour(TransactionSettlementFSMBehaviourBa
         """Test the serialized_keepers method."""
         behaviour_ = self.behaviour.current_behaviour
         assert behaviour_ is not None
+        behaviour_ = cast(SignatureBehaviour, behaviour_)
         assert behaviour_.serialized_keepers(deque([]), 1) == ""
         assert (
             behaviour_.serialized_keepers(deque(["-" * 42]), 1)
@@ -507,7 +508,7 @@ class TestSelectKeeperTransactionSubmissionBehaviourB(
     """Test SelectKeeperBehaviour."""
 
     select_keeper_behaviour_class = SelectKeeperTransactionSubmissionBehaviourB
-    next_behaviour_class = FinalizeBehaviour
+    next_behaviour_class = FinalizeBehaviour  # type: ignore
 
     @mock.patch.object(
         TransactionSettlementSynchronizedSata,
@@ -1243,7 +1244,7 @@ class TestSynchronizeLateMessagesBehaviour(TransactionSettlementFSMBehaviourBase
         """Test `async_act`"""
         cast(
             TransactionSettlementBaseBehaviour, self.behaviour.current_behaviour
-        ).params.mutable_params.late_messages = late_messages
+        ).params.mutable_params.late_messages = late_messages  # type: ignore
 
         participants = (self.skill.skill_context.agent_address, "a_1", "a_2")
         self.fast_forward_to_behaviour(

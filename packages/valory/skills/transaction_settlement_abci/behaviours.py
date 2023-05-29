@@ -274,7 +274,7 @@ class TransactionSettlementBaseBehaviour(BaseBehaviour, ABC):
             )
             self.params.mutable_params.nonce = nonce
         self.params.mutable_params.gas_price = gas_price
-        self.params.mutable_params.fallback_gas = fallback_gas
+        self.params.mutable_params.fallback_gas = fallback_gas  # type: ignore
 
         return tx_data
 

@@ -970,7 +970,7 @@ class PerformWorkBehaviour(Keep3rJobBaseBehaviour):
             # something went wrong
             yield from self.sleep(self.context.params.sleep_time)
             return None
-        tx_data = raw_tx.get("data")
+        tx_data = cast(bytes, raw_tx.get("data"))
         simulation_ok = yield from self.simulate_tx(
             job_address,
             contract_public_id,

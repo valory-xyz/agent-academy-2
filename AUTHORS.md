@@ -7,7 +7,7 @@ This is the official list of authors for copyright purposes.
 * 8baller <8ball030@gmail.com> [8ball030](https://github.com/8ball030)
 * Adamantios Zaras <adamantios.zaras@valory.xyz> [Adamantios](https://github.com/Adamantios)
 * Gabriel Fu <hfu.gabriel@gmail.com>  [dvilelaf](https://github.com/dvilelaf)
-* Philipp Bunke <philippbunke@gmail.com>  [philippbunke](https://github.com/philippbunke)
+* Philipp Bunke <philippbunke@gmail.com>
 * Pedram Nimreezi <deadzen@deadzen.com>  [deadzen](https://github.com/deadzen)
 * David Vilela <dvilelaf@gmail.com> [dvilelaf](https://github.com/dvilelaf)
 * jaysonph <iamjaysonph@gmail.com>  [jaysonph](https://github.com/jaysonph)
