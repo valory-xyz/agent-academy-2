@@ -66,7 +66,7 @@ jobs:
       - name: Check pipfiles
         run: tox -e check-pipfiles
       - name: Check doc links
-        run: tomte check-doc-links
+        run: tomte check-doc-links --url-skips https://eips.ethereum.org/EIPS/eip-1884[EIP1884] --url-skips "https://gasprice.poa.network/'" --url-skips https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn
 
   linter_checks:
     continue-on-error: False

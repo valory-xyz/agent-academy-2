@@ -28,7 +28,7 @@ system that can perform the execution of smart contract functionality in a relia
 The [Open Autonomy framework](https://docs.autonolas.network/) provides developers with the necessary tools to
 design and build an agent service that implements this functionality using finite state machines.
 The keeper system implemented here with the use of this framework is operated by 
-[Autonomous Economic Agents](https://valory-xyz.github.io/open-aea/) (AEAs), which possess the full range of 
+[Autonomous Economic Agents](https://open-aea.docs.autonolas.tech/) (AEAs), which possess the full range of 
 capabilities required to perform the necessary tasks. 
 They are capable of acting proactively, executing behaviour periodically as time progresses, when specific events 
 unfold, based on detection of changes in their environment, or any more intricate combination of the former logic.
@@ -41,7 +41,7 @@ This enables its users, be it an individual developer, another application or a 
 ## Useful documentation and resources
 
 https://docs.autonolas.network/
-https://valory-xyz.github.io/open-aea/
+https://open-aea.docs.autonolas.tech/
 https://keep3r.live/
 https://keep3r.network/
 https://docs.keep3r.network/

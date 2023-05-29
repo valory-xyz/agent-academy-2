@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This keeper network is built using the [open-aea](https://valory-xyz.github.io/open-aea/) 
+This keeper network is built using the [open-aea](https://open-aea.docs.autonolas.tech/) 
 and [open-autonomy](https://docs.autonolas.network) frameworks.
 We suggest new developers to read this documentation to get started.
 

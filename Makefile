@@ -79,7 +79,7 @@ generators:
 .PHONY: common-checks-1
 common-checks-1:
 	tomte check-copyright --author valory --exclude-part abci --exclude-part http_client --exclude-part ipfs --exclude-part p2p_libp2p_client --exclude-part gnosis_safe --exclude-part gnosis_safe_proxy_factory --exclude-part multisend --exclude-part service_registry --exclude-part acn --exclude-part contract_api --exclude-part http --exclude-part tendermint --exclude-part abstract_abci
-	tomte check-doc-links
+	tomte check-doc-links --url-skips https://eips.ethereum.org/EIPS/eip-1884[EIP1884] --url-skips "https://gasprice.poa.network/'" --url-skips https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn
 	tox -p -e check-hash -e check-packages
 
 .PHONY: test
