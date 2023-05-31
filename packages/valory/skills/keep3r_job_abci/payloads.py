@@ -85,3 +85,17 @@ class WorkTxPayload(BaseTxPayload):
     """Represent a transaction payload of type 'randomness'."""
 
     work_tx: str
+
+
+@dataclass(frozen=True)
+class CalculateSpentGasPayload(BaseTxPayload):
+    """Represent a transaction payload of type 'CalculateSpentGas'."""
+
+    address_to_gas_spent: str
+
+
+@dataclass(frozen=True)
+class SwapAndDisburseRewardsPayload(BaseTxPayload):
+    """Represent a transaction payload of type 'SwapAndDisburseRewardsPayload'."""
+
+    swap_and_disburse_tx: str

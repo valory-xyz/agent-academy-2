@@ -20,9 +20,16 @@
 """This module contains the behaviours for the 'keep3r_job_abci' skill."""
 import json
 from abc import ABC
-from typing import Any, Dict, Generator, Optional, Set, Tuple, Type, cast
+from typing import Any, Dict, Generator, List, Optional, Set, Tuple, Type, cast
 
 from aea.configurations.data_types import PublicId
+from hexbytes import HexBytes
+
+from packages.valory.contracts.curve_pool.contract import CurvePoolContract
+from packages.valory.contracts.multisend.contract import (
+    MultiSendContract,
+    MultiSendOperation,
+)
 
 
 try:
@@ -30,7 +37,10 @@ try:
 except ImportError:
     from mypy_extensions import TypedDict  # <=py3.7
 
-from packages.valory.contracts.gnosis_safe.contract import GnosisSafeContract
+from packages.valory.contracts.gnosis_safe.contract import (
+    GnosisSafeContract,
+    SafeOperation,
+)
 from packages.valory.contracts.keep3r_v1.contract import Keep3rV1Contract
 from packages.valory.contracts.keep3r_v2.contract import KeeperV2
 from packages.valory.protocols.contract_api.message import ContractApiMessage
@@ -47,8 +57,10 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
     BondingTxPayload,
+    CalculateSpentGasPayload,
     GetJobsPayload,
     PathSelectionPayload,
+    SwapAndDisburseRewardsPayload,
     TopUpPayload,
     UnbondingTxPayload,
     WaitingPayload,
@@ -59,10 +71,12 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     ApproveBondRound,
     AwaitTopUpRound,
     BondingRound,
+    CalculateSpentGasRound,
     GetJobsRound,
     Keep3rJobAbciApp,
     PathSelectionRound,
     PerformWorkRound,
+    SwapAndDisburseRewardsRound,
     SynchronizedData,
     UnbondingRound,
     WaitingRound,
@@ -820,6 +834,468 @@ class UnbondingBehaviour(Keep3rJobBaseBehaviour):
             gas_limit=AUTO_GAS_LIMIT,
         )
         return safe_tx
+
+
+class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
+    """A behaviour to check the amount of gas spent per user."""
+
+    matching_round: Type[AbstractRound] = CalculateSpentGasRound
+    _NO_EVENT: Dict = {}
+
+    def async_act(self) -> Generator:
+        """Do the act, supporting asynchronous execution."""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            address_to_gas_spent = yield from self._get_gas_spent()
+            payload = CalculateSpentGasPayload(
+                sender=self.context.agent_address,
+                address_to_gas_spent=address_to_gas_spent,
+            )
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def _get_gas_spent(self) -> Generator[None, None, str]:
+        """Get the gas spent for the latest unbonding interval."""
+        keeper_address = self.synchronized_data.safe_contract_address
+        bonding_asset = self.params.k3pr_address
+        latest_unbonding_event = yield from self._get_latest_unbonding_event(
+            keeper_address, bonding_asset
+        )
+        if latest_unbonding_event is None or latest_unbonding_event == self._NO_EVENT:
+            # something went wrong, the keeper MUST have unbonded if we have reached this point
+            return CalculateSpentGasRound.ERROR_PAYLOAD
+
+        latest_withdraw_event = yield from self._get_latest_withdrawal_event(
+            keeper_address, bonding_asset
+        )
+        if latest_withdraw_event is None:
+            # something went wrong
+            return CalculateSpentGasRound.ERROR_PAYLOAD
+
+        # we start from the block the block in which the last withdraw event happened, or from the first block if we have
+        # never withdrawn
+        from_block = (
+            0
+            if latest_withdraw_event == self._NO_EVENT
+            else latest_withdraw_event["block_number"]
+        )
+        # we end at the block in which the last unbonding event happened
+        to_block = latest_unbonding_event["block_number"]
+
+        transactions = yield from self._get_safe_txs(
+            keeper_address, from_block, to_block
+        )
+        if transactions is None:
+            # something went wrong
+            return CalculateSpentGasRound.ERROR_PAYLOAD
+
+        transaction_hashes = [tx["tx_hash"] for tx in transactions]
+        tx_sender_to_gas_spent = yield from self._tx_sender_to_gas_spent(
+            transaction_hashes
+        )
+        if tx_sender_to_gas_spent is None:
+            # something went wrong
+            return CalculateSpentGasRound.ERROR_PAYLOAD
+        tx_sender_to_gas_spent_str = json.dumps(tx_sender_to_gas_spent, sort_keys=True)
+        return tx_sender_to_gas_spent_str
+
+    def _get_latest_withdrawal_event(
+        self, keeper_address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[Dict]]:
+        """Get withdrawal events"""
+        withdrawal_events = yield from self.read_keep3r(
+            "get_withdrawal_events",
+            address=keeper_address,
+            bonding_asset=bonding_asset,
+        )
+        if withdrawal_events is None:
+            # something went wrong
+            return None
+
+        if len(withdrawal_events) == 0:
+            # return the empty dict to indicate no withdraws
+            return self._NO_EVENT
+
+        # return the latest withdraw event
+        # events are sorted by block number
+        return withdrawal_events[-1]
+
+    def _get_latest_unbonding_event(
+        self, keeper_address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[Dict]]:
+        """Get unbonding events"""
+        unbonding_events = yield from self.read_keep3r(
+            "get_unbonding_events",
+            address=keeper_address,
+            bonding_asset=bonding_asset,
+        )
+        if unbonding_events is None:
+            # something went wrong
+            return None
+
+        if len(unbonding_events) == 0:
+            # return the empty dict to indicate no unbondings
+            return self._NO_EVENT
+
+        # return the latest unbonding event
+        # events are sorted by block number
+        return unbonding_events[-1]
+
+    def _get_safe_txs(
+        self, safe_address: str, from_block: int, to_block: int
+    ) -> Generator[None, None, Optional[List[Dict]]]:
+        """Get the safe txs."""
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=safe_address,
+            contract_id=str(GnosisSafeContract.contract_id),
+            contract_callable="get_safe_txs",
+            from_block=from_block,
+            to_block=to_block,
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(
+                f"Failed to get safe txs: {contract_api_response}"
+            )
+            return None
+        log_msg = f"`get_safe_txs` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        return cast(List[Dict], contract_api_response.state.body.get("data"))
+
+    def _tx_sender_to_gas_spent(
+        self, transaction_hashes: List[str]
+    ) -> Generator[None, None, Optional[Dict[str, int]]]:
+        """Get a mapping of tx senders to the amount of eth they've spent on gas for the given tx hashes."""
+        tx_sender_to_gas_spent = yield from self.read_keep3r(
+            "sender_to_amount_spent",
+            transaction_hashes=transaction_hashes,
+        )
+        if tx_sender_to_gas_spent is None:
+            # something went wrong
+            return None
+
+        return cast(Dict[str, int], tx_sender_to_gas_spent)
+
+
+class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
+    """SwapAndDisburseRewardsBehaviour"""
+
+    matching_round: Type[AbstractRound] = SwapAndDisburseRewardsRound
+
+    _ETH_INDEX = 0
+    _K3PR_INDEX = 1
+
+    def async_act(self) -> Generator:
+        """Do the act, supporting asynchronous execution."""
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).local():
+            swap_and_disburse_tx = yield from self.get_tx()
+            payload = SwapAndDisburseRewardsPayload(
+                self.context.agent_address, swap_and_disburse_tx
+            )
+
+        with self.context.benchmark_tool.measure(self.behaviour_id).consensus():
+            yield from self.send_a2a_transaction(payload)
+            yield from self.wait_until_round_end()
+
+        self.set_done()
+
+    def get_tx(self) -> Generator[None, None, str]:
+        """
+        Prepare the multisend transaction to execute.
+
+        Required transactions to execute the swap and disburse:
+        1. Withdraw the k3pr from the keep3r contract
+        2. Approve the k3pr for the swap
+        3. Swap the k3pr for eth
+        4. Disburse the eth to the agents
+
+        :returns: the multisend transaction, or error payload if something went wrong
+        :yields: None
+        """
+        keeper_address = self.synchronized_data.safe_contract_address
+        bonding_asset = self.context.params.bonding_asset
+        k3pr_amount = yield from self._get_amount_to_swap(keeper_address, bonding_asset)
+        if k3pr_amount is None:
+            # something went wrong
+            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+
+        # get the minimum amount of eth we are willing to swap the k3pr for
+        min_eth_amount = yield from self._get_eth_amount(k3pr_amount)
+        if min_eth_amount is None:
+            # something went wrong
+            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+
+        multisend_txs: List[Dict[str, Any]] = []
+        # 1. get the withdraw transaction
+        withdraw_tx = yield from self._get_withdraw_tx(
+            self.keep3r_v2_contract_address, bonding_asset
+        )
+        if withdraw_tx is None:
+            # something went wrong
+            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+
+        # 2. get the approve transaction
+        approve_tx = yield from self._get_approve_tx(
+            bonding_asset, self.params.curve_pool_contract_address, k3pr_amount
+        )
+        if approve_tx is None:
+            # something went wrong
+            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+
+        # 3. get the swap transaction
+        swap_tx = yield from self._get_swap_tx(
+            self.params.curve_pool_contract_address, k3pr_amount, min_eth_amount
+        )
+        if swap_tx is None:
+            # something went wrong
+            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+
+        # 4. get the agent disburse transactions
+        address_to_gas_spent = self.synchronized_data.address_to_gas_spent
+        address_to_eth = self._get_transfer_amounts(
+            address_to_gas_spent, min_eth_amount
+        )
+        disburse_txs = self._get_disburse_txs(address_to_eth, min_eth_amount)
+        if disburse_txs is None:
+            # something went wrong
+            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+
+        multisend_txs.extend(disburse_txs)
+        tx = yield from self._get_multisend_tx(multisend_txs)
+        if tx is None:
+            # something went wrong
+            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+        return tx
+
+    def _get_amount_to_swap(
+        self, keeper_address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[int]]:
+        """Get the amount of K3PR to swap."""
+        pending_unbonds = yield from self.read_keep3r(
+            "pending_unbonds",
+            address=keeper_address,
+            bonding_asset=bonding_asset,
+        )
+        if pending_unbonds is None:
+            # something went wrong
+            return None
+
+        # return the amount of K3PR to swap,
+        # which should be all the available K3PR
+        return pending_unbonds
+
+    def _get_eth_amount(self, k3pr_amount: int) -> Generator[None, None, Optional[int]]:
+        """Get the amount of eth we expect for the provided K3PR amount."""
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=self.context.params.curve_pool_contract_address,
+            contract_id=str(CurvePoolContract.contract_id),
+            contract_callable="get_dy_for_dx",
+            dx=k3pr_amount,
+            i=self._K3PR_INDEX,
+            j=self._ETH_INDEX,
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(f"Failed simulate_tx: {contract_api_response}")
+            return None
+        log_msg = f"`get_dy_for_dx` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        return cast(int, contract_api_response.state.body.get("data", 0))
+
+    def _get_swap_tx(
+        self, pool_address: str, k3pr_amount: int, min_eth_amount: int
+    ) -> Generator[None, None, Optional[Dict[str, Any]]]:
+        """Swap tx."""
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=pool_address,
+            contract_id=str(CurvePoolContract.contract_id),
+            contract_callable="build_exchange_tx",
+            dx=k3pr_amount,
+            i=self._K3PR_INDEX,
+            j=self._ETH_INDEX,
+            min_dy=min_eth_amount,
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(
+                f"Failed build_exchange_tx: {contract_api_response}"
+            )
+            return None
+        log_msg = (
+            f"`build_exchange_tx` contract api response on {contract_api_response}"
+        )
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        data_str = cast(
+            Optional[str], contract_api_response.state.body.get("data", False)
+        )
+        if data_str is None:
+            # something went wrong
+            return None
+
+        data = bytes.fromhex(data_str[2:])
+        # build a single tx
+        single_tx = {
+            "operation": MultiSendOperation.CALL,
+            "to": pool_address,
+            "value": ZERO_ETH,
+            "data": HexBytes(data),
+        }
+        return single_tx
+
+    def _get_withdraw_tx(
+        self, keep3rV2_address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[Dict[str, Any]]]:
+        """Withdraw tx."""
+        withdraw_tx = yield from self.read_keep3r(
+            "build_withdraw_tx",
+            bonding_asset=bonding_asset,
+        )
+        if withdraw_tx is None:
+            # something went wrong
+            return None
+        data = bytes.fromhex(withdraw_tx[2:])
+        # build a single tx
+        single_tx = {
+            "operation": MultiSendOperation.CALL,
+            "to": keep3rV2_address,
+            "value": ZERO_ETH,
+            "data": HexBytes(data),
+        }
+        return single_tx
+
+    def _get_approve_tx(
+        self, bonding_asset: str, spender: str, amount: int
+    ) -> Generator[None, None, Optional[Dict[str, Any]]]:
+        """Approve tx."""
+        approve_tx = yield from self.build_approve_raw_tx(
+            spender, bonding_asset, amount
+        )
+        if approve_tx is None:
+            # something went wrong
+            return None
+
+        # build a single tx
+        single_tx = {
+            "operation": MultiSendOperation.CALL,
+            "to": bonding_asset,
+            "value": ZERO_ETH,
+            "data": HexBytes(approve_tx["data"]),
+        }
+        return single_tx
+
+    def _get_transfer_amounts(
+        self, address_to_gas: Dict[str, int], eth_amount: int
+    ) -> Dict[str, int]:
+        """Get the transfer amounts for each address."""
+        total_gas_spent = sum(address_to_gas.values())
+        surplus = eth_amount - total_gas_spent
+        if surplus <= 0:
+            # there is no surplus, we divide the eth_amount based on the gas spent by each address
+            self.context.logger.info(
+                "There is no surplus, we divide the eth_amount based on the gas spent by each address."
+            )
+            return {
+                address: int(eth_amount * gas_spent / total_gas_spent)
+                for address, gas_spent in address_to_gas.items()
+            }
+
+        # agents get their share, the rest sits in the safe
+        # agent_surplus_share defines the share of the surplus that goes to the agents
+        agent_surplus_share: float = self.params.agent_surplus_share
+        agent_surplus = int(surplus * agent_surplus_share)
+
+        # there is a surplus, we divide the surplus equally among the agents
+        surplus_per_agent = int(agent_surplus / len(address_to_gas))
+        return {
+            address: gas_spent + surplus_per_agent
+            for address, gas_spent in address_to_gas.items()
+        }
+
+    def _get_disburse_txs(
+        self, address_to_eth: Dict[str, int], eth_amount: int
+    ) -> List[Dict[str, Any]]:
+        """Get the transfer txs for each address."""
+        transfer_amounts = self._get_transfer_amounts(address_to_eth, eth_amount)
+        transfer_txs = []
+        for address, amount in transfer_amounts.items():
+            transfer_txs.append(
+                {
+                    "operation": MultiSendOperation.CALL,
+                    "to": address,
+                    "value": amount,
+                    "data": b"",
+                }
+            )
+        return transfer_txs
+
+    def _get_safe_tx_hash(self, data: bytes) -> Generator[None, None, Optional[str]]:
+        """Prepares and returns the safe tx hash."""
+        response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,  # type: ignore
+            contract_address=self.synchronized_data.safe_contract_address,
+            contract_id=str(GnosisSafeContract.contract_id),
+            contract_callable="get_raw_safe_transaction_hash",
+            to_address=self.params.multisend_address,  # we send the tx to the multisend address
+            value=ZERO_ETH,
+            data=data,
+            safe_tx_gas=SAFE_GAS,
+            operation=SafeOperation.DELEGATE_CALL.value,
+        )
+
+        if response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(
+                f"Couldn't get safe hash. "
+                f"Expected response performative {ContractApiMessage.Performative.STATE.value}, "  # type: ignore
+                f"received {response.performative.value}."
+            )
+            return None
+
+        # strip "0x" from the response hash
+        tx_hash = cast(str, response.state.body["tx_hash"])[2:]
+        return tx_hash
+
+    def _get_multisend_tx(
+        self,
+        multi_send_txs: List[Dict[str, Any]],
+    ) -> Generator[None, None, Optional[str]]:
+        """Get the multisend tx."""
+        response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,  # type: ignore
+            contract_address=self.params.multisend_address,
+            contract_id=str(MultiSendContract.contract_id),
+            contract_callable="get_tx_data",
+            multi_send_txs=multi_send_txs,
+        )
+        if response.performative != ContractApiMessage.Performative.RAW_TRANSACTION:
+            self.context.logger.error(
+                f"Couldn't compile the multisend tx. "
+                f"Expected response performative {ContractApiMessage.Performative.RAW_TRANSACTION.value}, "  # type: ignore
+                f"received {response.performative.value}."
+            )
+            return None
+
+        # strip "0x" from the response
+        multisend_data_str = cast(str, response.raw_transaction.body["data"])[2:]
+        tx_data = bytes.fromhex(multisend_data_str)
+        tx_hash = yield from self._get_safe_tx_hash(tx_data)
+        if tx_hash is None:
+            # something went wrong
+            return None
+
+        payload_data = hash_payload_to_hex(
+            safe_tx_hash=tx_hash,
+            ether_value=ZERO_ETH,
+            safe_tx_gas=SAFE_GAS,
+            operation=SafeOperation.DELEGATE_CALL.value,
+            to_address=self.params.multisend_address,
+            data=tx_data,
+        )
+        return payload_data
 
 
 class WaitingBehaviour(Keep3rJobBaseBehaviour):

@@ -1,0 +1,17 @@
+name: curve_pool
+author: valory
+version: 0.1.0
+type: contract
+description: CurvePool contract
+license: Apache-2.0
+aea_version: '>=1.0.0, <2.0.0'
+fingerprint:
+  __init__.py: bafybeifepbm3zcx3vdnffqfqeafyjurfejv5touwgwy5drgg4kgcwwu2ei
+  build/Keep3rV1Library.json: bafybeid4fe2niicabyugmaqmowm7nuua4wptomr6k6xhvdxchf577qkqla
+  contract.py: bafybeidntrgzbneiabdtygmaovetlrczipj4zeew7c52uwlotc3wnscefy
+fingerprint_ignore_patterns: []
+contracts: []
+class_name: CurvePoolContract
+contract_interface_paths:
+  ethereum: build/CurvePool.json
+dependencies: {}

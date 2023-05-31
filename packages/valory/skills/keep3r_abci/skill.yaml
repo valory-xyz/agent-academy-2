@@ -144,6 +144,8 @@ models:
       termination_sleep: 900
       tx_timeout: 10.0
       unbonding_threshold: 50
+      curve_pool_contract_address: '0x0000000000000000000000000000000000000000'
+      agent_surplus_share: 0.75
       use_flashbots: false
       use_termination: false
       use_v2: false

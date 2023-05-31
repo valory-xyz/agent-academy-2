@@ -38,8 +38,10 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
     BondingTxPayload,
+    CalculateSpentGasPayload,
     GetJobsPayload,
     PathSelectionPayload,
+    SwapAndDisburseRewardsPayload,
     TopUpPayload,
     UnbondingTxPayload,
     WaitingPayload,
@@ -73,6 +75,7 @@ class Event(Enum):
     NO_MAJORITY = "no_majority"
     ROUND_TIMEOUT = "round_timeout"
     SIMULATION_FAILED = "simulation_failed"
+    ERROR = "error"
 
 
 class SynchronizedData(BaseSynchronizedData):
@@ -102,6 +105,11 @@ class SynchronizedData(BaseSynchronizedData):
     def tx_submitter(self) -> str:
         """Get the round that submitted a tx to transaction_settlement_abci."""
         return cast(str, self.db.get_strict("tx_submitter"))
+
+    @property
+    def address_to_gas_spent(self) -> Dict[str, int]:
+        """Get the address_to_gas_spent."""
+        return cast(Dict[str, int], self.db.get_strict("address_to_gas_spent"))
 
 
 class Keep3rJobAbstractRound(CollectSameUntilThresholdRound, ABC):
@@ -215,6 +223,69 @@ class UnbondingRound(Keep3rJobAbstractRound):
                 }
             )
             return state, Event.UNBONDING_TX
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
+
+
+class CalculateSpentGasRound(Keep3rJobAbstractRound):
+    """CalculateSpentGasRound"""
+
+    payload_class = CalculateSpentGasPayload
+    payload_attribute: str = "address_to_gas_spent"
+
+    ERROR_PAYLOAD = "ERROR"
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+        """Process the end of the block."""
+
+        if self.threshold_reached:
+            address_to_gas_spent_str = self.most_voted_payload
+            if address_to_gas_spent_str == self.ERROR_PAYLOAD:
+                return self.synchronized_data, Event.ERROR
+
+            address_to_gas_spent = json.loads(address_to_gas_spent_str)
+            state = self.synchronized_data.update(
+                synchronized_data_class=SynchronizedData,
+                **{
+                    get_name(
+                        SynchronizedData.address_to_gas_spent
+                    ): address_to_gas_spent,
+                },
+            )
+            return state, Event.DONE
+        if not self.is_majority_possible(
+            self.collection, self.synchronized_data.nb_participants
+        ):
+            return self.synchronized_data, Event.NO_MAJORITY
+        return None
+
+
+class SwapAndDisburseRewardsRound(Keep3rJobAbstractRound):
+    """Round to swap and distribute the earned keeper."""
+
+    payload_class = SwapAndDisburseRewardsPayload
+    payload_attribute: str = "swap_and_disburse_tx"
+
+    ERROR_PAYLOAD = "ERROR"
+
+    def end_block(self) -> Optional[Tuple[BaseSynchronizedData, Event]]:
+        """Process the end of the block."""
+
+        if self.threshold_reached:
+            multisend_tx = self.most_voted_payload
+            if multisend_tx == self.ERROR_PAYLOAD:
+                return self.synchronized_data, Event.ERROR
+
+            state = self.synchronized_data.update(
+                **{
+                    get_name(SynchronizedData.most_voted_tx_hash): multisend_tx,
+                    get_name(SynchronizedData.tx_submitter): self.auto_round_id(),
+                }
+            )
+            return state, Event.DONE
         if not self.is_majority_possible(
             self.collection, self.synchronized_data.nb_participants
         ):
@@ -467,6 +538,18 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.UNBONDING_TX: FinalizeBondingRound,
             Event.NO_MAJORITY: UnbondingRound,
             Event.ROUND_TIMEOUT: UnbondingRound,
+        },
+        CalculateSpentGasRound: {
+            Event.DONE: SwapAndDisburseRewardsRound,
+            Event.NO_MAJORITY: CalculateSpentGasRound,
+            Event.ROUND_TIMEOUT: CalculateSpentGasRound,
+            Event.ERROR: PathSelectionRound,
+        },
+        SwapAndDisburseRewardsRound: {
+            Event.DONE: FinalizeWorkRound,
+            Event.NO_MAJORITY: SwapAndDisburseRewardsRound,
+            Event.ROUND_TIMEOUT: SwapAndDisburseRewardsRound,
+            Event.ERROR: PathSelectionRound,
         },
         WaitingRound: {
             Event.DONE: ActivationRound,

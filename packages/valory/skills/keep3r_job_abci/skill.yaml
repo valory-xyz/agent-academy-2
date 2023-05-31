@@ -28,6 +28,8 @@ fingerprint_ignore_patterns: []
 connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeig2dobzlupi4twn3lv2avfajslgjukkmkdd4qzf37cbfv7ojupv54
+- valory/multisend:0.1.0:bafybeig2dobzlupi4twn3lv2avfajslgjukkmkdd4qzf37cbfv7ojupv5
+- valory/curve_pool:0.1.0:bafybeig2dobzlupi4twn3lv2avfajslgjukkmkdd4qzf37cbfv7ojupv5
 - valory/keep3r_v1:0.1.0:bafybeibtmwyixk5h6ochkeuvecazzyj7qznoe3yoqwazypqdxovey2ar2e
 - valory/keep3r_v2:0.1.0:bafybeifllwgx5mmh4qjnviex2hmgznxzde4vlm7bw5fgnwl3z2cgbgdot4
 protocols:
@@ -117,6 +119,8 @@ models:
       k3pr_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
       keep3r_v1_contract_address: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44'
       keep3r_v2_contract_address: '0x85063437C02Ba7F4f82F898859e4992380DEd3bb'
+      curve_pool_contract_address: '0x0000000000000000000000000000000000000000'
+      agent_surplus_share: 0.75
       keeper_allowed_retries: 3
       keeper_timeout: 30.0
       manual_gas_limit: 0
