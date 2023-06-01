@@ -33,8 +33,10 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
     BondingTxPayload,
+    CalculateSpentGasPayload,
     GetJobsPayload,
     PathSelectionPayload,
+    SwapAndDisburseRewardsPayload,
     TopUpPayload,
     UnbondingTxPayload,
     WaitingPayload,
@@ -45,11 +47,13 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     ApproveBondRound,
     AwaitTopUpRound,
     BondingRound,
+    CalculateSpentGasRound,
     Event,
     GetJobsRound,
     Keep3rJobAbstractRound,
     PathSelectionRound,
     PerformWorkRound,
+    SwapAndDisburseRewardsRound,
     SynchronizedData,
     UnbondingRound,
     WaitingRound,
@@ -217,6 +221,36 @@ class TestActivationRound(BaseRoundTestClass):
         next_state = self.deliver_payloads(activation_tx=activation_tx)
         event = self.complete_round(next_state)
         assert event == Event.ACTIVATION_TX
+
+
+class TestCalculateSpentGasRound(BaseRoundTestClass):
+    """Tests for CalculateSpentGasRound."""
+
+    round_class = CalculateSpentGasRound
+    payload_class = CalculateSpentGasPayload
+
+    @pytest.mark.parametrize("address_to_gas_spent", ['{"0x0": 1}'])
+    def test_run(self, address_to_gas_spent: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(address_to_gas_spent=address_to_gas_spent)
+        event = self.complete_round(next_state)
+        assert event == Event.DONE
+
+
+class TestSwapAndDisburseRewardsRound(BaseRoundTestClass):
+    """Tests for SwapAndDisburseRewards."""
+
+    round_class = SwapAndDisburseRewardsRound
+    payload_class = SwapAndDisburseRewardsPayload
+
+    @pytest.mark.parametrize("swap_and_disburse_tx", ["some_raw_tx_hash"])
+    def test_run(self, swap_and_disburse_tx: str) -> None:
+        """Run tests."""
+
+        next_state = self.deliver_payloads(swap_and_disburse_tx=swap_and_disburse_tx)
+        event = self.complete_round(next_state)
+        assert event == Event.DONE
 
 
 class TestGetJobsRound(BaseRoundTestClass):
