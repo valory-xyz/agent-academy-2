@@ -6,9 +6,9 @@ description: CurvePool contract
 license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
-  __init__.py: bafybeifepbm3zcx3vdnffqfqeafyjurfejv5touwgwy5drgg4kgcwwu2ei
-  build/Keep3rV1Library.json: bafybeid4fe2niicabyugmaqmowm7nuua4wptomr6k6xhvdxchf577qkqla
-  contract.py: bafybeidntrgzbneiabdtygmaovetlrczipj4zeew7c52uwlotc3wnscefy
+  __init__.py: bafybeictrqqkqaiis2ohyzuooddrezhmi5jmxmibvmw7w5o24qu2mue24i
+  build/CurvePool.json: bafybeigktqontoncikf2nzz5ruhgotbv7u7arih7jgzi6jrwflsiuxl3zi
+  contract.py: bafybeihesfkjgr2oe3tdlyi7x25bd2hp2fmshk4tj2ycfnk6jtw63m4fxq
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: CurvePoolContract

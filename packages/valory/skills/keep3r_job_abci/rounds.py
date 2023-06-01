@@ -61,6 +61,7 @@ class Event(Enum):
     ACTIVATION_TX = "activation_tx"
     AWAITING_BONDING = "awaiting_bonding"
     BLACKLISTED = "blacklisted"
+    WITHDRAW = "withdraw"
     UNKNOWN_HEALTH_ISSUE = "unknown_health_issue"
     HEALTHY = "healthy"
     DONE = "done"
@@ -138,6 +139,7 @@ class PathSelectionRound(Keep3rJobAbstractRound):
         "HEALTHY": Event.HEALTHY,
         "INSUFFICIENT_FUNDS": Event.INSUFFICIENT_FUNDS,
         "BLACKLISTED": Event.BLACKLISTED,
+        "WITHDRAW": Event.WITHDRAW,
         "UNKNOWN_HEALTH_ISSUE": Event.UNKNOWN_HEALTH_ISSUE,
     }
 
@@ -520,6 +522,7 @@ class Keep3rJobAbciApp(AbciApp[Event]):
             Event.UNBOND: UnbondingRound,
             Event.BLACKLISTED: BlacklistedRound,
             Event.APPROVE_BOND: ApproveBondRound,
+            Event.WITHDRAW: CalculateSpentGasRound,
             Event.UNKNOWN_HEALTH_ISSUE: DegenerateRound,
             Event.NO_MAJORITY: PathSelectionRound,
             Event.ROUND_TIMEOUT: PathSelectionRound,

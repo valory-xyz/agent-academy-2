@@ -329,6 +329,35 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         allowance = cast(int, allowance_msg.state.body.get("data"))
         return bond_amount - allowance
 
+    def is_ready_to_withdraw(
+        self, keeper: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[bool]]:
+        """Check if the bond is ready to be activated"""
+
+        can_withdraw_after = yield from self.read_keep3r(
+            "can_withdraw_after",
+            address=keeper,
+            bonding_asset=bonding_asset,
+        )
+        if can_withdraw_after is None:
+            # something went wrong
+            return None
+        ledger_api_response = yield from self.get_ledger_api_response(
+            performative=LedgerApiMessage.Performative.GET_STATE,
+            ledger_callable="get_block",
+            block_identifier="latest",
+        )
+        if ledger_api_response.performative != LedgerApiMessage.Performative.STATE:
+            log_msg = "Failed ledger get_block call in has_bonded"
+            self.context.logger.error(f"{log_msg}: {ledger_api_response}")
+            return None
+        latest_block_timestamp = cast(
+            int, ledger_api_response.state.body.get("timestamp")
+        )
+        remaining_time = can_withdraw_after - latest_block_timestamp
+        self.context.logger.info(f"Remaining withdraw time: {remaining_time}")
+        return remaining_time <= 0
+
     def has_pending_bond(
         self, address: str, bonding_asset: str
     ) -> Generator[None, None, Optional[bool]]:
@@ -543,6 +572,23 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         )
         return payload_data
 
+    def get_pending_unbonds(
+        self, keeper_address: str, bonding_asset: str
+    ) -> Generator[None, None, Optional[int]]:
+        """Get the amount of K3PR we are already unbonding."""
+        pending_unbonds = yield from self.read_keep3r(
+            "pending_unbonds",
+            address=keeper_address,
+            bonding_asset=bonding_asset,
+        )
+        if pending_unbonds is None:
+            # something went wrong
+            return None
+
+        # return the amount of K3PR to swap,
+        # which should be all the available K3PR
+        return pending_unbonds
+
     def _load_contract_package(
         self, ipfs_hash: str
     ) -> Generator[None, None, Optional[PublicId]]:
@@ -649,15 +695,32 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
                 return self.transitions["APPROVE_BOND"].name
             return self.transitions["NOT_BONDED"].name
 
-        should_unbond = yield from self.should_unbond_k3pr(
+        pending_unbonds = yield from self.get_pending_unbonds(
             safe_address, self.params.k3pr_address
         )
-        if should_unbond is None:
+        if pending_unbonds is None:
             # something went wrong
             return None
-        # only if true we unbond, if false we continue with the rest of the logic
-        if should_unbond:
+        should_unbond_k3pr = yield from self.should_unbond_k3pr(
+            safe_address, self.params.k3pr_address
+        )
+        if should_unbond_k3pr is None:
+            # something went wrong
+            return None
+        if pending_unbonds == 0 and should_unbond_k3pr:
+            # we only unbond if we have reached the unbond threshold and we have no pending unbonds
+            # no pending unbonds means we can unbond without pushing the withdrawal date for all the pending unbonds
             return self.transitions["UNBOND"].name
+
+        # if we reach this point we have a pending unbond, we check if we can withdraw
+        is_ready_to_withdraw = yield from self.is_ready_to_withdraw(
+            safe_address, self.params.k3pr_address
+        )
+        if is_ready_to_withdraw is None:
+            # something went wrong
+            return None
+        if is_ready_to_withdraw and pending_unbonds > 0:
+            return self.transitions["WITHDRAW"].name
 
         bonded_keeper = yield from self.is_ready_to_activate(
             safe_address, self.context.params.bonding_asset
@@ -964,7 +1027,7 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
             return None
         log_msg = f"`get_safe_txs` contract api response on {contract_api_response}"
         self.context.logger.info(f"{log_msg}: {contract_api_response}")
-        return cast(List[Dict], contract_api_response.state.body.get("data"))
+        return cast(List[Dict], contract_api_response.state.body.get("txs"))
 
     def _tx_sender_to_gas_spent(
         self, transaction_hashes: List[str]
@@ -1018,8 +1081,8 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
         :yields: None
         """
         keeper_address = self.synchronized_data.safe_contract_address
-        bonding_asset = self.context.params.bonding_asset
-        k3pr_amount = yield from self._get_amount_to_swap(keeper_address, bonding_asset)
+        bonding_asset = self.context.params.k3pr_address
+        k3pr_amount = yield from self.get_pending_unbonds(keeper_address, bonding_asset)
         if k3pr_amount is None:
             # something went wrong
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
@@ -1072,38 +1135,21 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
         return tx
 
-    def _get_amount_to_swap(
-        self, keeper_address: str, bonding_asset: str
-    ) -> Generator[None, None, Optional[int]]:
-        """Get the amount of K3PR to swap."""
-        pending_unbonds = yield from self.read_keep3r(
-            "pending_unbonds",
-            address=keeper_address,
-            bonding_asset=bonding_asset,
-        )
-        if pending_unbonds is None:
-            # something went wrong
-            return None
-
-        # return the amount of K3PR to swap,
-        # which should be all the available K3PR
-        return pending_unbonds
-
     def _get_eth_amount(self, k3pr_amount: int) -> Generator[None, None, Optional[int]]:
         """Get the amount of eth we expect for the provided K3PR amount."""
         contract_api_response = yield from self.get_contract_api_response(
             performative=ContractApiMessage.Performative.GET_STATE,
-            contract_address=self.context.params.curve_pool_contract_address,
+            contract_address=self.params.curve_pool_contract_address,
             contract_id=str(CurvePoolContract.contract_id),
-            contract_callable="get_dy_for_dx",
+            contract_callable="get_dy",
             dx=k3pr_amount,
             i=self._K3PR_INDEX,
             j=self._ETH_INDEX,
         )
         if contract_api_response.performative != ContractApiMessage.Performative.STATE:
-            self.context.logger.error(f"Failed simulate_tx: {contract_api_response}")
+            self.context.logger.error(f"Failed get_dy: {contract_api_response}")
             return None
-        log_msg = f"`get_dy_for_dx` contract api response on {contract_api_response}"
+        log_msg = f"`get_dy` contract api response on {contract_api_response}"
         self.context.logger.info(f"{log_msg}: {contract_api_response}")
         return cast(int, contract_api_response.state.body.get("data", 0))
 
@@ -1294,6 +1340,7 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             operation=SafeOperation.DELEGATE_CALL.value,
             to_address=self.params.multisend_address,
             data=tx_data,
+            use_flashbots=self.use_flashbots,
         )
         return payload_data
 
@@ -1541,6 +1588,8 @@ class Keep3rJobRoundBehaviour(AbstractRoundBehaviour):
         PathSelectionBehaviour,  # type: ignore
         BondingBehaviour,  # type: ignore
         UnbondingBehaviour,  # type: ignore
+        CalculateSpentGasBehaviour,  # type: ignore
+        SwapAndDisburseRewardsBehaviour,  # type: ignore
         WaitingBehaviour,  # type: ignore
         ActivationBehaviour,  # type: ignore
         GetJobsBehaviour,  # type: ignore

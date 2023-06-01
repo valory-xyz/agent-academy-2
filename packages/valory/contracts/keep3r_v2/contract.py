@@ -18,7 +18,8 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the Keep3rV1 contract definition."""
-
+import asyncio
+import concurrent.futures
 import logging
 from typing import Dict, List, Union, cast
 
@@ -288,7 +289,7 @@ class KeeperV2(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-        sender_address: str,
+        address: str,
         bonding_asset: str,
         from_block: BlockIdentifier = "earliest",
         to_block: BlockIdentifier = "latest",
@@ -298,7 +299,7 @@ class KeeperV2(Contract):
 
         :param ledger_api: the ledger API object
         :param contract_address: the keep3rV2 contract address
-        :param sender_address: the owner of the service, the safe address
+        :param address: the keeper address
         :param bonding_asset: the asset that was unbonded
         :param from_block: from which block to search for events
         :param to_block: to which block to search for events
@@ -306,24 +307,23 @@ class KeeperV2(Contract):
         """
         ledger_api = cast(EthereumApi, ledger_api)
         contract = cls.get_instance(ledger_api, contract_address)
-        sender_address = ledger_api.api.toChecksumAddress(sender_address)
-        entries = contract.events.SafeReceived.createFilter(
+        address = ledger_api.api.toChecksumAddress(address)
+        entries = contract.events.Unbonding.createFilter(
             fromBlock=from_block,
             toBlock=to_block,
-            argument_filters=dict(
-                _keeperOrJob=sender_address, _unbonding=bonding_asset
-            ),
+            argument_filters=dict(_keeperOrJob=address, _unbonding=bonding_asset),
         ).get_all_entries()
         unbonding_events = list(
             dict(
                 tx_hash=entry.transactionHash.hex(),
                 block_number=entry.blockNumber,
-                keeper=sender_address,
+                keeper=address,
                 unbonding_asset=bonding_asset,
-                amount=ledger_api.api.toChecksumAddress(entry["args"]["_amount"]),
+                amount=entry["args"]["_amount"],
             )
             for entry in entries
         )
+        sorted(unbonding_events, key=lambda x: x["block_number"])
         return dict(
             data=unbonding_events,
         )
@@ -333,7 +333,7 @@ class KeeperV2(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
-        keeper_address: str,
+        address: str,
         bonding_asset: str,
         from_block: BlockIdentifier = "earliest",
         to_block: BlockIdentifier = "latest",
@@ -343,27 +343,27 @@ class KeeperV2(Contract):
 
         :param ledger_api: the ledger API object
         :param contract_address: the keep3rV2 contract address
-        :param keeper_address: the sender of the keeper
-        :param bonding_asset: the asset that was unbonded
+        :param address: keeper address
+        :param bonding_asset: the asset that was withdrawn
         :param from_block: from which block to search for events
         :param to_block: to which block to search for events
         :return: the withdrawal events
         """
         ledger_api = cast(EthereumApi, ledger_api)
         contract = cls.get_instance(ledger_api, contract_address)
-        sender_address = ledger_api.api.toChecksumAddress(keeper_address)
+        address = ledger_api.api.toChecksumAddress(address)
         entries = contract.events.Withdrawal.createFilter(
             fromBlock=from_block,
             toBlock=to_block,
-            argument_filters=dict(_keeper=sender_address, _bond=bonding_asset),
+            argument_filters=dict(_keeper=address, _bond=bonding_asset),
         ).get_all_entries()
         withdrawal_events = list(
             dict(
                 tx_hash=entry.transactionHash.hex(),
                 block_number=entry.blockNumber,
-                keeper=sender_address,
+                keeper=address,
                 unbonding_asset=bonding_asset,
-                amount=ledger_api.api.toChecksumAddress(entry["args"]["_amount"]),
+                amount=entry["args"]["_amount"],
             )
             for entry in entries
         )
@@ -387,15 +387,33 @@ class KeeperV2(Contract):
         :param transaction_hashes: the transaction hashes
         :return: the amount of gas spent by each owner (in wei)
         """
-        sender_to_amount_spent = {}
-        for tx_hash in transaction_hashes:
+        loop = asyncio.new_event_loop()
+        tasks = []
+        num_threads = 5
+
+        def get_gas_spent(tx_hash: str) -> Dict[str, int]:
             tx_receipt = ledger_api.get_transaction_receipt(tx_hash)
             tx = ledger_api.get_transaction(tx_hash)
             gas_price = int(tx["gasPrice"])
             gas_used = int(tx_receipt["gasUsed"])
             total_spent = gas_price * gas_used
-
             sender = tx["from"]
+            return {sender: total_spent}
+
+        with concurrent.futures.ThreadPoolExecutor(num_threads) as pool:
+            for transaction_hash in transaction_hashes:
+                task = loop.run_in_executor(pool, get_gas_spent, transaction_hash)
+                tasks.append(task)
+
+            results = cast(
+                List[JSONLike], loop.run_until_complete(asyncio.gather(*tasks))
+            )
+            loop.close()
+
+        sender_to_amount_spent = {}
+        for result in results:
+            sender = list(result.keys())[0]
+            total_spent = result[sender]
             if sender not in sender_to_amount_spent:
                 sender_to_amount_spent[sender] = 0
             sender_to_amount_spent[sender] += total_spent
