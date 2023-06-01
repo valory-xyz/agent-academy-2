@@ -29,7 +29,7 @@ connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeig2dobzlupi4twn3lv2avfajslgjukkmkdd4qzf37cbfv7ojupv54
 - valory/multisend:0.1.0:bafybeigjywkl7hydjsrkogob3xebj2ifhqwmfhhxoeyrndzhhxi5u6amey
-- valory/curve_pool:0.1.0:bafybeiaujzpbahsgiidyn5bdtgckt7e62ijvxjc74uf3q4ffzgzjtn6bza
+- valory/curve_pool:0.1.0:bafybeicmslpkqzqrxyz4z6haara7rnblgv3c2y645cmdnsxhhtgvwnaffe
 - valory/keep3r_v1:0.1.0:bafybeibtmwyixk5h6ochkeuvecazzyj7qznoe3yoqwazypqdxovey2ar2e
 - valory/keep3r_v2:0.1.0:bafybeicqvpeo7czhkf5m3qstzdqnxhhht6dko5yjjuzf2dt2fie2lzjzii
 protocols:
