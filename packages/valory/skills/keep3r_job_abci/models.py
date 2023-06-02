@@ -85,6 +85,14 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         )
         self.k3pr_address = self._ensure("k3pr_address", kwargs, str)
         self.unbonding_threshold = self._ensure("unbonding_threshold", kwargs, int)
+        self.curve_pool_contract_address = self._ensure(
+            "curve_pool_contract_address", kwargs, str
+        )
+        self.agent_surplus_share = self._ensure("agent_surplus_share", kwargs, float)
+        multisend_address = kwargs.get("multisend_address", None)
+        if multisend_address is None:
+            raise ValueError("Multisend address not specified!")
+        self.multisend_address = multisend_address
         super().__init__(*args, **kwargs)
 
     def _get_supported_jobs_to_package_hash(self, kwargs: Dict) -> Dict[str, str]:

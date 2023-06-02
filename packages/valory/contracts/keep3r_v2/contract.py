@@ -18,15 +18,16 @@
 # ------------------------------------------------------------------------------
 
 """This module contains the Keep3rV1 contract definition."""
-
+import asyncio
+import concurrent.futures
 import logging
-from typing import Dict, Union
+from typing import Dict, List, Union, cast
 
 from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
-from web3.types import Nonce, TxParams, Wei
+from web3.types import BlockIdentifier, Nonce, TxParams, Wei
 
 
 ENCODING = "utf-8"
@@ -99,6 +100,20 @@ class KeeperV2(Contract):
         return dict(data=bondings)
 
     @classmethod
+    def pending_unbonds(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+        bonding_asset: str,
+    ) -> JSONLike:
+        """Unbonds that are not yet active."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        unbondings = contract.functions.pendingUnbonds(address, bonding_asset).call()
+        return dict(data=unbondings)
+
+    @classmethod
     def credits(
         cls,
         ledger_api: EthereumApi,
@@ -155,6 +170,22 @@ class KeeperV2(Contract):
             address, bonding_asset
         ).call()
         return dict(data=can_activate_after)
+
+    @classmethod
+    def can_withdraw_after(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+        bonding_asset: str,
+    ) -> JSONLike:
+        """Check if address is a registered keeper."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        can_withdraw_after = contract.functions.canWithdrawAfter(
+            address, bonding_asset
+        ).call()
+        return dict(data=can_withdraw_after)
 
     @classmethod
     def build_add_job_tx(
@@ -240,6 +271,7 @@ class KeeperV2(Contract):
         cls,
         ledger_api: EthereumApi,
         contract_address: str,
+        bonding_asset: str,
     ) -> RawTransaction:
         """Withdraw funds after unbonding has finished."""
 
@@ -247,7 +279,143 @@ class KeeperV2(Contract):
         data = contract.encodeABI(
             fn_name="withdraw",
             args=[
-                contract.address,
+                ledger_api.api.toChecksumAddress(bonding_asset),
             ],
         )
         return dict(data=data)
+
+    @classmethod
+    def get_unbonding_events(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+        bonding_asset: str,
+        from_block: BlockIdentifier = "earliest",
+        to_block: BlockIdentifier = "latest",
+    ) -> JSONLike:
+        """
+        Get all unbonding events for a given keeper.
+
+        :param ledger_api: the ledger API object
+        :param contract_address: the keep3rV2 contract address
+        :param address: the keeper address
+        :param bonding_asset: the asset that was unbonded
+        :param from_block: from which block to search for events
+        :param to_block: to which block to search for events
+        :return: the unbonding events
+        """
+        ledger_api = cast(EthereumApi, ledger_api)
+        contract = cls.get_instance(ledger_api, contract_address)
+        address = ledger_api.api.toChecksumAddress(address)
+        entries = contract.events.Unbonding.createFilter(
+            fromBlock=from_block,
+            toBlock=to_block,
+            argument_filters=dict(_keeperOrJob=address, _unbonding=bonding_asset),
+        ).get_all_entries()
+        unbonding_events = list(
+            dict(
+                tx_hash=entry.transactionHash.hex(),
+                block_number=entry.blockNumber,
+                keeper=address,
+                unbonding_asset=bonding_asset,
+                amount=entry["args"]["_amount"],
+            )
+            for entry in entries
+        )
+        sorted(unbonding_events, key=lambda x: x["block_number"])
+        return dict(
+            data=unbonding_events,
+        )
+
+    @classmethod
+    def get_withdrawal_events(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        address: str,
+        bonding_asset: str,
+        from_block: BlockIdentifier = "earliest",
+        to_block: BlockIdentifier = "latest",
+    ) -> JSONLike:
+        """
+        Get all withdrawal events for a given keeper.
+
+        :param ledger_api: the ledger API object
+        :param contract_address: the keep3rV2 contract address
+        :param address: keeper address
+        :param bonding_asset: the asset that was withdrawn
+        :param from_block: from which block to search for events
+        :param to_block: to which block to search for events
+        :return: the withdrawal events
+        """
+        ledger_api = cast(EthereumApi, ledger_api)
+        contract = cls.get_instance(ledger_api, contract_address)
+        address = ledger_api.api.toChecksumAddress(address)
+        entries = contract.events.Withdrawal.createFilter(
+            fromBlock=from_block,
+            toBlock=to_block,
+            argument_filters=dict(_keeper=address, _bond=bonding_asset),
+        ).get_all_entries()
+        withdrawal_events = list(
+            dict(
+                tx_hash=entry.transactionHash.hex(),
+                block_number=entry.blockNumber,
+                keeper=address,
+                unbonding_asset=bonding_asset,
+                amount=entry["args"]["_amount"],
+            )
+            for entry in entries
+        )
+        sorted(withdrawal_events, key=lambda x: x["block_number"])
+        return dict(
+            data=withdrawal_events,
+        )
+
+    @classmethod
+    def sender_to_amount_spent(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        transaction_hashes: List[str],
+    ) -> JSONLike:
+        """
+        Get the amount of gas spent by each sender of the transactions provided.
+
+        :param ledger_api: the ledger API object
+        :param contract_address: the contract address
+        :param transaction_hashes: the transaction hashes
+        :return: the amount of gas spent by each owner (in wei)
+        """
+        loop = asyncio.new_event_loop()
+        tasks = []
+        num_threads = 5
+
+        def get_gas_spent(tx_hash: str) -> Dict[str, int]:
+            tx_receipt = ledger_api.get_transaction_receipt(tx_hash)
+            tx = ledger_api.get_transaction(tx_hash)
+            gas_price = int(tx["gasPrice"])
+            gas_used = int(tx_receipt["gasUsed"])
+            total_spent = gas_price * gas_used
+            sender = tx["from"]
+            return {sender: total_spent}
+
+        with concurrent.futures.ThreadPoolExecutor(num_threads) as pool:
+            for transaction_hash in transaction_hashes:
+                task = loop.run_in_executor(pool, get_gas_spent, transaction_hash)
+                tasks.append(task)
+
+            results = cast(
+                List[JSONLike], loop.run_until_complete(asyncio.gather(*tasks))
+            )
+            loop.close()
+
+        sender_to_amount_spent = {}
+        for result in results:
+            sender = list(result.keys())[0]
+            total_spent = result[sender]
+            if sender not in sender_to_amount_spent:
+                sender_to_amount_spent[sender] = 0
+            sender_to_amount_spent[sender] += total_spent
+
+        return dict(data=sender_to_amount_spent)

@@ -27,8 +27,10 @@ from packages.valory.skills.keep3r_job_abci.payloads import (
     ActivationTxPayload,
     ApproveBondTxPayload,
     BondingTxPayload,
+    CalculateSpentGasPayload,
     GetJobsPayload,
     PathSelectionPayload,
+    SwapAndDisburseRewardsPayload,
     UnbondingTxPayload,
     WaitingPayload,
     WorkTxPayload,
@@ -113,4 +115,28 @@ def test_work_tx_payload(work_tx: str) -> None:
     payload = WorkTxPayload(sender="sender", work_tx=work_tx)
     assert payload.sender == "sender"
     assert payload.work_tx == work_tx
+    assert payload.from_json(payload.json) == payload
+
+
+@pytest.mark.parametrize("address_to_gas_spent", ["{address: gas_spent}"])
+def test_calculate_spent_gas_payload(address_to_gas_spent: str) -> None:
+    """Test CalculateSpentGasPayload"""
+
+    payload = CalculateSpentGasPayload(
+        sender="sender", address_to_gas_spent=address_to_gas_spent
+    )
+    assert payload.sender == "sender"
+    assert payload.address_to_gas_spent == address_to_gas_spent
+    assert payload.from_json(payload.json) == payload
+
+
+@pytest.mark.parametrize("swap_and_disburse_tx", ["tx_hash"])
+def test_swap_and_disburse_rewards_payload(swap_and_disburse_tx: str) -> None:
+    """Test SwapAndDisburseRewardsPayload"""
+
+    payload = SwapAndDisburseRewardsPayload(
+        sender="sender", swap_and_disburse_tx=swap_and_disburse_tx
+    )
+    assert payload.sender == "sender"
+    assert payload.swap_and_disburse_tx == swap_and_disburse_tx
     assert payload.from_json(payload.json) == payload

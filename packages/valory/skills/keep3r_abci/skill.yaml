@@ -21,7 +21,7 @@ contracts: []
 protocols: []
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeiaf3twqpqguqmqmqhl4sjd2i2nh5jspzghs3cmhp2co7lb5hkr5yy
-- valory/keep3r_job_abci:0.1.0:bafybeid6jnfjq4qnw4tf2dqymtoibaml27r66w3svsve6u3fovuap2u6ju
+- valory/keep3r_job_abci:0.1.0:bafybeieyztb2uyl4igmtbegkrizcnyxhnfweuygd2tdlkqr6mq5r7sji5e
 - valory/registration_abci:0.1.0:bafybeic5uibumxihx7qvx2457sqo6d2dzj6u73tywffgamrb54dzvpzraq
 - valory/reset_pause_abci:0.1.0:bafybeifgatypd7xp7ng3zcszpintfxaqgf6blapgsjejy42nr5u4dfseg4
 - valory/termination_abci:0.1.0:bafybeiasehtl7rj62trkulyxtqna37nrrwvhwhthdkri2dihw53lky2txi
@@ -144,6 +144,8 @@ models:
       termination_sleep: 900
       tx_timeout: 10.0
       unbonding_threshold: 50
+      curve_pool_contract_address: '0x21410232B484136404911780bC32756D5d1a9Fa9'
+      agent_surplus_share: 0.75
       use_flashbots: false
       use_termination: false
       use_v2: false

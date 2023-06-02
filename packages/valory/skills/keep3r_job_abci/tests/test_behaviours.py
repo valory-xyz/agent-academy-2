@@ -25,11 +25,17 @@ from unittest import mock
 
 import pytest
 
+from packages.valory.contracts.curve_pool.contract import (
+    PUBLIC_ID as CURVE_POOL_CONTRACT_ID,
+)
 from packages.valory.contracts.gnosis_safe.contract import (
     PUBLIC_ID as GNOSIS_SAFE_CONTRACT_ID,
 )
 from packages.valory.contracts.keep3r_v1.contract import (
     PUBLIC_ID as KEEP3R_V1_CONTRACT_ID,
+)
+from packages.valory.contracts.multisend.contract import (
+    PUBLIC_ID as MULTISEND_CONTRACT_ID,
 )
 from packages.valory.protocols.contract_api.custom_types import State
 from packages.valory.protocols.contract_api.message import ContractApiMessage
@@ -48,12 +54,14 @@ from packages.valory.skills.keep3r_job_abci.behaviours import (
     ApproveBondBehaviour,
     AwaitTopUpBehaviour,
     BondingBehaviour,
+    CalculateSpentGasBehaviour,
     GetJobsBehaviour,
     Keep3rJobRoundBehaviour,
     PathSelectionBehaviour,
     PerformWorkBehaviour,
     SAFE_GAS,
     SafeTx,
+    SwapAndDisburseRewardsBehaviour,
     TO_WEI,
     UnbondingBehaviour,
     WaitingBehaviour,
@@ -71,6 +79,7 @@ from packages.valory.skills.keep3r_job_abci.rounds import (
     AwaitTopUpRound,
     BlacklistedRound,
     BondingRound,
+    CalculateSpentGasRound,
     Event,
     FinalizeActivationRound,
     FinalizeApproveBondRound,
@@ -106,6 +115,12 @@ DUMMY_SAFE_TX: SafeTx = {
 }
 TEST_JOB_CONTRACT_ID = "test_job_contract_id"
 DUMMY_CONTRACT = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
+DUMMY_ADDRESS_TO_GAS_SPENT = {
+    "0x0": 1,
+    "0x1": 2,
+    "0x2": 3,
+    "0x3": 4,
+}
 
 
 class DummyRoundId:  # pylint: disable=too-few-public-methods
@@ -143,6 +158,7 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
             safe_contract_address=SOME_CONTRACT_ADDRESS,
             job_list=[SOME_CONTRACT_ADDRESS],
             workable_job=SOME_CONTRACT_ADDRESS,
+            address_to_gas_spent=DUMMY_ADDRESS_TO_GAS_SPENT,
         )
         self.fast_forward(data)
 
@@ -180,6 +196,48 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
                 state=ContractApiMessage.State(
                     ledger_id="ethereum",
                     body={"data": data},
+                ),
+            ),
+        )
+
+    def mock_read_safe(
+        self, contract_callable: str, data: Any, data_field: str = "data"
+    ) -> None:
+        """Mock safe contract call"""
+
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=contract_callable,
+            ),
+            contract_id=str(GNOSIS_SAFE_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=contract_callable,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={data_field: data},
+                ),
+            ),
+        )
+
+    def mock_read_curve(
+        self, contract_callable: str, data: Any, data_field: str = "data"
+    ) -> None:
+        """Mock curve contract call"""
+
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_STATE,
+                callable=contract_callable,
+            ),
+            contract_id=str(CURVE_POOL_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.STATE,
+                callable=contract_callable,
+                state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={data_field: data},
                 ),
             ),
         )
@@ -277,6 +335,26 @@ class Keep3rJobFSMBehaviourBaseCase(FSMBehaviourBaseCase):
                 performative=ContractApiMessage.Performative.STATE,
                 callable=contract_callable,
                 state=ContractApiMessage.State(
+                    ledger_id="ethereum",
+                    body={"data": data},  # type: ignore
+                ),
+            ),
+        )
+
+    def mock_multisend_tx_call(self, data: str) -> None:
+        """Mock build work transaction"""
+
+        contract_callable = "get_tx_data"
+        self.mock_contract_api_request(
+            request_kwargs=dict(
+                performative=ContractApiMessage.Performative.GET_RAW_TRANSACTION,
+                callable=contract_callable,
+            ),
+            contract_id=str(MULTISEND_CONTRACT_ID),
+            response_kwargs=dict(
+                performative=ContractApiMessage.Performative.RAW_TRANSACTION,
+                callable=contract_callable,
+                raw_transaction=ContractApiMessage.RawTransaction(
                     ledger_id="ethereum",
                     body={"data": data},  # type: ignore
                 ),
@@ -397,7 +475,10 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("pending_unbonds", 0)
         self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("can_withdraw_after", 0)
+        self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 0})
@@ -416,7 +497,10 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("pending_unbonds", 0)
         self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("can_withdraw_after", 0)
+        self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
         self.mock_read_keep3r_v1("bondings", 51 * TO_WEI)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 0})
@@ -429,13 +513,34 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
             == UnbondingRound.auto_round_id()
         )
 
+    def test_withdraw(self, *_: Any) -> None:
+        """Test path_selection to unbond."""
+        self.behaviour.act_wrapper()
+        self.mock_read_keep3r_v1("blacklist", False)
+        self.mock_ethereum_get_balance(amount=0)
+        self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("pending_unbonds", 1)
+        self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("can_withdraw_after", 0)
+        self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.WITHDRAW)
+        assert (
+            self.current_behaviour.matching_round.auto_round_id()
+            == CalculateSpentGasRound.auto_round_id()
+        )
+
     def test_healthy(self, *_: Any) -> None:
         """Test path_selection to healthy."""
         self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("blacklist", False)
         self.mock_ethereum_get_balance(amount=0)
         self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("pending_unbonds", 0)
         self.mock_read_keep3r_v1("bondings", 1)
+        self.mock_read_keep3r_v1("can_withdraw_after", 0)
+        self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
@@ -484,6 +589,79 @@ class TestUnbondingBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self._test_done_flag_set()
         self.end_round(done_event=Event.UNBONDING_TX)
         degenerate_state = make_degenerate_behaviour(FinalizeBondingRound)
+        assert (
+            self.current_behaviour.auto_behaviour_id()
+            == degenerate_state.auto_behaviour_id()
+        )
+
+
+class TestCalculateSpentGasBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test CalculateSpentGasBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = CalculateSpentGasBehaviour
+
+    _DUMMY_UNBOND_EVENTS = [
+        {"block_number": 1},
+        {"block_number": 2},
+        {"block_number": 3},
+    ]
+    _DUMMY_WITHDRAW_EVENTS = [
+        {"block_number": 1},
+        {"block_number": 2},
+        {"block_number": 3},
+    ]
+    _DUMMY_SAFE_TX_EVENTS = [{"tx_hash": "0x0"}, {"tx_hash": "0x1"}, {"tx_hash": "0x2"}]
+
+    def test_no_unbond_event(self) -> None:
+        """Test bonding tx"""
+        self.behaviour.act_wrapper()
+        self.mock_read_keep3r_v1("get_unbonding_events", [])
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.ERROR)
+        assert (
+            self.current_behaviour.auto_behaviour_id()
+            == PathSelectionBehaviour.auto_behaviour_id()
+        )
+
+    def test_happy_path(self) -> None:
+        """Test bonding tx"""
+        self.behaviour.act_wrapper()
+        self.mock_read_keep3r_v1("get_unbonding_events", self._DUMMY_UNBOND_EVENTS)
+        self.mock_read_keep3r_v1("get_withdrawal_events", self._DUMMY_WITHDRAW_EVENTS)
+        self.mock_read_safe("get_safe_txs", self._DUMMY_SAFE_TX_EVENTS, "txs")
+        self.mock_read_keep3r_v1("sender_to_amount_spent", DUMMY_ADDRESS_TO_GAS_SPENT)
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.DONE)
+        assert (
+            self.current_behaviour.auto_behaviour_id()
+            == SwapAndDisburseRewardsBehaviour.auto_behaviour_id()
+        )
+
+
+class TestSwapAndDisburseRewardsBehaviour(Keep3rJobFSMBehaviourBaseCase):
+    """Test CalculateSpentGasBehaviour"""
+
+    behaviour_class: Type[BaseBehaviour] = SwapAndDisburseRewardsBehaviour
+
+    _DUMMY_K3PR_REWARD_AMOUNT = 100
+    _DUMMY_K3PR_TO_ETH_AMOUNT = 10  # assumes a 0.1ETH k3pr price
+
+    def test_happy_path(self) -> None:
+        """Test bonding tx"""
+        self.behaviour.act_wrapper()
+        self.mock_read_keep3r_v1("pending_unbonds", self._DUMMY_K3PR_REWARD_AMOUNT)
+        self.mock_read_curve("get_dy", self._DUMMY_K3PR_TO_ETH_AMOUNT)
+        self.mock_read_keep3r_v1("build_withdraw_tx", DUMMY_DATA)
+        self.mock_read_keep3r_v1("build_approve_tx", DUMMY_DATA)
+        self.mock_read_curve("build_exchange_tx", DUMMY_DATA)
+        self.mock_multisend_tx_call(DUMMY_DATA)
+        self.mock_build_safe_raw_tx()
+        self.mock_a2a_transaction()
+        self._test_done_flag_set()
+        self.end_round(done_event=Event.DONE)
+        degenerate_state = make_degenerate_behaviour(FinalizeWorkRound)
         assert (
             self.current_behaviour.auto_behaviour_id()
             == degenerate_state.auto_behaviour_id()
