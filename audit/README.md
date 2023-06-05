@@ -42,13 +42,15 @@ i.e.
 5. go #1
 Most likely this strategy is the simplest.
 Alternative strategies are more complicated.
+surplus = eth_amount - total_gas_spent
+agent_surplus = int(surplus * agent_surplus_share) - what will happen to the rest?
 ```
 
 ### Use use_eth in exchange
 Ref: https://etherscan.io/address/0x21410232b484136404911780bc32756d5d1a9fa9#code#L728 <br>
 Otherwise you will get back WETH tokes. Test please, on the testnet.
 
-### min_dy too big
+### min_dy too big and slippage tolerance
 ```python
 def _get_swap_tx(
         self, pool_address: str, k3pr_amount: int, min_eth_amount: int
@@ -86,6 +88,12 @@ Returns the amount of j received in the exchange.
 
 expected = pool.get_dy(0, 1, 10**18) * 0.99
 pool.exchange(0, 1, 10**18, expected, {'from': alice})
+
+dy = def _exchange(sender: address, mvalue: uint256, i: uint256, j: uint256, dx: uint256, min_dy: uint256,
+              use_eth: bool, receiver: address, callbacker: address, callback_sig: bytes32) -> uint256:
+The exact value of what you will receive.
+It may not be like as get_dy
+https://etherscan.io/address/0x21410232b484136404911780bc32756d5d1a9fa9#code#L759
 ```
 
 
