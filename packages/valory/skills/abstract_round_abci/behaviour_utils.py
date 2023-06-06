@@ -1063,6 +1063,7 @@ class BaseBehaviour(
                     kwargs=LedgerApiMessage.Kwargs(
                         {
                             "raise_on_failed_simulation": raise_on_failed_simulation,
+                            "use_all_builders": True,  # TODO: make this a proper parameter
                         }
                     ),
                 )

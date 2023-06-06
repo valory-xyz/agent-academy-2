@@ -9,7 +9,7 @@ fingerprint:
   README.md: bafybeihkgodu7o7v6pfazm7u6orlspsfrae3cyz36yc46x67phfmw3l57e
   __init__.py: bafybeia3purd7y4b7tkdt2fcaxkdazos32criq5hx6fhufaislrdefe674
   base.py: bafybeiglcnxf5v4n2crmadrqiqtnxy5suznzplc63owt72jitmagujqyoq
-  connection.py: bafybeihvepxi747326ilv6frgqzg24m5oft2r4brjfo74por4ni4f7dksy
+  connection.py: bafybeift5ma3aijfpawmxizqh6apndwv3bs3ks6jcz5hiftjgmwuu7flzu
   contract_dispatcher.py: bafybeiecnpivhxhuvy3sbnsb7a52cvnzgemswoguaf3n7w4tvdi2ilww2u
   ledger_dispatcher.py: bafybeig2pjm4y4umzd3dbv2gjnklfy2zb6rb3taxs27jctkl773yf6vhbm
   tests/__init__.py: bafybeieu5ampzjr5fpe7ktkkgw2zlc5gbbcuz55wcsxo2kibttezsh6suy
@@ -54,7 +54,7 @@ config:
       is_gas_estimation_enabled: true
       poa_chain: false
       authentication_private_key: null
-      flashbot_relayer_uri: null
+      flashbots_builders: []
     solana:
       address: http://127.0.0.1:8545
       chain_id: 1337

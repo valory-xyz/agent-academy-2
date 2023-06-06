@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeid7zpebkekceqjl6ofse5tot3tpp3lw4zl3tqvjjy3754hf474jlm
+agent: valory/keep3r_bot:0.1.0:bafybeihihshujj45gvylidnzfzksd2jhazwd7dy4uhbcgiuxaekerduymu
 number_of_agents: 1
 deployment:
   tendermint:
@@ -153,7 +153,8 @@ type: connection
         address: ${SERVICE_RPC_0:str:http://127.0.0.1:8545}
         chain_id: 1
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_0:str:https://relay.flashbots.net}
+        flashbots_builders: ${FLASHBOTS_BUILDERS_0:list:[["flashbotsBuilder", "https://relay.flashbots.net"],["beaverBuild",
+          "https://rpc.beaverbuild.org"],["builder0x69","https://builder0x69.io"],["titan","https://rpc.titanbuilder.xyz"],["rsync","https://rsync-builder.xyz"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_0:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_0:str:http://127.0.0.1:8545}
@@ -177,7 +178,8 @@ type: connection
         address: ${SERVICE_RPC_1:str:http://127.0.0.1:8545}
         chain_id: 1
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_1:str:https://relay.flashbots.net}
+        flashbots_builders: ${FLASHBOTS_BUILDERS_1:list:[["flashbotsBuilder", "https://relay.flashbots.net"],["beaverBuild",
+          "https://rpc.beaverbuild.org"],["builder0x69","https://builder0x69.io"],["titan","https://rpc.titanbuilder.xyz"],["rsync","https://rsync-builder.xyz"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_1:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_1:str:http://127.0.0.1:8545}
@@ -201,7 +203,8 @@ type: connection
         address: ${SERVICE_RPC_2:str:http://127.0.0.1:8545}
         chain_id: 1
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_2:str:https://relay.flashbots.net}
+        flashbots_builders: ${FLASHBOTS_BUILDERS_2:list:[["flashbotsBuilder", "https://relay.flashbots.net"],["beaverBuild",
+          "https://rpc.beaverbuild.org"],["builder0x69","https://builder0x69.io"],["titan","https://rpc.titanbuilder.xyz"],["rsync","https://rsync-builder.xyz"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_2:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_2:str:http://127.0.0.1:8545}
@@ -225,7 +228,8 @@ type: connection
         address: ${SERVICE_RPC_3:str:http://127.0.0.1:8545}
         chain_id: 1
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_3:str:https://relay.flashbots.net}
+        flashbots_builders: ${FLASHBOTS_BUILDERS_3:list:[["flashbotsBuilder", "https://relay.flashbots.net"],["beaverBuild",
+          "https://rpc.beaverbuild.org"],["builder0x69","https://builder0x69.io"],["titan","https://rpc.titanbuilder.xyz"],["rsync","https://rsync-builder.xyz"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_3:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_3:str:http://127.0.0.1:8545}
