@@ -8,14 +8,14 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeifr6ekniqkhuvkyfw3xktsntjvjjye5vfyir2i5zrzc3bcud5vvqa
-  behaviours.py: bafybeibpesvx2rcxswmotx2jbog2l4wxgfc23vonvw64x2qfbx45pjzxse
+  behaviours.py: bafybeif42ubq7yhfyclavz5r37u776spsbxyqlwypi3sbul3gbdhygdqva
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
   fsm_specification.yaml: bafybeihjvacl6sclfyrntgqoxexfxjq2kfjeyc6whpo4wciynrs3plclxm
   handlers.py: bafybeiflkitcwl4b4glto7xaf7oykdsutbsyr62fwzh4ycy6grvblnypya
   io_/__init__.py: bafybeifxgmmwjqzezzn3e6keh2bfo4cyo7y5dq2ept3stfmgglbrzfl5rq
   io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
-  models.py: bafybeidz7o7j5y3paczwsfabqd3xyg2xca2wi6milyeyq7mssrekddkcuu
+  models.py: bafybeibssadyunjcvjowon33lft4f3qxsoo5cmc2v6sjlyt4rtyet3nxhy
   payloads.py: bafybeih4nbp77gimv4h3bcg3e7mutpb6h64ptzc3f5zmvw7kfpib3r2rs4
   rounds.py: bafybeiausofail75f3ebjafjnibp6fhvmiangvk6bpm44yiee7p2knr4me
   tests/__init__.py: bafybeicw6vp5sxxwr5p3dns6of2px4qizw4q2s55ozf5cu5uamfh3tlrby
@@ -149,6 +149,7 @@ models:
       supported_jobs_to_package_hash:
       - - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
         - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      slippage_tolerance: 0.05
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5
