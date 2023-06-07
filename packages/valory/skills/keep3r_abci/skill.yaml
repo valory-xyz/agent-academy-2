@@ -20,12 +20,12 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeicx2f7q3wm6xllegizojx76y7jrwovttjgf7nbjs3w62x7jyffmum
-- valory/keep3r_job_abci:0.1.0:bafybeib7dhenfvazn3npfp6g5s4b4ug7zghwsi4d2hvu6bnb7izap7hnny
-- valory/registration_abci:0.1.0:bafybeihif5gzbil5pvfcgprawhi2zt5nc2bdgcx2vp5y3kzghwzeqzyxku
-- valory/reset_pause_abci:0.1.0:bafybeicjpupvkev72gtjrehnpao6dsmmgmk6izsyeyyuthmckisqdq576e
-- valory/termination_abci:0.1.0:bafybeihqimzr5ojkoflvuhy35ubwjyk3t2u5xwwsufoolzqwvkukl7gnxy
-- valory/transaction_settlement_abci:0.1.0:bafybeiavbytwahrflz4gqcvg7aoz7s6y3s7aytpt2cz2dm4owkxslqvnv4
+- valory/abstract_round_abci:0.1.0:bafybeiadrj2jzptjh6jals7rc7tp6vbv64fll5d5ich4tlr6t7eh5nqflq
+- valory/keep3r_job_abci:0.1.0:bafybeifvmw4pjfg7fxka7drr75ylyyorpudw2aoq5ahdjzbq2colgdzsly
+- valory/registration_abci:0.1.0:bafybeickxljqvum42oei3vntqbtsd77nevoxdv5ypy43hlous2bnsefpi4
+- valory/reset_pause_abci:0.1.0:bafybeifrjlalgcbb6zknkgxomfvgfqzmgi56hvcnjfplhlvrfou43epima
+- valory/termination_abci:0.1.0:bafybeif2rm6wu2royxfeu4uefm6z323vrt5w5bawbqf3b3abaenpkrmyqi
+- valory/transaction_settlement_abci:0.1.0:bafybeihwmzb2fsmemwxyzaou3p6j53br3jci2v66skp4nvge4mzvkx4t4u
 behaviours:
   main:
     args: {}
