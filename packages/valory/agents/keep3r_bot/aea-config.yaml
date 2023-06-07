@@ -154,8 +154,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeigte2l4en4otdp2maaoc3uesqdga5z4sqozrybsmcdp26bgfbcy54
 - valory/abstract_round_abci:0.1.0:bafybeicx2f7q3wm6xllegizojx76y7jrwovttjgf7nbjs3w62x7jyffmum
-- valory/keep3r_abci:0.1.0:bafybeic6jjpyhzhesby3nwb3466cadihbolt7yrfj3mkggcujffcklw64u
-- valory/keep3r_job_abci:0.1.0:bafybeicjrnci63pmlviccabjfbmnar7bgb23fcmrlu62heev5nlfudvokm
+- valory/keep3r_abci:0.1.0:bafybeicmh73c7ncnyr6trhrg4acbcyb6l3igqwyiwfftsv5fqahwqj474m
+- valory/keep3r_job_abci:0.1.0:bafybeib7dhenfvazn3npfp6g5s4b4ug7zghwsi4d2hvu6bnb7izap7hnny
 - valory/registration_abci:0.1.0:bafybeihif5gzbil5pvfcgprawhi2zt5nc2bdgcx2vp5y3kzghwzeqzyxku
 - valory/reset_pause_abci:0.1.0:bafybeicjpupvkev72gtjrehnpao6dsmmgmk6izsyeyyuthmckisqdq576e
 - valory/termination_abci:0.1.0:bafybeihqimzr5ojkoflvuhy35ubwjyk3t2u5xwwsufoolzqwvkukl7gnxy
@@ -233,7 +233,6 @@ models:
       max_healthcheck: ${int:1200}
       service_registry_address: ${str:0x9Ab4D43e5C4AD67C109716B716062F78eecb7995}
       share_tm_config_on_startup: ${bool:false}
-      slippage_tolerance: ${float:0.05}
       tendermint_p2p_url: ${str:localhost:26656}
       use_v2: ${bool:true}
       bonding_asset: ${str:0x0000000000000000000000000000000000000000}
