@@ -493,10 +493,9 @@ GOERLI_CONFIG = [
 MAINNET_CONFIG = [
     ("0xfaf539a73659feaec96ec7242f075be0445526a8", Bnb),
     ("0x245F757d660C3ec65416168690431076d58d6413", Gnosis),
-    ("0x4a0126ee88018393b1ad2455060bc350ead9908a", None),
+    ("0xd151c9ef49ce2d30b829a98a07767e3280f70961", Arbitrum),
     ("0xb01bc38909413f5dbb8f18a9b5787a62ce1282ae", None),
     ("0xf7c4d7dcec2c09a15f2db5831d6d25eaef0a296c", None),
-    ("0xd151c9ef49ce2d30b829a98a07767e3280f70961", Arbitrum),
 ]
 MAINNET_ID = 1
 GOERLI_ID = 5
