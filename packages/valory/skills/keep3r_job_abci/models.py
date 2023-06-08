@@ -21,6 +21,7 @@
 from typing import Any, Dict, List, Type
 
 from aea.configurations.data_types import PublicId
+from aea.exceptions import enforce
 
 from packages.valory.skills.abstract_round_abci.base import AbciApp
 from packages.valory.skills.abstract_round_abci.models import ApiSpecs, BaseParams
@@ -89,9 +90,11 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
             "curve_pool_contract_address", kwargs, str
         )
         self.agent_surplus_share = self._ensure("agent_surplus_share", kwargs, float)
+        self.slippage_tolerance: float = self._ensure(
+            "slippage_tolerance", kwargs, float
+        )
         multisend_address = kwargs.get("multisend_address", None)
-        if multisend_address is None:
-            raise ValueError("Multisend address not specified!")
+        enforce(multisend_address is not None, "Multisend address not specified!")
         self.multisend_address = multisend_address
         super().__init__(*args, **kwargs)
 

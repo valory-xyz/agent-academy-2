@@ -21,7 +21,7 @@ contracts: []
 protocols: []
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeiadrj2jzptjh6jals7rc7tp6vbv64fll5d5ich4tlr6t7eh5nqflq
-- valory/keep3r_job_abci:0.1.0:bafybeihx6tt5oygfl2jzu2nobhqdyhbpivahvueo4evgn5wx6hqhfvstym
+- valory/keep3r_job_abci:0.1.0:bafybeifvmw4pjfg7fxka7drr75ylyyorpudw2aoq5ahdjzbq2colgdzsly
 - valory/registration_abci:0.1.0:bafybeickxljqvum42oei3vntqbtsd77nevoxdv5ypy43hlous2bnsefpi4
 - valory/reset_pause_abci:0.1.0:bafybeifrjlalgcbb6zknkgxomfvgfqzmgi56hvcnjfplhlvrfou43epima
 - valory/termination_abci:0.1.0:bafybeif2rm6wu2royxfeu4uefm6z323vrt5w5bawbqf3b3abaenpkrmyqi
@@ -136,6 +136,7 @@ models:
       supported_jobs_to_package_hash:
       - - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
         - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      slippage_tolerance: 0.05
       tendermint_check_sleep_delay: 3
       tendermint_com_url: http://localhost:8080
       tendermint_max_retries: 5

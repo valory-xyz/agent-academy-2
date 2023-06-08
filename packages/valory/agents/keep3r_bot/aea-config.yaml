@@ -154,8 +154,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeiet34ju7typtkqyfn572sacef5krrsb6d4vpfnviqi6kzunje3xny
 - valory/abstract_round_abci:0.1.0:bafybeiadrj2jzptjh6jals7rc7tp6vbv64fll5d5ich4tlr6t7eh5nqflq
-- valory/keep3r_abci:0.1.0:bafybeifumgn6ful7556q7sduopb5dxjqeblusmsjs6szpgru5owcyfleyy
-- valory/keep3r_job_abci:0.1.0:bafybeihx6tt5oygfl2jzu2nobhqdyhbpivahvueo4evgn5wx6hqhfvstym
+- valory/keep3r_abci:0.1.0:bafybeiansgj6kn27xze3v7p7s6tklwyoshhgywi3kfudd74nxdo2lnp4su
+- valory/keep3r_job_abci:0.1.0:bafybeifvmw4pjfg7fxka7drr75ylyyorpudw2aoq5ahdjzbq2colgdzsly
 - valory/registration_abci:0.1.0:bafybeickxljqvum42oei3vntqbtsd77nevoxdv5ypy43hlous2bnsefpi4
 - valory/reset_pause_abci:0.1.0:bafybeifrjlalgcbb6zknkgxomfvgfqzmgi56hvcnjfplhlvrfou43epima
 - valory/termination_abci:0.1.0:bafybeif2rm6wu2royxfeu4uefm6z323vrt5w5bawbqf3b3abaenpkrmyqi
@@ -240,6 +240,7 @@ models:
       manual_gas_limit: ${int:5000000}
       multisend_address: ${str:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761}
       raise_on_failed_simulation: ${bool:false}
+      slippage_tolerance: ${float:0.05}
       curve_pool_contract_address: ${str:0x21410232B484136404911780bC32756D5d1a9Fa9}
       use_flashbots: ${bool:false}
       termination_sleep: 900
