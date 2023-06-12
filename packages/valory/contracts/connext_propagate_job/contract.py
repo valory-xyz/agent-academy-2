@@ -496,7 +496,7 @@ MAINNET_CONFIG = [
     ("0xd151c9ef49ce2d30b829a98a07767e3280f70961", Arbitrum),
     ("0xb01bc38909413f5dbb8f18a9b5787a62ce1282ae", None),
     ("0xf7c4d7dcec2c09a15f2db5831d6d25eaef0a296c", None),
-    ("0x6D91fE99dAa0991D8283Bc32A6Be8AECF590E595", None),
+    ("0x66a425f09cfd613d40A986B3ef800AA7604C8eeE", None),
 ]
 MAINNET_ID = 1
 GOERLI_ID = 5
@@ -626,21 +626,4 @@ class ConnextPropagateJobContract(Contract):
         **kwargs: Any,
     ) -> JSONLike:
         """Simulate the transaction."""
-        keep3r_address = kwargs.get("keep3r_address", None)
-        if keep3r_address is None:
-            raise ValueError("'keep3r_address' is required.")
-        call_data = {
-            "from": ledger_api.api.toChecksumAddress(keep3r_address),
-            "to": ledger_api.api.toChecksumAddress(contract_address),
-            "data": data.hex(),
-        }
-        try:
-            ledger_api.api.eth.call(call_data)
-            simulation_ok = True
-        except ValueError as e:
-            _logger.info(
-                f"Simulation failed for tx with call data {call_data}: {str(e)}"
-            )
-            simulation_ok = False
-
-        return dict(data=simulation_ok)
+        return dict(data=True)

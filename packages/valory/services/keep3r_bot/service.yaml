@@ -179,7 +179,7 @@ type: connection
         chain_id: 1
       ethereum_flashbots:
         flashbots_builders: ${FLASHBOTS_BUILDERS_1:list:[["flashbotsBuilder", "https://relay.flashbots.net"],["beaverBuild",
-          "https://rpc.beaverbuild.org"],["builder0x69","https://builder0x69.io"],["titan","https://rpc.titanbuilder.xyz"],["rsync","https://rsync-builder.xyz"]]}
+          "https://rpc.beaverbuild.org"],["builder0x69","https://builder0x69.io"],["rsync","https://rsync-builder.xyz"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_1:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_1:str:http://127.0.0.1:8545}
