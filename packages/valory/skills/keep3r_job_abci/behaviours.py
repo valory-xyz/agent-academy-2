@@ -695,33 +695,38 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
                 return self.transitions["APPROVE_BOND"].name
             return self.transitions["NOT_BONDED"].name
 
-        pending_unbonds = yield from self.get_pending_unbonds(
-            safe_address, self.params.k3pr_address
-        )
-        if pending_unbonds is None:
-            # something went wrong
-            return None
-        should_unbond_k3pr = yield from self.should_unbond_k3pr(
-            safe_address, self.params.k3pr_address
-        )
-        if should_unbond_k3pr is None:
-            # something went wrong
-            return None
-        if pending_unbonds == 0 and should_unbond_k3pr:
-            # we only unbond if we have reached the unbond threshold and we have no pending unbonds
-            # no pending unbonds means we can unbond without pushing the withdrawal date for all the pending unbonds
-            return self.transitions["UNBOND"].name
+        if self.params.enable_k3pr_swap:
+            # only execute the following if we have enabled k3pr swap
+            pending_unbonds = yield from self.get_pending_unbonds(
+                safe_address, self.params.k3pr_address
+            )
+            if pending_unbonds is None:
+                # something went wrong
+                return None
+            should_unbond_k3pr = yield from self.should_unbond_k3pr(
+                safe_address, self.params.k3pr_address
+            )
+            if should_unbond_k3pr is None:
+                # something went wrong
+                return None
+            if pending_unbonds == 0 and should_unbond_k3pr:
+                # we only unbond if we have reached the unbond threshold and we have no pending unbonds
+                # no pending unbonds means we can unbond without pushing the withdrawal date for all the pending unbonds
+                return self.transitions["UNBOND"].name
 
-        # if we reach this point we have a pending unbond, we check if we can withdraw
-        is_ready_to_withdraw = yield from self.is_ready_to_withdraw(
-            safe_address, self.params.k3pr_address
-        )
-        if is_ready_to_withdraw is None:
-            # something went wrong
-            return None
-        if is_ready_to_withdraw and pending_unbonds > 0:
-            return self.transitions["WITHDRAW"].name
-
+            # if we reach this point we have a pending unbond, we check if we can withdraw
+            is_ready_to_withdraw = yield from self.is_ready_to_withdraw(
+                safe_address, self.params.k3pr_address
+            )
+            if is_ready_to_withdraw is None:
+                # something went wrong
+                return None
+            if is_ready_to_withdraw and pending_unbonds > 0:
+                return self.transitions["WITHDRAW"].name
+        else:
+            self.context.logger.info(
+                "k3pr swap is disabled, skipping unbonding and withdrawing"
+            )
         bonded_keeper = yield from self.is_ready_to_activate(
             safe_address, self.context.params.bonding_asset
         )

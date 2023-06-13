@@ -10,7 +10,7 @@ fingerprint:
   __init__.py: bafybeihxvwkctncxds5m7wzjtsiwoixntxvp52ra3hyvoihyizply3jjdu
   abci_app_chain.py: bafybeic6uzd7oywbnhoqrv5bitan2kw7sgfejgnmjbe5sobvckvk2qisvm
   base.py: bafybeic5k3epzwjm3pnbwfqmp5ppmtr3ee5rfflvkvygdanakneoyusf4m
-  behaviour_utils.py: bafybeidghbsao625v3vpuebjsleqrurmgsauvqqmd2ytfu6hxwm4vwskpm
+  behaviour_utils.py: bafybeihpyiprcbey4ip5hc5b5sf46go7gyjbpbee5xcaw5zrzpvgowrtcu
   behaviours.py: bafybeiaurunqjfmh7gxgnphxhibfrhn4g6sx6gfjpnlk5rl6e2lqxxjwbm
   common.py: bafybeidzqdfvwf226d5qeqcyzpkqsjy6kiawoz5ldsfvzzhtym3f73giia
   dialogues.py: bafybeid5sgrfa7ghnnjpssltgtey5gzt5kc2jlaitffaukvhhdbhrzcjti
@@ -41,7 +41,7 @@ fingerprint:
   tests/test_base.py: bafybeiek357ciorty2flxg2l6omccgl55yoi3vonrmp5tssl6nx6y4urja
   tests/test_base_rounds.py: bafybeiatnef47roakdc6g6wvz3wxppb4wdwu2vqoumakkdnz5ehfgzfjea
   tests/test_behaviours.py: bafybeidog4ootofk64rxkucu6atcqwdh3iqpotnkhaqdvxo7jt6whesx4u
-  tests/test_behaviours_utils.py: bafybeiewcgeve2pwcrpcnn4fsov25uf5pwff2zyfosmrmytyqieci3zile
+  tests/test_behaviours_utils.py: bafybeibzfmgochaszrgdwy2heltrzf57t6momnrfujzlsbvwuvrwtkjg6m
   tests/test_common.py: bafybeigruyqp6h4qim3nsijeg5mvoot2dei2yzm5zxpank22vjyyiaysue
   tests/test_dialogues.py: bafybeigpfrslqaz2yullyehia5bsl7cmy2qqxtz627ig7rbrypw5xfzeum
   tests/test_handlers.py: bafybeiho7ruvh6gilajz5ns6cljdrxis2tzualmgkksprwdpm7art4ambm
@@ -63,7 +63,7 @@ connections:
 - valory/abci:0.1.0:bafybeifzhmuvaqj5mnib65u5cqbmfpixjkow6iuh43ofricdpwdtjwawya
 - valory/http_client:0.23.0:bafybeidykl4elwbcjkqn32wt5h4h7tlpeqovrcq3c5bcplt6nhpznhgczi
 - valory/ipfs:0.1.0:bafybeigr2cipad23aebjpnqtzpgymiwrwgmnior2fk4inbscdnqyl5epla
-- valory/ledger:0.19.0:bafybeigvml36q4ic2tstc25xli5qw7hacykyudkuywfmc7qjb5kwfzhkka
+- valory/ledger:0.19.0:bafybeian7cdertegqkgariv4cyuglkdety7n5n466dnkcdlmvvytrhqcuq
 - valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
 contracts:
 - valory/service_registry:0.1.0:bafybeigxkx7pcz7blgcxtuga6c2z3fmrarcisauskusc64xulujs342rcq
@@ -147,7 +147,7 @@ dependencies:
   open-aea-cli-ipfs:
     version: ==1.34.0
   open-aea-test-autonomy:
-    version: ==0.10.4
+    version: ==0.10.5.post2
   protobuf:
     version: <=3.20.1,>=3.20
   py-ecc:

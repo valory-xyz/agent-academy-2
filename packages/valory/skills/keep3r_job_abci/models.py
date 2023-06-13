@@ -93,6 +93,7 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         self.slippage_tolerance: float = self._ensure(
             "slippage_tolerance", kwargs, float
         )
+        self.enable_k3pr_swap = self._ensure("enable_k3pr_swap", kwargs, bool)
         multisend_address = kwargs.get("multisend_address", None)
         enforce(multisend_address is not None, "Multisend address not specified!")
         self.multisend_address = multisend_address

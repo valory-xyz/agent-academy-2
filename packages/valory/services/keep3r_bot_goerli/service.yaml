@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiblcg3qti2cyz4ytufdkmqzcm6svbo5cwgsu2srjovvljdi35iz6i
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeidhut7yja7jtebe2b3nqbl5ld7nsr64igt74f5dmhjwymuwlhy4fa
+agent: valory/keep3r_bot:0.1.0:bafybeiane7lr7whq34q37dqse5yxqla33lel2x5uccutu7lnwc4ko3vjom
 number_of_agents: 4
 deployment:
   tendermint:
@@ -123,7 +123,7 @@ type: connection
         address: ${SERVICE_RPC_0:str:http://127.0.0.1:8545}
         chain_id: 5
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_0:str:https://relay-goerli.flashbots.net}
+        flashbots_builders: ${FLASHBOTS_BUILDERS_0:list:[["flashbotsBuilder", "https://relay-goerli.flashbots.net"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_0:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_0:str:http://127.0.0.1:8545}
@@ -147,7 +147,7 @@ type: connection
         address: ${SERVICE_RPC_1:str:http://127.0.0.1:8545}
         chain_id: 5
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_1:str:https://relay-goerli.flashbots.net}
+        flashbot_relayer_uri: ${FLASHBOTS_BUILDERS_1:list:[["flashbotsBuilder", "https://relay-goerli.flashbots.net"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_1:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_1:str:http://127.0.0.1:8545}
@@ -171,7 +171,7 @@ type: connection
         address: ${SERVICE_RPC_2:str:http://127.0.0.1:8545}
         chain_id: 5
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_2:str:https://relay-goerli.flashbots.net}
+        flashbot_relayer_uri: ${FLASHBOTS_BUILDERS_2:list:[["flashbotsBuilder", "https://relay-goerli.flashbots.net"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_2:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_2:str:http://127.0.0.1:8545}
@@ -195,7 +195,7 @@ type: connection
         address: ${SERVICE_RPC_3:str:http://127.0.0.1:8545}
         chain_id: 5
       ethereum_flashbots:
-        flashbot_relayer_uri: ${FLASHBOTS_RELAYER_URI_3:str:https://relay-goerli.flashbots.net}
+        flashbot_relayer_uri: ${FLASHBOTS_BUILDERS_3:list:[["flashbotsBuilder", "https://relay-goerli.flashbots.net"]]}
         authentication_private_key: ${FLASHBOTS_PRIVATE_KEY_3:str:null}
       arbitrum:
         address: ${ARBITRUM_RPC_3:str:http://127.0.0.1:8545}

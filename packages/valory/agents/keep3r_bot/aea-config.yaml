@@ -131,7 +131,7 @@ connections:
 - valory/abci:0.1.0:bafybeifzhmuvaqj5mnib65u5cqbmfpixjkow6iuh43ofricdpwdtjwawya
 - valory/http_client:0.23.0:bafybeidykl4elwbcjkqn32wt5h4h7tlpeqovrcq3c5bcplt6nhpznhgczi
 - valory/ipfs:0.1.0:bafybeigr2cipad23aebjpnqtzpgymiwrwgmnior2fk4inbscdnqyl5epla
-- valory/ledger:0.19.0:bafybeigvml36q4ic2tstc25xli5qw7hacykyudkuywfmc7qjb5kwfzhkka
+- valory/ledger:0.19.0:bafybeian7cdertegqkgariv4cyuglkdety7n5n466dnkcdlmvvytrhqcuq
 - valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
 contracts:
 - valory/curve_pool:0.1.0:bafybeiafzmhbhx4jysseaergr2o6larftssn543fweg5a47wo6n4mrsbke
@@ -153,13 +153,13 @@ protocols:
 - valory/tendermint:0.1.0:bafybeicusvezoqlmyt6iqomcbwaz3xkhk2qf3d56q5zprmj3xdxfy64k54
 skills:
 - valory/abstract_abci:0.1.0:bafybeiet34ju7typtkqyfn572sacef5krrsb6d4vpfnviqi6kzunje3xny
-- valory/abstract_round_abci:0.1.0:bafybeiadrj2jzptjh6jals7rc7tp6vbv64fll5d5ich4tlr6t7eh5nqflq
-- valory/keep3r_abci:0.1.0:bafybeiansgj6kn27xze3v7p7s6tklwyoshhgywi3kfudd74nxdo2lnp4su
-- valory/keep3r_job_abci:0.1.0:bafybeifvmw4pjfg7fxka7drr75ylyyorpudw2aoq5ahdjzbq2colgdzsly
-- valory/registration_abci:0.1.0:bafybeickxljqvum42oei3vntqbtsd77nevoxdv5ypy43hlous2bnsefpi4
-- valory/reset_pause_abci:0.1.0:bafybeifrjlalgcbb6zknkgxomfvgfqzmgi56hvcnjfplhlvrfou43epima
-- valory/termination_abci:0.1.0:bafybeif2rm6wu2royxfeu4uefm6z323vrt5w5bawbqf3b3abaenpkrmyqi
-- valory/transaction_settlement_abci:0.1.0:bafybeihwmzb2fsmemwxyzaou3p6j53br3jci2v66skp4nvge4mzvkx4t4u
+- valory/abstract_round_abci:0.1.0:bafybeigm6ca66asy7vfoks4uzndme3dgmolvdgr65n5isyy6b7qtwpkcdy
+- valory/keep3r_abci:0.1.0:bafybeiep43uobegw2l4jdaqow5ibzh5ko66ipsnrzjjxoi32itb5ndjgfi
+- valory/keep3r_job_abci:0.1.0:bafybeifumhlajd6gfacqcr5robgcu2jpbpvewpemysfk6rnw4hb4ow26h4
+- valory/registration_abci:0.1.0:bafybeiccxrvhmgpzqwekz3sxq4yyiasfii3jy5wihckdojxjwenih744qq
+- valory/reset_pause_abci:0.1.0:bafybeid7hsugl6hcnp3zpdmam2xftstnkyn6uge47xjs7kifm3dgtftiam
+- valory/termination_abci:0.1.0:bafybeiayluawkrgi2kbzhevu3gntgxylo4bimamwffmlfhisbwabmxqybm
+- valory/transaction_settlement_abci:0.1.0:bafybeidioodyg6gv5phzeicam63v5v5olypfrgxmu253i2uichqzl24vja
 default_ledger: ethereum
 required_ledgers:
 - ethereum
@@ -242,6 +242,7 @@ models:
       raise_on_failed_simulation: ${bool:false}
       slippage_tolerance: ${float:0.05}
       curve_pool_contract_address: ${str:0x21410232B484136404911780bC32756D5d1a9Fa9}
+      enable_k3pr_swap: ${bool:false}
       use_flashbots: ${bool:false}
       termination_sleep: 900
       k3pr_address: ${str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
@@ -265,7 +266,7 @@ config:
       poa_chain: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_POA_CHAIN:bool:false}
       default_gas_price_strategy: ${CONNECTION_LEDGER_CONFIG_LEDGER_APIS_ETHEREUM_DEFAULT_GAS_PRICE_STRATEGY:str:eip1559}
       authentication_private_key: ${str:null}
-      flashbot_relayer_uri: ${str:null}
+      flashbots_builders: ${list:[["flashbotsBuilder","https://relay.flashbots.net"]]}
     arbitrum:
       address: ${str:http://localhost:8545}
       chain_id: ${int:421611}

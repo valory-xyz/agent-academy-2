@@ -1262,7 +1262,10 @@ class TestBaseBehaviour:
                         signed_transactions=[{"test_tx": "test_tx"}],
                     ),
                     kwargs=LedgerApiMessage.Kwargs(
-                        {"raise_on_failed_simulation": False}
+                        {
+                            "raise_on_failed_simulation": False,
+                            "use_all_builders": True,
+                        }
                     ),
                 ),
             ),
