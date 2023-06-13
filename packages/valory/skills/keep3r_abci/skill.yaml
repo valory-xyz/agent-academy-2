@@ -20,12 +20,12 @@ connections: []
 contracts: []
 protocols: []
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeiacojiqfvz44jn4vh6kbh43ddmq74ttltope73tgfyqkmja5y5niy
-- valory/keep3r_job_abci:0.1.0:bafybeicxc6634wxanpuvj235uebr7yhec37laf6ertn5craygtnvyxxucu
-- valory/registration_abci:0.1.0:bafybeicimfvhzw5dxaizdtcsatyho72fo7dfagy4ewi7vscjg7tluzxbly
-- valory/reset_pause_abci:0.1.0:bafybeibrygbtusobczq4ofzvixxanlrkf22l7ds4hzgyjh7qea7iggicxe
-- valory/termination_abci:0.1.0:bafybeierptjuomcwhtfgkdmaj2q3eukcwkwzim6acf4hi6plz3vqv6suz4
-- valory/transaction_settlement_abci:0.1.0:bafybeigc2si7ru6klpxnjjzjkvd45lz2cqn5griiunmtuer5vlxfhxsr7q
+- valory/abstract_round_abci:0.1.0:bafybeid4sowrxk2cr4d45e2hvggfzqu55m5jruin5nani4u45oc6myn4zy
+- valory/keep3r_job_abci:0.1.0:bafybeibaert2wqyocfwlqybwvmrtigk5uxagxj7td47bq5hnedkg6rnc5i
+- valory/registration_abci:0.1.0:bafybeict7eea6xb7c57sjdnt6t7ltknm7tbp4fix2bc7yslm6bpdvgwh3e
+- valory/reset_pause_abci:0.1.0:bafybeiav2x756ng5qfjaqft4xcl45k5lsldyoimrszogdtqqjc2stzztx4
+- valory/termination_abci:0.1.0:bafybeiaea4mwgce6r5mgcyezq4dstuobni5lumgmegxdqrqioipoupvuzq
+- valory/transaction_settlement_abci:0.1.0:bafybeidht34lkzospdjgqkzmdvy6ixifx5xpaojotcvs36lsfkchwvtizm
 behaviours:
   main:
     args: {}
@@ -144,6 +144,7 @@ models:
       termination_sleep: 900
       tx_timeout: 10.0
       unbonding_threshold: 50
+      enable_k3pr_swap: true
       curve_pool_contract_address: '0x21410232B484136404911780bC32756D5d1a9Fa9'
       agent_surplus_share: 0.75
       use_flashbots: false

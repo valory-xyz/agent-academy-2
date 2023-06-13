@@ -89,6 +89,7 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
             "curve_pool_contract_address", kwargs, str
         )
         self.agent_surplus_share = self._ensure("agent_surplus_share", kwargs, float)
+        self.enable_k3pr_swap = self._ensure("enable_k3pr_swap", kwargs, bool)
         multisend_address = kwargs.get("multisend_address", None)
         if multisend_address is None:
             raise ValueError("Multisend address not specified!")
