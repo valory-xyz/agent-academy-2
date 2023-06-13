@@ -928,6 +928,10 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
 
     def _get_gas_spent(self) -> Generator[None, None, str]:
         """Get the gas spent for the latest unbonding interval."""
+        if self.params.withdraw_k3pr_only:
+            # skip the gas calculation if we are only withdrawing K3PR
+            return json.dumps({})
+
         keeper_address = self.synchronized_data.safe_contract_address
         bonding_asset = self.params.k3pr_address
         unbonding_events = yield from self._get_unbonding_events(
@@ -1081,6 +1085,8 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
         3. Swap the k3pr for eth
         4. Disburse the eth to the agents
 
+        In case withdraw_k3pr_only is True, only the first transaction is executed.
+
         :returns: the multisend transaction, or error payload if something went wrong
         :yields: None
         """
@@ -1098,6 +1104,7 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
         # apply slippage tolerance
         min_eth_amount = int(min_eth_amount * (1 - self.params.slippage_tolerance))
+
         multisend_txs: List[Dict[str, Any]] = []
         # 1. get the withdraw transaction
         withdraw_tx = yield from self._get_withdraw_tx(
@@ -1106,34 +1113,40 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
         if withdraw_tx is None:
             # something went wrong
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+        multisend_txs.append(withdraw_tx)
 
-        # 2. get the approve transaction
-        approve_tx = yield from self._get_approve_tx(
-            bonding_asset, self.params.curve_pool_contract_address, k3pr_amount
-        )
-        if approve_tx is None:
-            # something went wrong
-            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+        # run the rest of the transactions only if we want to swap the k3pr
+        if not self.params.withdraw_k3pr_only:
+            # 2. get the approve transaction
+            approve_tx = yield from self._get_approve_tx(
+                bonding_asset, self.params.curve_pool_contract_address, k3pr_amount
+            )
+            if approve_tx is None:
+                # something went wrong
+                return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+            multisend_txs.append(approve_tx)
 
-        # 3. get the swap transaction
-        swap_tx = yield from self._get_swap_tx(
-            self.params.curve_pool_contract_address, k3pr_amount, min_eth_amount
-        )
-        if swap_tx is None:
-            # something went wrong
-            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+            # 3. get the swap transaction
+            swap_tx = yield from self._get_swap_tx(
+                self.params.curve_pool_contract_address, k3pr_amount, min_eth_amount
+            )
+            if swap_tx is None:
+                # something went wrong
+                return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+            multisend_txs.append(approve_tx)
 
-        # 4. get the agent disburse transactions
-        address_to_gas_spent = self.synchronized_data.address_to_gas_spent
-        address_to_eth = self._get_transfer_amounts(
-            address_to_gas_spent, min_eth_amount
-        )
-        disburse_txs = self._get_disburse_txs(address_to_eth, min_eth_amount)
-        if disburse_txs is None:
-            # something went wrong
-            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+            # 4. get the agent disburse transactions
+            address_to_gas_spent = self.synchronized_data.address_to_gas_spent
+            address_to_eth = self._get_transfer_amounts(
+                address_to_gas_spent, min_eth_amount
+            )
+            disburse_txs = self._get_disburse_txs(address_to_eth, min_eth_amount)
+            if disburse_txs is None:
+                # something went wrong
+                return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
 
-        multisend_txs.extend(disburse_txs)
+            multisend_txs.extend(disburse_txs)
+
         tx = yield from self._get_multisend_tx(multisend_txs)
         if tx is None:
             # something went wrong
