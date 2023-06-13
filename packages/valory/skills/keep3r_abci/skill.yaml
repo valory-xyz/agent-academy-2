@@ -21,7 +21,7 @@ contracts: []
 protocols: []
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeigm6ca66asy7vfoks4uzndme3dgmolvdgr65n5isyy6b7qtwpkcdy
-- valory/keep3r_job_abci:0.1.0:bafybeifumhlajd6gfacqcr5robgcu2jpbpvewpemysfk6rnw4hb4ow26h4
+- valory/keep3r_job_abci:0.1.0:bafybeic7ci22mhl7fjkbjuth6j3y4fwxen7shdniuqhzv3by4t2hmjgs4u
 - valory/registration_abci:0.1.0:bafybeiccxrvhmgpzqwekz3sxq4yyiasfii3jy5wihckdojxjwenih744qq
 - valory/reset_pause_abci:0.1.0:bafybeid7hsugl6hcnp3zpdmam2xftstnkyn6uge47xjs7kifm3dgtftiam
 - valory/termination_abci:0.1.0:bafybeiayluawkrgi2kbzhevu3gntgxylo4bimamwffmlfhisbwabmxqybm
@@ -144,6 +144,7 @@ models:
       tendermint_url: http://localhost:26657
       termination_sleep: 900
       tx_timeout: 10.0
+      withdraw_k3pr_only: false
       unbonding_threshold: 50
       enable_k3pr_swap: true
       curve_pool_contract_address: '0x21410232B484136404911780bC32756D5d1a9Fa9'

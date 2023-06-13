@@ -97,6 +97,7 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         multisend_address = kwargs.get("multisend_address", None)
         enforce(multisend_address is not None, "Multisend address not specified!")
         self.multisend_address = multisend_address
+        self.withdraw_k3pr_only = self._ensure("withdraw_k3pr_only", kwargs, bool)
         super().__init__(*args, **kwargs)
 
     def _get_supported_jobs_to_package_hash(self, kwargs: Dict) -> Dict[str, str]:
