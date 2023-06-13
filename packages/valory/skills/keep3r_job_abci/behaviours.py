@@ -930,10 +930,10 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
         """Get the gas spent for the latest unbonding interval."""
         keeper_address = self.synchronized_data.safe_contract_address
         bonding_asset = self.params.k3pr_address
-        latest_unbonding_event = yield from self._get_latest_unbonding_event(
+        unbonding_events = yield from self._get_unbonding_events(
             keeper_address, bonding_asset
         )
-        if latest_unbonding_event is None or latest_unbonding_event == self._NO_EVENT:
+        if unbonding_events is None or len(unbonding_events) == 0:
             # something went wrong, the keeper MUST have unbonded if we have reached this point
             return CalculateSpentGasRound.ERROR_PAYLOAD
 
@@ -944,15 +944,18 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
             # something went wrong
             return CalculateSpentGasRound.ERROR_PAYLOAD
 
-        # we start from the block the block in which the last withdraw event happened, or from the first block if we have
-        # never withdrawn
+        # the goal is to calculate the gas spent between the last two unbonding events
+        # we start from the block in which the last unbonding event happened
+        # in case there is no withdraw event, we start from block 0
+        # in case there is a withdraw event, we start from second to last unbonding event
+        # the fact that there is a withdraw event means that the keeper has already unbonded at least twice
         from_block = (
             0
             if latest_withdraw_event == self._NO_EVENT
-            else latest_withdraw_event["block_number"]
+            else unbonding_events[-2]["block_number"]
         )
         # we end at the block in which the last unbonding event happened
-        to_block = latest_unbonding_event["block_number"]
+        to_block = unbonding_events[-1]["block_number"]
 
         transactions = yield from self._get_safe_txs(
             keeper_address, from_block, to_block
@@ -992,9 +995,9 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
         # events are sorted by block number
         return withdrawal_events[-1]
 
-    def _get_latest_unbonding_event(
+    def _get_unbonding_events(
         self, keeper_address: str, bonding_asset: str
-    ) -> Generator[None, None, Optional[Dict]]:
+    ) -> Generator[None, None, Optional[List[Dict]]]:
         """Get unbonding events"""
         unbonding_events = yield from self.read_keep3r(
             "get_unbonding_events",
@@ -1005,13 +1008,9 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
             # something went wrong
             return None
 
-        if len(unbonding_events) == 0:
-            # return the empty dict to indicate no unbondings
-            return self._NO_EVENT
-
         # return the latest unbonding event
         # events are sorted by block number
-        return unbonding_events[-1]
+        return unbonding_events
 
     def _get_safe_txs(
         self, safe_address: str, from_block: int, to_block: int
@@ -1097,7 +1096,8 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
         if min_eth_amount is None:
             # something went wrong
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
-
+        # apply slippage tolerance
+        min_eth_amount = int(min_eth_amount * (1 - self.params.slippage_tolerance))
         multisend_txs: List[Dict[str, Any]] = []
         # 1. get the withdraw transaction
         withdraw_tx = yield from self._get_withdraw_tx(
