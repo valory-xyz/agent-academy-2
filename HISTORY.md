@@ -1,5 +1,10 @@
 # Release History - `agent-academy-2`
 
+## v0.4.1 (19.06.2023)
+- Bumps `open-autonomy` framework to `v0.10.6` #186
+- Adds support for adding withdraw only to the rewarded keeper #185
+- Addresses audit points #184
+
 ## v0.4.0 (07.06.2023)
 - Bumps `open-aea` and `open-autonomy` frameworks to `v1.34.0` and `v0.10.5.post2` correspondingly #180 && 183
 - Bumps to `tomte@v0.2.12` and cleans up the repo #178
