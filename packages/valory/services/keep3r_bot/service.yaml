@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeide7xvcvcdetbb5s2oo4nguyij7lcirnaoijdphoseqqhopxorcim
+agent: valory/keep3r_bot:0.1.0:bafybeih55xozfypb6hvxmmpxkqhlph3gjai3dsf36p7xbpscr7rt3ehiqm
 number_of_agents: 1
 deployment:
   tendermint:
@@ -44,6 +44,7 @@ extra:
       supported_jobs_to_package_hash: ${JOBS_TO_HASH:list:[]}
       keep3r_v1_contract_address: ${KEEP3R_V1_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
       keep3r_v2_contract_address: ${KEEP3R_V2_ADDRESS:str:0xeb02addCfD8B773A5FFA6B9d1FE99c566f8c44CC}
+      participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
       use_v2: ${USE_KEEPER_V2:bool:true}
       k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
       unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
@@ -73,6 +74,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
+        participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:node0:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
@@ -101,6 +103,7 @@ extra:
         k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_1:str:node1:26656}
+        participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
         withdraw_k3pr_only: ${WITHDRAW_K3PR_ONLY:bool:false}
@@ -127,6 +130,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         k3pr_address: ${K3PR_ADDRESS:str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
         unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
+        participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_2:str:node2:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
@@ -156,6 +160,7 @@ extra:
         unbonding_threshold: ${UNBONDING_THRESHOLD:int:50}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_3:str:node3:26656}
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
+        participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
         withdraw_k3pr_only: ${WITHDRAW_K3PR_ONLY:bool:false}
 ---

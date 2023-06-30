@@ -206,6 +206,27 @@ class Keep3rV1Contract(Contract):
         )
 
     @classmethod
+    def build_transfer_tx(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        recipient: str,
+        amount: Union[Wei, int],
+    ) -> JSONLike:
+        """Transfer `amount` tokens from the caller's account to `recipient`."""
+        contract = cls.get_instance(ledger_api, contract_address)
+        data = contract.encodeABI(
+            fn_name="transfer",
+            args=[
+                ledger_api.api.toChecksumAddress(recipient),
+                amount,
+            ],
+        )
+        return dict(
+            data=data,
+        )
+
+    @classmethod
     def allowance(
         cls,
         ledger_api: EthereumApi,

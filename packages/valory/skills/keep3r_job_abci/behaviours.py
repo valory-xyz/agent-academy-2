@@ -1097,8 +1097,15 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             # something went wrong
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
 
+        # get the amount to swap based on agent preference
+        address_to_gas_spent = self.synchronized_data.address_to_gas_spent
+        swap_addresses, hodl_addresses = self._split_by_preference(address_to_gas_spent)
+        amount_to_swap, amount_to_hodl = sum(swap_addresses.values()), sum(
+            hodl_addresses.values()
+        )
+
         # get the minimum amount of eth we are willing to swap the k3pr for
-        min_eth_amount = yield from self._get_eth_amount(k3pr_amount)
+        min_eth_amount = yield from self._get_eth_amount(amount_to_swap)
         if min_eth_amount is None:
             # something went wrong
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
@@ -1136,11 +1143,16 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             multisend_txs.append(approve_tx)
 
             # 4. get the agent disburse transactions
-            address_to_gas_spent = self.synchronized_data.address_to_gas_spent
-            address_to_eth = self._get_transfer_amounts(
-                address_to_gas_spent, min_eth_amount
+            address_to_eth = self._get_eth_transfer_amounts(
+                swap_addresses, min_eth_amount
             )
-            disburse_txs = self._get_disburse_txs(address_to_eth, min_eth_amount)
+            address_to_k3pr = self._get_k3pr_transfer_amounts(
+                hodl_addresses,
+                amount_to_hodl,
+            )
+            disburse_txs = yield from self._get_disburse_txs(
+                address_to_eth, address_to_k3pr
+            )
             if disburse_txs is None:
                 # something went wrong
                 return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
@@ -1252,7 +1264,7 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
         }
         return single_tx
 
-    def _get_transfer_amounts(
+    def _get_eth_transfer_amounts(
         self, address_to_gas: Dict[str, int], eth_amount: int
     ) -> Dict[str, int]:
         """Get the transfer amounts for each address."""
@@ -1280,19 +1292,45 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             for address, gas_spent in address_to_gas.items()
         }
 
+    def _get_k3pr_transfer_amounts(
+        self, address_to_gas: Dict[str, int], k3pr_amount: int
+    ) -> Dict[str, int]:
+        """Get the transfer amounts for each address."""
+        total_gas_spent = sum(address_to_gas.values())
+        return {
+            address: int(k3pr_amount * gas_spent / total_gas_spent)
+            for address, gas_spent in address_to_gas.items()
+        }
+
     def _get_disburse_txs(
-        self, address_to_eth: Dict[str, int], eth_amount: int
-    ) -> List[Dict[str, Any]]:
+        self,
+        address_to_eth: Dict[str, int],
+        address_to_k3pr: Dict[str, int],
+    ) -> Generator[None, None, Optional[List[Dict[str, Any]]]]:
         """Get the transfer txs for each address."""
-        transfer_amounts = self._get_transfer_amounts(address_to_eth, eth_amount)
         transfer_txs = []
-        for address, amount in transfer_amounts.items():
+        for address, amount in address_to_eth.items():
             transfer_txs.append(
                 {
                     "operation": MultiSendOperation.CALL,
                     "to": address,
                     "value": amount,
                     "data": b"",
+                }
+            )
+        for address, amount in address_to_k3pr.items():
+            data = yield from self._get_erc20_transfer_tx(
+                address, amount, self.params.k3pr_address
+            )
+            if data is None:
+                # something went wrong
+                return None
+            transfer_txs.append(
+                {
+                    "operation": MultiSendOperation.CALL,
+                    "to": self.params.k3pr_address,
+                    "value": ZERO_ETH,
+                    "data": HexBytes(data),
                 }
             )
         return transfer_txs
@@ -1361,6 +1399,45 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             use_flashbots=self.use_flashbots,
         )
         return payload_data
+
+    def _split_by_preference(
+        self, address_to_gas_spent: Dict[str, int]
+    ) -> Tuple[Dict[str, int], Dict[str, int]]:
+        """Split participants by swap preference."""
+        swap, hodl = {}, {}
+        for participant, amount in address_to_gas_spent.items():
+            preference = self.params.participant_to_swap_pref[participant]
+            if preference == Params.SwapPref.K3PR:
+                hodl[participant] = amount
+                continue
+            swap[participant] = amount
+
+        return swap, hodl
+
+    def _get_erc20_transfer_tx(
+        self,
+        recipient: str,
+        amount: int,
+        k3pr_address: str,
+    ) -> Generator[None, None, Optional[bytes]]:
+        """Amount to approve"""
+        kwargs = {
+            "performative": ContractApiMessage.Performative.GET_STATE,
+            "contract_callable": "build_transfer_tx",
+            "contract_address": k3pr_address,
+            "recipient": recipient,
+            "amount": amount,
+        }
+        response = yield from self._call_keep3r_v1(**kwargs)
+        if response.performative != ContractApiMessage.Performative.STATE:
+            # something went wrong
+            log_msg = "Failed ledger allowance call"
+            self.context.logger.error(f"{log_msg}: {response}")
+            return None
+
+        data_str = cast(str, response.state.body["data"])[2:]
+        tx_data = bytes.fromhex(data_str)
+        return tx_data
 
 
 class WaitingBehaviour(Keep3rJobBaseBehaviour):
