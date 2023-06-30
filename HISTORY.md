@@ -1,6 +1,7 @@
 # Release History - `agent-academy-2`
 
-## v0.4.2 (26.06.2023)
+## v0.4.2 (27.06.2023)
+- Fixes dependencies #188
 - Bumps `open-aea` and `open-autonomy` frameworks to `v1.35.0` and `v0.10.7` correspondingly #187
 
 ## v0.4.1 (19.06.2023)
