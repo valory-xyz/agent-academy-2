@@ -17,3 +17,5 @@ contract_interface_paths:
 dependencies:
   open-aea-ledger-ethereum:
     version: ==1.35.0
+  web3:
+    version: ==5.31.4

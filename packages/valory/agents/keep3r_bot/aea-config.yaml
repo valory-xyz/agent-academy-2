@@ -134,7 +134,7 @@ connections:
 - valory/ledger:0.19.0:bafybeian7cdertegqkgariv4cyuglkdety7n5n466dnkcdlmvvytrhqcuq
 - valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
 contracts:
-- valory/curve_pool:0.1.0:bafybeibcjod7vvzodcbr74wdzlthuk5zjz2ujco3jq47iqoz6gfqe6e6by
+- valory/curve_pool:0.1.0:bafybeigne6p253qmazuaohvegzxijuqy4cgzaqoznlzayayyxrnni6ljb4
 - valory/gnosis_safe:0.1.0:bafybeif5fdwoxq5mscrurtuimadmtctyxxeeui45u4g6leqobzls7bsl3u
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeiaa6fgwtykrti6i7sbt22raavpsbobsq2xgem4nkbcg744agnmkae
 - valory/keep3r_v1:0.1.0:bafybeih4t4jysm5l7fyckcfvh3c4c3ofmhoos2yca2b4in7sd4u5gcsowi
@@ -154,8 +154,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeiff2dqnkeorf343fmb3547fhiznvdw4ewbwl4rqluek2cv6ibl5hi
 - valory/abstract_round_abci:0.1.0:bafybeighqebuf6tflglgrcj73fo7ovxa4wagkuiir55mgo63k53zsee3wa
-- valory/keep3r_abci:0.1.0:bafybeictp3ywrtask2xo4is7az5cvvkciulodajd25uvvto7gxyc6m65lq
-- valory/keep3r_job_abci:0.1.0:bafybeibcwame3ojlr6ueyz556bdslkbqabdrphnyl73e4aa4jiuxx2x7p4
+- valory/keep3r_abci:0.1.0:bafybeibudbh5tislivyqhjkqhferdiwizztwvpzxm7vss2zbmbig3wwlau
+- valory/keep3r_job_abci:0.1.0:bafybeid7cfpbooovyadszsq4qedpqmfhhqeuvmuislka5mfbdrvqrvqplq
 - valory/registration_abci:0.1.0:bafybeidoi26fljyn6jbbtimgppor6qeujrlhv63kdrztys3mjc3lavhzai
 - valory/reset_pause_abci:0.1.0:bafybeifwlxckafvasoob3x73a4bnisakbw2i7glzkcskwmbwzpsbgssigi
 - valory/termination_abci:0.1.0:bafybeib7ym4dkoxy62w65o5owb5a5qnfvca2sdkq6a3czku6zf5oemmkce
