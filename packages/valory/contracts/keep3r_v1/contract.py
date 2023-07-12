@@ -320,3 +320,16 @@ class Keep3rV1Contract(Contract):
         return dict(
             data=data,
         )
+
+    @classmethod
+    def get_balance(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        keeper_address: str,
+    ) -> JSONLike:
+        """Get the balance of an address."""
+
+        contract = cls.get_instance(ledger_api, contract_address)
+        balance = contract.functions.balanceOf(keeper_address).call()
+        return dict(data=balance)
