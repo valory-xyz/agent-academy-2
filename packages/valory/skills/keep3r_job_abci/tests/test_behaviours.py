@@ -116,10 +116,10 @@ DUMMY_SAFE_TX: SafeTx = {
 TEST_JOB_CONTRACT_ID = "test_job_contract_id"
 DUMMY_CONTRACT = "0xaed599aadfee8e32cedb59db2b1120d33a7bacfd"
 DUMMY_ADDRESS_TO_GAS_SPENT = {
-    "0x0": 1,
-    "0x1": 2,
-    "0x2": 3,
-    "0x3": 4,
+    "0x0000000000000000000000000000000000000000": 1,
+    "0x0000000000000000000000000000000000000001": 2,
+    "0x0000000000000000000000000000000000000002": 3,
+    "0x0000000000000000000000000000000000000003": 4,
 }
 
 
@@ -479,6 +479,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("can_withdraw_after", 0)
         self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
+        self.mock_read_keep3r_v1("get_balance", 1)
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 0})
@@ -501,6 +502,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("can_withdraw_after", 0)
         self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
+        self.mock_read_keep3r_v1("get_balance", 1)
         self.mock_read_keep3r_v1("bondings", 51 * TO_WEI)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block(block={"timestamp": 0})
@@ -541,6 +543,7 @@ class TestPathSelectionBehaviour(Keep3rJobFSMBehaviourBaseCase):
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("can_withdraw_after", 0)
         self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
+        self.mock_read_keep3r_v1("get_balance", 1)
         self.mock_read_keep3r_v1("bondings", 1)
         self.mock_read_keep3r_v1("bond", 3 * SECONDS_PER_DAY)
         self.mock_get_latest_block({"timestamp": 3 * SECONDS_PER_DAY + 1})
@@ -605,6 +608,11 @@ class TestCalculateSpentGasBehaviour(Keep3rJobFSMBehaviourBaseCase):
         {"block_number": 2},
         {"block_number": 3},
     ]
+    _DUMMY_EXCHANGE_EVENTS = [
+        {"block_number": 1},
+        {"block_number": 2},
+        {"block_number": 3},
+    ]
     _DUMMY_WITHDRAW_EVENTS = [
         {"block_number": 1},
         {"block_number": 2},
@@ -628,6 +636,7 @@ class TestCalculateSpentGasBehaviour(Keep3rJobFSMBehaviourBaseCase):
         """Test bonding tx"""
         self.behaviour.act_wrapper()
         self.mock_read_keep3r_v1("get_unbonding_events", self._DUMMY_UNBOND_EVENTS)
+        self.mock_read_curve("get_token_transfer_events", self._DUMMY_EXCHANGE_EVENTS)
         self.mock_read_keep3r_v1("get_withdrawal_events", self._DUMMY_WITHDRAW_EVENTS)
         self.mock_read_safe("get_safe_txs", self._DUMMY_SAFE_TX_EVENTS, "txs")
         self.mock_read_keep3r_v1("sender_to_amount_spent", DUMMY_ADDRESS_TO_GAS_SPENT)
@@ -651,9 +660,11 @@ class TestSwapAndDisburseRewardsBehaviour(Keep3rJobFSMBehaviourBaseCase):
     def test_happy_path(self) -> None:
         """Test bonding tx"""
         self.behaviour.act_wrapper()
+        self.mock_read_keep3r_v1("get_balance", 1)
+        self.mock_read_keep3r_v1("get_balance", 1)
         self.mock_read_keep3r_v1("pending_unbonds", self._DUMMY_K3PR_REWARD_AMOUNT)
-        self.mock_read_curve("get_dy", self._DUMMY_K3PR_TO_ETH_AMOUNT)
         self.mock_read_keep3r_v1("build_withdraw_tx", DUMMY_DATA)
+        self.mock_read_curve("get_dy", self._DUMMY_K3PR_TO_ETH_AMOUNT)
         self.mock_read_keep3r_v1("build_approve_tx", DUMMY_DATA)
         self.mock_read_curve("build_exchange_tx", DUMMY_DATA)
         self.mock_multisend_tx_call(DUMMY_DATA)

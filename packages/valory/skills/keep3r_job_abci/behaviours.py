@@ -290,6 +290,34 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         self.context.logger.info(f"Remaining bond time: {remaining_time}")
         return remaining_time <= 0
 
+    def withdrawn_funds(
+        self, safe_contract: str, k3pr_address: str
+    ) -> Generator[None, None, Optional[int]]:
+        """Get already withdrawn funds."""
+        contract_api_response = yield from self._call_keep3r_v1(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_callable="get_balance",
+            contract_address=k3pr_address,
+            keeper_address=safe_contract,
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            # something went wrong
+            log_msg = f"`get_balance` contract api response on {contract_api_response}"
+            self.context.logger.info(f"{log_msg}: {contract_api_response}")
+            return None
+        balance = cast(int, contract_api_response.state.body.get("data"))
+        return balance
+
+    def swap_already_withdrawn_funds(
+        self, safe_contract: str, k3pr_address: str
+    ) -> Generator[None, None, Optional[bool]]:
+        """Get already withdrawn funds."""
+        balance = yield from self.withdrawn_funds(safe_contract, k3pr_address)
+        if balance is None:
+            # something went wrong
+            return None
+        return balance > self.k3pr_threshold
+
     def has_activated(self, address: str) -> Generator[None, None, Optional[bool]]:
         """Check if bonding is completed"""
         is_keeper = yield from self.read_keep3r("is_keeper", address=address)
@@ -397,8 +425,13 @@ class Keep3rJobBaseBehaviour(BaseBehaviour, ABC):
         if bonded_amount is None:
             # something went wrong
             return None
+        return bonded_amount >= self.k3pr_threshold
+
+    @property
+    def k3pr_threshold(self) -> int:
+        """Get threshold"""
         wei_threshold = self.params.unbonding_threshold * TO_WEI
-        return bonded_amount >= wei_threshold
+        return wei_threshold
 
     def get_off_chain_data(
         self,
@@ -723,6 +756,17 @@ class PathSelectionBehaviour(Keep3rJobBaseBehaviour):
                 return None
             if is_ready_to_withdraw and pending_unbonds > 0:
                 return self.transitions["WITHDRAW"].name
+
+            swap_already_withdrawn_funds = yield from self.swap_already_withdrawn_funds(
+                safe_address, self.params.k3pr_address
+            )
+            if swap_already_withdrawn_funds is None:
+                # something went wrong
+                return None
+            # check if we have already withdrawn funds that we need to swap
+            if swap_already_withdrawn_funds:
+                return self.transitions["WITHDRAW"].name
+
         else:
             self.context.logger.info(
                 "k3pr swap is disabled, skipping unbonding and withdrawing"
@@ -932,6 +976,7 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
             # skip the gas calculation if we are only withdrawing K3PR
             return json.dumps({})
 
+        curve_address = self.params.curve_pool_contract_address
         keeper_address = self.synchronized_data.safe_contract_address
         bonding_asset = self.params.k3pr_address
         unbonding_events = yield from self._get_unbonding_events(
@@ -941,10 +986,13 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
             # something went wrong, the keeper MUST have unbonded if we have reached this point
             return CalculateSpentGasRound.ERROR_PAYLOAD
 
+        latest_token_exchange_event = yield from self._get_latest_token_exchange_event(
+            curve_address, keeper_address
+        )
         latest_withdraw_event = yield from self._get_latest_withdrawal_event(
             keeper_address, bonding_asset
         )
-        if latest_withdraw_event is None:
+        if latest_withdraw_event is None or latest_token_exchange_event is None:
             # something went wrong
             return CalculateSpentGasRound.ERROR_PAYLOAD
 
@@ -956,6 +1004,7 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
         from_block = (
             0
             if latest_withdraw_event == self._NO_EVENT
+            or latest_token_exchange_event == self._NO_EVENT
             else unbonding_events[-2]["block_number"]
         )
         # we end at the block in which the last unbonding event happened
@@ -998,6 +1047,40 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
         # return the latest withdraw event
         # events are sorted by block number
         return withdrawal_events[-1]
+
+    def _get_latest_token_exchange_event(
+        self, pool_address: str, buyer_address: str
+    ) -> Generator[None, None, Optional[Dict]]:
+        """Get token exchange events"""
+        contract_api_response = yield from self.get_contract_api_response(
+            performative=ContractApiMessage.Performative.GET_STATE,
+            contract_address=pool_address,
+            buyer_address=buyer_address,
+            contract_id=str(CurvePoolContract.contract_id),
+            contract_callable="get_token_transfer_events",
+        )
+        if contract_api_response.performative != ContractApiMessage.Performative.STATE:
+            self.context.logger.error(
+                f"Failed get_token_transfer_events: {contract_api_response}"
+            )
+            return None
+        log_msg = f"`get_token_transfer_events` contract api response on {contract_api_response}"
+        self.context.logger.info(f"{log_msg}: {contract_api_response}")
+        token_exchange_events = cast(
+            Optional[List[Dict[str, Any]]],
+            contract_api_response.state.body.get("data", []),
+        )
+        if token_exchange_events is None:
+            # something went wrong
+            return None
+
+        if len(token_exchange_events) == 0:
+            # return the empty dict to indicate no withdraws
+            return self._NO_EVENT
+
+        # return the latest token exchange event
+        # events are sorted by block number
+        return token_exchange_events[-1]
 
     def _get_unbonding_events(
         self, keeper_address: str, bonding_asset: str
@@ -1092,28 +1175,51 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
         """
         keeper_address = self.synchronized_data.safe_contract_address
         bonding_asset = self.context.params.k3pr_address
-        k3pr_amount = yield from self.get_pending_unbonds(keeper_address, bonding_asset)
+        k3pr_amount = yield from self.withdrawn_funds(keeper_address, bonding_asset)
         if k3pr_amount is None:
             # something went wrong
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
 
+        multisend_txs: List[Dict[str, Any]] = []
+        # check if we already withdrew the funds
+        # if we did, we just need to swap the k3pr
+        swap_already_withdrawn_funds = yield from self.swap_already_withdrawn_funds(
+            keeper_address, bonding_asset
+        )
+        if not swap_already_withdrawn_funds:
+            # 1. get the withdraw transaction
+            pending_unbonds = yield from self.get_pending_unbonds(
+                keeper_address, bonding_asset
+            )
+            if pending_unbonds is None:
+                # something went wrong
+                return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+            k3pr_amount += pending_unbonds
+            withdraw_tx = yield from self._get_withdraw_tx(
+                self.keep3r_v2_contract_address, bonding_asset
+            )
+            if withdraw_tx is None:
+                # something went wrong
+                return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
+            multisend_txs.append(withdraw_tx)
+
+        # get the amount to swap based on agent preference
+        address_to_gas_spent = self.synchronized_data.address_to_gas_spent
+        swap_addresses, hodl_addresses = self._split_by_preference(address_to_gas_spent)
+        gas_amount_to_swap, gas_amount_to_hodl = sum(swap_addresses.values()), sum(
+            hodl_addresses.values()
+        )
+        swap_percentage = gas_amount_to_swap / (gas_amount_to_swap + gas_amount_to_hodl)
+        amount_to_swap = int(k3pr_amount * swap_percentage)
+        amount_to_hodl = k3pr_amount - amount_to_swap
+
         # get the minimum amount of eth we are willing to swap the k3pr for
-        min_eth_amount = yield from self._get_eth_amount(k3pr_amount)
+        min_eth_amount = yield from self._get_eth_amount(amount_to_swap)
         if min_eth_amount is None:
             # something went wrong
             return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
         # apply slippage tolerance
         min_eth_amount = int(min_eth_amount * (1 - self.params.slippage_tolerance))
-
-        multisend_txs: List[Dict[str, Any]] = []
-        # 1. get the withdraw transaction
-        withdraw_tx = yield from self._get_withdraw_tx(
-            self.keep3r_v2_contract_address, bonding_asset
-        )
-        if withdraw_tx is None:
-            # something went wrong
-            return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
-        multisend_txs.append(withdraw_tx)
 
         # run the rest of the transactions only if we want to swap the k3pr
         if not self.params.withdraw_k3pr_only:
@@ -1136,11 +1242,16 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             multisend_txs.append(approve_tx)
 
             # 4. get the agent disburse transactions
-            address_to_gas_spent = self.synchronized_data.address_to_gas_spent
-            address_to_eth = self._get_transfer_amounts(
-                address_to_gas_spent, min_eth_amount
+            address_to_eth = self._get_eth_transfer_amounts(
+                swap_addresses, min_eth_amount
             )
-            disburse_txs = self._get_disburse_txs(address_to_eth, min_eth_amount)
+            address_to_k3pr = self._get_k3pr_transfer_amounts(
+                hodl_addresses,
+                amount_to_hodl,
+            )
+            disburse_txs = yield from self._get_disburse_txs(
+                address_to_eth, address_to_k3pr
+            )
             if disburse_txs is None:
                 # something went wrong
                 return SwapAndDisburseRewardsRound.ERROR_PAYLOAD
@@ -1252,7 +1363,7 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
         }
         return single_tx
 
-    def _get_transfer_amounts(
+    def _get_eth_transfer_amounts(
         self, address_to_gas: Dict[str, int], eth_amount: int
     ) -> Dict[str, int]:
         """Get the transfer amounts for each address."""
@@ -1280,19 +1391,45 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             for address, gas_spent in address_to_gas.items()
         }
 
+    def _get_k3pr_transfer_amounts(
+        self, address_to_gas: Dict[str, int], k3pr_amount: int
+    ) -> Dict[str, int]:
+        """Get the transfer amounts for each address."""
+        total_gas_spent = sum(address_to_gas.values())
+        return {
+            address: int(k3pr_amount * gas_spent / total_gas_spent)
+            for address, gas_spent in address_to_gas.items()
+        }
+
     def _get_disburse_txs(
-        self, address_to_eth: Dict[str, int], eth_amount: int
-    ) -> List[Dict[str, Any]]:
+        self,
+        address_to_eth: Dict[str, int],
+        address_to_k3pr: Dict[str, int],
+    ) -> Generator[None, None, Optional[List[Dict[str, Any]]]]:
         """Get the transfer txs for each address."""
-        transfer_amounts = self._get_transfer_amounts(address_to_eth, eth_amount)
         transfer_txs = []
-        for address, amount in transfer_amounts.items():
+        for address, amount in address_to_eth.items():
             transfer_txs.append(
                 {
                     "operation": MultiSendOperation.CALL,
                     "to": address,
                     "value": amount,
                     "data": b"",
+                }
+            )
+        for address, amount in address_to_k3pr.items():
+            data = yield from self._get_erc20_transfer_tx(
+                address, amount, self.params.k3pr_address
+            )
+            if data is None:
+                # something went wrong
+                return None
+            transfer_txs.append(
+                {
+                    "operation": MultiSendOperation.CALL,
+                    "to": self.params.k3pr_address,
+                    "value": ZERO_ETH,
+                    "data": HexBytes(data),
                 }
             )
         return transfer_txs
@@ -1361,6 +1498,45 @@ class SwapAndDisburseRewardsBehaviour(Keep3rJobBaseBehaviour):
             use_flashbots=self.use_flashbots,
         )
         return payload_data
+
+    def _split_by_preference(
+        self, address_to_gas_spent: Dict[str, int]
+    ) -> Tuple[Dict[str, int], Dict[str, int]]:
+        """Split participants by swap preference."""
+        swap, hodl = {}, {}
+        for participant, amount in address_to_gas_spent.items():
+            preference = self.params.participant_to_swap_pref[participant]
+            if preference == Params.SwapPref.K3PR:
+                hodl[participant] = amount
+                continue
+            swap[participant] = amount
+
+        return swap, hodl
+
+    def _get_erc20_transfer_tx(
+        self,
+        recipient: str,
+        amount: int,
+        k3pr_address: str,
+    ) -> Generator[None, None, Optional[bytes]]:
+        """Amount to approve"""
+        kwargs = {
+            "performative": ContractApiMessage.Performative.GET_STATE,
+            "contract_callable": "build_transfer_tx",
+            "contract_address": k3pr_address,
+            "recipient": recipient,
+            "amount": amount,
+        }
+        response = yield from self._call_keep3r_v1(**kwargs)
+        if response.performative != ContractApiMessage.Performative.STATE:
+            # something went wrong
+            log_msg = "Failed ledger allowance call"
+            self.context.logger.error(f"{log_msg}: {response}")
+            return None
+
+        data_str = cast(str, response.state.body["data"])[2:]
+        tx_data = bytes.fromhex(data_str)
+        return tx_data
 
 
 class WaitingBehaviour(Keep3rJobBaseBehaviour):

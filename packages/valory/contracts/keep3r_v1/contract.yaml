@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeifx2yosibw3vv2cwn5v3rr62nz5h5quko6rvxeuoxpujvpvgsehi4
   build/Keep3rV1.json: bafybeiaogvk56d5mpnizla2klyg67clcp7wf2haqbqs4avf5lopavxhkya
-  contract.py: bafybeigzhhvgbytbumhrlrsu4hvc3kvzsfbnstms4mzgacqia7wrlrjojq
+  contract.py: bafybeifktt6be3jarxm6xc6fel3qwvqhasvwrvfpe5va6gnfynrxyyg4ay
 fingerprint_ignore_patterns: []
 contracts:
 - valory/keep3r_v1_library:0.1.0:bafybeiguyavczsaebbh5docth3o6e36b24s46jynhvysewnk3hqim3a4qe

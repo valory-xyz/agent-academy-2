@@ -134,10 +134,10 @@ connections:
 - valory/ledger:0.19.0:bafybeian7cdertegqkgariv4cyuglkdety7n5n466dnkcdlmvvytrhqcuq
 - valory/p2p_libp2p_client:0.1.0:bafybeidwcobzb7ut3efegoedad7jfckvt2n6prcmd4g7xnkm6hp6aafrva
 contracts:
-- valory/curve_pool:0.1.0:bafybeihbfxktk53cdkku2sa4ecnxr63gl7zsqw3yge7j5lgcp5df3vfmzy
+- valory/curve_pool:0.1.0:bafybeigne6p253qmazuaohvegzxijuqy4cgzaqoznlzayayyxrnni6ljb4
 - valory/gnosis_safe:0.1.0:bafybeif5fdwoxq5mscrurtuimadmtctyxxeeui45u4g6leqobzls7bsl3u
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeiaa6fgwtykrti6i7sbt22raavpsbobsq2xgem4nkbcg744agnmkae
-- valory/keep3r_v1:0.1.0:bafybeibjqyspstlbj4w45cuupnhizg7c7uz7cg6okkmsj6mj6y226begye
+- valory/keep3r_v1:0.1.0:bafybeih4t4jysm5l7fyckcfvh3c4c3ofmhoos2yca2b4in7sd4u5gcsowi
 - valory/keep3r_v1_library:0.1.0:bafybeiguyavczsaebbh5docth3o6e36b24s46jynhvysewnk3hqim3a4qe
 - valory/keep3r_v2:0.1.0:bafybeiauot5zmw7bhumikx3r2jcdkor6qb55o67s6czybluk7bmdozkwpa
 - valory/multisend:0.1.0:bafybeict2k3vf3c4fvzosaq5kku2ivtzsskbomrujmmoicut7eg52onnje
@@ -154,8 +154,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeiff2dqnkeorf343fmb3547fhiznvdw4ewbwl4rqluek2cv6ibl5hi
 - valory/abstract_round_abci:0.1.0:bafybeighqebuf6tflglgrcj73fo7ovxa4wagkuiir55mgo63k53zsee3wa
-- valory/keep3r_abci:0.1.0:bafybeihfeakdr77ixvx3562wuuec7oekhu5caqlzberadqxatbb47lgtmm
-- valory/keep3r_job_abci:0.1.0:bafybeiatys4tsnjdss2si6ef47ux6vtw4fzbwoiv55vmmxxcjttteoxhei
+- valory/keep3r_abci:0.1.0:bafybeibudbh5tislivyqhjkqhferdiwizztwvpzxm7vss2zbmbig3wwlau
+- valory/keep3r_job_abci:0.1.0:bafybeid7cfpbooovyadszsq4qedpqmfhhqeuvmuislka5mfbdrvqrvqplq
 - valory/registration_abci:0.1.0:bafybeidoi26fljyn6jbbtimgppor6qeujrlhv63kdrztys3mjc3lavhzai
 - valory/reset_pause_abci:0.1.0:bafybeifwlxckafvasoob3x73a4bnisakbw2i7glzkcskwmbwzpsbgssigi
 - valory/termination_abci:0.1.0:bafybeib7ym4dkoxy62w65o5owb5a5qnfvca2sdkq6a3czku6zf5oemmkce
@@ -251,6 +251,7 @@ models:
       keep3r_v1_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
       keep3r_v2_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
       supported_jobs_to_package_hash: ${list:[["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihaxl5l5ltmiius3bcr5pt3tqy6fgwn56hqm7zzm3uxupj6i2xfni"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeieedl2oblihpkugxwothabjpzgglxf6ignvjppw6i2mclvh6j2tny"]]}
+      participant_to_swap_pref: ${list:[["0x8157B61819378f5bE4EFe3d6d67e38CA609abEF3","k3pr"]]}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

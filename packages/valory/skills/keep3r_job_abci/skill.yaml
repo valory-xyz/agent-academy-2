@@ -8,19 +8,19 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeidq32yfua6bopvzlo7xwpfdiz4bwr7txkv4vo4vxmjmvdthkr2cwe
   __init__.py: bafybeifr6ekniqkhuvkyfw3xktsntjvjjye5vfyir2i5zrzc3bcud5vvqa
-  behaviours.py: bafybeidqgwptadlzulqdfh2jb7gm5sga7h67siqigahl4p2fs2jm3bjeei
+  behaviours.py: bafybeihhfcqvpj3n5epuon6dsmzxwejkphkevbbgha2oplw4vszhlii5vy
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   dynamic_package_loader.py: bafybeifdp6ym6jjjqbcu4qcg5vkh2kksvowryvrfcjbklvhvs36653troe
   fsm_specification.yaml: bafybeihjvacl6sclfyrntgqoxexfxjq2kfjeyc6whpo4wciynrs3plclxm
   handlers.py: bafybeiflkitcwl4b4glto7xaf7oykdsutbsyr62fwzh4ycy6grvblnypya
   io_/__init__.py: bafybeifxgmmwjqzezzn3e6keh2bfo4cyo7y5dq2ept3stfmgglbrzfl5rq
   io_/loader.py: bafybeidbnhostvbufwc4z2ulcgzw3weyps4obpnofkuglaehz2jpwstpbq
-  models.py: bafybeif6feb2j6upsdtxcxaaiavoucovynktvughbiecsobw4iaslxuqaa
+  models.py: bafybeigfwsdsyulkaepoiuzonj5m7r7ma6smtreahrexckz2dtx65djw5q
   payloads.py: bafybeih4nbp77gimv4h3bcg3e7mutpb6h64ptzc3f5zmvw7kfpib3r2rs4
   rounds.py: bafybeiausofail75f3ebjafjnibp6fhvmiangvk6bpm44yiee7p2knr4me
   tests/__init__.py: bafybeicw6vp5sxxwr5p3dns6of2px4qizw4q2s55ozf5cu5uamfh3tlrby
   tests/helpers.py: bafybeigwnsg3r4mqo2rrai56ju4yknd6tvi3edkterbvbnptst5uwz6oa4
-  tests/test_behaviours.py: bafybeigvl6znniure2qvwh635k4fjeo4ncn5aztolddhqtovo2ot6qzqoy
+  tests/test_behaviours.py: bafybeidn52au5vyocrcba7y2os5rq2brhf2yckm5jwzjvawttjcot2qpmu
   tests/test_dialogues.py: bafybeia6fxfnwbuubvsz5722upwyliokikwtlizhujpfglxva43wxcyfsm
   tests/test_payloads.py: bafybeifm72ezuvavj7qfjepzi27qipkgkasolqcwbu4qhfgjkuy6c6vdd4
   tests/test_rounds.py: bafybeib5lzc6cjhygow7aqk3p5amy44rcpebsf3c6nexq72q7c367zstvy
@@ -29,8 +29,8 @@ connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeif5fdwoxq5mscrurtuimadmtctyxxeeui45u4g6leqobzls7bsl3u
 - valory/multisend:0.1.0:bafybeict2k3vf3c4fvzosaq5kku2ivtzsskbomrujmmoicut7eg52onnje
-- valory/curve_pool:0.1.0:bafybeihbfxktk53cdkku2sa4ecnxr63gl7zsqw3yge7j5lgcp5df3vfmzy
-- valory/keep3r_v1:0.1.0:bafybeibjqyspstlbj4w45cuupnhizg7c7uz7cg6okkmsj6mj6y226begye
+- valory/curve_pool:0.1.0:bafybeigne6p253qmazuaohvegzxijuqy4cgzaqoznlzayayyxrnni6ljb4
+- valory/keep3r_v1:0.1.0:bafybeih4t4jysm5l7fyckcfvh3c4c3ofmhoos2yca2b4in7sd4u5gcsowi
 - valory/keep3r_v2:0.1.0:bafybeiauot5zmw7bhumikx3r2jcdkor6qb55o67s6czybluk7bmdozkwpa
 protocols:
 - valory/contract_api:1.0.0:bafybeidv6wxpjyb2sdyibnmmum45et4zcla6tl63bnol6ztyoqvpl4spmy
@@ -142,6 +142,9 @@ models:
       setup:
         all_participants:
         - '0x0000000000000000000000000000000000000000'
+        - '0x0000000000000000000000000000000000000001'
+        - '0x0000000000000000000000000000000000000002'
+        - '0x0000000000000000000000000000000000000003'
         safe_contract_address: '0x0000000000000000000000000000000000000000'
         consensus_threshold: null
       share_tm_config_on_startup: false
@@ -149,6 +152,15 @@ models:
       supported_jobs_to_package_hash:
       - - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
         - '0xaed599aadfee8e32cedb59db2b1120d33a7bacfd'
+      participant_to_swap_pref:
+      - - '0x0000000000000000000000000000000000000000'
+        - k3pr
+      - - '0x0000000000000000000000000000000000000001'
+        - k3pr
+      - - '0x0000000000000000000000000000000000000002'
+        - eth
+      - - '0x0000000000000000000000000000000000000003'
+        - eth
       enable_k3pr_swap: true
       slippage_tolerance: 0.05
       tendermint_check_sleep_delay: 3

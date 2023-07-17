@@ -17,7 +17,7 @@
 #
 # ------------------------------------------------------------------------------
 """This module contains the shared state for the 'keep3r_job_abci' application."""
-
+from enum import Enum
 from typing import Any, Dict, List, Type
 
 from aea.configurations.data_types import PublicId
@@ -55,6 +55,12 @@ class SharedState(BaseSharedState):
 
 class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
     """Parameters."""
+
+    class SwapPref(Enum):
+        """Swap preference."""
+
+        ETH = "eth"
+        K3PR = "k3pr"
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize the parameters object."""
@@ -98,6 +104,9 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         enforce(multisend_address is not None, "Multisend address not specified!")
         self.multisend_address = multisend_address
         self.withdraw_k3pr_only = self._ensure("withdraw_k3pr_only", kwargs, bool)
+        self.participant_to_swap_pref: Dict[
+            str, Params.SwapPref
+        ] = self._get_participant_to_swap_pref(kwargs)
         super().__init__(*args, **kwargs)
 
     def _get_supported_jobs_to_package_hash(self, kwargs: Dict) -> Dict[str, str]:
@@ -108,6 +117,33 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         if len(supported_jobs_to_package_hash) == 0:
             raise ValueError("No supported jobs specified!")
         return {value[0]: value[1] for value in supported_jobs_to_package_hash}
+
+    def _get_participant_to_swap_pref(self, kwargs: Dict) -> Dict[str, SwapPref]:
+        """Get participant to swap pref from the kwargs."""
+        all_participants = kwargs.get("setup", {}).get("all_participants", [])
+        participant_to_swap_pref = self._ensure(
+            "participant_to_swap_pref", kwargs, List[List[str]]
+        )
+        enforce(len(participant_to_swap_pref) > 0, "No participant specified!")
+        allowed_swap_prefs = [swap_pref.value for swap_pref in self.SwapPref]
+        participant_to_swap_pref_dict = {}
+
+        for participant, swap_pref in participant_to_swap_pref:
+            enforce(
+                swap_pref in allowed_swap_prefs,
+                f"Invalid swap pref for participant {participant}!",
+            )
+            enforce(
+                participant in all_participants,
+                f"Participant {participant} not in all_participants!",
+            )
+            participant_to_swap_pref_dict[participant] = self.SwapPref(swap_pref)
+
+        enforce(
+            len(participant_to_swap_pref_dict) == len(all_participants),
+            "Not all participants specified!",
+        )
+        return participant_to_swap_pref_dict
 
 
 class RandomnessApi(ApiSpecs):

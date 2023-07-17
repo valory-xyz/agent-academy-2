@@ -25,6 +25,8 @@ from aea.common import JSONLike
 from aea.configurations.base import PublicId
 from aea.contracts.base import Contract
 from aea_ledger_ethereum import EthereumApi
+from web3 import Web3
+from web3.types import BlockIdentifier
 
 ENCODING = "utf-8"
 PUBLIC_ID = PublicId.from_str("valory/curve_pool:0.1.0")
@@ -78,3 +80,31 @@ class CurvePoolContract(Contract):
             ],
         )
         return dict(data=data)
+
+    @classmethod
+    def get_token_transfer_events(
+        cls,
+        ledger_api: EthereumApi,
+        contract_address: str,
+        buyer_address: str,
+        from_block: BlockIdentifier = "earliest",
+        to_block: BlockIdentifier = "latest",
+    ) -> JSONLike:
+        """Get the dy value from the contract."""
+        contract = cls.get_instance(ledger_api, contract_address)
+        entries = contract.events.TokenExchange.createFilter(
+            fromBlock=from_block,
+            toBlock=to_block,
+            argument_filters=[{"buyer": Web3.toChecksumAddress(buyer_address)}],
+        ).get_all_entries()
+        return dict(
+            data=list(
+                map(
+                    lambda entry: dict(
+                        tx_hash=entry.transactionHash.hex(),
+                        block_number=entry.blockNumber,
+                    ),
+                    entries,
+                )
+            )
+        )

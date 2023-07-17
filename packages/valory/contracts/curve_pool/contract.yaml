@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeictrqqkqaiis2ohyzuooddrezhmi5jmxmibvmw7w5o24qu2mue24i
   build/CurvePool.json: bafybeigktqontoncikf2nzz5ruhgotbv7u7arih7jgzi6jrwflsiuxl3zi
-  contract.py: bafybeihxlb6pkeetyrg3k63j6tjwuuodtu7laph4f2bdefnfly43wwxlnq
+  contract.py: bafybeicn6mvkz24q43mfyrziuchqoposioocwcrf5yqn5latjdfbv734si
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: CurvePoolContract
@@ -17,3 +17,5 @@ contract_interface_paths:
 dependencies:
   open-aea-ledger-ethereum:
     version: ==1.35.0
+  web3:
+    version: ==5.31.4
