@@ -128,19 +128,15 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         allowed_swap_prefs = [swap_pref.value for swap_pref in self.SwapPref]
         participant_to_swap_pref_dict = {}
 
-        for participant, swap_pref in participant_to_swap_pref:
+        for participant, swap_pref in participant_to_swap_pref.items():
             enforce(
                 swap_pref in allowed_swap_prefs,
                 f"Invalid swap pref for participant {participant}!",
             )
-            enforce(
-                participant in all_participants,
-                f"Participant {participant} not in all_participants!",
-            )
             participant_to_swap_pref_dict[participant] = self.SwapPref(swap_pref)
 
         enforce(
-            len(participant_to_swap_pref_dict) == len(all_participants),
+            len(participant_to_swap_pref_dict) > len(all_participants),
             "Not all participants specified!",
         )
         return participant_to_swap_pref_dict
