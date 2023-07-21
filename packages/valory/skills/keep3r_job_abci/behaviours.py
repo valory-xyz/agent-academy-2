@@ -1021,6 +1021,10 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
         tx_sender_to_gas_spent = yield from self._tx_sender_to_gas_spent(
             transaction_hashes
         )
+        # pop blacklisted addresses
+        for address in self.params.blacklisted_addresses:
+            if address in tx_sender_to_gas_spent:
+                tx_sender_to_gas_spent.pop(address)
         if tx_sender_to_gas_spent is None:
             # something went wrong
             return CalculateSpentGasRound.ERROR_PAYLOAD

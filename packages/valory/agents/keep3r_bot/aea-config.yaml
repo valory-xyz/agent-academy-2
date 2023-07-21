@@ -154,8 +154,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeiff2dqnkeorf343fmb3547fhiznvdw4ewbwl4rqluek2cv6ibl5hi
 - valory/abstract_round_abci:0.1.0:bafybeighqebuf6tflglgrcj73fo7ovxa4wagkuiir55mgo63k53zsee3wa
-- valory/keep3r_abci:0.1.0:bafybeihltcrsdvrdmbziozr6x5ueemf6ci4m2h6pjksxl7hmtp5mdufeza
-- valory/keep3r_job_abci:0.1.0:bafybeiekyv3rbwk363z74hbyap2zgtiaar65tgg5m5jylufbdyuicv4ckm
+- valory/keep3r_abci:0.1.0:bafybeidxx5vey4lx3azj536ypocgdcuehbufzfpikmnhe2quuohtpq5aum
+- valory/keep3r_job_abci:0.1.0:bafybeibifkoyeyoz6hoz5yplnru3lhi7d57x737cvyrud3wx66puoh63my
 - valory/registration_abci:0.1.0:bafybeidoi26fljyn6jbbtimgppor6qeujrlhv63kdrztys3mjc3lavhzai
 - valory/reset_pause_abci:0.1.0:bafybeifwlxckafvasoob3x73a4bnisakbw2i7glzkcskwmbwzpsbgssigi
 - valory/termination_abci:0.1.0:bafybeib7ym4dkoxy62w65o5owb5a5qnfvca2sdkq6a3czku6zf5oemmkce
@@ -246,6 +246,7 @@ models:
       use_flashbots: ${bool:false}
       termination_sleep: 900
       k3pr_address: ${str:0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44}
+      blacklisted_addresses: ${list:[]}
       withdraw_k3pr_only: ${bool:true}
       unbonding_threshold: ${int:50}
       keep3r_v1_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
