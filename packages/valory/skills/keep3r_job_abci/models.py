@@ -107,7 +107,9 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         self.participant_to_swap_pref: Dict[
             str, Params.SwapPref
         ] = self._get_participant_to_swap_pref(kwargs)
-        self.blacklisted_addresses: List[str] = self._ensure("blacklisted_addresses", kwargs, List[str])
+        self.blacklisted_addresses: List[str] = self._ensure(
+            "blacklisted_addresses", kwargs, List[str]
+        )
         super().__init__(*args, **kwargs)
 
     def _get_supported_jobs_to_package_hash(self, kwargs: Dict) -> Dict[str, str]:
