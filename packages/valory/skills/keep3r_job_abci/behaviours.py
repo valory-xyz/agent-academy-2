@@ -1023,7 +1023,7 @@ class CalculateSpentGasBehaviour(Keep3rJobBaseBehaviour):
         )
         # pop blacklisted addresses
         for address in self.params.blacklisted_addresses:
-            if address in tx_sender_to_gas_spent:
+            if tx_sender_to_gas_spent is not None and address in tx_sender_to_gas_spent:
                 tx_sender_to_gas_spent.pop(address)
         if tx_sender_to_gas_spent is None:
             # something went wrong

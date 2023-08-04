@@ -1,5 +1,11 @@
 # Release History - `agent-academy-2`
 
+## v0.4.3 (03.08.2023)
+- Bumps `open-aea` and `open-autonomy` frameworks to `v1.37.0` and `v0.10.10.post1` correspondingly #192
+- Adds support for allowing some addresses to not be reimbursed their spending #191
+- Adds support for having previous members of the safe in the preference #190
+- Adds support for swapping funds that have already been withdrawn into the safe #189
+
 ## v0.4.2 (27.06.2023)
 - Fixes dependencies #188
 - Bumps `open-aea` and `open-autonomy` frameworks to `v1.35.0` and `v0.10.7` correspondingly #187
