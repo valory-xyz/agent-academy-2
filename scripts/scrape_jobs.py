@@ -53,7 +53,7 @@ PATH.mkdir(parents=True, exist_ok=True)
 
 
 w3 = Web3(Web3.HTTPProvider(INFURA_TEMPLATE.format(api_key=infura_api_key)))
-assert w3.isConnected(), "Not connected"
+assert w3.is_connected(), "Not connected"
 
 
 def get_contract_abi(address: str) -> List[Dict[str, Any]]:

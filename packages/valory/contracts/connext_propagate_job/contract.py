@@ -541,7 +541,9 @@ class ConnextPropagateJobContract(Contract):
                 call_data = l2_network_instance.get_call_data()
                 single_encoded_data = call_data.encoded_data
                 fee = call_data.fee
-            connectors.append(ledger_apis[ETHEREUM_L1].api.to_checksum_address(connector))
+            connectors.append(
+                ledger_apis[ETHEREUM_L1].api.to_checksum_address(connector)
+            )
             encoded_data.append(single_encoded_data)
             fees.append(fee)
         return connectors, encoded_data, fees
