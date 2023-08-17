@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeictrqqkqaiis2ohyzuooddrezhmi5jmxmibvmw7w5o24qu2mue24i
   build/CurvePool.json: bafybeigktqontoncikf2nzz5ruhgotbv7u7arih7jgzi6jrwflsiuxl3zi
-  contract.py: bafybeicn6mvkz24q43mfyrziuchqoposioocwcrf5yqn5latjdfbv734si
+  contract.py: bafybeihndw434hh4mt7hi4fpirzfozjjuldcmzp3vmugtfyoe6tg7o3gxa
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: CurvePoolContract

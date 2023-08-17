@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   __init__.py: bafybeihbklrajavaowaugrzilvxpqajlf6yrb2ow2oyfizuxumpzav35xm
   build/Keep3rV2.json: bafybeih2ve5z3keyoa3waokjnqap4mpiuuwe4axfzgpg2loeveievtmoq4
-  contract.py: bafybeieqi4hr32yxd6jml6uh5cqiynkw53o5tydgll4jrzqrpw7n5dbcba
+  contract.py: bafybeico5ct4jh3ur3qb5tvm6enlua2dbadky7id6ei3bqbntx3iezc34q
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: KeeperV2

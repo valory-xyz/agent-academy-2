@@ -118,7 +118,7 @@ class BaseKeep3rV1ContractTest(BaseGanacheContractWithDependencyTest):
 
         tx_parameters = TxParams()
         nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
-        tx_parameters["from"] = ledger_api.api.toChecksumAddress(address)
+        tx_parameters["from"] = ledger_api.api.to_checksum_address(address)
         tx_parameters["nonce"] = nonce
         tx_parameters["gas"] = Wei(DEFAULT_GAS)
         tx_parameters.update(ledger_api.try_get_gas_pricing())

@@ -121,7 +121,7 @@ fingerprint:
   tests/test_agents/test_keep3r_bot_abci.py: bafybeihk7zdsdk2lvhx72kv5qeiv65ja7iw3wqhyiqv72o42idwsnumjbe
   tests/test_contracts/__init__.py: bafybeigshvhk6i2tbbosn6avoycqxhtjuqpr2m6eycq33ry5qdfxcuooxy
   tests/test_contracts/test_k3peer_v1/__init__.py: bafybeigshvhk6i2tbbosn6avoycqxhtjuqpr2m6eycq33ry5qdfxcuooxy
-  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeibjsmhuiflc3kqiif7vajawkiq3ogtzuvvar4bbjj55uya7le5aze
+  tests/test_contracts/test_k3peer_v1/test_contract.py: bafybeieg5gkbtp25vzcpumih3ga7byj6kknxwi2imxbgikkpj5mxxm2pru
   tests/test_contracts/test_keep3r_test_job/__init__.py: bafybeihhopwpbkkx5vyab2mx3kjfpgnlj46nhzjnzcazrfyybetxvvfhva
   tests/test_contracts/test_keep3r_test_job/test_contract.py: bafybeigqtsqysnjblg4fj324pcnhiixnzwquobkqqtyeercnyvw55hyyfi
   tests/test_contracts/test_keeper_for_testnet/__init__.py: bafybeigug6razuooshb7admqddi4ghaist6gpitni5pb6ps54pstdbp7ye
@@ -134,12 +134,12 @@ connections:
 - valory/ledger:0.19.0:bafybeic5v5sjuzhqc3dz5qwjvwubklwtn3d75gzhakcpoe36tudybe5ccq
 - valory/p2p_libp2p_client:0.1.0:bafybeihdnfdth3qgltefgrem7xyi4b3ejzaz67xglm2hbma2rfvpl2annq
 contracts:
-- valory/curve_pool:0.1.0:bafybeiefh2ahjl262ho5ihtjszbhpoyutjotnwsjcbnixgxdgcghoumdaa
+- valory/curve_pool:0.1.0:bafybeihznazoqce3cfiyg4vg4hkvipzs5pmu7zqwlf3uga36imyury5xii
 - valory/gnosis_safe:0.1.0:bafybeigaeon5qhgdwhduw4wtjt7x7o3hpz62aifr5a7522ynll3nps3qnm
 - valory/gnosis_safe_proxy_factory:0.1.0:bafybeihuyxtxqp5f5sviid5hgtpuncd545hiurp3pjdbhqbs3u4kag4a2a
-- valory/keep3r_v1:0.1.0:bafybeiafsrkh3yd4fa4rap6ammm5pujikwodig4xegpe4vrxxfcbpzg33q
+- valory/keep3r_v1:0.1.0:bafybeiho5bzxvakgwwtb7kq7mfrkgzgdztaw3kib5kcruc677lvb35huwu
 - valory/keep3r_v1_library:0.1.0:bafybeiguyavczsaebbh5docth3o6e36b24s46jynhvysewnk3hqim3a4qe
-- valory/keep3r_v2:0.1.0:bafybeifof5l5c3npbmstuydce3zx5ctqcsyzvq4edmon3d5mpd6vtrykyq
+- valory/keep3r_v2:0.1.0:bafybeidm6eqatqkzvkmq7er2ij4wkvmpealngxz7i3ogyxfjba7loary7u
 - valory/multisend:0.1.0:bafybeiemglycsigpsf2f6ohfdlsha7w6lrc5nmhlydmocna4apa7b4cqcq
 - valory/service_registry:0.1.0:bafybeihi2tfcf4l7j6tzwb6vptrctkj57zye2oqxmyfwxc4u7gb2v3fmwa
 protocols:
@@ -154,8 +154,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeibcemiz3qxoordadxwkxkjp7g7rerbfwap6wqxiepcms22ocb3v7i
 - valory/abstract_round_abci:0.1.0:bafybeieedxecff7l3mmzgrr4kbnrb252hbpqslqm5jtnktfdxulvpyjmti
-- valory/keep3r_abci:0.1.0:bafybeibsmjpxvn25mcoatdo6g4doujbywto4srkzoztfv6swzrn6grlchm
-- valory/keep3r_job_abci:0.1.0:bafybeic5olvgecebbdlimk2lyzxhbzmvm23edkzr3oykdjdub6222p6wyy
+- valory/keep3r_abci:0.1.0:bafybeihjm7glglakfvomgyeemj6u5gurlwrasqny4xbkhzqlkzhhsmzu4a
+- valory/keep3r_job_abci:0.1.0:bafybeiezimd2anupyd7millvtjbssr5wtls3wzds2qpzyar6b6jgyox3de
 - valory/registration_abci:0.1.0:bafybeihwiodtwmpzmao3t3jedrtzkxgont7o7kqh6ax6inazsgkarzrhou
 - valory/reset_pause_abci:0.1.0:bafybeiew6y4mf257vuo3b6d33egvjlsl6mhgescku2ke33thptp6jkx2ii
 - valory/termination_abci:0.1.0:bafybeicxdo4ljcmcirwkmreiphgrtpzjig2lm27cbqjua2ylzcjf3beqyi

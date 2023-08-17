@@ -92,10 +92,10 @@ class CurvePoolContract(Contract):
     ) -> JSONLike:
         """Get the dy value from the contract."""
         contract = cls.get_instance(ledger_api, contract_address)
-        entries = contract.events.TokenExchange.createFilter(
+        entries = contract.events.TokenExchange.create_filter(
             fromBlock=from_block,
             toBlock=to_block,
-            argument_filters=[{"buyer": Web3.toChecksumAddress(buyer_address)}],
+            argument_filters=[{"buyer": Web3.to_checksum_address(buyer_address)}],
         ).get_all_entries()
         return dict(
             data=list(

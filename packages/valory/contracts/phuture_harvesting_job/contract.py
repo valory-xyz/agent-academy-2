@@ -77,7 +77,7 @@ class PhutureHarvestingJobContract(Contract):
             }
         ]
         contract = ledger_api.api.eth.contract(
-            address=ledger_api.api.toChecksumAddress(config_address),
+            address=ledger_api.api.to_checksum_address(config_address),
             abi=partial_abi,
         )
         deposit_amount = contract.functions.getDepositedAmount(USV_ADDRESS).call()
@@ -156,8 +156,8 @@ class PhutureHarvestingJobContract(Contract):
         try:
             ledger_api.api.eth.call(
                 {
-                    "from": ledger_api.api.toChecksumAddress(keep3r_address),
-                    "to": ledger_api.api.toChecksumAddress(contract_address),
+                    "from": ledger_api.api.to_checksum_address(keep3r_address),
+                    "to": ledger_api.api.to_checksum_address(contract_address),
                     "data": data.hex(),
                 }
             )

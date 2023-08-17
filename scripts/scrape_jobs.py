@@ -118,7 +118,7 @@ def write_contract_data_to_local(contract_dir: Path, job: pd.Series) -> None:
         print(f"details written: {filepath}")
 
     print(f"Scraping: {job.job_name}")
-    job.address = Web3.toChecksumAddress(job.address)
+    job.address = Web3.to_checksum_address(job.address)
     job_dir = contract_dir / f"{job.address}"
     job_dir.mkdir(exist_ok=True)
     write_abi()
@@ -145,7 +145,7 @@ def test_workable() -> None:
     job_board = pd.read_csv(PATH / "jobs.csv")
     contract_dir = PATH / "contracts"
     for _, job in job_board.iterrows():
-        checksum_address = Web3.toChecksumAddress(job.address)
+        checksum_address = Web3.to_checksum_address(job.address)
         filepath = Path(contract_dir / checksum_address / "abi.json")
         abi = json.loads(filepath.read_text(encoding=ENCODING))
         contract = w3.eth.contract(address=checksum_address, abi=abi)

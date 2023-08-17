@@ -29,9 +29,9 @@ connections: []
 contracts:
 - valory/gnosis_safe:0.1.0:bafybeigaeon5qhgdwhduw4wtjt7x7o3hpz62aifr5a7522ynll3nps3qnm
 - valory/multisend:0.1.0:bafybeiemglycsigpsf2f6ohfdlsha7w6lrc5nmhlydmocna4apa7b4cqcq
-- valory/curve_pool:0.1.0:bafybeiefh2ahjl262ho5ihtjszbhpoyutjotnwsjcbnixgxdgcghoumdaa
-- valory/keep3r_v1:0.1.0:bafybeiafsrkh3yd4fa4rap6ammm5pujikwodig4xegpe4vrxxfcbpzg33q
-- valory/keep3r_v2:0.1.0:bafybeifof5l5c3npbmstuydce3zx5ctqcsyzvq4edmon3d5mpd6vtrykyq
+- valory/curve_pool:0.1.0:bafybeihznazoqce3cfiyg4vg4hkvipzs5pmu7zqwlf3uga36imyury5xii
+- valory/keep3r_v1:0.1.0:bafybeiho5bzxvakgwwtb7kq7mfrkgzgdztaw3kib5kcruc677lvb35huwu
+- valory/keep3r_v2:0.1.0:bafybeidm6eqatqkzvkmq7er2ij4wkvmpealngxz7i3ogyxfjba7loary7u
 protocols:
 - valory/contract_api:1.0.0:bafybeiasywsvax45qmugus5kxogejj66c5taen27h4voriodz7rgushtqa
 - valory/ledger_api:1.0.0:bafybeigpn6ysm53qkcllkzgdwc5xxpxz32xn2zoux3phdm2i3yty2i3thu

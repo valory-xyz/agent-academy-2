@@ -63,7 +63,7 @@ class KeeperV2(Contract):
 
         tx_parameters = TxParams()
         nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
-        tx_parameters["from"] = ledger_api.api.toChecksumAddress(address)
+        tx_parameters["from"] = ledger_api.api.to_checksum_address(address)
         tx_parameters["nonce"] = nonce
         tx_parameters["gas"] = ledger_api.api.eth.estimate_gas(tx_parameters)
         tx_parameters.update(ledger_api.try_get_gas_pricing())
@@ -137,7 +137,7 @@ class KeeperV2(Contract):
         contract = cls.get_instance(ledger_api, contract_address)
         addresses = contract.functions.jobs().call()
         checksummed_addresses = [
-            ledger_api.api.toChecksumAddress(address) for address in addresses
+            ledger_api.api.to_checksum_address(address) for address in addresses
         ]
         return dict(data=checksummed_addresses)
 
@@ -200,7 +200,7 @@ class KeeperV2(Contract):
         data = contract.encodeABI(
             fn_name="addJob",
             args=[
-                ledger_api.api.toChecksumAddress(job),
+                ledger_api.api.to_checksum_address(job),
             ],
         )
         return dict(data=data)
@@ -218,7 +218,7 @@ class KeeperV2(Contract):
         data = contract.encodeABI(
             fn_name="bond",
             args=[
-                ledger_api.api.toChecksumAddress(address),
+                ledger_api.api.to_checksum_address(address),
                 amount,
             ],
         )
@@ -239,7 +239,7 @@ class KeeperV2(Contract):
         data = contract.encodeABI(
             fn_name="activate",
             args=[
-                ledger_api.api.toChecksumAddress(address),
+                ledger_api.api.to_checksum_address(address),
             ],
         )
         return dict(
@@ -260,7 +260,7 @@ class KeeperV2(Contract):
         data = contract.encodeABI(
             fn_name="unbond",
             args=[
-                ledger_api.api.toChecksumAddress(bonded_asset_address),
+                ledger_api.api.to_checksum_address(bonded_asset_address),
                 amount,
             ],
         )
@@ -279,7 +279,7 @@ class KeeperV2(Contract):
         data = contract.encodeABI(
             fn_name="withdraw",
             args=[
-                ledger_api.api.toChecksumAddress(bonding_asset),
+                ledger_api.api.to_checksum_address(bonding_asset),
             ],
         )
         return dict(data=data)
@@ -307,8 +307,8 @@ class KeeperV2(Contract):
         """
         ledger_api = cast(EthereumApi, ledger_api)
         contract = cls.get_instance(ledger_api, contract_address)
-        address = ledger_api.api.toChecksumAddress(address)
-        entries = contract.events.Unbonding.createFilter(
+        address = ledger_api.api.to_checksum_address(address)
+        entries = contract.events.Unbonding.create_filter(
             fromBlock=from_block,
             toBlock=to_block,
             argument_filters=dict(_keeperOrJob=address, _unbonding=bonding_asset),
@@ -351,8 +351,8 @@ class KeeperV2(Contract):
         """
         ledger_api = cast(EthereumApi, ledger_api)
         contract = cls.get_instance(ledger_api, contract_address)
-        address = ledger_api.api.toChecksumAddress(address)
-        entries = contract.events.Withdrawal.createFilter(
+        address = ledger_api.api.to_checksum_address(address)
+        entries = contract.events.Withdrawal.create_filter(
             fromBlock=from_block,
             toBlock=to_block,
             argument_filters=dict(_keeper=address, _bond=bonding_asset),

@@ -159,7 +159,7 @@ class Arbitrum(L2Network):
     def __init__(self, ledger_apis: Dict[str, EthereumApi]):
         """Setup an arbitrum instance."""
         super().__init__(ledger_apis)
-        self._node_interface_address = self.l1.api.toChecksumAddress(
+        self._node_interface_address = self.l1.api.to_checksum_address(
             self.node_interface_address
         )
         self._node_interface_abi = json.loads(self.node_interface_abi)
@@ -346,7 +346,7 @@ class ZkSync(L2Network):
         """Get the transaction cost price."""
         contract_address = self._get_mainnet_contract_address()
         contract = self.l1.api.eth.contract(
-            address=self.l1.api.toChecksumAddress(contract_address),
+            address=self.l1.api.to_checksum_address(contract_address),
             abi=self.zksync_abi,
         )
         l1_gas_price = self._get_gas_price(self.l1)
@@ -406,7 +406,7 @@ class Bnb(L2Network):
     def _get_fee(self) -> int:
         """Get the transaction cost price."""
         amb_contract = self.l1.api.eth.contract(
-            self.l1.api.toChecksumAddress(self.amb_address),
+            self.l1.api.to_checksum_address(self.amb_address),
             abi=self.amb_partial_abi,
         )
         fee = amb_contract.functions.calcSrcFees(
@@ -444,7 +444,7 @@ class Gnosis(L2Network):
     def _get_fee(self) -> int:
         """Get the transaction cost price."""
         amb_contract = self.l1.api.eth.contract(
-            self.l1.api.toChecksumAddress(self.amb_address),
+            self.l1.api.to_checksum_address(self.amb_address),
             abi=self.amb_partial_abi,
         )
         fee = amb_contract.functions.maxGasPerTx().call()
@@ -541,7 +541,7 @@ class ConnextPropagateJobContract(Contract):
                 call_data = l2_network_instance.get_call_data()
                 single_encoded_data = call_data.encoded_data
                 fee = call_data.fee
-            connectors.append(ledger_apis[ETHEREUM_L1].api.toChecksumAddress(connector))
+            connectors.append(ledger_apis[ETHEREUM_L1].api.to_checksum_address(connector))
             encoded_data.append(single_encoded_data)
             fees.append(fee)
         return connectors, encoded_data, fees

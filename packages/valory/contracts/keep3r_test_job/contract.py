@@ -108,8 +108,8 @@ class Keep3rTestJobContract(Contract):
         try:
             ledger_api.api.eth.call(
                 {
-                    "from": ledger_api.api.toChecksumAddress(keep3r_address),
-                    "to": ledger_api.api.toChecksumAddress(contract_address),
+                    "from": ledger_api.api.to_checksum_address(keep3r_address),
+                    "to": ledger_api.api.to_checksum_address(contract_address),
                     "data": data.hex(),
                 }
             )
