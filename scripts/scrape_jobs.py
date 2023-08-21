@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
 #
-#   Copyright 2022 Valory AG
+#   Copyright 2022-2023 Valory AG
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ from web3 import Web3
 
 
 # read API keys from environment
-infura_api_key = os.environ.get("INFURA_API_KEY")
-etherscan_api_key = os.environ.get("ETHERSCAN_API_KEY")
+infura_api_key = os.environ.get("INFURA_API_KEY")  # pylint: disable=no-member
+etherscan_api_key = os.environ.get("ETHERSCAN_API_KEY")  # pylint: disable=no-member
 assert infura_api_key, "INFURA_API_KEY not found in environmental variables"
 assert etherscan_api_key, "ETHERSCAN_API_KEY not found in environmental variables"
 
@@ -53,7 +53,7 @@ PATH.mkdir(parents=True, exist_ok=True)
 
 
 w3 = Web3(Web3.HTTPProvider(INFURA_TEMPLATE.format(api_key=infura_api_key)))
-assert w3.isConnected(), "Not connected"
+assert w3.is_connected(), "Not connected"
 
 
 def get_contract_abi(address: str) -> List[Dict[str, Any]]:
@@ -118,7 +118,7 @@ def write_contract_data_to_local(contract_dir: Path, job: pd.Series) -> None:
         print(f"details written: {filepath}")
 
     print(f"Scraping: {job.job_name}")
-    job.address = Web3.toChecksumAddress(job.address)
+    job.address = Web3.to_checksum_address(job.address)
     job_dir = contract_dir / f"{job.address}"
     job_dir.mkdir(exist_ok=True)
     write_abi()
@@ -145,7 +145,7 @@ def test_workable() -> None:
     job_board = pd.read_csv(PATH / "jobs.csv")
     contract_dir = PATH / "contracts"
     for _, job in job_board.iterrows():
-        checksum_address = Web3.toChecksumAddress(job.address)
+        checksum_address = Web3.to_checksum_address(job.address)
         filepath = Path(contract_dir / checksum_address / "abi.json")
         abi = json.loads(filepath.read_text(encoding=ENCODING))
         contract = w3.eth.contract(address=checksum_address, abi=abi)

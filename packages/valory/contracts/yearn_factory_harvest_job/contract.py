@@ -137,7 +137,7 @@ class YearnFactoryHarvestJobContract(Contract):
         # it might happen that between the workable call,
         # and this one there are no more workable strategies
         if len(workable_strategies) > 0:
-            strategy = ledger_api.api.toChecksumAddress(workable_strategies[0])
+            strategy = ledger_api.api.to_checksum_address(workable_strategies[0])
             data = contract.encodeABI(
                 fn_name="work",
                 args=[strategy],
@@ -147,7 +147,7 @@ class YearnFactoryHarvestJobContract(Contract):
     @classmethod
     def get_vaults(cls, ledger_api: EthereumApi) -> List[str]:
         """Get the vaults."""
-        vault_address = ledger_api.api.toChecksumAddress(VAULT_FACTORY_ADDRESS)
+        vault_address = ledger_api.api.to_checksum_address(VAULT_FACTORY_ADDRESS)
         vault_factory = ledger_api.api.eth.contract(vault_address, abi=VAULT_ABI)
         all_vaults: List[str] = vault_factory.functions.allDeployedVaults().call()
         return all_vaults
@@ -208,7 +208,7 @@ class YearnFactoryHarvestJobContract(Contract):
     @staticmethod
     def address_from_topic(ledger_api: EthereumApi, topic: str) -> str:
         """Convert a topic to an address."""
-        return ledger_api.api.toChecksumAddress("0x" + topic[26:256])
+        return ledger_api.api.to_checksum_address("0x" + topic[26:256])
 
     @classmethod
     def get_workable_strategies(
@@ -252,7 +252,7 @@ class YearnFactoryHarvestJobContract(Contract):
             """Check if the strategy is workable by making a static call."""
             try:
                 contract.functions.work(
-                    ledger_api.api.toChecksumAddress(strategy)
+                    ledger_api.api.to_checksum_address(strategy)
                 ).call({"from": keep3r_address})
                 # If the call succeeds, the strategy is workable
                 return True
@@ -264,7 +264,7 @@ class YearnFactoryHarvestJobContract(Contract):
                 return False
 
         workable_strategies = [
-            ledger_api.api.toChecksumAddress(strategy)
+            ledger_api.api.to_checksum_address(strategy)
             for strategy in possibly_workable_strategies
             if static_work(strategy)
         ]
@@ -285,8 +285,8 @@ class YearnFactoryHarvestJobContract(Contract):
         try:
             ledger_api.api.eth.call(
                 {
-                    "from": ledger_api.api.toChecksumAddress(keep3r_address),
-                    "to": ledger_api.api.toChecksumAddress(contract_address),
+                    "from": ledger_api.api.to_checksum_address(keep3r_address),
+                    "to": ledger_api.api.to_checksum_address(contract_address),
                     "data": data.hex(),
                 }
             )

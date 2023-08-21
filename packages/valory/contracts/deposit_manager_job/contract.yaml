@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   DepositManager.json: bafybeigprsi6ehxjbhl7qu4c67c7pvkbyybpr5tgbokdpffawvhi36a25u
   __init__.py: bafybeiewsrqaxe5uwxbbafzhx6d5rdwvmvqouz6cgvesuno5iuh444mhiu
-  contract.py: bafybeicnfwkpst55hg2eqipp5cilwpfkno5lvvc32aelnilnatbt2tiwje
+  contract.py: bafybeibxgj3ozevhahzpfxvf3v732xnd6ooq6ty5fh7dqhnndk4toakbdm
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: DepositManagerJobContract
@@ -16,6 +16,6 @@ contract_interface_paths:
   ethereum: DepositManager.json
 dependencies:
   open-aea-ledger-ethereum:
-    version: ==1.37.0
-  web3:
-    version: ==5.31.4
+    version: ==1.38.0
+  open-aea-web3:
+    version: ==6.0.1

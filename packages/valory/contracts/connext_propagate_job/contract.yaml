@@ -8,7 +8,7 @@ aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   RelayerProxyHub.json: bafybeiehw2rld42nsrvkyibruvs4mmywriht6znbd4dkg4qke5xv4mwbea
   __init__.py: bafybeihk6gcwr2k35nlz3jmhsuassxkwswvgiwf44bc3s7kqq55ga5vjgu
-  contract.py: bafybeicfg3wbzh3zhanpnw53dbbfh3xky6mm62bzfb4bzpui5xnxhh7s3a
+  contract.py: bafybeiar3sm7bp5745lirvbzeznby4wbesogcapbd6ykeojolmugvsrfze
 fingerprint_ignore_patterns: []
 contracts: []
 class_name: ConnextPropagateJobContract
@@ -17,6 +17,6 @@ contract_interface_paths:
 dependencies:
   eth_typing: {}
   open-aea-ledger-ethereum:
-    version: ==1.37.0
-  web3:
-    version: ==5.31.4
+    version: ==1.38.0
+  open-aea-web3:
+    version: ==6.0.1

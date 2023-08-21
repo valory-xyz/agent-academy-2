@@ -66,7 +66,7 @@ class Keep3rV1Contract(Contract):
 
         tx_parameters = TxParams()
         nonce = Nonce(ledger_api.api.eth.get_transaction_count(address))
-        tx_parameters["from"] = ledger_api.api.toChecksumAddress(address)
+        tx_parameters["from"] = ledger_api.api.to_checksum_address(address)
         tx_parameters["nonce"] = nonce
         tx_parameters["gas"] = ledger_api.api.eth.estimate_gas(tx_parameters)
         tx_parameters.update(ledger_api.try_get_gas_pricing())
@@ -137,7 +137,7 @@ class Keep3rV1Contract(Contract):
         contract = cls.get_instance(ledger_api, contract_address)
         addresses = contract.functions.getJobs().call()
         checksummed_addresses = [
-            ledger_api.api.toChecksumAddress(address) for address in addresses
+            ledger_api.api.to_checksum_address(address) for address in addresses
         ]
         return dict(data=checksummed_addresses)
 
@@ -167,7 +167,7 @@ class Keep3rV1Contract(Contract):
         data = contract.encodeABI(
             fn_name="addJob",
             args=[
-                ledger_api.api.toChecksumAddress(job),
+                ledger_api.api.to_checksum_address(job),
             ],
         )
         return dict(
@@ -197,7 +197,7 @@ class Keep3rV1Contract(Contract):
         data = contract.encodeABI(
             fn_name="approve",
             args=[
-                ledger_api.api.toChecksumAddress(spender),
+                ledger_api.api.to_checksum_address(spender),
                 amount,
             ],
         )
@@ -218,7 +218,7 @@ class Keep3rV1Contract(Contract):
         data = contract.encodeABI(
             fn_name="transfer",
             args=[
-                ledger_api.api.toChecksumAddress(recipient),
+                ledger_api.api.to_checksum_address(recipient),
                 amount,
             ],
         )
@@ -253,7 +253,7 @@ class Keep3rV1Contract(Contract):
         data = contract.encodeABI(
             fn_name="bond",
             args=[
-                ledger_api.api.toChecksumAddress(address),
+                ledger_api.api.to_checksum_address(address),
                 amount,
             ],
         )
@@ -274,7 +274,7 @@ class Keep3rV1Contract(Contract):
         data = contract.encodeABI(
             fn_name="activate",
             args=[
-                ledger_api.api.toChecksumAddress(address),
+                ledger_api.api.to_checksum_address(address),
             ],
         )
         return dict(
@@ -294,7 +294,7 @@ class Keep3rV1Contract(Contract):
         data = contract.encodeABI(
             fn_name="unbond",
             args=[
-                ledger_api.api.toChecksumAddress(contract.address),
+                ledger_api.api.to_checksum_address(contract.address),
                 amount,
             ],
         )
@@ -314,7 +314,7 @@ class Keep3rV1Contract(Contract):
         data = contract.encodeABI(
             fn_name="withdraw",
             args=[
-                ledger_api.api.toChecksumAddress(contract.address),
+                ledger_api.api.to_checksum_address(contract.address),
             ],
         )
         return dict(
