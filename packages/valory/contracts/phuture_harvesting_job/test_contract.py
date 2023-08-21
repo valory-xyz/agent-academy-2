@@ -49,7 +49,7 @@ RECEIPT_TIMEOUT = 30
 PHUTURE_HARVESTING_JOB_ADDRESS = "0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B"
 
 
-# @skip_docker_tests
+@skip_docker_tests
 class TestPhutureHarvestingJob(BaseContractTestCase):
     """Test PhutureHarvestingJob contract."""
 

@@ -33,8 +33,8 @@ from web3 import Web3
 
 
 # read API keys from environment
-infura_api_key = os.environ.get("INFURA_API_KEY")
-etherscan_api_key = os.environ.get("ETHERSCAN_API_KEY")
+infura_api_key = os.environ.get("INFURA_API_KEY")  # pylint: disable=no-member
+etherscan_api_key = os.environ.get("ETHERSCAN_API_KEY")  # pylint: disable=no-member
 assert infura_api_key, "INFURA_API_KEY not found in environmental variables"
 assert etherscan_api_key, "ETHERSCAN_API_KEY not found in environmental variables"
 
