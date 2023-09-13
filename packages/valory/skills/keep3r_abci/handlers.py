@@ -133,6 +133,7 @@ class HttpHandler(BaseHttpHandler):
             http://pfp.staging.autonolas.tech/120
 
         :param url: the url to check
+        :param method: the http method
         :returns: the handling method if the message is intended to be handled by this handler, None otherwise, and the regex captures
         """
         # Check base url
