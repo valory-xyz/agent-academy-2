@@ -178,6 +178,7 @@ models:
       use_v2: false
       withdraw_k3pr_only: false
       validate_timeout: 1205
+      service_endpoint_base: https://dummy_service.autonolas.tech/
     class_name: Params
   randomness_api:
     args:
