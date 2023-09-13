@@ -57,7 +57,6 @@ from packages.valory.skills.keep3r_job_abci.rounds import SynchronizedData
 
 
 ABCIHandler = ABCIRoundHandler
-HttpHandler = BaseHttpHandler
 SigningHandler = BaseSigningHandler
 LedgerApiHandler = BaseLedgerApiHandler
 ContractApiHandler = BaseContractApiHandler
