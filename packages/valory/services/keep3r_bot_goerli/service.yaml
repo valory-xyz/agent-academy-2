@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeiblcg3qti2cyz4ytufdkmqzcm6svbo5cwgsu2srjovvljdi35iz6i
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeidvm7nnh3wyqt7xt3qx2qryujlvjg3cllrnyhiwnnsj7de4gr442y
+agent: valory/keep3r_bot:0.1.0:bafybeie4to5h5onh257dbhyj4jdrptep6l5rpw27y6ozx6ulfjeenq5u7a
 number_of_agents: 4
 deployment:
   tendermint:
@@ -61,6 +61,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_0:str:node0:26656}
+        service_endpoint_base: ${SERVICE_ENDPOINT_BASE:str:https://dummy_service.autonolas.tech/}
 1:
   models:
     params:
@@ -80,6 +81,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_1:str:node1:26656}
+        service_endpoint_base: ${SERVICE_ENDPOINT_BASE:str:https://dummy_service.autonolas.tech/}
 2:
   models:
     params:
@@ -99,6 +101,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_2:str:node2:26656}
+        service_endpoint_base: ${SERVICE_ENDPOINT_BASE:str:https://dummy_service.autonolas.tech/}
 3:
   models:
     params:
@@ -118,6 +121,7 @@ extra:
         use_v2: ${USE_KEEPER_V2:bool:true}
         participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         tendermint_p2p_url: ${TENDERMINT_P2P_URL_3:str:node3:26656}
+        service_endpoint_base: ${SERVICE_ENDPOINT_BASE:str:https://dummy_service.autonolas.tech/}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

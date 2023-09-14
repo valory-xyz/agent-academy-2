@@ -133,6 +133,7 @@ connections:
 - valory/ipfs:0.1.0:bafybeiau32pzy55ta6ugl2bebevlxudal6pnlfomhplfm5mph6reaw3krq
 - valory/ledger:0.19.0:bafybeic5v5sjuzhqc3dz5qwjvwubklwtn3d75gzhakcpoe36tudybe5ccq
 - valory/p2p_libp2p_client:0.1.0:bafybeihdnfdth3qgltefgrem7xyi4b3ejzaz67xglm2hbma2rfvpl2annq
+- fetchai/http_server:0.22.0:bafybeihp5umafxzx45aad5pj7s3343se2wjkgnbirt4pybrape22swm6de
 contracts:
 - valory/curve_pool:0.1.0:bafybeihznazoqce3cfiyg4vg4hkvipzs5pmu7zqwlf3uga36imyury5xii
 - valory/gnosis_safe:0.1.0:bafybeigvqg4lapdaa23dpc3pv67rdptdhey6e435mxqsw2gb2u74yw4yei
@@ -154,8 +155,8 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeicg7dv7cff34nv2k2z47c4yp4kddsxp3wozonzow6tnvfvwndz3cy
 - valory/abstract_round_abci:0.1.0:bafybeida6rlktgnltue4w766slm3zug6cv3gq5db4tnjngrxhje2keucli
-- valory/keep3r_abci:0.1.0:bafybeiedug7jpthrjihawiq6bfnteewjd5mg24ruwyck6hxxoahvp6j2ma
-- valory/keep3r_job_abci:0.1.0:bafybeigposskhbpjacy7hgccvvn5b6lhk4rgrt75kdoddvwtdslnculpfa
+- valory/keep3r_abci:0.1.0:bafybeibklbmjq74l6t3frlup2daj52k3tyj53zdg5e5df4aj463km7csz4
+- valory/keep3r_job_abci:0.1.0:bafybeihmxmpujdihfuzho56cpixedznhid3yjnmw2ttcfqyn4hlpunqoha
 - valory/registration_abci:0.1.0:bafybeihbjbggobzg2t7a3uk5vfc2b7klmr7vsootkb2fsje2gq65zfvo7q
 - valory/reset_pause_abci:0.1.0:bafybeiczphjjawhc64mltmicztx6donn2dmtcrvc6j2nadsvj4ol4qtgli
 - valory/termination_abci:0.1.0:bafybeidady72vutrwqhnoplr6tyzdxuml4s4dq74mqwpn3yxzg6lkrtv4q
@@ -253,6 +254,7 @@ models:
       keep3r_v2_contract_address: ${str:0x85063437C02Ba7F4f82F898859e4992380DEd3bb}
       supported_jobs_to_package_hash: ${list:[["0xa61d82a9127B1c1a34Ce03879A068Af5b786C835","bafybeihaxl5l5ltmiius3bcr5pt3tqy6fgwn56hqm7zzm3uxupj6i2xfni"],["0xEC771dc7Bd0aA67a10b1aF124B9b9a0DC4aF5F9B","bafybeieedl2oblihpkugxwothabjpzgglxf6ignvjppw6i2mclvh6j2tny"]]}
       participant_to_swap_pref: ${list:[["0x8157B61819378f5bE4EFe3d6d67e38CA609abEF3","k3pr"]]}
+      service_endpoint_base: ${str:https://dummy_service.autonolas.tech/}
 ---
 public_id: valory/ledger:0.19.0
 type: connection
@@ -311,3 +313,9 @@ cert_requests:
   public_key: ${str:02d3a830c9d6ea1ae91936951430dee11f4662f33118b02190693be835359a9d77}
   save_path: .certs/acn_cosmos_9005.txt
 is_abstract: false
+---
+public_id: fetchai/http_server:0.22.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+type: connection
+config:
+  host: 0.0.0.0
+  target_skill_id: valory/keep3r_abci:0.1.0

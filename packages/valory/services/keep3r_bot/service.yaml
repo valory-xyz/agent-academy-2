@@ -7,7 +7,7 @@ license: Apache-2.0
 fingerprint:
   README.md: bafybeig26ntff2vdtmum3crflwqrybmonwdxahvlrst2brnazbo3mjvtqu
 fingerprint_ignore_patterns: []
-agent: valory/keep3r_bot:0.1.0:bafybeidvm7nnh3wyqt7xt3qx2qryujlvjg3cllrnyhiwnnsj7de4gr442y
+agent: valory/keep3r_bot:0.1.0:bafybeie4to5h5onh257dbhyj4jdrptep6l5rpw27y6ozx6ulfjeenq5u7a
 number_of_agents: 1
 deployment:
   tendermint:
@@ -79,6 +79,7 @@ extra:
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
         withdraw_k3pr_only: ${WITHDRAW_K3PR_ONLY:bool:false}
+        service_endpoint_base: ${SERVICE_ENDPOINT_BASE:str:https://dummy_service.autonolas.tech/}
 1:
   models:
     params:
@@ -107,6 +108,7 @@ extra:
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
         withdraw_k3pr_only: ${WITHDRAW_K3PR_ONLY:bool:false}
+        service_endpoint_base: ${SERVICE_ENDPOINT_BASE:str:https://dummy_service.autonolas.tech/}
 2:
   models:
     params:
@@ -135,6 +137,7 @@ extra:
         manual_gas_limit: ${MANUAL_GAS_LIMIT:int:5000000}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
         withdraw_k3pr_only: ${WITHDRAW_K3PR_ONLY:bool:false}
+        service_endpoint_base: ${SERVICE_ENDPOINT_BASE:str:https://dummy_service.autonolas.tech/}
 3:
   models:
     params:
@@ -163,6 +166,7 @@ extra:
         participant_to_swap_pref: ${SWAP_PREF:list:[["0x0000000000000000000000000000000000000000","k3pr"]]}
         raise_on_failed_simulation: ${RAISE_ON_FAILED_SIMULATION:bool:true}
         withdraw_k3pr_only: ${WITHDRAW_K3PR_ONLY:bool:false}
+        service_endpoint_base: ${SERVICE_ENDPOINT_BASE:str:https://dummy_service.autonolas.tech/}
 ---
 public_id: valory/ledger:0.19.0
 type: connection

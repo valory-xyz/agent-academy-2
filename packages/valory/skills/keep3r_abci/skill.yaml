@@ -12,7 +12,7 @@ fingerprint:
   composition.py: bafybeiemid5ug3sx2lxmcoa3dl6b74m24assbqnyefjemprtdwohc2ppz4
   dialogues.py: bafybeidfvafboay732zd7ez4yblojbzohujfwtp3e5elit7ztenepk6q3a
   fsm_specification.yaml: bafybeiglxtz2wcczhyl2zirrrc7aq6recrvkwzczvzujvapjdsm556kwbu
-  handlers.py: bafybeihrnok2s2oztglt7on7g5icbugmibikb3y2kqz2imbe23yoij7a5y
+  handlers.py: bafybeibrtayhuvphvgycqamabimjnea6iszcmedyszztmk2xewrq5dwcsa
   models.py: bafybeihd33rgyt5tmpct2fotsli5ep5bco4nnwf2vwksmy3lfn7qme6rbm
   payloads.py: bafybeihcmvruwttq5vtzwzli22kntuqb43remqfzgi3vrt7ijel52ichua
 fingerprint_ignore_patterns: []
@@ -21,7 +21,7 @@ contracts: []
 protocols: []
 skills:
 - valory/abstract_round_abci:0.1.0:bafybeida6rlktgnltue4w766slm3zug6cv3gq5db4tnjngrxhje2keucli
-- valory/keep3r_job_abci:0.1.0:bafybeigposskhbpjacy7hgccvvn5b6lhk4rgrt75kdoddvwtdslnculpfa
+- valory/keep3r_job_abci:0.1.0:bafybeihmxmpujdihfuzho56cpixedznhid3yjnmw2ttcfqyn4hlpunqoha
 - valory/registration_abci:0.1.0:bafybeihbjbggobzg2t7a3uk5vfc2b7klmr7vsootkb2fsje2gq65zfvo7q
 - valory/reset_pause_abci:0.1.0:bafybeiczphjjawhc64mltmicztx6donn2dmtcrvc6j2nadsvj4ol4qtgli
 - valory/termination_abci:0.1.0:bafybeidady72vutrwqhnoplr6tyzdxuml4s4dq74mqwpn3yxzg6lkrtv4q
@@ -157,6 +157,7 @@ models:
       use_termination: false
       use_v2: false
       validate_timeout: 1205
+      service_endpoint_base: https://dummy_service.autonolas.tech/
     class_name: Params
   randomness_api:
     args:
