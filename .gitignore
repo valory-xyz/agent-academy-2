@@ -38,3 +38,5 @@ packages/valory/protocols/ipfs
 packages/valory/protocols/tendermint
 /leak_report
 build/
+
+packages/fetchai/

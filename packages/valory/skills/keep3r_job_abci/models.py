@@ -110,6 +110,7 @@ class Params(BaseParams):  # pylint: disable=too-many-instance-attributes
         self.blacklisted_addresses: List[str] = self._ensure(
             "blacklisted_addresses", kwargs, List[str]
         )
+        self.service_endpoint_base = self._ensure("service_endpoint_base", kwargs, str)
         super().__init__(*args, **kwargs)
 
     def _get_supported_jobs_to_package_hash(self, kwargs: Dict) -> Dict[str, str]:
