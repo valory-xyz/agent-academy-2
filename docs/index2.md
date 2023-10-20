@@ -42,7 +42,6 @@ This enables its users, be it an individual developer, another application or a 
 
 https://docs.autonolas.network/
 https://open-aea.docs.autonolas.tech/
-https://keep3r.live/
 https://keep3r.network/
 https://docs.keep3r.network/
 https://github.com/keep3r-network/cli/blob/main/README.md
