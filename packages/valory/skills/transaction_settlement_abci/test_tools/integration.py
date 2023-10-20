@@ -115,7 +115,7 @@ class _GnosisHelperIntegration(
         # register gnosis contract
         gnosis = get_register_contract(GNOSIS_SAFE_PACKAGE)
 
-        cls.ethereum_api = make_ledger_api("ethereum")
+        cls.ethereum_api = make_ledger_api("ethereum")  # type: ignore
         cls.gnosis_instance = gnosis.get_instance(
             cls.ethereum_api, cls.safe_contract_address
         )
