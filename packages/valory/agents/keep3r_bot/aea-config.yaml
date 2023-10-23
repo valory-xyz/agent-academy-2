@@ -154,13 +154,13 @@ protocols:
 - valory/tendermint:0.1.0:bafybeig6g6twajlwssfbfp5rlnu5mwzuu5kgak5cs4fich7rlkx6whesnu
 skills:
 - valory/abstract_abci:0.1.0:bafybeihgemn2gwjc2wyxuh7rttg5pk5gec7dxhet3ih2tmg75vsdbgad7a
-- valory/abstract_round_abci:0.1.0:bafybeifsnqfrhjx3obscstf6xfb7rehtvaj5dpjwq3dwdu3yvn67nal6bm
-- valory/keep3r_abci:0.1.0:bafybeieeccg5citwhznzbqvwhzrcp2tbzu27yct7yzmuti5rmfj4k4hnme
-- valory/keep3r_job_abci:0.1.0:bafybeia56a4wozfgspil6xtbqlmluqc2nvs7g32gowvhpixrc5zamowsii
-- valory/registration_abci:0.1.0:bafybeiannqrmgknboh7ax5viueyil63qozl6y3wef6ev2sq5m77xdnq2zy
-- valory/reset_pause_abci:0.1.0:bafybeib7ywrolt6icrp7f4phijmh5sbfvq7bcws3jzzy4d3tndh6d7xxqe
-- valory/termination_abci:0.1.0:bafybeihkspjuv4tqq62ubvfgezzzwpppvhji4xrn2a3klatdm7jjyjh77e
-- valory/transaction_settlement_abci:0.1.0:bafybeibdhiv3wmqugx37jc25w63dxkqmcylr76jiwaoewni43umkkah6k4
+- valory/abstract_round_abci:0.1.0:bafybeicloyaxackkzttio3ly5xjewszrdeq3sfyveumtzc2ppybaatafyy
+- valory/keep3r_abci:0.1.0:bafybeib6nyojuqchjqapgkn7x255vqmqibahf3ls7d2hdv4hcjdr63if2y
+- valory/keep3r_job_abci:0.1.0:bafybeigg6ezanzmt3ycslyoeoaij67cnaporoupaip7kehnyoblfvizz44
+- valory/registration_abci:0.1.0:bafybeidnm3jrdjpe2zf6h4phncndgzv6xenwcayelvlt2hl4grzt6ui6rq
+- valory/reset_pause_abci:0.1.0:bafybeih5rpfsfcxgkuhvbq2netdz3ugsighganyx5ytei5hl36gvcwitue
+- valory/termination_abci:0.1.0:bafybeiblb6r6c2uj7lzxpzsmejdiaowvdqpxxardr6advdlppxnu7esenm
+- valory/transaction_settlement_abci:0.1.0:bafybeiar2etyd77w2c6ksuwlmmiafrgfsd622b2pl7u6aio542uhmvnafq
 default_ledger: ethereum
 required_ledgers:
 - ethereum

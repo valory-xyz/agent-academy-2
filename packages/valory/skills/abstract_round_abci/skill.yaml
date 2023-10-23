@@ -7,7 +7,7 @@ license: Apache-2.0
 aea_version: '>=1.0.0, <2.0.0'
 fingerprint:
   README.md: bafybeievb7bhfm46p5adx3x4gvsynjpq35fcrrapzn5m2whcdt4ufxfvfq
-  __init__.py: bafybeibrmbjnrznx7q3z23jqbpzrpgtjl7sg2c6f3lusx7u667m22hothy
+  __init__.py: bafybeifhivwzzjfchirkfninujdcwjwaqc47ao4lntnnpwqulw5pjs3ec4
   abci_app_chain.py: bafybeic6uzd7oywbnhoqrv5bitan2kw7sgfejgnmjbe5sobvckvk2qisvm
   base.py: bafybeic5k3epzwjm3pnbwfqmp5ppmtr3ee5rfflvkvygdanakneoyusf4m
   behaviour_utils.py: bafybeihpyiprcbey4ip5hc5b5sf46go7gyjbpbee5xcaw5zrzpvgowrtcu
@@ -27,7 +27,7 @@ fingerprint:
   test_tools/common.py: bafybeibxlx7es632kdoeivfrjahns3kknkxfmw4rj2dcxjwqm5j6vx25sq
   test_tools/integration.py: bafybeifqq3bx46hz2deph3usvrt7u45tpsapvocofd2zu3yh7rfl5nlmzq
   test_tools/rounds.py: bafybeie576yxtiramzt5czpt4hnv76gfetzio2t3k5kprhdhvbpfddbaem
-  tests/__init__.py: bafybeie2rzrmfc6ukrjjcth3stg4vsedpr37u55quhboojzs37cpr3433q
+  tests/__init__.py: bafybeihfrl3lytdfporxkelfahntvcli67ysjvzlswkrudqr3sdgmvwh54
   tests/conftest.py: bafybeib2tebjwysgej4kpczd7tmxi2a2ikinzvoav25buogofujz47kj54
   tests/data/__init__.py: bafybeihoih76adp7pqh6z4kb6d7bct5b5evqacipffpsiyekbt7jx6653u
   tests/data/dummy_abci/__init__.py: bafybeie6gdryldv6tqe2m5bnb6gnpqe2bzqtu7xas2rhiid56x5mluq2li
