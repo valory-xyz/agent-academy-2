@@ -128,21 +128,21 @@ fingerprint:
   tests/test_contracts/test_keeper_for_testnet/test_contract.py: bafybeihpnx5554swjwo2nsixjs2l76ries442vayot4zq77z3lkyzxqhey
 fingerprint_ignore_patterns: []
 connections:
-- valory/abci:0.1.0:bafybeibtnfu6skrpducj2fzjzw7lrwj3et63xx6u5dryrabec26utzxsf4
+- valory/abci:0.1.0:bafybeibwhmzccxbuza2i3djfjf25nek3m7kon3uo6glkwp5itf3hf4awbe
 - valory/http_client:0.23.0:bafybeifgeqgryx6b3s6eseyzyezygmeitcpt3tkor2eiycozoi6clgdrny
-- valory/ipfs:0.1.0:bafybeigkn27u7m5atju6a724clycyfshbgcbwheztil2bky7krfa46ub2a
+- valory/ipfs:0.1.0:bafybeigfmqvlzbp67fttccpl4hsu3zaztbxv6vd7ikzra2hfppfkalgpji
 - valory/ledger:0.19.0:bafybeiav5ibf62d6k7loc7glpva6yadkuese6xsscrpe5l2f2fpnvnpeni
 - valory/p2p_libp2p_client:0.1.0:bafybeihge56dn3xep2dzomu7rtvbgo4uc2qqh7ljl3fubqdi2lq44gs5lq
 - fetchai/http_server:0.22.0:bafybeihvscddpxjbtqsetngmxo3kiht2wqhosmwiyuh3f6zjti3x3byu5u
 contracts:
-- valory/curve_pool:0.1.0:bafybeidgipjqlmgk4bje4ey4gga3gyu6qftrpqf7etgjjzvdv7ych366ny
-- valory/gnosis_safe:0.1.0:bafybeibt7arvjzz4ah24omst74f4sfjpzrdef76yti6ml7dopsauhdzeci
-- valory/gnosis_safe_proxy_factory:0.1.0:bafybeigxqwbd6wds57ecsfkl2hf4z4vbz5gokex6nutu5zcdpw6irh573y
-- valory/keep3r_v1:0.1.0:bafybeiejphewegzthix4s75vexdi2d57upd4li7f7ltpmxmzvoopqy2xqa
+- valory/curve_pool:0.1.0:bafybeihxdrw5cyhnscgcdkrymmrkxbq2mqf5ed2jaua65faojo2ifpsyc4
+- valory/gnosis_safe:0.1.0:bafybeifyempvhciy6evbf2epqhry3qgqj3rh4x3ovuru6jtuibuyttjd5e
+- valory/gnosis_safe_proxy_factory:0.1.0:bafybeidxev2tfb7m2j6fxywqr5eyni5fofrqxgjrk26cqpug6gcxzm4feq
+- valory/keep3r_v1:0.1.0:bafybeihlhhw4kspxa3z6mvf5qqvn3er37ws57vrnldknbtbb537hpffhmi
 - valory/keep3r_v1_library:0.1.0:bafybeiguyavczsaebbh5docth3o6e36b24s46jynhvysewnk3hqim3a4qe
-- valory/keep3r_v2:0.1.0:bafybeigwaunjcsm44osqfisenwfxgiodcfapc5rm564fpg5wpvqrvduh2y
+- valory/keep3r_v2:0.1.0:bafybeicgby5qvuqiagvp6232utcoz7wb6qngmf32rnez34d5fioshw3nye
 - valory/multisend:0.1.0:bafybeig5byt5urg2d2bsecufxe5ql7f4mezg3mekfleeh32nmuusx66p4y
-- valory/service_registry:0.1.0:bafybeiebuuhs7fmigfh4c5dvzt6rbm5ekwrcnz7zouyjey7yyyqmpa6dyu
+- valory/service_registry:0.1.0:bafybeiblmhm3tjqn2vg2rwzgwua2mymewweuvh7o72jy4thgb2qdm4vjqa
 protocols:
 - open_aea/signing:1.0.0:bafybeie7xyems76v5b4wc2lmaidcujizpxfzjnnwdeokmhje53g7ym25ii
 - valory/abci:0.1.0:bafybeihmzlmmb4pdo3zkhg6ehuyaa4lhw7bfpclln2o2z7v3o6fcep26iu
@@ -153,14 +153,14 @@ protocols:
 - valory/ledger_api:1.0.0:bafybeigpn6ysm53qkcllkzgdwc5xxpxz32xn2zoux3phdm2i3yty2i3thu
 - valory/tendermint:0.1.0:bafybeig6g6twajlwssfbfp5rlnu5mwzuu5kgak5cs4fich7rlkx6whesnu
 skills:
-- valory/abstract_abci:0.1.0:bafybeihgemn2gwjc2wyxuh7rttg5pk5gec7dxhet3ih2tmg75vsdbgad7a
-- valory/abstract_round_abci:0.1.0:bafybeibww3pel3l4bcbixt34u5nfc2h7x6ha3jikezmo22vqpkbvwvc4zu
-- valory/keep3r_abci:0.1.0:bafybeigx6hbg5mpkg24mnlg4jhw2einj5633zdplfwu4rxybhpkhvasvue
-- valory/keep3r_job_abci:0.1.0:bafybeiblvh5yuurbinret4qb2xymwrez44wrkompjjuehl55ob5a72xp3a
-- valory/registration_abci:0.1.0:bafybeidx373b227kjpls5p7dtcp2cklpoimbsjkeg4xpltnbg2ry5mzoku
-- valory/reset_pause_abci:0.1.0:bafybeigqwc37v3jkhjau47lkdzazjcjpwymvypbawtqwd5mifjhgnmszqi
-- valory/termination_abci:0.1.0:bafybeienjzadzp7gnwhu5qysrsbrj4u4qh7h62ttqkzruz6s6fa3nscblu
-- valory/transaction_settlement_abci:0.1.0:bafybeihdsk7gg66br7mxp6zimvowbim4s44o4fzy6slbq6iiitt2o75zbi
+- valory/abstract_abci:0.1.0:bafybeiaxs5tgjhq5n2k4kmi2ekrfy3n2ohrentmxfft6nnv4xmec7emz3i
+- valory/abstract_round_abci:0.1.0:bafybeia2trv2sprb62zfj5vmiwec4k2flyxveaw5kgejhoyw7yb6qdmzwy
+- valory/keep3r_abci:0.1.0:bafybeifct624ffvlxwsbf2gdro3ccufvb23qocch4yu6vseepv4f464cbu
+- valory/keep3r_job_abci:0.1.0:bafybeif5mrf3zax7aha6g5fufx2jm4qao2dohrlsb4tu5faxbwfzz64ecq
+- valory/registration_abci:0.1.0:bafybeige7f7qphk3pfgllhmxqh6y3cxtsn4kcfjxu3e56bnja3qfvxw6hy
+- valory/reset_pause_abci:0.1.0:bafybeie5lmcgn6mf4h7sjan7quc2o6xrq7v6wqxktwp7762vp4ntkzg27i
+- valory/termination_abci:0.1.0:bafybeihjestfxvs256444adcf2pztghdnamv3e7qbxmprnorhl576mrirm
+- valory/transaction_settlement_abci:0.1.0:bafybeifl54nyvhytrz7w25dofc5imhztofu75i7xcnrub7omvy6kngcuda
 default_ledger: ethereum
 required_ledgers:
 - ethereum
