@@ -17,6 +17,6 @@ contract_interface_paths:
   ethereum: YearnFactoryHarvestJob.json
 dependencies:
   open-aea-ledger-ethereum:
-    version: ==1.41.0
+    version: ==1.41.0.post1
   web3:
     version: <7,>=6.0.0
