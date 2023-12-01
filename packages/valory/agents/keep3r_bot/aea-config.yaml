@@ -133,7 +133,7 @@ connections:
 - valory/ipfs:0.1.0:bafybeihx7wb5hngjobw2salzqqryrhxvmxfuw7o2npjyqd2talmh2flqeq
 - valory/ledger:0.19.0:bafybeiav5ibf62d6k7loc7glpva6yadkuese6xsscrpe5l2f2fpnvnpeni
 - valory/p2p_libp2p_client:0.1.0:bafybeihge56dn3xep2dzomu7rtvbgo4uc2qqh7ljl3fubqdi2lq44gs5lq
-- fetchai/http_server:0.22.0:bafybeihvscddpxjbtqsetngmxo3kiht2wqhosmwiyuh3f6zjti3x3byu5u
+- valory/http_server:0.22.0:bafybeiesafy2af2wakqvsal4hz6ldycb73j5w62szhwy25iyhlf2wgyg44
 contracts:
 - valory/curve_pool:0.1.0:bafybeihjfv2jiygzan2x24dtsnhndokcdtmrjg2vx7cufi6qzwbsunacnq
 - valory/gnosis_safe:0.1.0:bafybeidll7frtdsq2ckiluazkwk4zpkp7natt4kdejjehwvykqwzyuf6ei
@@ -155,7 +155,7 @@ protocols:
 skills:
 - valory/abstract_abci:0.1.0:bafybeiflcfufixmsrhobf56bn5745m2iipcfqyulwk2qegtnagb3kvaaxi
 - valory/abstract_round_abci:0.1.0:bafybeibxtwtlbo47gffdzh2njuaydixnpsmvvmjvtodh4g45vkxh73dr4m
-- valory/keep3r_abci:0.1.0:bafybeidsyeocdtogrdhik55edpwkhx3rm6khuagf3em2mszij4icotevjq
+- valory/keep3r_abci:0.1.0:bafybeia337jrmytjn2yc7vjyoris32kxucp6a2dcwzssbk4fq3ujglp6he
 - valory/keep3r_job_abci:0.1.0:bafybeig3hxmmonae2w3ocis7aoyu3ql2mkugaoreqsdd5bfendyigqs7hy
 - valory/registration_abci:0.1.0:bafybeied4xkeza33c3apfpsbcwvws4rg6xu3nottdu3ikhtrfadffjjflu
 - valory/reset_pause_abci:0.1.0:bafybeibzdhcu6hzcsrkgoy3prjlviudm6awyn5246uuxpa5pyugkdfa2am
@@ -316,7 +316,7 @@ cert_requests:
   save_path: .certs/acn_cosmos_9005.txt
 is_abstract: false
 ---
-public_id: fetchai/http_server:0.22.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
+public_id: valory/http_server:0.22.0:bafybeicblltx7ha3ulthg7bzfccuqqyjmihhrvfeztlgrlcoxhr7kf6nbq
 type: connection
 config:
   host: 0.0.0.0

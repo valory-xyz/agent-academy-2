@@ -4,14 +4,14 @@
         "contract/valory/keep3r_test_job/0.1.0": "bafybeihznhhs4arespznzw2szjbze4x42ewzfokgitnzhyaskn7xhbas7e",
         "contract/valory/keep3r_v1/0.1.0": "bafybeidz5bjdkrujrte2hzaauvpgwxl24ecpsost47xk5tc3wwqhtvmlaq",
         "skill/valory/keep3r_job_abci/0.1.0": "bafybeig3hxmmonae2w3ocis7aoyu3ql2mkugaoreqsdd5bfendyigqs7hy",
-        "skill/valory/keep3r_abci/0.1.0": "bafybeidsyeocdtogrdhik55edpwkhx3rm6khuagf3em2mszij4icotevjq",
-        "agent/valory/keep3r_bot/0.1.0": "bafybeiamd2hycga2qwagrdqs3tow2l7p6ocrhrfpcc6prx7fkybmfqf4au",
+        "skill/valory/keep3r_abci/0.1.0": "bafybeia337jrmytjn2yc7vjyoris32kxucp6a2dcwzssbk4fq3ujglp6he",
+        "agent/valory/keep3r_bot/0.1.0": "bafybeicnrnf5f62ftaqyd56iag4oifjiy5k6nzl63ojkxgyub4ckqktvpq",
         "contract/valory/keep3r_v2/0.1.0": "bafybeiapby775eg6nferyeo6hi7p5dwpbq6z6xqinvw76ehtrjhsky63su",
         "contract/valory/deposit_manager_job/0.1.0": "bafybeidgftrpx2ow4nc57edh3jnpfuahhobcownec7w6lro6nctt4roa2e",
         "contract/valory/phuture_harvesting_job/0.1.0": "bafybeigzwhmaxkzqpzx7vlo7aw7hagsnrr77yb32zv5epzzigfoaqcbgfq",
         "contract/valory/keep3r_my_job/0.1.0": "bafybeif3gus6t2hn6z6wh3tzxgf6osvtyw2iwehe3l2dicluyex3mk7izi",
-        "service/valory/keep3r_bot/0.1.0": "bafybeihliyoa3pzpr7qmk4lwzpd7uktdcsxi53mx5vwkjnnie4req5yspu",
-        "service/valory/keep3r_bot_goerli/0.1.0": "bafybeifwtdglk3gju2lix5dllnsxl6fzs437f7g2qvndaqufkd55utnwia",
+        "service/valory/keep3r_bot/0.1.0": "bafybeih7mri6z4puogwe4dog7hocagtel76iloavxaw772ngwhv7nlxhrq",
+        "service/valory/keep3r_bot_goerli/0.1.0": "bafybeidzootex4uehkeoyjgtatzus3rbsmdekq33ijkpjuzouoxhik2xzi",
         "contract/valory/yearn_factory_harvest_job/0.1.0": "bafybeibfkyp2q3737vpt3aphexxun5pphgr43o34khaht3fjtbwuceteka",
         "protocol/valory/ledger_api/1.0.0": "bafybeigpn6ysm53qkcllkzgdwc5xxpxz32xn2zoux3phdm2i3yty2i3thu",
         "connection/valory/ledger/0.19.0": "bafybeiav5ibf62d6k7loc7glpva6yadkuese6xsscrpe5l2f2fpnvnpeni",
@@ -40,6 +40,6 @@
         "contract/valory/multisend/0.1.0": "bafybeig5byt5urg2d2bsecufxe5ql7f4mezg3mekfleeh32nmuusx66p4y",
         "protocol/valory/ipfs/0.1.0": "bafybeiedxeismnx3k5ty4mvvhlqideixlhqmi5mtcki4lxqfa7uqh7p33u",
         "connection/valory/ipfs/0.1.0": "bafybeihx7wb5hngjobw2salzqqryrhxvmxfuw7o2npjyqd2talmh2flqeq",
-        "connection/fetchai/http_server/0.22.0": "bafybeihvscddpxjbtqsetngmxo3kiht2wqhosmwiyuh3f6zjti3x3byu5u"
+        "connection/valory/http_server/0.22.0": "bafybeiesafy2af2wakqvsal4hz6ldycb73j5w62szhwy25iyhlf2wgyg44"
     }
 }
