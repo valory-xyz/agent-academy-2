@@ -27,17 +27,17 @@ fingerprint:
 fingerprint_ignore_patterns: []
 connections: []
 contracts:
-- valory/gnosis_safe:0.1.0:bafybeia2m32xfpsddrww7j3unkhcijuitlixffg66igrdyt6kgh5jvvwum
+- valory/gnosis_safe:0.1.0:bafybeictjc7saviboxbsdcey3trvokrgo7uoh76mcrxecxhlvcrp47aqg4
 - valory/multisend:0.1.0:bafybeig5byt5urg2d2bsecufxe5ql7f4mezg3mekfleeh32nmuusx66p4y
-- valory/curve_pool:0.1.0:bafybeie74myhzu6fmzl6jy3tmmseixcwrru3pb6lrwee3xutvn6bcnjdhe
-- valory/keep3r_v1:0.1.0:bafybeib5hleknak3loy4nklwhscnumq6anpwk4i7s6e5uddjx7uqccz4ki
-- valory/keep3r_v2:0.1.0:bafybeic4wnecjhejjr2ysz6znykleq2l2bsopgtpgburgu7lane6uwjl4e
+- valory/curve_pool:0.1.0:bafybeidnwkpqrwkryz67bvxh2rlhv6mnkez6ipjzkzedmxbpckqeljdbfq
+- valory/keep3r_v1:0.1.0:bafybeiadi5azddtqvf5renyirmpedpnzeh4s2sumprvdr2ntkwktx6qdnq
+- valory/keep3r_v2:0.1.0:bafybeifk7dchbyqwzdqwn6e6mwck6ycgar5rsuatd6loedyopgpi456lo4
 protocols:
 - valory/contract_api:1.0.0:bafybeidgu7o5llh26xp3u3ebq3yluull5lupiyeu6iooi2xyymdrgnzq5i
 - valory/ledger_api:1.0.0:bafybeigpn6ysm53qkcllkzgdwc5xxpxz32xn2zoux3phdm2i3yty2i3thu
 skills:
-- valory/abstract_round_abci:0.1.0:bafybeieqveywxba4low7gzo4y3ws2ir74cj6fmzoioczjiy6rxxdzzhq7m
-- valory/transaction_settlement_abci:0.1.0:bafybeicu26sk6oklyk57vq6qtl56llieuishfb3yirtbbh26o5qo5ebiby
+- valory/abstract_round_abci:0.1.0:bafybeie3oxkhy4zikonyfaejq3tmid6v4k6ufdfawkehpod6474z2ndtpu
+- valory/transaction_settlement_abci:0.1.0:bafybeicdlwa47hitgztfzdausqjncwkijsmil7v4dnhf433fxcn2z2wsxa
 behaviours:
   main:
     args: {}
