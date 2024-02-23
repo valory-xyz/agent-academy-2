@@ -20,8 +20,8 @@
         "skill/valory/transaction_settlement_abci/0.1.0": "bafybeicdlwa47hitgztfzdausqjncwkijsmil7v4dnhf433fxcn2z2wsxa",
         "skill/valory/termination_abci/0.1.0": "bafybeibbrpmjzcjkvngyhqyqzyg535xv5ednsd4ncmbshajsrafftcysyq",
         "agent/valory/keep3r_bot/0.1.0": "bafybeigphja7zfsgm33nlqfhthaqy5fgav5zdqtj6l2sk3q72nmrv6dsmu",
-        "service/valory/keep3r_bot/0.1.0": "bafybeihjmcy3vjv7uc5yj3mz3nclugmpzwamktpxxa6jp33zfklsnu2htm",
-        "service/valory/keep3r_bot_goerli/0.1.0": "bafybeihswtxssqwm6soea5xc4m3fhp4gsp7kkowyvcpnhhaiskc2dol644"
+        "service/valory/keep3r_bot/0.1.0": "bafybeie6x54uyjmyabfcmpiog5x5ykp4ezkkd4ulenatbrppzfi7xc7tmu",
+        "service/valory/keep3r_bot_goerli/0.1.0": "bafybeibkotammpjsmszrtnelhdlrf3epemdsjykkklh7ao4c3vk2wvgu4m"
     },
     "third_party": {
         "protocol/valory/abci/0.1.0": "bafybeiaqmp7kocbfdboksayeqhkbrynvlfzsx4uy4x6nohywnmaig4an7u",
