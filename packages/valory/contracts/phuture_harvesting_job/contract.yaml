@@ -17,6 +17,6 @@ contract_interface_paths:
   ethereum: PhutureJob.json
 dependencies:
   open-aea-ledger-ethereum:
-    version: ==1.48.0
+    version: ==1.48.0.post1
   web3:
     version: <7,>=6.0.0
