@@ -1,0 +1,7 @@
+connection/valory/ledger/0.19.0
+protocol/valory/ledger_api/1.0.0
+skill/valory/abstract_round_abci/0.1.0
+skill/valory/registration_abci/0.1.0
+skill/valory/reset_pause_abci/0.1.0
+skill/valory/termination_abci/0.1.0
+skill/valory/transaction_settlement_abci/0.1.0
